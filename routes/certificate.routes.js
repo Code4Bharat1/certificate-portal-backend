@@ -41,4 +41,7 @@ router.get('/:id/download/pdf', authenticate, certificateControllers.downloadCer
 // Download Certificate as JPG
 router.get('/:id/download/jpg', authenticate, certificateControllers.downloadCertificateAsJpg)
 
+// Get courses by category
+router.get('/courses/:category', authenticate, certificateControllers.getCoursesByCategory);
+
 export default router;

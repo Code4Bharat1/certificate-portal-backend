@@ -90,6 +90,30 @@ const getDashboardStatistics = async (req, res) => {
       return { total: mj + c4b, marketingJunction: mj, code4bharat: c4b };
     };
 
+    // Format category stats for easier frontend consumption
+    const formattedCategories = {
+      'marketing-junction': {
+        total: 0,
+        downloaded: 0,
+        pending: 0
+      },
+      'code4bharat': {
+        total: 0,
+        downloaded: 0,
+        pending: 0
+      }
+    };
+
+    categoryStats.forEach(cat => {
+      if (formattedCategories[cat._id]) {
+        formattedCategories[cat._id] = {
+          total: cat.total,
+          downloaded: cat.downloaded,
+          pending: cat.pending
+        };
+      }
+    });
+
     res.json({
       success: true,
       data: {
@@ -97,14 +121,7 @@ const getDashboardStatistics = async (req, res) => {
         lastMonth: formatStats(lastMonth),
         downloaded: formatStats(downloaded),
         pending: formatStats(pending),
-        categories: categoryStats.reduce((acc, cat) => {
-          acc[cat._id] = {
-            total: cat.total,
-            downloaded: cat.downloaded,
-            pending: cat.pending
-          };
-          return acc;
-        }, {})
+        categories: formattedCategories
       }
     });
   } catch (error) {
@@ -118,7 +135,7 @@ const getDashboardStatistics = async (req, res) => {
 
 const getActivityLog = async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit);
+    const limit = parseInt(req.query.limit) || 5;
     
     const activities = await ActivityLog.find()
       .sort({ timestamp: -1 })
@@ -168,4 +185,4 @@ function getTimeAgo(date) {
   return 'Just now';
 }
 
-export default { getDashboardStatistics, getActivityLog }
+export default { getDashboardStatistics, getActivityLog };

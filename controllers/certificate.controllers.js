@@ -89,9 +89,17 @@ const createCertificate = async (req, res) => {
       });
     }
 
-    const { name, category, issueDate } = req.body;
+    const { name, category, issueDate, course } = req.body;
 
-    // 🔹 Generate a unique certificateId automatically
+    // Validate that course is provided
+    if (!course) {
+      return res.status(400).json({
+        success: false,
+        message: 'Course is required'
+      });
+    }
+
+    // Generate a unique certificateId automatically
     let certificateId;
     let existingCert;
 
@@ -102,7 +110,7 @@ const createCertificate = async (req, res) => {
 
     const certificate = new Certificate({
       name,
-      course: req.body.course || 'General Course',
+      course,
       category,
       issueDate,
       certificateId,
@@ -117,7 +125,7 @@ const createCertificate = async (req, res) => {
       certificateId: certificate.certificateId,
       userName: name,
       adminId: req.user._id,
-      details: `Certificate created for ${name}`
+      details: `Certificate created for ${name} - ${course}`
     });
 
     res.status(201).json({
@@ -127,9 +135,19 @@ const createCertificate = async (req, res) => {
     });
   } catch (error) {
     console.error('Create certificate error:', error);
+    
+    // Handle validation errors from mongoose
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        success: false, 
+        message: error.message
+      });
+    }
+    
     res.status(500).json({ 
       success: false, 
-      message: 'Server error' 
+      message: 'Server error',
+      error: error.message 
     });
   }
 };
@@ -563,6 +581,53 @@ const downloadCertificateAsJpg = async (req, res) => {
   }
 };
 
+const getCoursesByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+
+    const courses = {
+      'code4bharat': [
+        'Full Stack Certificate (MERN Stack)',
+        'JavaScript Developer Certificate',
+        'Advanced React Developer Certificate',
+        'Node.js and Express.js Specialist Certificate',
+        'MongoDB Professional Certificate',
+        'Git & Version Control Expert Certificate',
+        'Frontend Development Pro Certificate',
+        'Backend Development Specialist Certificate',
+        'Web Development Project Certificate',
+        'Advanced Web Development Capstone Certificate'
+      ],
+      'marketing-junction': [
+        'Digital Marketing Specialist Certificate',
+        'Advanced SEO Specialist Certificate',
+        'Social Media Marketing Expert Certificate',
+        'Full Stack Digital Marketer Certificate',
+        'AI-Powered Digital Marketing Specialist Certificate'
+      ]
+    };
+
+    if (!courses[category]) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid category. Must be either "code4bharat" or "marketing-junction"'
+      });
+    }
+
+    res.json({
+      success: true,
+      category,
+      courses: courses[category]
+    });
+  } catch (error) {
+    console.error('Get courses error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error' 
+    });
+  }
+};
+
 export default { 
     getAllCertificate,
     getCertificateById,
@@ -571,5 +636,6 @@ export default {
     updateDownloadStatus,
     deleteCertificate,
     downloadCertificateAsPdf,
-    downloadCertificateAsJpg
+    downloadCertificateAsJpg,
+    getCoursesByCategory
 }
