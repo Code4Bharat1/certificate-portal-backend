@@ -736,25 +736,48 @@ const generateCertificatePreview = async (req, res) => {
       day: 'numeric'
     });
 
-    // NAME
-    ctx.fillStyle = '#1F2937';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    const nameFontSize = getAdjustedFontSize(ctx, name.toUpperCase(), width * 0.65, 50);
-    ctx.font = `bold ${nameFontSize}px Arial`;
-    ctx.fillText(name.toUpperCase(), width / 2, height * 0.46);
+    if (category == 'code4bharat') {
+      // NAME
+      ctx.fillStyle = '#1F2937';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const nameFontSize = getAdjustedFontSize(ctx, name.toUpperCase(), width * 0.65, 50);
+      ctx.font = `bold ${nameFontSize}px Arial`;
+      ctx.fillText(name.toUpperCase(), width / 2, height * 0.46);
 
-    // DATE
-    ctx.fillStyle = '#1F2937';
-    ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-    ctx.fillText(formattedDate, width * 0.595, height * 0.665);
+      // DATE
+      ctx.fillStyle = '#1F2937';
+      ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(formattedDate, width * 0.595, height * 0.665);
 
-    // CERTIFICATE ID (temporary for preview)
-    ctx.fillStyle = '#1F2937';
-    ctx.font = '40px "Times New Roman", "Ovo", serif';
-    ctx.fillText(tempCertificateId, width * 0.420, height * 0.806);
+      // CERTIFICATE ID (temporary for preview)
+      ctx.fillStyle = '#1F2937';
+      ctx.font = '40px "Times New Roman", "Ovo", serif';
+      ctx.fillText(tempCertificateId, width * 0.420, height * 0.806);
+    }
+    else {
+      // NAME
+      ctx.fillStyle = '#1F2937';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const nameFontSize = getAdjustedFontSize(ctx, name.toUpperCase(), width * 0.65, 50);
+      ctx.font = `bold ${nameFontSize}px Arial`;
+      ctx.fillText(name.toUpperCase(), width / 2, height * 0.44);
+
+      // DATE
+      ctx.fillStyle = '#1F2937';
+      ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(formattedDate, width * 0.470, height * 0.675);
+
+      // CERTIFICATE ID (temporary for preview)
+      ctx.fillStyle = '#1F2937';
+      ctx.font = '42px "Times New Roman", "Ovo", serif';
+      ctx.fillText(tempCertificateId, width * 0.415, height * 0.821);
+    }
 
     const buffer = canvas.toBuffer('image/jpeg', { quality: 0.95 });
 
