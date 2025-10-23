@@ -36,7 +36,8 @@ const certificateSchema = new mongoose.Schema({
       'Advanced SEO Specialist Certificate',
       'Social Media Marketing Expert Certificate',
       'Full Stack Digital Marketer Certificate',
-      'AI-Powered Digital Marketing Specialist Certificate'
+      'AI-Powered Digital Marketing Specialist Certificate',
+      'Videography Course'
     ]
   },
   issueDate: {
@@ -89,7 +90,8 @@ certificateSchema.path('course').validate(function(course) {
     'Advanced SEO Specialist Certificate',
     'Social Media Marketing Expert Certificate',
     'Full Stack Digital Marketer Certificate',
-    'AI-Powered Digital Marketing Specialist Certificate'
+    'AI-Powered Digital Marketing Specialist Certificate',
+    'Videography Course'
   ];
   
   if (this.category === 'code4bharat') {

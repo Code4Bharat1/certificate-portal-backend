@@ -2,16 +2,80 @@ import { body, validationResult } from 'express-validator';
 import Certificate from '../models/certificate.models.js';
 import ActivityLog from '../models/activitylog.models.js';
 import PDFDocument from 'pdfkit';
-import { createCanvas } from 'canvas';
-// import fs from 'fs';
-// import path from 'path';
+import { createCanvas, loadImage } from 'canvas';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Utility function to generate unique certificate ID
 function generateCertificateId(category) {
   const prefix = category === 'marketing-junction' ? 'MJ' : 'C4B';
   const numberPart = Math.floor(100 + Math.random() * 900);
   return `${prefix}-${numberPart}`;
+}
+
+// Map courses to template filenames
+function getCourseTemplateFilename(course, category) {
+  const templateMap = {
+    'code4bharat': {
+      'Full Stack Certificate (MERN Stack)': 'c4b-fullstack-mern.jpg',
+      'JavaScript Developer Certificate': 'c4b-javascript.jpg',
+      'Advanced React Developer Certificate': 'c4b-react.jpg',
+      'Node.js and Express.js Specialist Certificate': 'c4b-nodejs.jpg',
+      'MongoDB Professional Certificate': 'c4b-mongodb.jpg',
+      'Git & Version Control Expert Certificate': 'c4b-git.jpg',
+      'Frontend Development Pro Certificate': 'c4b-frontend.jpg',
+      'Backend Development Specialist Certificate': 'c4b-backend.jpg',
+      'Web Development Project Certificate': 'c4b-webdev-project.jpg',
+      'Advanced Web Development Capstone Certificate': 'c4b-capstone.jpg'
+    },
+    'marketing-junction': {
+      'Digital Marketing Specialist Certificate': 'mj-digital-marketing.jpg',
+      'Advanced SEO Specialist Certificate': 'mj-seo.jpg',
+      'Social Media Marketing Expert Certificate': 'mj-social-media.jpg',
+      'Full Stack Digital Marketer Certificate': 'mj-fullstack-marketer.jpg',
+      'AI-Powered Digital Marketing Specialist Certificate': 'mj-ai-marketing.jpg',
+      'Videography Course': 'mj-videography.jpg'
+    }
+  };
+
+  return templateMap[category]?.[course] || `${category}-default.png`;
+}
+
+// Utility function to wrap text
+function wrapText(ctx, text, maxWidth) {
+  const words = text.split(' ');
+  const lines = [];
+  let currentLine = words[0];
+
+  for (let i = 1; i < words.length; i++) {
+    const word = words[i];
+    const width = ctx.measureText(currentLine + ' ' + word).width;
+    if (width < maxWidth) {
+      currentLine += ' ' + word;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  lines.push(currentLine);
+  return lines;
+}
+
+// Utility function to adjust font size based on text length
+function getAdjustedFontSize(ctx, text, maxWidth, baseFontSize) {
+  let fontSize = baseFontSize;
+  ctx.font = `bold ${fontSize}px Arial`;
+  
+  while (ctx.measureText(text).width > maxWidth && fontSize > 20) {
+    fontSize -= 2;
+    ctx.font = `bold ${fontSize}px Arial`;
+  }
+  
+  return fontSize;
 }
 
 const getAllCertificate = async (req, res) => {
@@ -182,13 +246,13 @@ const verifyCertificate = async (req, res) => {
     }
 
     // Log successful verification
-    await ActivityLog.create({
-      action: 'verify',
-      certificateId: certificate.certificateId,
-      userName: certificate.name,
-      adminId: req.user._id,
-      details: `Certificate verified for ${certificate.name}`
-    });
+    // await ActivityLog.create({
+    //   action: 'verify',
+    //   certificateId: certificate.certificateId,
+    //   userName: certificate.name,
+    //   // adminId: req.user._id,
+    //   details: `Certificate verified for ${certificate.name}`
+    // });
 
     res.json({
       success: true,
@@ -213,6 +277,15 @@ const verifyCertificate = async (req, res) => {
 
 const updateDownloadStatus = async (req, res) => {
   try {
+    const { status } = req.body;
+    
+    if (!['pending', 'downloaded'].includes(status)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid status' 
+      });
+    }
+
     const certificate = await Certificate.findById(req.params.id);
 
     if (!certificate) {
@@ -222,27 +295,25 @@ const updateDownloadStatus = async (req, res) => {
       });
     }
 
-    certificate.status = 'downloaded';
-    certificate.downloadCount += 1;
-    certificate.lastDownloaded = new Date();
+    certificate.status = status;
     await certificate.save();
 
-    // Log download
+    // Log status update
     await ActivityLog.create({
-      action: 'download',
+      action: 'update',
       certificateId: certificate.certificateId,
       userName: certificate.name,
       adminId: req.user._id,
-      details: `Certificate downloaded for ${certificate.name}`
+      details: `Certificate status updated to ${status}`
     });
 
     res.json({
       success: true,
-      message: 'Download recorded successfully',
+      message: 'Certificate status updated',
       data: certificate
     });
   } catch (error) {
-    console.error('Update download error:', error);
+    console.error('Update status error:', error);
     res.status(500).json({ 
       success: false, 
       message: 'Server error' 
@@ -287,7 +358,26 @@ const deleteCertificate = async (req, res) => {
 
 const downloadCertificateAsPdf = async (req, res) => {
   try {
-    const certificate = await Certificate.findById(req.params.id);
+    const identifier = req.params.id;
+    let certificate;
+
+    // Check if the identifier is a valid ObjectId format
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
+
+    if (isValidObjectId) {
+      // Try to find by _id first if it's a valid ObjectId
+      certificate = await Certificate.findById(identifier);
+    }
+
+    // If not found or not a valid ObjectId, search by certificateId or authCode
+    if (!certificate) {
+      certificate = await Certificate.findOne({
+        $or: [
+          { certificateId: identifier.toUpperCase() },
+          { authCode: identifier.toUpperCase() }
+        ]
+      });
+    }
 
     if (!certificate) {
       return res.status(404).json({ 
@@ -296,149 +386,110 @@ const downloadCertificateAsPdf = async (req, res) => {
       });
     }
 
-    // Update download status
+    // Rest of your code remains the same...
     certificate.status = 'downloaded';
     certificate.downloadCount += 1;
     certificate.lastDownloaded = new Date();
     await certificate.save();
 
-    // Log download
-    await ActivityLog.create({
-      action: 'download',
-      certificateId: certificate.certificateId,
-      userName: certificate.name,
-      adminId: req.user._id,
-      details: `Certificate PDF downloaded for ${certificate.name}`
-    });
+    // await ActivityLog.create({
+    //   action: 'download',
+    //   certificateId: certificate.certificateId,
+    //   userName: certificate.name,
+    //   details: `Certificate PDF downloaded for ${certificate.name}`
+    // });
 
-    // Create PDF
-    const doc = new PDFDocument({
-      size: 'A4',
-      layout: 'landscape',
-      margin: 50
-    });
+    const templateFilename = getCourseTemplateFilename(certificate.course, certificate.category);
+    const templatePath = path.join(__dirname, '../templates', templateFilename);
 
-    // Set filename as person's name
-    const filename = `${certificate.name.replace(/\s+/g, '_')}.pdf`;
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-
-    doc.pipe(res);
-
-    // Certificate design
-    const pageWidth = doc.page.width;
-    const pageHeight = doc.page.height;
-
-    // Border
-    doc.lineWidth(10);
-    const gradient = doc.linearGradient(0, 0, pageWidth, 0);
-    gradient.stop(0, '#3B82F6');
-    gradient.stop(0.5, '#8B5CF6');
-    gradient.stop(1, '#EC4899');
-    doc.rect(20, 20, pageWidth - 40, pageHeight - 40).stroke(gradient);
-
-    doc.lineWidth(3);
-    doc.rect(35, 35, pageWidth - 70, pageHeight - 70).stroke('#E5E7EB');
-
-    // Header
-    doc.fontSize(40)
-       .fillColor('#1F2937')
-       .font('Helvetica-Bold')
-       .text('CERTIFICATE', 0, 100, { align: 'center' });
-
-    doc.fontSize(20)
-       .fillColor('#6B7280')
-       .font('Helvetica')
-       .text('OF COMPLETION', 0, 150, { align: 'center' });
-
-    // Decorative line
-    doc.moveTo(pageWidth / 2 - 150, 190)
-       .lineTo(pageWidth / 2 + 150, 190)
-       .lineWidth(2)
-       .strokeColor('#8B5CF6')
-       .stroke();
-
-    // Certificate text
-    doc.fontSize(16)
-       .fillColor('#374151')
-       .font('Helvetica')
-       .text('This is to certify that', 0, 230, { align: 'center' });
-
-    // Name (highlighted)
-    doc.fontSize(36)
-       .fillColor('#3B82F6')
-       .font('Helvetica-Bold')
-       .text(certificate.name, 0, 270, { align: 'center' });
-
-    // Course info
-    if (certificate.course) {
-      doc.fontSize(16)
-         .fillColor('#374151')
-         .font('Helvetica')
-         .text('has successfully completed', 0, 330, { align: 'center' });
-
-      doc.fontSize(24)
-         .fillColor('#8B5CF6')
-         .font('Helvetica-Bold')
-         .text(certificate.course, 0, 365, { align: 'center' });
+    if (!fs.existsSync(templatePath)) {
+      console.error(`Template not found: ${templatePath}`);
+      return res.status(500).json({
+        success: false,
+        message: `Certificate template not found for course: ${certificate.course}`
+      });
     }
 
-    // Category badge
-    const categoryText = certificate.category === 'marketing-junction' 
-      ? 'Marketing Junction' 
-      : 'Code4Bharat';
-    
-    doc.fontSize(14)
-       .fillColor('#FFFFFF')
-       .font('Helvetica-Bold');
-    
-    const badgeWidth = 200;
-    const badgeX = (pageWidth - badgeWidth) / 2;
-    doc.rect(badgeX, 420, badgeWidth, 30)
-       .fill('#8B5CF6');
-    
-    doc.fillColor('#FFFFFF')
-       .text(categoryText, badgeX, 427, { 
-         width: badgeWidth, 
-         align: 'center' 
-       });
+    const templateImage = await loadImage(templatePath);
+    const width = templateImage.width;
+    const height = templateImage.height;
 
-    // Date and ID
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(templateImage, 0, 0);
+
     const issueDate = new Date(certificate.issueDate).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
 
-    doc.fontSize(12)
-       .fillColor('#6B7280')
-       .font('Helvetica')
-       .text(`Issue Date: ${issueDate}`, 100, pageHeight - 100);
+    ctx.fillStyle = '#1F2937'; 
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const nameFontSize = getAdjustedFontSize(ctx, certificate.name.toUpperCase(), width * 0.65, 50);
+    ctx.font = `bold ${nameFontSize}px Arial`;
+    ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.46);
 
-    doc.text(`Certificate ID: ${certificate.certificateId}`, pageWidth - 300, pageHeight - 100);
+    ctx.fillStyle = '#1F2937';
+    ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(issueDate, width * 0.595, height * 0.665);
 
-    // Signature line
-    doc.moveTo(pageWidth / 2 - 100, pageHeight - 80)
-       .lineTo(pageWidth / 2 + 100, pageHeight - 80)
-       .stroke();
+    ctx.fillStyle = '#1F2937';
+    ctx.font = '40px "Times New Roman", "Ovo", serif';
+    ctx.fillText(certificate.certificateId, width * 0.420, height * 0.806);
 
-    doc.fontSize(10)
-       .text('Authorized Signature', 0, pageHeight - 65, { align: 'center' });
+    const imageBuffer = canvas.toBuffer('image/png');
 
+    const doc = new PDFDocument({
+      size: [width, height],
+      margin: 0
+    });
+
+    const filename = `${certificate.name.replace(/\s+/g, '_')}.pdf`;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+    doc.pipe(res);
+    doc.image(imageBuffer, 0, 0, { width, height });
     doc.end();
 
   } catch (error) {
     console.error('Download PDF error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Server error' 
+      message: 'Server error',
+      error: error.message 
     });
   }
 };
 
 const downloadCertificateAsJpg = async (req, res) => {
   try {
-    const certificate = await Certificate.findById(req.params.id);
+    // const certificate = await Certificate.findById(req.params.id);
+
+    const identifier = req.params.id;
+    let certificate;
+
+    // Check if the identifier is a valid ObjectId format
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
+
+    if (isValidObjectId) {
+      // Try to find by _id first if it's a valid ObjectId
+      certificate = await Certificate.findById(identifier);
+    }
+
+    // If not found or not a valid ObjectId, search by certificateId or authCode
+    if (!certificate) {
+      certificate = await Certificate.findOne({
+        $or: [
+          { certificateId: identifier.toUpperCase() },
+          { authCode: identifier.toUpperCase() }
+        ]
+      });
+    }
 
     if (!certificate) {
       return res.status(404).json({ 
@@ -453,116 +504,65 @@ const downloadCertificateAsJpg = async (req, res) => {
     certificate.lastDownloaded = new Date();
     await certificate.save();
 
-    // Log download
-    await ActivityLog.create({
-      action: 'download',
-      certificateId: certificate.certificateId,
-      userName: certificate.name,
-      adminId: req.user._id,
-      details: `Certificate JPG downloaded for ${certificate.name}`
-    });
+    // // Log download
+    // await ActivityLog.create({
+    //   action: 'download',
+    //   certificateId: certificate.certificateId,
+    //   userName: certificate.name,
+    //   adminId: req.user._id,
+    //   details: `Certificate JPG downloaded for ${certificate.name}`
+    // });
 
-    // Create canvas
-    const width = 1200;
-    const height = 850;
-    const canvas = createCanvas(width, height);
-    const ctx = canvas.getContext('2d');
+    // Load the PNG template based on category and course
+    const templateFilename = getCourseTemplateFilename(certificate.course, certificate.category);
+    const templatePath = path.join(__dirname, '../templates', templateFilename);
 
-    // Background
-    const gradient = ctx.createLinearGradient(0, 0, width, 0);
-    gradient.addColorStop(0, '#EFF6FF');
-    gradient.addColorStop(0.5, '#F5F3FF');
-    gradient.addColorStop(1, '#FDF2F8');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
-
-    // Border
-    ctx.strokeStyle = '#3B82F6';
-    ctx.lineWidth = 15;
-    ctx.strokeRect(30, 30, width - 60, height - 60);
-
-    ctx.strokeStyle = '#E5E7EB';
-    ctx.lineWidth = 5;
-    ctx.strokeRect(50, 50, width - 100, height - 100);
-
-    // Header
-    ctx.fillStyle = '#1F2937';
-    ctx.font = 'bold 60px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('CERTIFICATE', width / 2, 150);
-
-    ctx.fillStyle = '#6B7280';
-    ctx.font = '30px Arial';
-    ctx.fillText('OF COMPLETION', width / 2, 200);
-
-    // Decorative line
-    ctx.strokeStyle = '#8B5CF6';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(width / 2 - 200, 230);
-    ctx.lineTo(width / 2 + 200, 230);
-    ctx.stroke();
-
-    // Certificate text
-    ctx.fillStyle = '#374151';
-    ctx.font = '24px Arial';
-    ctx.fillText('This is to certify that', width / 2, 290);
-
-    // Name
-    ctx.fillStyle = '#3B82F6';
-    ctx.font = 'bold 50px Arial';
-    ctx.fillText(certificate.name, width / 2, 360);
-
-    // Course
-    if (certificate.course) {
-      ctx.fillStyle = '#374151';
-      ctx.font = '22px Arial';
-      ctx.fillText('has successfully completed', width / 2, 420);
-
-      ctx.fillStyle = '#8B5CF6';
-      ctx.font = 'bold 36px Arial';
-      ctx.fillText(certificate.course, width / 2, 470);
+    // Check if template exists
+    if (!fs.existsSync(templatePath)) {
+      console.error(`Template not found: ${templatePath}`);
+      return res.status(500).json({
+        success: false,
+        message: `Certificate template not found for course: ${certificate.course}`
+      });
     }
 
-    // Category badge
-    const categoryText = certificate.category === 'marketing-junction' 
-      ? 'Marketing Junction' 
-      : 'Code4Bharat';
-    
-    ctx.fillStyle = '#8B5CF6';
-    ctx.fillRect(width / 2 - 150, 520, 300, 50);
-    
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 22px Arial';
-    ctx.fillText(categoryText, width / 2, 552);
+    // Load the image
+    const templateImage = await loadImage(templatePath);
+    const width = templateImage.width;
+    const height = templateImage.height;
 
-    // Date and ID
+    // Create canvas and draw template
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(templateImage, 0, 0);
+
+    // Format date
     const issueDate = new Date(certificate.issueDate).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
 
-    ctx.fillStyle = '#6B7280';
-    ctx.font = '18px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText(`Issue Date: ${issueDate}`, 120, height - 120);
-
-    ctx.textAlign = 'right';
-    ctx.fillText(`Certificate ID: ${certificate.certificateId}`, width - 120, height - 120);
-
-    // Signature line
-    ctx.strokeStyle = '#9CA3AF';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(width / 2 - 150, height - 90);
-    ctx.lineTo(width / 2 + 150, height - 90);
-    ctx.stroke();
-
-    ctx.fillStyle = '#6B7280';
-    ctx.font = '16px Arial';
+    // NAME - Centered on certificate between "This certificate is awarded to" and course description
+    ctx.fillStyle = '#1F2937'; 
     ctx.textAlign = 'center';
-    ctx.fillText('Authorized Signature', width / 2, height - 60);
+    ctx.textBaseline = 'middle';
+    const nameFontSize = getAdjustedFontSize(ctx, certificate.name.toUpperCase(), width * 0.65, 50);
+    ctx.font = `bold ${nameFontSize}px Arial`;
+    ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.46);
+
+    // DATE - Bottom left area, right after "Awarded on:" text in template  
+    ctx.fillStyle = '#1F2937';
+    ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(issueDate, width * 0.595, height * 0.665);
+
+    // CREDENTIAL ID - Positioned after "CREDENTIAL ID:" label in template
+    ctx.fillStyle = '#1F2937';
+    ctx.font = '40px "Times New Roman", "Ovo", serif';
+    ctx.fillText(certificate.certificateId, width * 0.420, height * 0.806);
+
 
     // Convert to buffer and send
     const buffer = canvas.toBuffer('image/jpeg', { quality: 0.95 });
@@ -576,7 +576,8 @@ const downloadCertificateAsJpg = async (req, res) => {
     console.error('Download JPG error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Server error' 
+      message: 'Server error',
+      error: error.message 
     });
   }
 };
@@ -603,7 +604,8 @@ const getCoursesByCategory = async (req, res) => {
         'Advanced SEO Specialist Certificate',
         'Social Media Marketing Expert Certificate',
         'Full Stack Digital Marketer Certificate',
-        'AI-Powered Digital Marketing Specialist Certificate'
+        'AI-Powered Digital Marketing Specialist Certificate',
+        'Videography Course'
       ]
     };
 
@@ -628,6 +630,81 @@ const getCoursesByCategory = async (req, res) => {
   }
 };
 
+const generateCertificatePreview = async (req, res) => {
+  try {
+    const { name, category, issueDate, course } = req.body;
+
+    // Validate required fields
+    if (!name || !category || !issueDate || !course) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required for preview'
+      });
+    }
+
+    // Generate a temporary certificate ID for preview
+    const tempCertificateId = generateCertificateId(category);
+
+    const templateFilename = getCourseTemplateFilename(course, category);
+    const templatePath = path.join(__dirname, '../templates', templateFilename);
+
+    if (!fs.existsSync(templatePath)) {
+      console.error(`Template not found: ${templatePath}`);
+      return res.status(500).json({
+        success: false,
+        message: `Certificate template not found for course: ${course}`
+      });
+    }
+
+    const templateImage = await loadImage(templatePath);
+    const width = templateImage.width;
+    const height = templateImage.height;
+
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(templateImage, 0, 0);
+
+    const formattedDate = new Date(issueDate).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    // NAME
+    ctx.fillStyle = '#1F2937'; 
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const nameFontSize = getAdjustedFontSize(ctx, name.toUpperCase(), width * 0.65, 50);
+    ctx.font = `bold ${nameFontSize}px Arial`;
+    ctx.fillText(name.toUpperCase(), width / 2, height * 0.46);
+
+    // DATE
+    ctx.fillStyle = '#1F2937';
+    ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(formattedDate, width * 0.595, height * 0.665);
+
+    // CERTIFICATE ID (temporary for preview)
+    ctx.fillStyle = '#1F2937';
+    ctx.font = '40px "Times New Roman", "Ovo", serif';
+    ctx.fillText(tempCertificateId, width * 0.420, height * 0.806);
+
+    const buffer = canvas.toBuffer('image/jpeg', { quality: 0.95 });
+    
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.send(buffer);
+
+  } catch (error) {
+    console.error('Preview generation error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error',
+      error: error.message 
+    });
+  }
+};
+
 export default { 
     getAllCertificate,
     getCertificateById,
@@ -637,5 +714,6 @@ export default {
     deleteCertificate,
     downloadCertificateAsPdf,
     downloadCertificateAsJpg,
-    getCoursesByCategory
+    getCoursesByCategory,
+    generateCertificatePreview
 }
