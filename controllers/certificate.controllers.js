@@ -69,29 +69,29 @@ function wrapText(ctx, text, maxWidth) {
 function getAdjustedFontSize(ctx, text, maxWidth, baseFontSize) {
   let fontSize = baseFontSize;
   ctx.font = `bold ${fontSize}px Arial`;
-  
+
   while (ctx.measureText(text).width > maxWidth && fontSize > 20) {
     fontSize -= 2;
     ctx.font = `bold ${fontSize}px Arial`;
   }
-  
+
   return fontSize;
 }
 
 const getAllCertificate = async (req, res) => {
   try {
     const { category, status, search } = req.query;
-    
+
     let query = {};
-    
+
     if (category) {
       query.category = category;
     }
-    
+
     if (status) {
       query.status = status;
     }
-    
+
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -111,9 +111,9 @@ const getAllCertificate = async (req, res) => {
     });
   } catch (error) {
     console.error('Get certificates error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error' 
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
     });
   }
 };
@@ -124,9 +124,9 @@ const getCertificateById = async (req, res) => {
       .populate('createdBy', 'username');
 
     if (!certificate) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Certificate not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Certificate not found'
       });
     }
 
@@ -136,9 +136,9 @@ const getCertificateById = async (req, res) => {
     });
   } catch (error) {
     console.error('Get certificate error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error' 
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
     });
   }
 };
@@ -147,9 +147,9 @@ const createCertificate = async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        success: false, 
-        errors: errors.array() 
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
       });
     }
 
@@ -199,19 +199,19 @@ const createCertificate = async (req, res) => {
     });
   } catch (error) {
     console.error('Create certificate error:', error);
-    
+
     // Handle validation errors from mongoose
     if (error.name === 'ValidationError') {
-      return res.status(400).json({ 
-        success: false, 
+      return res.status(400).json({
+        success: false,
         message: error.message
       });
     }
-    
-    res.status(500).json({ 
-      success: false, 
+
+    res.status(500).json({
+      success: false,
       message: 'Server error',
-      error: error.message 
+      error: error.message
     });
   }
 };
@@ -221,9 +221,9 @@ const verifyCertificate = async (req, res) => {
     const { certificateId } = req.body;
 
     if (!certificateId) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Certificate ID is required' 
+      return res.status(400).json({
+        success: false,
+        message: 'Certificate ID is required'
       });
     }
 
@@ -268,9 +268,9 @@ const verifyCertificate = async (req, res) => {
     });
   } catch (error) {
     console.error('Verify certificate error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error' 
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
     });
   }
 };
@@ -278,20 +278,20 @@ const verifyCertificate = async (req, res) => {
 const updateDownloadStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    
+
     if (!['pending', 'downloaded'].includes(status)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid status' 
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid status'
       });
     }
 
     const certificate = await Certificate.findById(req.params.id);
 
     if (!certificate) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Certificate not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Certificate not found'
       });
     }
 
@@ -314,9 +314,9 @@ const updateDownloadStatus = async (req, res) => {
     });
   } catch (error) {
     console.error('Update status error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error' 
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
     });
   }
 };
@@ -326,9 +326,9 @@ const deleteCertificate = async (req, res) => {
     const certificate = await Certificate.findById(req.params.id);
 
     if (!certificate) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Certificate not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Certificate not found'
       });
     }
 
@@ -349,9 +349,9 @@ const deleteCertificate = async (req, res) => {
     });
   } catch (error) {
     console.error('Delete certificate error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error' 
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
     });
   }
 };
@@ -380,9 +380,9 @@ const downloadCertificateAsPdf = async (req, res) => {
     }
 
     if (!certificate) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Certificate not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Certificate not found'
       });
     }
 
@@ -424,44 +424,84 @@ const downloadCertificateAsPdf = async (req, res) => {
       day: 'numeric'
     });
 
-    ctx.fillStyle = '#1F2937'; 
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    const nameFontSize = getAdjustedFontSize(ctx, certificate.name.toUpperCase(), width * 0.65, 50);
-    ctx.font = `bold ${nameFontSize}px Arial`;
-    ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.46);
+    console.log(certificate.certificateId);
 
-    ctx.fillStyle = '#1F2937';
-    ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-    ctx.fillText(issueDate, width * 0.595, height * 0.665);
+    const id = certificate.certificateId.split("-")[0];
+    console.log(id);
 
-    ctx.fillStyle = '#1F2937';
-    ctx.font = '40px "Times New Roman", "Ovo", serif';
-    ctx.fillText(certificate.certificateId, width * 0.420, height * 0.806);
+    if (id == "C4B") {
+      ctx.fillStyle = '#1F2937';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const nameFontSize = getAdjustedFontSize(ctx, certificate.name.toUpperCase(), width * 0.65, 50);
+      ctx.font = `bold ${nameFontSize}px Arial`;
+      ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.46);
 
-    const imageBuffer = canvas.toBuffer('image/png');
+      ctx.fillStyle = '#1F2937';
+      ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(issueDate, width * 0.595, height * 0.665);
 
-    const doc = new PDFDocument({
-      size: [width, height],
-      margin: 0
-    });
+      ctx.fillStyle = '#1F2937';
+      ctx.font = '40px "Times New Roman", "Ovo", serif';
+      ctx.fillText(certificate.certificateId, width * 0.420, height * 0.806);
 
-    const filename = `${certificate.name.replace(/\s+/g, '_')}.pdf`;
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      const imageBuffer = canvas.toBuffer('image/png');
 
-    doc.pipe(res);
-    doc.image(imageBuffer, 0, 0, { width, height });
-    doc.end();
+      const doc = new PDFDocument({
+        size: [width, height],
+        margin: 0
+      });
+
+      const filename = `${certificate.name.replace(/\s+/g, '_')}.pdf`;
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+      doc.pipe(res);
+      doc.image(imageBuffer, 0, 0, { width, height });
+      doc.end();
+    }
+    else {
+      ctx.fillStyle = '#1F2937';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const nameFontSize = getAdjustedFontSize(ctx, certificate.name.toUpperCase(), width * 0.65, 50);
+      ctx.font = `bold ${nameFontSize}px Arial`;
+      ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.44);
+
+      ctx.fillStyle = '#1F2937';
+      ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(issueDate, width * 0.480, height * 0.675);
+
+      ctx.fillStyle = '#1F2937';
+      ctx.font = '42px "Times New Roman", "Ovo", serif';
+      ctx.fillText(certificate.certificateId, width * 0.420, height * 0.820);
+
+      const imageBuffer = canvas.toBuffer('image/png');
+
+      const doc = new PDFDocument({
+        size: [width, height],
+        margin: 0
+      });
+
+      const filename = `${certificate.name.replace(/\s+/g, '_')}.pdf`;
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+      doc.pipe(res);
+      doc.image(imageBuffer, 0, 0, { width, height });
+      doc.end();
+    }
 
   } catch (error) {
     console.error('Download PDF error:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       message: 'Server error',
-      error: error.message 
+      error: error.message
     });
   }
 };
@@ -492,9 +532,9 @@ const downloadCertificateAsJpg = async (req, res) => {
     }
 
     if (!certificate) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Certificate not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Certificate not found'
       });
     }
 
@@ -543,41 +583,67 @@ const downloadCertificateAsJpg = async (req, res) => {
       day: 'numeric'
     });
 
-    // NAME - Centered on certificate between "This certificate is awarded to" and course description
-    ctx.fillStyle = '#1F2937'; 
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    const nameFontSize = getAdjustedFontSize(ctx, certificate.name.toUpperCase(), width * 0.65, 50);
-    ctx.font = `bold ${nameFontSize}px Arial`;
-    ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.46);
+    const id = certificate.certificateId.split("-")[0];
+    console.log(id);
 
-    // DATE - Bottom left area, right after "Awarded on:" text in template  
-    ctx.fillStyle = '#1F2937';
-    ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-    ctx.fillText(issueDate, width * 0.595, height * 0.665);
+    if (id == "C4B") {
+      // NAME - Centered on certificate between "This certificate is awarded to" and course description
+      ctx.fillStyle = '#1F2937';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const nameFontSize = getAdjustedFontSize(ctx, certificate.name.toUpperCase(), width * 0.65, 50);
+      ctx.font = `bold ${nameFontSize}px Arial`;
+      ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.46);
 
-    // CREDENTIAL ID - Positioned after "CREDENTIAL ID:" label in template
-    ctx.fillStyle = '#1F2937';
-    ctx.font = '40px "Times New Roman", "Ovo", serif';
-    ctx.fillText(certificate.certificateId, width * 0.420, height * 0.806);
+      // DATE - Bottom left area, right after "Awarded on:" text in template  
+      ctx.fillStyle = '#1F2937';
+      ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(issueDate, width * 0.595, height * 0.665);
+
+      // CREDENTIAL ID - Positioned after "CREDENTIAL ID:" label in template
+      ctx.fillStyle = '#1F2937';
+      ctx.font = '40px "Times New Roman", "Ovo", serif';
+      ctx.fillText(certificate.certificateId, width * 0.420, height * 0.806);
+    }
+    else {
+      // NAME - Centered on certificate between "This certificate is awarded to" and course description
+      ctx.fillStyle = '#1F2937';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const nameFontSize = getAdjustedFontSize(ctx, certificate.name.toUpperCase(), width * 0.65, 50);
+      ctx.font = `bold ${nameFontSize}px Arial`;
+      ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.44);
+
+      // DATE - Bottom left area, right after "Awarded on:" text in template  
+      ctx.fillStyle = '#1F2937';
+      ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(issueDate, width * 0.480, height * 0.675);
+
+      // CREDENTIAL ID - Positioned after "CREDENTIAL ID:" label in template
+      ctx.fillStyle = '#1F2937';
+      ctx.font = '42px "Times New Roman", "Ovo", serif';
+      ctx.fillText(certificate.certificateId, width * 0.420, height * 0.820);
+    }
 
 
     // Convert to buffer and send
     const buffer = canvas.toBuffer('image/jpeg', { quality: 0.95 });
     const filename = `${certificate.name.replace(/\s+/g, '_')}.jpg`;
-    
+
     res.setHeader('Content-Type', 'image/jpeg');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(buffer);
 
   } catch (error) {
     console.error('Download JPG error:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       message: 'Server error',
-      error: error.message 
+      error: error.message
     });
   }
 };
@@ -623,9 +689,9 @@ const getCoursesByCategory = async (req, res) => {
     });
   } catch (error) {
     console.error('Get courses error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error' 
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
     });
   }
 };
@@ -671,7 +737,7 @@ const generateCertificatePreview = async (req, res) => {
     });
 
     // NAME
-    ctx.fillStyle = '#1F2937'; 
+    ctx.fillStyle = '#1F2937';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const nameFontSize = getAdjustedFontSize(ctx, name.toUpperCase(), width * 0.65, 50);
@@ -691,29 +757,29 @@ const generateCertificatePreview = async (req, res) => {
     ctx.fillText(tempCertificateId, width * 0.420, height * 0.806);
 
     const buffer = canvas.toBuffer('image/jpeg', { quality: 0.95 });
-    
+
     res.setHeader('Content-Type', 'image/jpeg');
     res.send(buffer);
 
   } catch (error) {
     console.error('Preview generation error:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       message: 'Server error',
-      error: error.message 
+      error: error.message
     });
   }
 };
 
-export default { 
-    getAllCertificate,
-    getCertificateById,
-    createCertificate,
-    verifyCertificate,
-    updateDownloadStatus,
-    deleteCertificate,
-    downloadCertificateAsPdf,
-    downloadCertificateAsJpg,
-    getCoursesByCategory,
-    generateCertificatePreview
+export default {
+  getAllCertificate,
+  getCertificateById,
+  createCertificate,
+  verifyCertificate,
+  updateDownloadStatus,
+  deleteCertificate,
+  downloadCertificateAsPdf,
+  downloadCertificateAsJpg,
+  getCoursesByCategory,
+  generateCertificatePreview
 }
