@@ -48,10 +48,27 @@ import statsRoutes from './routes/stats.routes.js';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5235;
 
-// Middleware
-app.use(cors());
+const allowedOrigins = [
+  "https://education.code4bharat.com",
+  "http://education.marketiqjunction.com",
+  "https://certificate.nexcorealliance.com"
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
