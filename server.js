@@ -15,6 +15,7 @@ const allowedOrigins = [
   "https://education.code4bharat.com",
   "http://education.marketiqjunction.com",
   "https://certificate.nexcorealliance.com",
+  "https://www.certificate.nexcorealliance.com",
   "http://localhost:3000", // certificate
   "http://localhost:3010", //c4b
   "http://localhost:3001" //mj
