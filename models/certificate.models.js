@@ -14,7 +14,15 @@ const certificateSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['marketing-junction', 'code4bharat']
+    enum: ['internship', 'fsd', 'bvoc', 'bootcamp', 'marketing-junction', 'code4bharat']
+  },
+  subCategory: {
+    type: String,
+    trim: true
+  },
+  batch: {
+    type: String,
+    trim: true
   },
   course: {
     type: String,
@@ -44,6 +52,10 @@ const certificateSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  userPhone: {
+    type: String,
+    trim: true
+  },
   status: {
     type: String,
     enum: ['pending', 'downloaded'],
@@ -70,7 +82,7 @@ const certificateSchema = new mongoose.Schema({
   }
 });
 
-// Add this after the course field definition
+// Validate course matches category
 certificateSchema.path('course').validate(function(course) {
   const code4bharatCourses = [
     'Full Stack Certificate (MERN Stack)',
@@ -99,7 +111,8 @@ certificateSchema.path('course').validate(function(course) {
   } else if (this.category === 'marketing-junction') {
     return marketingJunctionCourses.includes(course);
   }
-  return false;
+  // For other categories, allow any course from the enum
+  return true;
 }, 'Course does not match the selected category');
 
 // Update the updatedAt timestamp before saving
