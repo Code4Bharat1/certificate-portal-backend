@@ -804,5 +804,6 @@ export default {
   downloadCertificateAsPdf,
   downloadCertificateAsJpg,
   getCoursesByCategory,
-  generateCertificatePreview
+  generateCertificatePreview,
+  generateCertificateId
 }
