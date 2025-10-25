@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes.js';
 import certificateRoutes from './routes/certificate.routes.js';
 import statsRoutes from './routes/stats.routes.js';
+import bulkRoutes from './routes/bulk.routes.js';
 
 dotenv.config();
 
@@ -13,8 +14,11 @@ const PORT = process.env.PORT || 5235;
 
 const allowedOrigins = [
   "https://education.code4bharat.com",
-  "http://education.marketiqjunction.com",
+  "https://www.education.code4bharat.com",
+  "https://education.marketiqjunction.com",
+  "https://www.education.marketiqjunction.com",
   "https://certificate.nexcorealliance.com",
+  "https://www.certificate.nexcorealliance.com",
   "http://localhost:3000", // certificate
   "http://localhost:3010", //c4b
   "http://localhost:3001" //mj
@@ -40,6 +44,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/certificates', certificateRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/certificates/bulk', bulkRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
