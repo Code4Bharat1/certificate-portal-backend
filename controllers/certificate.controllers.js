@@ -7,6 +7,10 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import {
+  sendCertificateNotification,
+} from '../services/whatsappService.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -145,73 +149,73 @@ const getCertificateById = async (req, res) => {
 
 const createCertificate = async (req, res) => {
   try {
+    // Validate inputs
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
-    const { name, category, issueDate, course } = req.body;
+    const { name, category, batch, course, issueDate, userPhone } = req.body;
 
-    // Validate that course is provided
-    if (!course) {
-      return res.status(400).json({
-        success: false,
-        message: 'Course is required'
-      });
-    }
-
-    // Generate a unique certificateId automatically
     let certificateId;
-    let existingCert;
+    let existingId;
 
     do {
       certificateId = generateCertificateId(category);
-      existingCert = await Certificate.findOne({ certificateId });
-    } while (existingCert);
+      existingId = await Certificate.findOne({ certificateId }); // ✅ check in DB
+    } while (existingId);
 
-    const certificate = new Certificate({
-      name,
-      course,
-      category,
-      issueDate,
+
+
+    // Prepare data (internId removed completely)
+    const certificateData = {
       certificateId,
-      createdBy: req.user._id
-    });
+      name,
+      category,
+      batch: batch || null,
+      course,
+      issueDate,
+      userPhone: userPhone || null,
+      createdBy: req.user.id,
+    };
 
-    await certificate.save();
+    // ✅ Directly create new certificate document
+    const certificate = await Certificate.create(certificateData);
 
-    // Log activity
-    await ActivityLog.create({
-      action: 'created',
-      certificateId: certificate.certificateId,
-      userName: name,
-      adminId: req.user._id,
-      details: `Certificate created for ${name} - ${course}`
-    });
-
-    res.status(201).json({
-      success: true,
-      message: 'Certificate created successfully',
-      data: certificate
-    });
-  } catch (error) {
-    console.error('Create certificate error:', error);
-
-    // Handle validation errors from mongoose
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({
-        success: false,
-        message: error.message
-      });
+    // ✅ Optional: send WhatsApp notification
+    if (userPhone && certificate?._id) {
+      try {
+        await sendCertificateNotification({
+          userName: name,
+          userPhone,
+          certificateId: certificate._id,
+          course,
+          category,
+          batch: batch || null,
+          issueDate,
+        });
+        console.log(`✅ WhatsApp notification sent to ${userPhone}`);
+      } catch (error) {
+        console.error('⚠️ WhatsApp notification error:', error);
+      }
     }
 
-    res.status(500).json({
+    // ✅ Always respond
+    return res.status(201).json({
+      success: true,
+      message: 'Certificate created successfully',
+      certificate,
+    });
+
+  } catch (error) {
+    console.error('❌ Create certificate error:', error);
+    return res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: 'Failed to create certificate',
+      error: error.message,
     });
   }
 };
@@ -701,7 +705,7 @@ const getCoursesByCategory = async (req, res) => {
 
 const generateCertificatePreview = async (req, res) => {
   try {
-    const { name, category, issueDate, course } = req.body;
+    const { name, category, issueDate, course, batch } = req.body;
 
     // Validate required fields
     if (!name || !category || !issueDate || !course) {
@@ -718,7 +722,7 @@ const generateCertificatePreview = async (req, res) => {
     const templatePath = path.join(__dirname, '../templates', templateFilename);
 
     console.log(templateFilename, templatePath);
-    
+
 
     if (!fs.existsSync(templatePath)) {
       console.error(`Template not found: ${templatePath}`);
