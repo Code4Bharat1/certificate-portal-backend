@@ -16,6 +16,7 @@ import statsRoutes from './routes/stats.routes.js';
 import bulkRoutes from './routes/bulk.routes.js';
 import templateRoutes from './routes/template.routes.js';
 import profileRoutes from './routes/profile.routes.js';
+import peopleRoutes from './routes/people.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -95,6 +96,7 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/certificates/bulk', bulkRoutes);
 app.use('/api', templateRoutes);
 app.use('/api/admin', profileRoutes);
+app.use('/api/people', peopleRoutes);
 // ===============================
 // ✅ Health Check & Root
 // ===============================
