@@ -20,7 +20,7 @@ const peopleSchema = new mongoose.Schema(
     phone: {
       type: String,
       required: true,
-      match: /^[0-9]{10}$/, // validates 10-digit phone number
+    //   match: /^[0-9]{10}$/, // validates 10-digit phone number
     },
   },
   { timestamps: true }

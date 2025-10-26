@@ -16,7 +16,7 @@ router.post(
   [
     body('name').notEmpty().withMessage('Name is required'),
     body('category')
-      .isIn(['code4bharat', 'marketing-junction', 'fsd', 'bvoc', 'hr'])
+      .isIn(['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR'])
       .withMessage('Invalid category'),
     body('phone')
       .matches(/^[0-9]{10}$/)
@@ -24,19 +24,23 @@ router.post(
   ],
   async (req, res) => {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
+    //   const errors = validationResult(req);
+    //   if (!errors.isEmpty()) {
+    //     return res.status(400).json({ errors: errors.array() });
+    //   }
 
       const { name, category, batch, phone } = req.body;
 
-      const existing = await People.findOne({ phone });
+      const phoneWithCountryCode = '91' + phone;
+      console.log(phoneWithCountryCode);
+      
+
+      const existing = await People.findOne({ phone: phoneWithCountryCode });
       if (existing) {
         return res.status(400).json({ message: 'Person already exists with this phone number' });
       }
 
-      const newPerson = new People({ name, category, batch, phone });
+      const newPerson = new People({ name, category, batch, phone: phoneWithCountryCode });
       await newPerson.save();
 
       res.status(201).json({ message: 'Person added successfully', person: newPerson });
