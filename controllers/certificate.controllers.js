@@ -185,7 +185,7 @@ const createCertificate = async (req, res) => {
 
     // Log activity
     await ActivityLog.create({
-      action: 'create',
+      action: 'created',
       certificateId: certificate.certificateId,
       userName: name,
       adminId: req.user._id,
@@ -323,6 +323,9 @@ const updateDownloadStatus = async (req, res) => {
 
 const deleteCertificate = async (req, res) => {
   try {
+
+    // const certificateId = req.params.id;
+
     const certificate = await Certificate.findById(req.params.id);
 
     if (!certificate) {
@@ -334,7 +337,7 @@ const deleteCertificate = async (req, res) => {
 
     // Log deletion
     await ActivityLog.create({
-      action: 'delete',
+      action: 'deleted',
       certificateId: certificate.certificateId,
       userName: certificate.name,
       adminId: req.user._id,
@@ -427,7 +430,7 @@ const downloadCertificateAsPdf = async (req, res) => {
     console.log(certificate.certificateId);
 
     const id = certificate.certificateId.split("-")[0];
-    console.log(id);
+    // console.log(id);
 
     if (id == "C4B") {
       ctx.fillStyle = '#1F2937';
@@ -584,7 +587,7 @@ const downloadCertificateAsJpg = async (req, res) => {
     });
 
     const id = certificate.certificateId.split("-")[0];
-    console.log(id);
+    // console.log(id);
 
     if (id == "C4B") {
       // NAME - Centered on certificate between "This certificate is awarded to" and course description
@@ -713,6 +716,9 @@ const generateCertificatePreview = async (req, res) => {
 
     const templateFilename = getCourseTemplateFilename(course, category);
     const templatePath = path.join(__dirname, '../templates', templateFilename);
+
+    console.log(templateFilename, templatePath);
+    
 
     if (!fs.existsSync(templatePath)) {
       console.error(`Template not found: ${templatePath}`);

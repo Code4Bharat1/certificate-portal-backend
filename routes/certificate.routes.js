@@ -52,7 +52,7 @@ router.post('/otp/verify', authenticate, async (req, res) => {
   try {
     const { otp, phone } = req.body;
     
-    if (!otp || !phone) {
+    if (!otp) {
       return res.status(400).json({
         success: false,
         message: 'OTP and phone number are required'
@@ -197,8 +197,9 @@ router.get('/:id', authenticate, certificateControllers.getCertificateById);
 router.post('/', [
   authenticate,
   body('name').trim().notEmpty().withMessage('Name is required'),
-  body('category').isIn(['internship', 'fsd', 'bvoc', 'bootcamp', 'marketing-junction', 'code4bharat']).withMessage('Invalid category'),
-  body('issueDate').isISO8601().withMessage('Valid date is required')
+  body('category').isIn(['fsd', 'bvoc', 'bootcamp', 'marketing-junction', 'code4bharat']).withMessage('Invalid category'),
+  body('course').trim().notEmpty().withMessage('Course is required'),
+  body('issueDate').notEmpty().withMessage('Issue date is required')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -209,12 +210,31 @@ router.post('/', [
       });
     }
 
-    // Create certificate using existing controller
-    const certificate = await certificateControllers.createCertificate(req, res);
-    
-    // Send WhatsApp notification if phone number provided
-    const { userPhone, name, category, subCategory, batch, course, issueDate } = req.body;
-    console.log("asdas", certificate?.certificateId);
+    const { 
+      name, 
+      internId,
+      category, 
+      batch, 
+      course, 
+      issueDate, 
+      userPhone 
+    } = req.body;
+
+    const certificateData = {
+      name,
+      internId: internId || null,
+      category,
+      batch: batch || null,
+      course,
+      issueDate,
+      userPhone: userPhone || null,
+      createdBy: req.user.id
+    };
+
+    const certificate = await certificateControllers.createCertificate(
+      { body: certificateData, user: req.user }, 
+      res
+    );
     
     if (userPhone && certificate?.certificateId) {
       try {
@@ -224,7 +244,6 @@ router.post('/', [
           certificateId: certificate.certificateId,
           course: course,
           category: category,
-          subCategory: subCategory || null,
           batch: batch || null,
           issueDate: issueDate
         });
@@ -232,7 +251,6 @@ router.post('/', [
         console.log(`WhatsApp notification sent to ${userPhone}`);
       } catch (error) {
         console.error('WhatsApp notification error:', error);
-        // Don't fail the whole request if notification fails
       }
     }
     
@@ -240,7 +258,8 @@ router.post('/', [
     console.error('Create certificate error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to create certificate'
+      message: 'Failed to create certificate',
+      error: error.message
     });
   }
 });
@@ -335,6 +354,7 @@ router.post('/bulk', authenticate, async (req, res) => {
 
 // Verify certificate (PUBLIC - No Auth)
 router.post('/verify', certificateControllers.verifyCertificate);
+// router.delete('/:id', certificateControllers.deleteCertificate);
 
 // Verify certificate by ID (PUBLIC - For WhatsApp links)
 router.get('/verify/:certificateId', async (req, res) => {
@@ -408,74 +428,76 @@ router.get('/download/:certificateId', async (req, res) => {
 });
 
 // Get courses by category
-router.get('/courses/:category', authenticate, async (req, res) => {
-  try {
-    const { category } = req.params;
+
+// router.get('/courses/:category', authenticate, async (req, res) => {
+//   try {
+//     const { category } = req.params;
     
-    // TODO: Replace with database query or use existing controller
-    const coursesByCategory = {
-      'internship': [
-        'Full Stack Web Development',
-        'Python Programming',
-        'Data Structures & Algorithms',
-        'React.js Development',
-        'Node.js Backend Development',
-        'Digital Marketing Fundamentals',
-        'Social Media Marketing',
-        'Content Marketing'
-      ],
-      'marketing-junction': [
-        'Digital Marketing Fundamentals',
-        'Social Media Marketing',
-        'SEO & Content Marketing',
-        'Email Marketing',
-        'Marketing Analytics'
-      ],
-      'code4bharat': [
-        'Full Stack Web Development',
-        'Python Programming',
-        'Data Structures & Algorithms',
-        'React.js Development',
-        'Node.js Backend Development'
-      ],
-      'fsd': [
-        'MERN Stack Development',
-        'Advanced JavaScript',
-        'Database Design & Management',
-        'API Development & Integration',
-        'DevOps Basics',
-        'Cloud Computing Fundamentals'
-      ],
-      'bvoc': [
-        'Software Development Fundamentals',
-        'Web Technologies',
-        'Database Management Systems',
-        'Project Management',
-        'Entrepreneurship Development'
-      ],
-      'bootcamp': [
-        'Web Development Bootcamp',
-        'Data Science Bootcamp',
-        'Mobile App Development',
-        'UI/UX Design Bootcamp',
-        'Full Stack JavaScript Bootcamp'
-      ]
-    };
+//     // TODO: Replace with database query or use existing controller
+//     const coursesByCategory = {
+//       'internship': [
+//         'Full Stack Web Development',
+//         'Python Programming',
+//         'Data Structures & Algorithms',
+//         'React.js Development',
+//         'Node.js Backend Development',
+//         'Digital Marketing Fundamentals',
+//         'Social Media Marketing',
+//         'Content Marketing'
+//       ],
+//       'marketing-junction': [
+//         'Digital Marketing Fundamentals',
+//         'Social Media Marketing',
+//         'SEO & Content Marketing',
+//         'Email Marketing',
+//         'Marketing Analytics'
+//       ],
+//       'code4bharat': [
+//         'Full Stack Web Development',
+//         'Python Programming',
+//         'Data Structures & Algorithms',
+//         'React.js Development',
+//         'Node.js Backend Development'
+//       ],
+//       'fsd': [
+//         'MERN Stack Development',
+//         'Advanced JavaScript',
+//         'Database Design & Management',
+//         'API Development & Integration',
+//         'DevOps Basics',
+//         'Cloud Computing Fundamentals'
+//       ],
+//       'bvoc': [
+//         'Software Development Fundamentals',
+//         'Web Technologies',
+//         'Database Management Systems',
+//         'Project Management',
+//         'Entrepreneurship Development'
+//       ],
+//       'bootcamp': [
+//         'Web Development Bootcamp',
+//         'Data Science Bootcamp',
+//         'Mobile App Development',
+//         'UI/UX Design Bootcamp',
+//         'Full Stack JavaScript Bootcamp'
+//       ]
+//     };
 
-    const courses = coursesByCategory[category] || [];
+//     const courses = coursesByCategory[category] || [];
 
-    res.json({
-      success: true,
-      courses
-    });
-  } catch (error) {
-    console.error('Fetch courses error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch courses'
-    });
-  }
-});
+//     res.json({
+//       success: true,
+//       courses
+//     });
+//   } catch (error) {
+//     console.error('Fetch courses error:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Failed to fetch courses'
+//     });
+//   }
+// });
+
 
 // Certificate Preview
 router.post('/preview', authenticate, certificateControllers.generateCertificatePreview);
