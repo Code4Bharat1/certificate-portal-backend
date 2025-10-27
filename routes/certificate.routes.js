@@ -19,7 +19,7 @@ const router = express.Router();
 router.post('/otp/send', authenticate, async (req, res) => {
   try {
     const { phone, name } = req.body;
-    
+
     if (!phone) {
       return res.status(400).json({
         success: false,
@@ -53,7 +53,7 @@ router.post('/otp/send', authenticate, async (req, res) => {
 router.post('/otp/verify', authenticate, async (req, res) => {
   try {
     const { otp, phone } = req.body;
-    
+
     if (!otp) {
       return res.status(400).json({
         success: false,
@@ -89,10 +89,10 @@ router.post('/otp/verify', authenticate, async (req, res) => {
 router.get('/interns', authenticate, async (req, res) => {
   try {
     const { category, batch, subCategory } = req.query;
-    
+
     // TODO: Replace with actual database query
     // const interns = await Intern.find({ category, batch, subCategory });
-    
+
     // Sample implementation
     const sampleInterns = [
       {
@@ -131,15 +131,15 @@ router.get('/interns', authenticate, async (req, res) => {
     ];
 
     let filteredInterns = sampleInterns;
-    
+
     if (category) {
       filteredInterns = filteredInterns.filter(intern => intern.category === category);
     }
-    
+
     if (subCategory) {
       filteredInterns = filteredInterns.filter(intern => intern.subCategory === subCategory);
     }
-    
+
     if (batch) {
       filteredInterns = filteredInterns.filter(intern => intern.batch === batch);
     }
@@ -161,13 +161,13 @@ router.get('/interns', authenticate, async (req, res) => {
 router.get('/stats/:internId', authenticate, async (req, res) => {
   try {
     const { internId } = req.params;
-    
+
     // TODO: Replace with actual database query
     // const stats = await Certificate.aggregate([
     //   { $match: { internId } },
     //   { $group: { _id: null, created: { $sum: 1 } } }
     // ]);
-    
+
     const stats = {
       created: 2,
       total: 5,
@@ -199,6 +199,7 @@ router.get('/available-courses', authenticate, async (req, res) => {
 
     const coursesByCategory = {
       'marketing-junction': [
+        'Certificate of Appreciation',
         'Digital Marketing Specialist Certificate',
         'Advanced SEO Specialist Certificate',
         'Social Media Marketing Expert Certificate',
@@ -207,6 +208,7 @@ router.get('/available-courses', authenticate, async (req, res) => {
         'Videography Course'
       ],
       'code4bharat': [
+        'Certificate of Appreciation',
         'Full Stack Certificate (MERN Stack)',
         'JavaScript Developer Certificate',
         'Advanced React Developer Certificate',
@@ -219,34 +221,40 @@ router.get('/available-courses', authenticate, async (req, res) => {
         'Advanced Web Development Capstone Certificate'
       ],
       'FSD': [
-        'MERN Stack Development',
-        'Advanced JavaScript',
-        'Database Design & Management',
-        'API Development & Integration',
-        'DevOps Basics',
-        'Cloud Computing Fundamentals'
+        'Full Stack Certificate (MERN Stack)',
+        'JavaScript Developer Certificate',
+        'Advanced React Developer Certificate',
+        'Node.js and Express.js Specialist Certificate',
+        'MongoDB Professional Certificate',
+        'Git & Version Control Expert Certificate',
+        'Frontend Development Pro Certificate',
+        'Backend Development Specialist Certificate',
+        'Web Development Project Certificate',
+        'Advanced Web Development Capstone Certificate'
       ],
-      'BVOC': [
-        'Software Development Fundamentals',
-        'Web Technologies',
-        'Database Management Systems',
-        'Project Management',
-        'Entrepreneurship Development'
-      ],
-      'BOOTCAMP': [
-        'Web Development Bootcamp',
-        'Data Science Bootcamp',
-        'Mobile App Development',
-        'UI/UX Design Bootcamp',
-        'Full Stack JavaScript Bootcamp'
-      ],
+      // 'BVOC': [
+      //   'Software Development Fundamentals',
+      //   'Web Technologies',
+      //   'Database Management Systems',
+      //   'Project Management',
+      //   'Entrepreneurship Development'
+      // ],
+      // 'BOOTCAMP': [
+      //   'Web Development Bootcamp',
+      //   'Data Science Bootcamp',
+      //   'Mobile App Development',
+      //   'UI/UX Design Bootcamp',
+      //   'Full Stack JavaScript Bootcamp'
+      // ],
       'HR': [
+        'Growth Head',
+        'Operation and Sales',
         'Human Resource Management',
-        'Talent Acquisition & Recruitment',
-        'Performance Management',
-        'Employee Relations',
-        'Organizational Behavior',
-        'HR Analytics'
+        // 'Talent Acquisition & Recruitment',
+        // 'Performance Management',
+        // 'Employee Relations',
+        // 'Organizational Behavior',
+        // 'HR Analytics'
       ]
     };
 
@@ -296,7 +304,7 @@ router.get('/available-courses', authenticate, async (req, res) => {
 
     if (name) {
       const studentData = certificateStats.find(s => s.name === name);
-      
+
       if (studentData) {
         createdCertificates = studentData.completedCourses || [];
         studentStats = {
@@ -306,7 +314,7 @@ router.get('/available-courses', authenticate, async (req, res) => {
           completedCourses: studentData.completedCourses,
           certificates: studentData.certificates
         };
-        
+
         // Filter out already completed courses
         availableCourses = allCourses.filter(
           course => !createdCertificates.includes(course)
@@ -327,8 +335,8 @@ router.get('/available-courses', authenticate, async (req, res) => {
       statistics: {
         totalCertificatesIssued,
         uniqueStudents,
-        averageCertificatesPerStudent: uniqueStudents > 0 
-          ? (totalCertificatesIssued / uniqueStudents).toFixed(2) 
+        averageCertificatesPerStudent: uniqueStudents > 0
+          ? (totalCertificatesIssued / uniqueStudents).toFixed(2)
           : 0,
         totalAvailableCourses: allCourses.length
       },
@@ -362,7 +370,7 @@ router.post('/', [
 router.post('/bulk', authenticate, async (req, res) => {
   try {
     const { certificates, adminPhone, adminName } = req.body;
-    
+
     if (!Array.isArray(certificates) || certificates.length === 0) {
       return res.status(400).json({
         success: false,
@@ -378,41 +386,67 @@ router.post('/bulk', authenticate, async (req, res) => {
     // Process each certificate
     for (const cert of certificates) {
       try {
-        // Create certificate using existing controller
-        const mockReq = {
-          body: cert,
-          user: req.user
-        };
-        
-        const mockRes = {
-          json: (data) => data,
-          status: (code) => ({ json: (data) => ({ code, ...data }) })
-        };
-        
-        const certificate = await certificateControllers.createCertificate(mockReq, mockRes);
-        
-        // Send WhatsApp notification
-        if (cert.phone && certificate?.certificateId) {
-          await sendCertificateNotification({
-            userName: cert.name,
-            userPhone: cert.phone,
-            certificateId: certificate.certificateId,
-            course: cert.course,
-            category: cert.category,
-            subCategory: cert.subCategory || null,
-            batch: cert.batch,
-            issueDate: cert.issueDate
-          });
+        // Validate required fields
+        if (!cert.name || !cert.category || !cert.course || !cert.issueDate) {
+          throw new Error('Missing required fields: name, category, course, or issueDate');
         }
-        
+
+        let certificateId;
+        let existingId;
+
+        do {
+          certificateId = certificateControllers.generateCertificateId(cert.category);
+          existingId = await Certificate.findOne({ certificateId }); // ✅ check in DB
+        } while (existingId);
+
+        // Generate unique certificate ID
+        // const certificateId = cert.certificateId || `CERT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+        // Create certificate document
+        const certificateData = {
+          certificateId,
+          name: cert.name,
+          category: cert.category,
+          batch: cert.batch || null,
+          course: cert.course,
+          issueDate: new Date(cert.issueDate),
+          status: 'pending',
+          downloadCount: 0,
+          createdBy: req.user._id || req.user.id
+        };
+
+        // Save certificate to database
+        const certificate = await Certificate.create(certificateData);
+
+        // Send WhatsApp notification
+        if (cert.phone && certificate.certificateId) {
+          try {
+            const whatsappResponse = await sendCertificateNotification({
+              userName: cert.name,
+              userPhone: cert.phone,
+              certificateId: certificate.certificateId,
+              course: cert.course,
+              category: cert.category,
+              batch: cert.batch,
+              issueDate: cert.issueDate
+            });
+            console.log("Whatsapp Response: ", whatsappResponse);
+            
+          } catch (notificationError) {
+            console.error('WhatsApp notification failed:', notificationError);
+            // Don't fail the entire operation if notification fails
+          }
+        }
+
         results.successful.push({
           certificateId: certificate.certificateId,
           name: cert.name
         });
+
       } catch (error) {
-        console.error('Bulk create error:', error);
+        console.error('Certificate creation error:', error);
         results.failed.push({
-          name: cert.name,
+          name: cert.name || 'Unknown',
           error: error.message
         });
       }
@@ -420,11 +454,15 @@ router.post('/bulk', authenticate, async (req, res) => {
 
     // Send summary to admin via WhatsApp
     if (adminPhone) {
-      await sendBulkCertificateNotification(adminPhone, adminName || 'Admin', {
-        total: certificates.length,
-        successful: results.successful.length,
-        failed: results.failed.length
-      });
+      try {
+        await sendBulkCertificateNotification(adminPhone, adminName || 'Admin', {
+          total: certificates.length,
+          successful: results.successful.length,
+          failed: results.failed.length
+        });
+      } catch (notificationError) {
+        console.error('Admin notification failed:', notificationError);
+      }
     }
 
     res.json({
@@ -437,11 +475,13 @@ router.post('/bulk', authenticate, async (req, res) => {
       },
       data: results
     });
+
   } catch (error) {
     console.error('Bulk creation error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to process bulk creation'
+      message: 'Failed to process bulk creation',
+      error: error.message
     });
   }
 });
@@ -453,17 +493,17 @@ router.post('/verify', certificateControllers.verifyCertificate);
 router.get('/verify/:certificateId', async (req, res) => {
   try {
     const { certificateId } = req.params;
-    
+
     // TODO: Use existing controller or database query
     // const certificate = await Certificate.findOne({ certificateId });
-    
+
     const mockReq = {
       body: { certificateId },
       params: { id: certificateId }
     };
-    
+
     const certificate = await certificateControllers.getCertificateById(mockReq, res);
-    
+
     if (!certificate) {
       return res.status(404).json({
         success: false,
@@ -500,16 +540,16 @@ router.get('/:id/download/jpg', certificateControllers.downloadCertificateAsJpg)
 router.get('/download/:certificateId', async (req, res) => {
   try {
     const { certificateId } = req.params;
-    
+
     // TODO: Find certificate and return file
     // const certificate = await Certificate.findOne({ certificateId });
     // res.download(certificate.filePath);
-    
+
     // Redirect to existing download route
     const mockReq = {
       params: { id: certificateId }
     };
-    
+
     return certificateControllers.downloadCertificateAsPdf(mockReq, res);
   } catch (error) {
     console.error('Download certificate error:', error);
@@ -524,7 +564,7 @@ router.get('/download/:certificateId', async (req, res) => {
 router.get('/courses/:category', authenticate, async (req, res) => {
   try {
     const { category } = req.params;
-    
+
     // TODO: Replace with database query or use existing controller
     const coursesByCategory = {
       'internship': [

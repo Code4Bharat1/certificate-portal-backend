@@ -11,11 +11,11 @@ const certificateSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  internId: {
-    type: String,
-    trim: true,
-    index: true
-  },
+  // internId: {
+  //   type: String,
+  //   trim: true,
+  //   index: true
+  // },
   category: {
     type: String,
     required: true,

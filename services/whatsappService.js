@@ -185,7 +185,7 @@ export const sendCertificateNotification = async (certificateData) => {
     let baseVerificationUrl = '';
     if (category?.toLowerCase().includes('code4bharat')) {
       baseVerificationUrl = 'https://education.code4bharat.com/verify-certificate';
-    } else if (category?.toLowerCase().includes('marketiq')) {
+    } else if (category?.toLowerCase().includes('marketing-junction')) {
       baseVerificationUrl = 'https://education.marketiqjunction.com/verify-certificate';
     } else if (
       category?.toLowerCase().includes('fsd') ||
@@ -199,8 +199,8 @@ export const sendCertificateNotification = async (certificateData) => {
     }
 
     // ✅ Final certificate links
-    const verificationLink = `${baseVerificationUrl}?id=${certificateId}`;
-    const downloadLink = `${baseVerificationUrl}?id=${certificateId}&download=true`;
+    const verificationLink = `${baseVerificationUrl}`;
+    const downloadLink = `${baseVerificationUrl}`;
 
     // Format category display
     let categoryDisplay = category?.toUpperCase() || 'N/A';
