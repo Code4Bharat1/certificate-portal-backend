@@ -8,6 +8,8 @@ import {
   sendCertificateNotification,
   sendBulkCertificateNotification
 } from '../services/whatsappService.js';
+import Certificate from '../models/certificate.models.js';
+
 
 const router = express.Router();
 
@@ -193,7 +195,7 @@ router.get('/', authenticate, certificateControllers.getAllCertificate);
 // ==================== FETCH COURSES (ACTIVE ROUTE) ====================
 router.get('/available-courses', authenticate, async (req, res) => {
   try {
-    const { category } = req.query;
+    const { category, name } = req.query;
 
     const coursesByCategory = {
       'marketing-junction': [
@@ -237,21 +239,109 @@ router.get('/available-courses', authenticate, async (req, res) => {
         'Mobile App Development',
         'UI/UX Design Bootcamp',
         'Full Stack JavaScript Bootcamp'
+      ],
+      'HR': [
+        'Human Resource Management',
+        'Talent Acquisition & Recruitment',
+        'Performance Management',
+        'Employee Relations',
+        'Organizational Behavior',
+        'HR Analytics'
       ]
     };
 
-    const courses = coursesByCategory[category] || [];
+    const allCourses = coursesByCategory[category] || [];
+
+    // Aggregate certificate data by name for this category
+    const certificateStats = await Certificate.aggregate([
+      {
+        $match: { category: category }
+      },
+      {
+        $group: {
+          _id: '$name',
+          totalCertificates: { $sum: 1 },
+          courses: { $addToSet: '$course' },
+          certificates: {
+            $push: {
+              certificateId: '$certificateId',
+              course: '$course',
+              issueDate: '$issueDate',
+              status: '$status',
+              batch: '$batch',
+              _id: '$_id'
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          name: '$_id',
+          totalCertificates: 1,
+          courseCount: { $size: '$courses' },
+          completedCourses: '$courses',
+          certificates: 1
+        }
+      },
+      {
+        $sort: { courseCount: -1, name: 1 }
+      }
+    ]);
+
+    // Get certificates already created for the selected student (if name is provided)
+    let createdCertificates = [];
+    let availableCourses = allCourses;
+    let studentStats = null;
+
+    if (name) {
+      const studentData = certificateStats.find(s => s.name === name);
+      
+      if (studentData) {
+        createdCertificates = studentData.completedCourses || [];
+        studentStats = {
+          name: studentData.name,
+          totalCertificates: studentData.totalCertificates,
+          courseCount: studentData.courseCount,
+          completedCourses: studentData.completedCourses,
+          certificates: studentData.certificates
+        };
+        
+        // Filter out already completed courses
+        availableCourses = allCourses.filter(
+          course => !createdCertificates.includes(course)
+        );
+      }
+    }
+
+    // Get overall statistics
+    const totalCertificatesIssued = await Certificate.countDocuments({ category });
+    const uniqueStudents = certificateStats.length;
 
     res.json({
       success: true,
-      courses,
-      createdCertificates: [] // You can add actual created courses from DB here
+      category,
+      courses: availableCourses, // Only courses not yet completed by this student
+      allCourses: allCourses, // All available courses in this category
+      createdCertificates, // Courses already completed by this student
+      statistics: {
+        totalCertificatesIssued,
+        uniqueStudents,
+        averageCertificatesPerStudent: uniqueStudents > 0 
+          ? (totalCertificatesIssued / uniqueStudents).toFixed(2) 
+          : 0,
+        totalAvailableCourses: allCourses.length
+      },
+      studentStats, // Stats for the selected student
+      studentProgress: certificateStats // All students' progress
     });
+
   } catch (error) {
     console.error('Fetch available courses error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch available courses'
+      message: 'Failed to fetch available courses',
+      error: error.message
     });
   }
 });
