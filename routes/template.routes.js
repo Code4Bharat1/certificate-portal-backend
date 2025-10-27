@@ -32,14 +32,14 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|psd|ai/;
+  const allowedTypes = /jpeg|jpg|png|/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = allowedTypes.test(file.mimetype);
 
   if (mimetype && extname) {
     return cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only images, PDF, DOC, PSD, and AI files are allowed.'));
+    cb(new Error('Invalid file type. Only images,  are allowed.'));
   }
 };
 
@@ -133,12 +133,7 @@ const getMimeType = (filename) => {
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
     '.png': 'image/png',
-    '.gif': 'image/gif',
-    '.pdf': 'application/pdf',
-    '.doc': 'application/msword',
-    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    '.psd': 'image/vnd.adobe.photoshop',
-    '.ai': 'application/postscript'
+    
   };
   return mimeTypes[ext] || 'application/octet-stream';
 };
