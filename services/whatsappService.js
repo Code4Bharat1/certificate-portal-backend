@@ -27,7 +27,7 @@ export const generateOTP = () => {
 export const sendWhatsAppMessage = async (phoneNumber, message) => {
   try {
     console.log('📱 Sending WhatsApp message...');
-    
+
     const formattedPhone = phoneNumber.replace(/[^0-9]/g, '');
     const payload = {
       instance_id: SIMPLYWHATSAPP_INSTANCE_ID,
@@ -67,7 +67,7 @@ export const sendOTPViaWhatsApp = async (phoneNumber, adminName = 'Admin') => {
   try {
     // Generate OTP
     const otp = generateOTP();
-    
+
     // Store OTP with expiration (5 minutes)
     const expiresAt = Date.now() + 5 * 60 * 1000;
     otpStore.set(phoneNumber, { otp, expiresAt });
@@ -125,7 +125,7 @@ _Regards,_
 export const verifyOTP = (phoneNumber, otpCode) => {
   try {
     const storedData = otpStore.get(phoneNumber);
-    
+
     if (!storedData) {
       return {
         success: false,
@@ -152,7 +152,7 @@ export const verifyOTP = (phoneNumber, otpCode) => {
 
     // OTP verified successfully
     otpStore.delete(phoneNumber);
-    
+
     return {
       success: true,
       message: 'OTP verified successfully'
@@ -177,23 +177,22 @@ export const sendCertificateNotification = async (certificateData) => {
       certificateId,
       course,
       category,
-      subCategory,
       batch,
-      issueDate
+      issueDate,
     } = certificateData;
 
-    // Certificate verification & download link
-    const verificationLink = `${process.env.FRONTEND_URL}/verify/${certificateId}`;
-    const downloadLink = `${process.env.FRONTEND_URL}/download/${certificateId}`;
+  // Certificate verification & download link
+  const verificationLink = `${process.env.FRONTEND_URL}/verify/${certificateId}`;
+  const downloadLink = `${process.env.FRONTEND_URL}/download/${certificateId}`;
 
-    // Format category display
-    let categoryDisplay = category.toUpperCase();
-    if (subCategory) {
-      categoryDisplay = `${categoryDisplay} (${subCategory.toUpperCase()})`;
-    }
+  // Format category display
+  let categoryDisplay = category.toUpperCase();
+  if (subCategory) {
+    categoryDisplay = `${categoryDisplay} (${subCategory.toUpperCase()})`;
+  }
 
-    // Create personalized WhatsApp message
-    const message = `
+  // Create personalized WhatsApp message
+  const message = `
 🎉 *Congratulations!*
 
 Hello ${userName},
@@ -208,11 +207,11 @@ We are pleased to inform you that your certificate has been successfully generat
 🆔 Certificate ID: *${certificateId}*
 📚 Course: ${course}
 🏷️ Category: ${categoryDisplay}
-📅 Issue Date: ${new Date(issueDate).toLocaleDateString('en-IN', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    })}
+📅 Issue Date: ${new Date(issueDate).toLocaleDateString('en-IN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })}
 ${batch ? `🎓 Batch: ${batch}` : ''}
 
 ━━━━━━━━━━━━━━━━━━
@@ -235,18 +234,18 @@ _With Best Wishes,_
 💙 Keep Learning, Keep Growing!
     `.trim();
 
-    // Send WhatsApp notification
-    const result = await sendWhatsAppMessage(userPhone, message);
-console.log(result);
+  // Send WhatsApp notification
+  const result = await sendWhatsAppMessage(userPhone, message);
+  console.log(result);
 
-    return result;
-  } catch (error) {
-    console.error('Certificate Notification Error:', error);
-    return {
-      success: false,
-      error: 'Failed to send certificate notification'
-    };
-  }
+  return result;
+} catch (error) {
+  console.error('Certificate Notification Error:', error);
+  return {
+    success: false,
+    error: 'Failed to send certificate notification'
+  };
+}
 };
 
 /**
@@ -268,7 +267,7 @@ Your bulk certificate generation process has been completed!
 📁 Total Records: ${total}
 ✅ Successfully Created: ${successful}
 ❌ Failed: ${failed}
-📈 Success Rate: ${((successful/total)*100).toFixed(1)}%
+📈 Success Rate: ${((successful / total) * 100).toFixed(1)}%
 ━━━━━━━━━━━━━━━━━━
 
 ${successful > 0 ? '🎉 Notifications have been sent to all recipients!' : ''}

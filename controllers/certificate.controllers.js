@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url';
 import {
   sendCertificateNotification,
 } from '../services/whatsappService.js';
+import People from '../models/people.models.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -158,7 +159,7 @@ const createCertificate = async (req, res) => {
       });
     }
 
-    const { name, category, batch, course, issueDate, userPhone } = req.body;
+    const { name, category, batch, course, issueDate } = req.body;
 
     let certificateId;
     let existingId;
@@ -168,9 +169,10 @@ const createCertificate = async (req, res) => {
       existingId = await Certificate.findOne({ certificateId }); // ✅ check in DB
     } while (existingId);
 
+    const userData = People.findOne({ name });
+    const userPhone = userData.phone;
 
-
-    // Prepare data (internId removed completely)
+    // Prepare data
     const certificateData = {
       certificateId,
       name,
@@ -178,7 +180,7 @@ const createCertificate = async (req, res) => {
       batch: batch || null,
       course,
       issueDate,
-      userPhone: userPhone || null,
+      userPhone,
       createdBy: req.user.id,
     };
 
@@ -186,7 +188,7 @@ const createCertificate = async (req, res) => {
     const certificate = await Certificate.create(certificateData);
 
     // ✅ Optional: send WhatsApp notification
-    if (userPhone && certificate?._id) {
+    if (userPhone && certificateId) {
       try {
         await sendCertificateNotification({
           userName: name,

@@ -34,10 +34,10 @@ const certificateSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
-  userPhone: {
-    type: String,
-    trim: true
-  },
+  // userPhone: {
+  //   type: String,
+  //   trim: true
+  // },
   status: {
     type: String,
     enum: ['pending', 'downloaded'],
