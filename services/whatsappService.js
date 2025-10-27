@@ -28,11 +28,11 @@ export const sendWhatsAppMessage = async (phoneNumber, message) => {
   try {
     console.log('📱 Sending WhatsApp message...');
 
-    const formattedPhone = phoneNumber.replace(/[^0-9]/g, '');
+    // const formattedPhone = phoneNumber.replace(/[^0-9]/g, '');
     const payload = {
       instance_id: SIMPLYWHATSAPP_INSTANCE_ID,
       access_token: SIMPLYWHATSAPP_API_KEY,
-      number: formattedPhone,
+      number: phoneNumber,
       type: 'text',
       message
     };
@@ -181,18 +181,35 @@ export const sendCertificateNotification = async (certificateData) => {
       issueDate,
     } = certificateData;
 
-  // Certificate verification & download link
-  const verificationLink = `${process.env.FRONTEND_URL}/verify/${certificateId}`;
-  const downloadLink = `${process.env.FRONTEND_URL}/download/${certificateId}`;
+    // 🔗 Determine correct base URL for verification/download
+    let baseVerificationUrl = '';
+    if (category?.toLowerCase().includes('code4bharat')) {
+      baseVerificationUrl = 'https://education.code4bharat.com/verify-certificate';
+    } else if (category?.toLowerCase().includes('marketiq')) {
+      baseVerificationUrl = 'https://education.marketiqjunction.com/verify-certificate';
+    } else if (
+      category?.toLowerCase().includes('fsd') ||
+      category?.toLowerCase().includes('bvoc') ||
+      category?.toLowerCase().includes('bootchamp')
+    ) {
+      baseVerificationUrl = 'https://certificate.nexcorealliance.com/verify-certificate';
+    } else {
+      // Default fallback if no match found
+      baseVerificationUrl = `${process.env.FRONTEND_URL}/verify`;
+    }
 
-  // Format category display
-  let categoryDisplay = category.toUpperCase();
-  if (subCategory) {
-    categoryDisplay = `${categoryDisplay} (${subCategory.toUpperCase()})`;
-  }
+    // ✅ Final certificate links
+    const verificationLink = `${baseVerificationUrl}?id=${certificateId}`;
+    const downloadLink = `${baseVerificationUrl}?id=${certificateId}&download=true`;
 
-  // Create personalized WhatsApp message
-  const message = `
+    // Format category display
+    let categoryDisplay = category?.toUpperCase() || 'N/A';
+    // if (subCategory) {
+    //   categoryDisplay = `${categoryDisplay} (${subCategory.toUpperCase()})`;
+    // }
+
+    // Create personalized WhatsApp message
+    const message = `
 🎉 *Congratulations!*
 
 Hello ${userName},
@@ -208,10 +225,10 @@ We are pleased to inform you that your certificate has been successfully generat
 📚 Course: ${course}
 🏷️ Category: ${categoryDisplay}
 📅 Issue Date: ${new Date(issueDate).toLocaleDateString('en-IN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })}
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })}
 ${batch ? `🎓 Batch: ${batch}` : ''}
 
 ━━━━━━━━━━━━━━━━━━
@@ -222,10 +239,10 @@ ${verificationLink}
 ⬇️ *Download Your Certificate:*
 ${downloadLink}
 
-✨ Keep this certificate safe as proof of your achievement!
+✨ Keep this certificate safe as proof of your achievement! 
 
 📱 For any queries, feel free to reach out to us.
-
+("+91 9892398976 ")
 ---
 _With Best Wishes,_
 *Nexcore Alliance Team*
@@ -234,18 +251,18 @@ _With Best Wishes,_
 💙 Keep Learning, Keep Growing!
     `.trim();
 
-  // Send WhatsApp notification
-  const result = await sendWhatsAppMessage(userPhone, message);
-  console.log(result);
+    // Send WhatsApp notification
+    const result = await sendWhatsAppMessage(userPhone, message);
+    console.log(result);
 
-  return result;
-} catch (error) {
-  console.error('Certificate Notification Error:', error);
-  return {
-    success: false,
-    error: 'Failed to send certificate notification'
-  };
-}
+    return result;
+  } catch (error) {
+    console.error('Certificate Notification Error:', error);
+    return {
+      success: false,
+      error: 'Failed to send certificate notification'
+    };
+  }
 };
 
 /**
@@ -291,38 +308,52 @@ _Nexcore Alliance & Code4Bharat_
 /**
  * Send Certificate Reminder
  */
-export const sendCertificateReminder = async (userPhone, userName, certificateId) => {
-  try {
-    const verificationLink = `${process.env.FRONTEND_URL}/verify/${certificateId}`;
+// export const sendCertificateReminder = async (userPhone, userName, certificateId, organization) => {
+//   try {
+//     let verificationLink;
 
-    const message = `
-🔔 *Certificate Reminder*
+//     // ✅ Dynamic domain logic
+//     if (organization === 'code4bharat') {
+//       verificationLink = `https://education.code4bharat.com/verify-certificate/`;
+//     } else if (organization === 'marketiqjunction') {
+//       verificationLink = `https://education.marketiqjunction.com/verify-certificate/`;
+//     } else if (['fsd', 'bvoc', 'bootchamp'].includes(organization)) {
+//       verificationLink = `https://certificate.nexcorealliance.com/verify-certificate/`;
+//     } else {
+//       // fallback
+//       verificationLink = `${process.env.FRONTEND_URL}/verify/`;
+//     }
 
-Hello ${userName},
+//     const message = `
+// 🔔 *Certificate Reminder*
 
-This is a reminder to download your certificate!
+// Hello ${userName},
 
-🆔 Certificate ID: *${certificateId}*
+// This is a reminder to download your certificate!
 
-🔗 Verify & Download:
-${verificationLink}
+// 🆔 Certificate ID: *${certificateId}*
 
-Don't forget to save it! 📥
+// 🔗 Verify & Download:
+// ${verificationLink}
 
----
-_Nexcore Alliance & Code4Bharat_
-    `.trim();
+// Don't forget to save it! 📥
 
-    const result = await sendWhatsAppMessage(userPhone, message);
-    return result;
-  } catch (error) {
-    console.error('Reminder Error:', error);
-    return {
-      success: false,
-      error: 'Failed to send reminder'
-    };
-  }
-};
+// ---
+// _Nexcore Alliance & Code4Bharat_
+//     `.trim();
+
+//     const result = await sendWhatsAppMessage(userPhone, message);
+//     return result;
+
+//   } catch (error) {
+//     console.error('Reminder Error:', error);
+//     return {
+//       success: false,
+//       error: 'Failed to send reminder'
+//     };
+//   }
+// };
+
 
 // Export all functions
 export default {
@@ -330,7 +361,6 @@ export default {
   verifyOTP,
   sendCertificateNotification,
   sendBulkCertificateNotification,
-  sendCertificateReminder,
   sendWhatsAppMessage,
   generateOTP
 };
