@@ -233,11 +233,12 @@ router.get('/available-courses', authenticate, async (req, res) => {
         'Advanced Web Development Capstone Certificate'
       ],
       // 'BVOC': [
-      //   'Software Development Fundamentals',
-      //   'Web Technologies',
-      //   'Database Management Systems',
-      //   'Project Management',
-      //   'Entrepreneurship Development'
+      //   "Bachelor's in Artificial Intelligence and Machine Learning",
+      //   // 'Software Development Fundamentals',
+      //   // 'Web Technologies',
+      //   // 'Database Management Systems',
+      //   // 'Project Management',
+      //   // 'Entrepreneurship Development'
       // ],
       // 'BOOTCAMP': [
       //   'Web Development Bootcamp',
@@ -246,16 +247,16 @@ router.get('/available-courses', authenticate, async (req, res) => {
       //   'UI/UX Design Bootcamp',
       //   'Full Stack JavaScript Bootcamp'
       // ],
-      'HR': [
-        'Growth Head',
-        'Operation and Sales',
-        'Human Resource Management',
-        // 'Talent Acquisition & Recruitment',
-        // 'Performance Management',
-        // 'Employee Relations',
-        // 'Organizational Behavior',
-        // 'HR Analytics'
-      ]
+      // 'HR': [
+      //   'Growth Head',
+      //   'Operation and Sales',
+      //   'Human Resource Management',
+      //   // 'Talent Acquisition & Recruitment',
+      //   // 'Performance Management',
+      //   // 'Employee Relations',
+      //   // 'Organizational Behavior',
+      //   // 'HR Analytics'
+      // ]
     };
 
     const allCourses = coursesByCategory[category] || [];
@@ -380,7 +381,9 @@ router.post('/bulk', authenticate, async (req, res) => {
 
     const results = {
       successful: [],
-      failed: []
+      failed: [],
+      whatsappSuccess: 0,
+      whatsappFailed: 0
     };
 
     // Process each certificate
@@ -396,11 +399,8 @@ router.post('/bulk', authenticate, async (req, res) => {
 
         do {
           certificateId = certificateControllers.generateCertificateId(cert.category);
-          existingId = await Certificate.findOne({ certificateId }); // ✅ check in DB
+          existingId = await Certificate.findOne({ certificateId });
         } while (existingId);
-
-        // Generate unique certificate ID
-        // const certificateId = cert.certificateId || `CERT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
         // Create certificate document
         const certificateData = {
@@ -418,7 +418,13 @@ router.post('/bulk', authenticate, async (req, res) => {
         // Save certificate to database
         const certificate = await Certificate.create(certificateData);
 
+        // ✅ Generate preview URL (add your actual URL generation logic)
+        const previewUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/api/certificates/${certificate.certificateId}/preview`;
+
         // Send WhatsApp notification
+        let whatsappSent = false;
+        let whatsappError = null;
+        
         if (cert.phone && certificate.certificateId) {
           try {
             const whatsappResponse = await sendCertificateNotification({
@@ -430,23 +436,37 @@ router.post('/bulk', authenticate, async (req, res) => {
               batch: cert.batch,
               issueDate: cert.issueDate
             });
-            console.log("Whatsapp Response: ", whatsappResponse);
+            
+            console.log("WhatsApp Response: ", whatsappResponse);
+            whatsappSent = true;
+            results.whatsappSuccess++;
             
           } catch (notificationError) {
             console.error('WhatsApp notification failed:', notificationError);
-            // Don't fail the entire operation if notification fails
+            whatsappError = notificationError.message;
+            results.whatsappFailed++;
           }
         }
 
+        // ✅ Add complete certificate info to successful array
         results.successful.push({
           certificateId: certificate.certificateId,
-          name: cert.name
+          name: cert.name,
+          course: cert.course,
+          category: cert.category,
+          batch: cert.batch,
+          issueDate: cert.issueDate,
+          phone: cert.phone,
+          previewUrl: previewUrl, // ✅ Frontend expects this for preview
+          whatsappSent: whatsappSent,
+          whatsappError: whatsappError
         });
 
       } catch (error) {
         console.error('Certificate creation error:', error);
         results.failed.push({
           name: cert.name || 'Unknown',
+          phone: cert.phone || 'N/A',
           error: error.message
         });
       }
@@ -458,22 +478,30 @@ router.post('/bulk', authenticate, async (req, res) => {
         await sendBulkCertificateNotification(adminPhone, adminName || 'Admin', {
           total: certificates.length,
           successful: results.successful.length,
-          failed: results.failed.length
+          failed: results.failed.length,
+          whatsappSent: results.whatsappSuccess,
+          whatsappFailed: results.whatsappFailed
         });
       } catch (notificationError) {
         console.error('Admin notification failed:', notificationError);
       }
     }
 
+    // ✅ Response structure matching frontend expectations
     res.json({
       success: true,
       message: 'Bulk creation completed',
       results: {
         total: certificates.length,
         successful: results.successful.length,
-        failed: results.failed.length
+        failed: results.failed.length,
+        whatsappSent: results.whatsappSuccess,
+        whatsappFailed: results.whatsappFailed
       },
-      data: results
+      data: {
+        successful: results.successful, // ✅ Frontend uses data.successful
+        failed: results.failed           // ✅ Frontend uses data.failed
+      }
     });
 
   } catch (error) {
@@ -535,6 +563,14 @@ router.get('/:id/download/pdf', certificateControllers.downloadCertificateAsPdf)
 
 // Download Certificate as JPG
 router.get('/:id/download/jpg', certificateControllers.downloadCertificateAsJpg);
+
+// Add this route after the existing download routes
+
+// Bulk Download Certificates as Single Merged PDF
+router.post('/bulk/download', authenticate, certificateControllers.downloadBulkCertificate)
+
+// Alternative: Bulk Download with JSON Response (includes failed certificates info)
+router.post('/bulk/download-info', authenticate, certificateControllers.downloadBulkCertificateInfo)
 
 // Download certificate by ID (For WhatsApp links)
 router.get('/download/:certificateId', async (req, res) => {
@@ -682,5 +718,8 @@ router.get('/analytics', authenticate, async (req, res) => {
     });
   }
 });
+
+
+
 
 export default router;

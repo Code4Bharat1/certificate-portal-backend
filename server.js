@@ -94,7 +94,7 @@ app.use('/templates', express.static(path.join(__dirname, 'templates')));
 app.use('/api/auth', authRoutes);
 app.use('/api/certificates', certificateRoutes);
 app.use('/api/stats', statsRoutes);
-app.use('/api/certificates/bulk', bulkRoutes);
+// app.use('/api/certificates/bulk', bulkRoutes);
 app.use('/api', templateRoutes);
 app.use('/api/admin', profileRoutes);
 app.use('/api/people', peopleRoutes);
