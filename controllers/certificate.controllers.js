@@ -512,7 +512,7 @@ const downloadCertificateAsPdf = async (req, res) => {
     const id = certificate.certificateId.split("-")[0];
     // console.log(id);
     const isAppreciation = isAppreciationCertificate(certificate.course);
-    // console.log(isAppreciation);
+    console.log(isAppreciation);
 
 
     if (isAppreciation) {
@@ -529,7 +529,7 @@ const downloadCertificateAsPdf = async (req, res) => {
         56
       );
       ctx.font = `bold ${nameFontSize}px "Times New Roman", serif`;
-      ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.515); // Adjusted position
+      ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.500); // Adjusted position
 
       // DATE - Bottom left, aligned with template
       ctx.fillStyle = "#1F2937";
@@ -543,6 +543,24 @@ const downloadCertificateAsPdf = async (req, res) => {
       ctx.font = '36px "Times New Roman", serif';
       ctx.textAlign = "left";
       ctx.fillText(certificate.certificateId, width * 0.29, height * 0.94);
+
+      const imageBuffer = canvas.toBuffer("image/png");
+
+      const doc = new PDFDocument({
+        size: [width, height],
+        margin: 0,
+      });
+
+      const filename = `${certificate.name.replace(/\s+/g, "_")}.pdf`;
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${filename}"`
+      );
+
+      doc.pipe(res);
+      doc.image(imageBuffer, 0, 0, { width, height });
+      doc.end();
 
     } else if (id == "C4B") {
       ctx.fillStyle = "#1F2937";
