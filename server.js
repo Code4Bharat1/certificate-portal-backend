@@ -13,11 +13,11 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes.js';
 import certificateRoutes from './routes/certificate.routes.js';
 import statsRoutes from './routes/stats.routes.js';
-import bulkRoutes from './routes/bulk.routes.js';
 import templateRoutes from './routes/template.routes.js';
 import profileRoutes from './routes/profile.routes.js';
 import peopleRoutes from './routes/people.routes.js';
 import batchRoutes from './routes/batch.routes.js';
+import letterRoutes from "./routes/letter.routes.js"
 
 // Load environment variables
 dotenv.config();
@@ -94,11 +94,11 @@ app.use('/templates', express.static(path.join(__dirname, 'templates')));
 app.use('/api/auth', authRoutes);
 app.use('/api/certificates', certificateRoutes);
 app.use('/api/stats', statsRoutes);
-// app.use('/api/certificates/bulk', bulkRoutes);
 app.use('/api', templateRoutes);
 app.use('/api/admin', profileRoutes);
 app.use('/api/people', peopleRoutes);
 app.use('/api/batches', batchRoutes);
+app.use("/api/letters", letterRoutes);
 // ===============================
 // ✅ Health Check & Root
 // ===============================

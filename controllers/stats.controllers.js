@@ -147,10 +147,27 @@ const getDashboardStatistics = async (req, res) => {
     const totalCertificates = creationStats[0]?.totalCertificates || 0;
     const individualCreated = totalCertificates - totalBulkCreated;
 
+    console.log("individual: ", individualCreated);
+    console.log("bulk created: ", totalBulkCreated);
+    console.log("total certificates: ", totalCertificates);
+    
+
     const formatStats = (data) => {
       const mj = data.find(d => d._id === 'marketing-junction')?.count || 0;
       const c4b = data.find(d => d._id === 'code4bharat')?.count || 0;
-      return { total: mj + c4b, marketingJunction: mj, code4bharat: c4b };
+      const fsd = data.find(d => d._id === 'FSD')?.count || 0;
+      const hr = data.find(d => d._id === 'HR')?.count || 0;
+      const bc = data.find(d => d._id === 'BOOTCAMP')?.count || 0;
+      const bvoc = data.find(d => d._id === 'BVOC')?.count || 0;
+      return {
+        total: mj + c4b + fsd + hr + bc + bvoc,
+        marketingJunction: mj,
+        code4bharat: c4b,
+        FSD: fsd,
+        HR: hr,
+        BOOTCAMP: bc,
+        BVOC: bvoc,
+      };
     };
 
     // Format category stats for easier frontend consumption
@@ -164,7 +181,27 @@ const getDashboardStatistics = async (req, res) => {
         total: 0,
         downloaded: 0,
         pending: 0
-      }
+      },
+      'FSD': {
+        total: 0,
+        downloaded: 0,
+        pending: 0
+      },
+      'HR': {
+        total: 0,
+        downloaded: 0,
+        pending: 0
+      },
+      'BOOTCAMP': {
+        total: 0,
+        downloaded: 0,
+        pending: 0
+      },
+      'BVOC': {
+        total: 0,
+        downloaded: 0,
+        pending: 0
+      },
     };
 
     categoryStats.forEach(cat => {

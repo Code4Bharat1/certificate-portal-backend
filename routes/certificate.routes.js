@@ -9,6 +9,7 @@ import {
   sendBulkCertificateNotification
 } from '../services/whatsappService.js';
 import Certificate from '../models/certificate.models.js';
+import ActivityLog from "../models/activitylog.models.js";
 
 
 const router = express.Router();
@@ -247,16 +248,17 @@ router.get('/available-courses', authenticate, async (req, res) => {
       //   'UI/UX Design Bootcamp',
       //   'Full Stack JavaScript Bootcamp'
       // ],
-      // 'HR': [
-      //   'Growth Head',
-      //   'Operation and Sales',
-      //   'Human Resource Management',
-      //   // 'Talent Acquisition & Recruitment',
-      //   // 'Performance Management',
-      //   // 'Employee Relations',
-      //   // 'Organizational Behavior',
-      //   // 'HR Analytics'
-      // ]
+      'HR': [
+        'Experience Certificate',
+        // 'Growth Head',
+        // 'Operation and Sales',
+        // 'Human Resource Management',
+        // 'Talent Acquisition & Recruitment',
+        // 'Performance Management',
+        // 'Employee Relations',
+        // 'Organizational Behavior',
+        // 'HR Analytics'
+      ]
     };
 
     const allCourses = coursesByCategory[category] || [];
@@ -419,12 +421,12 @@ router.post('/bulk', authenticate, async (req, res) => {
         const certificate = await Certificate.create(certificateData);
 
         // ✅ Generate preview URL (add your actual URL generation logic)
-        const previewUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/api/certificates/${certificate.certificateId}/preview`;
+        // const previewUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/api/certificates/${certificate.certificateId}/preview`;
 
         // Send WhatsApp notification
         let whatsappSent = false;
         let whatsappError = null;
-        
+
         if (cert.phone && certificate.certificateId) {
           try {
             const whatsappResponse = await sendCertificateNotification({
@@ -436,11 +438,11 @@ router.post('/bulk', authenticate, async (req, res) => {
               batch: cert.batch,
               issueDate: cert.issueDate
             });
-            
+
             console.log("WhatsApp Response: ", whatsappResponse);
             whatsappSent = true;
             results.whatsappSuccess++;
-            
+
           } catch (notificationError) {
             console.error('WhatsApp notification failed:', notificationError);
             whatsappError = notificationError.message;
@@ -457,7 +459,7 @@ router.post('/bulk', authenticate, async (req, res) => {
           batch: cert.batch,
           issueDate: cert.issueDate,
           phone: cert.phone,
-          previewUrl: previewUrl, // ✅ Frontend expects this for preview
+          // previewUrl: previewUrl, // ✅ Frontend expects this for preview
           whatsappSent: whatsappSent,
           whatsappError: whatsappError
         });
@@ -487,8 +489,16 @@ router.post('/bulk', authenticate, async (req, res) => {
       }
     }
 
+    await ActivityLog.create({
+      action: "bulk_created",
+      adminId: req.user._id,
+      count: results.successful.length,
+      details: `Bulk created ${results.successful.length} certificates`,
+    });
+
+
     // ✅ Response structure matching frontend expectations
-    res.json({
+    return res.json({
       success: true,
       message: 'Bulk creation completed',
       results: {
@@ -506,7 +516,7 @@ router.post('/bulk', authenticate, async (req, res) => {
 
   } catch (error) {
     console.error('Bulk creation error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to process bulk creation',
       error: error.message

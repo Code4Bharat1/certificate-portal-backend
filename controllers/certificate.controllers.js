@@ -38,7 +38,17 @@ const __dirname = path.dirname(__filename);
 // }
 
 
-function generateCertificateId(category) {
+// Updated function to generate certificate IDs
+// Certificate of Appreciation will have "COA" prefix
+
+function generateCertificateId(category, course = null) {
+  // For Certificate of Appreciation
+  if (course && course === "Certificate of Appreciation") {
+    const uniquePart = uuidv4().replace(/-/g, '').substring(0, 4).toUpperCase();
+    return `COA-${uniquePart}`;
+  }
+
+  // Category-based prefixes
   const prefixMap = {
     FSD: 'FSD',
     BVOC: 'BV',
@@ -50,8 +60,8 @@ function generateCertificateId(category) {
 
   const prefix = prefixMap[category] || 'GEN';
 
-  // Generate a UUID and take a short portion of it for readability
-  const uniquePart = uuidv4().split('-')[0].toUpperCase(); // e.g., 'A1B2C3D4'
+  // Generate 4 alphanumeric characters
+  const uniquePart = uuidv4().replace(/-/g, '').substring(0, 4).toUpperCase();
 
   return `${prefix}-${uniquePart}`;
 }
@@ -62,7 +72,8 @@ function generateCertificateId(category) {
 function getCourseTemplateFilename(course, category) {
   const templateMap = {
     code4bharat: {
-      "Certificate of Appreciation": "appreciation-certificate.jpg",
+      "Appreciation Letter": "Letter.jpg",
+      "Experience Certificate": "Letter.jpg",
       "Full Stack Certificate (MERN Stack)": "c4b-fullstack-mern.jpg",
       "JavaScript Developer Certificate": "c4b-javascript.jpg",
       "Advanced React Developer Certificate": "c4b-react.jpg",
@@ -75,7 +86,7 @@ function getCourseTemplateFilename(course, category) {
       "Advanced Web Development Capstone Certificate": "c4b-capstone.jpg",
     },
     "marketing-junction": {
-      "Certificate of Appreciation": "appreciation-certificate.jpg",
+      "Appreciation Letter": "appreciation-certificate.jpg",
       "Digital Marketing Specialist Certificate": "mj-digital-marketing.jpg",
       "Advanced SEO Specialist Certificate": "mj-seo.jpg",
       "Social Media Marketing Expert Certificate": "mj-social-media.jpg",
@@ -103,7 +114,7 @@ function getCourseTemplateFilename(course, category) {
 
 // Add this helper function to check if it's an appreciation certificate
 function isAppreciationCertificate(course) {
-  return course === "Certificate of Appreciation";
+  return course === "Appreciation Letter";
 }
 
 // Utility function to wrap text
@@ -208,7 +219,7 @@ const getCertificateById = async (req, res) => {
 
 const createCertificate = async (req, res) => {
   try {
-    // Validate inputs
+    // ✅ Validate inputs
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -217,28 +228,21 @@ const createCertificate = async (req, res) => {
       });
     }
 
-    const { name, category, batch, course, issueDate } = req.body;
+    const { name, category, batch, course, issueDate, description } = req.body;
 
+    // ✅ Auto-generate unique certificateId
     let certificateId;
     let existingId;
-
     do {
-      certificateId = generateCertificateId(category);
-      existingId = await Certificate.findOne({ certificateId }); // ✅ check in DB
+      certificateId = generateCertificateId(category, course);
+      existingId = await Certificate.findOne({ certificateId });
     } while (existingId);
 
+    // ✅ Optional: find user data (for WhatsApp notification)
     const userData = await People.findOne({ name });
-    let userPhone;
+    let userPhone = userData?.phone || null;
 
-    if (!userData) {
-      console.log("User not found");
-    } else {
-      userPhone = userData.phone;
-      console.log("User phone:", userPhone);
-      console.log("User data:", userData);
-    }
-
-    // Prepare data
+    // ✅ Prepare base data
     const certificateData = {
       certificateId,
       name,
@@ -250,28 +254,43 @@ const createCertificate = async (req, res) => {
       // createdBy: req.user.id,
     };
 
-    // ✅ Directly create new certificate document
+    // ✅ Only add description for "Certificate of Appreciation"
+    if (course === "Certificate of Appreciation") {
+      certificateData.description =
+        description?.trim()
+    }
+
+    // ✅ Create new certificate document
     const certificate = await Certificate.create(certificateData);
 
     // ✅ Optional: send WhatsApp notification
-    // if (userPhone && certificateId) {
     try {
-      await sendCertificateNotification({
-        userName: name,
-        userPhone,
-        certificateId,
-        course,
-        category,
-        batch: batch || null,
-        issueDate,
-      });
-      console.log(`✅ WhatsApp notification sent to ${userPhone}`);
+      if (userPhone && certificateId) {
+        await sendCertificateNotification({
+          userName: name,
+          userPhone,
+          certificateId,
+          course,
+          category,
+          batch: batch || null,
+          issueDate,
+        });
+        console.log(`✅ WhatsApp notification sent to ${userPhone}`);
+      }
     } catch (error) {
       console.error("⚠️ WhatsApp notification error:", error);
     }
-    // }
 
-    // ✅ Always respond
+    // ✅ Log action
+    await ActivityLog.create({
+      action: "created",
+      certificateId: certificate.certificateId,
+      userName: certificate.name,
+      adminId: req.user._id,
+      details: `Certificate created for ${certificate.name}`,
+    });
+
+    // ✅ Success response
     return res.status(201).json({
       success: true,
       message: "Certificate created successfully",
@@ -286,6 +305,7 @@ const createCertificate = async (req, res) => {
     });
   }
 };
+
 
 const verifyCertificate = async (req, res) => {
   try {
@@ -435,7 +455,6 @@ const downloadCertificateAsPdf = async (req, res) => {
     let certificate;
     console.log("PDF download started for:", identifier);
 
-
     // Check if the identifier is a valid ObjectId format
     const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
 
@@ -461,18 +480,11 @@ const downloadCertificateAsPdf = async (req, res) => {
       });
     }
 
-    // Rest of your code remains the same...
+    // Update stats
     certificate.status = "downloaded";
     certificate.downloadCount += 1;
     certificate.lastDownloaded = new Date();
     await certificate.save();
-
-    // await ActivityLog.create({
-    //   action: 'download',
-    //   certificateId: certificate.certificateId,
-    //   userName: certificate.name,
-    //   details: `Certificate PDF downloaded for ${certificate.name}`
-    // });
 
     const templateFilename = getCourseTemplateFilename(
       certificate.course,
@@ -487,10 +499,8 @@ const downloadCertificateAsPdf = async (req, res) => {
         message: `Certificate template not found for course: ${certificate.course}`,
       });
     }
-    console.log(fs.existsSync(templatePath)); // should be true
-    console.log("Loading template:", templatePath);
+
     const templateImage = await loadImage(templatePath);
-    console.log("Template loaded:", templateImage.width, templateImage.height);
     const width = templateImage.width;
     const height = templateImage.height;
 
@@ -507,21 +517,27 @@ const downloadCertificateAsPdf = async (req, res) => {
       }
     );
 
-    // console.log(certificate.certificateId);
+    // ✅ Dynamic verification URL
+    // const baseURL = "https://certificate.nexcorealliance.com/verify-certificate";
+    const verifyURL = "https://certificate.nexcorealliance.com/verify-certificate";
 
     const id = certificate.certificateId.split("-")[0];
-    // console.log(id);
     const isAppreciation = isAppreciationCertificate(certificate.course);
-    console.log(isAppreciation);
 
+    // Common PDF setup
+    const filename = `${certificate.name.replace(/\s+/g, "_")}.pdf`;
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
     if (isAppreciation) {
+      // -----------------------------
       // APPRECIATION CERTIFICATE LAYOUT
+      // -----------------------------
 
-      // NAME - Positioned above the golden line, centered
+      // NAME
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
-      ctx.textBaseline = "bottom"; // Changed to bottom so text sits above the line
+      ctx.textBaseline = "bottom";
       const nameFontSize = getAdjustedFontSize(
         ctx,
         certificate.name.toUpperCase(),
@@ -529,20 +545,55 @@ const downloadCertificateAsPdf = async (req, res) => {
         56
       );
       ctx.font = `bold ${nameFontSize}px "Times New Roman", serif`;
-      ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.500); // Adjusted position
+      ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.450);
 
-      // DATE - Bottom left, aligned with template
+      // ✅ Add description dynamically (if exists)
+      if (certificate.description && certificate.description.trim() !== "") {
+        ctx.fillStyle = "#1F2937";
+        ctx.textAlign = "center";
+        ctx.font = 'italic 40px "Times New Roman", serif';
+        const maxWidth = width * 0.75;
+        const x = width / 2;
+        const y = height * 0.53;
+
+        // Wrap long text manually
+        const words = certificate.description.split(" ");
+        let line = "";
+        const lineHeight = 50;
+        let currentY = y;
+
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + words[n] + " ";
+          const testWidth = ctx.measureText(testLine).width;
+          if (testWidth > maxWidth && n > 0) {
+            ctx.fillText(line.trim(), x, currentY);
+            line = words[n] + " ";
+            currentY += lineHeight;
+          } else {
+            line = testLine;
+          }
+        }
+        ctx.fillText(line.trim(), x, currentY);
+      }
+
+      // DATE
       ctx.fillStyle = "#1F2937";
-      ctx.font = 'bold 36px "Times New Roman", serif';
+      ctx.font = 'bold 50px "Times New Roman", serif';
       ctx.textAlign = "left";
       ctx.textBaseline = "alphabetic";
-      ctx.fillText(issueDate, width * 0.25, height * 0.88);
+      ctx.fillText(issueDate, width / 1.28, height * 0.81);
 
-      // CERTIFICATE ID - Bottom center area
+      // CERTIFICATE ID
       ctx.fillStyle = "#1F2937";
-      ctx.font = '36px "Times New Roman", serif';
+      ctx.font = '50px "Times New Roman", serif';
       ctx.textAlign = "left";
-      ctx.fillText(certificate.certificateId, width * 0.29, height * 0.94);
+      ctx.fillText(certificate.certificateId, width * 0.37, height * 0.837);
+
+      // ✅ VERIFICATION URL (bottom center)
+      ctx.fillStyle = "#1F2937";
+      ctx.font = '45px "Ovo", serif';
+      ctx.textAlign = "center";
+      ctx.fillText(verifyURL, width / 2, height * 0.910);
 
       const imageBuffer = canvas.toBuffer("image/png");
 
@@ -551,18 +602,18 @@ const downloadCertificateAsPdf = async (req, res) => {
         margin: 0,
       });
 
-      const filename = `${certificate.name.replace(/\s+/g, "_")}.pdf`;
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${filename}"`
-      );
-
       doc.pipe(res);
       doc.image(imageBuffer, 0, 0, { width, height });
-      doc.end();
 
-    } else if (id == "C4B") {
+      // ✅ Clickable link in PDF
+      doc.link(width / 2 - 250, height * 0.87, 500, 40, verifyURL);
+
+      doc.end();
+    }
+    else if (id === "C4B" || id === "FSD") {
+      // -----------------------------
+      // C4B CERTIFICATE LAYOUT
+      // -----------------------------
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -578,12 +629,10 @@ const downloadCertificateAsPdf = async (req, res) => {
       ctx.fillStyle = "#1F2937";
       ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
       ctx.textAlign = "left";
-      ctx.textBaseline = "alphabetic";
-      ctx.fillText(issueDate, width * 0.595, height * 0.665);
+      ctx.fillText(issueDate, width * 0.595, height * 0.660);
 
-      ctx.fillStyle = "#1F2937";
       ctx.font = '40px "Times New Roman", "Ovo", serif';
-      ctx.fillText(certificate.certificateId, width * 0.42, height * 0.806);
+      ctx.fillText(certificate.certificateId, width * 0.42, height * 0.800);
 
       const imageBuffer = canvas.toBuffer("image/png");
 
@@ -592,17 +641,15 @@ const downloadCertificateAsPdf = async (req, res) => {
         margin: 0,
       });
 
-      const filename = `${certificate.name.replace(/\s+/g, "_")}.pdf`;
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${filename}"`
-      );
-
       doc.pipe(res);
       doc.image(imageBuffer, 0, 0, { width, height });
+
       doc.end();
+
     } else {
+      // -----------------------------
+      // OTHER CERTIFICATE LAYOUT
+      // -----------------------------
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -618,12 +665,10 @@ const downloadCertificateAsPdf = async (req, res) => {
       ctx.fillStyle = "#1F2937";
       ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
       ctx.textAlign = "left";
-      ctx.textBaseline = "alphabetic";
-      ctx.fillText(issueDate, width * 0.48, height * 0.675);
+      ctx.fillText(issueDate, width * 0.48, height * 0.669);
 
-      ctx.fillStyle = "#1F2937";
       ctx.font = '42px "Times New Roman", "Ovo", serif';
-      ctx.fillText(certificate.certificateId, width * 0.42, height * 0.82);
+      ctx.fillText(certificate.certificateId, width * 0.42, height * 0.815);
 
       const imageBuffer = canvas.toBuffer("image/png");
 
@@ -632,17 +677,12 @@ const downloadCertificateAsPdf = async (req, res) => {
         margin: 0,
       });
 
-      const filename = `${certificate.name.replace(/\s+/g, "_")}.pdf`;
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${filename}"`
-      );
-
       doc.pipe(res);
       doc.image(imageBuffer, 0, 0, { width, height });
+
       doc.end();
     }
+
   } catch (error) {
     console.error("Download PDF error:", error);
     res.status(500).json({
@@ -652,6 +692,7 @@ const downloadCertificateAsPdf = async (req, res) => {
     });
   }
 };
+
 
 const downloadCertificateAsJpg = async (req, res) => {
   try {
@@ -902,7 +943,7 @@ const generateCertificatePreview = async (req, res) => {
     }
 
     // Generate a temporary certificate ID for preview
-    const tempCertificateId = generateCertificateId(category);
+    const tempCertificateId = generateCertificateId(category, course);
 
     const templateFilename = getCourseTemplateFilename(course, category);
     const templatePath = path.join(__dirname, "../templates", templateFilename);
@@ -932,7 +973,7 @@ const generateCertificatePreview = async (req, res) => {
     });
 
     const isAppreciation = isAppreciationCertificate(course);
-    console.log(isAppreciation);
+    // console.log(isAppreciation);
 
     if (isAppreciation) {
       // APPRECIATION CERTIFICATE LAYOUT
@@ -963,7 +1004,7 @@ const generateCertificatePreview = async (req, res) => {
       ctx.textAlign = "left";
       ctx.fillText(tempCertificateId, width * 0.29, height * 0.94);
 
-    } else if (category == "code4bharat") {
+    } else if (category == "code4bharat" || category == "FSD") {
       // NAME
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
@@ -1092,7 +1133,7 @@ const downloadBulkCertificate = async (req, res) => {
         const id = certificate.certificateId.split('-')[0];
 
         // Draw certificate content based on category
-        if (id === 'C4B') {
+        if (id === 'C4B' || id === "FSD") {
           // NAME
           ctx.fillStyle = '#1F2937';
           ctx.textAlign = 'center';
@@ -1207,6 +1248,13 @@ const downloadBulkCertificate = async (req, res) => {
       total: certificateIds.length,
       successful: results.successful.length,
       failed: results.failed.length
+    });
+
+    await ActivityLog.create({
+      action: "bulk_downloaded",
+      count: results.successful.length,
+      adminId: req.user._id,
+      details: 'Bulk downloaded',
     });
 
   } catch (error) {

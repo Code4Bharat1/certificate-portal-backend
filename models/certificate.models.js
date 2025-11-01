@@ -11,11 +11,6 @@ const certificateSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  // internId: {
-  //   type: String,
-  //   trim: true,
-  //   index: true
-  // },
   category: {
     type: String,
     required: true,
@@ -30,14 +25,18 @@ const certificateSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  description: {
+    type: String,
+    trim: true,
+    // ✅ Only required if the course is "Certificate of Appreciation"
+    required: function () {
+      return this.course === 'Certificate of Appreciation';
+    }
+  },
   issueDate: {
     type: Date,
     required: true
   },
-  // userPhone: {
-  //   type: String,
-  //   trim: true
-  // },
   status: {
     type: String,
     enum: ['pending', 'downloaded'],
@@ -64,9 +63,11 @@ const certificateSchema = new mongoose.Schema({
   }
 });
 
-certificateSchema.index({ category: 1, batch: 1, internId: 1 });
-certificateSchema.index({ category: 1, internId: 1, course: 1 });
+// Indexes
+certificateSchema.index({ category: 1, batch: 1 });
+certificateSchema.index({ category: 1, course: 1 });
 
+// Update timestamps
 certificateSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
