@@ -200,7 +200,6 @@ router.get('/available-courses', authenticate, async (req, res) => {
 
     const coursesByCategory = {
       'marketing-junction': [
-        'Certificate of Appreciation',
         'Digital Marketing Specialist Certificate',
         'Advanced SEO Specialist Certificate',
         'Social Media Marketing Expert Certificate',
@@ -209,7 +208,6 @@ router.get('/available-courses', authenticate, async (req, res) => {
         'Videography Course'
       ],
       'code4bharat': [
-        'Certificate of Appreciation',
         'Full Stack Certificate (MERN Stack)',
         'JavaScript Developer Certificate',
         'Advanced React Developer Certificate',

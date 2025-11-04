@@ -1,218 +1,151 @@
 import Certificate from '../models/certificate.models.js';
 import ActivityLog from '../models/activitylog.models.js';
+import Letter from "../models/letter.models.js";
 
-const getDashboardStatistics = async (req, res) => {
+export const getDashboardStatistics = async (req, res) => {
   try {
     const now = new Date();
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    // Last 7 days
-    const last7Days = await Certificate.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: sevenDaysAgo }
+    // Helper to merge Certificate + Letter aggregation results
+    const mergeAggResults = (certData, letterData) => {
+      const map = new Map();
+      [...certData, ...letterData].forEach(item => {
+        if (!map.has(item._id)) {
+          map.set(item._id, { _id: item._id, count: 0 });
         }
-      },
-      {
-        $group: {
-          _id: '$category',
-          count: { $sum: 1 }
-        }
-      }
+        map.get(item._id).count += item.count;
+      });
+      return [...map.values()];
+    };
+
+    // ------------------- CERTIFICATE + LETTER STATS ------------------- //
+
+    // LAST 7 DAYS
+    const certLast7 = await Certificate.aggregate([
+      { $match: { createdAt: { $gte: sevenDaysAgo } } },
+      { $group: { _id: "$category", count: { $sum: 1 } } }
     ]);
 
-    // Last month
-    const lastMonth = await Certificate.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: thirtyDaysAgo }
-        }
-      },
-      {
-        $group: {
-          _id: '$category',
-          count: { $sum: 1 }
-        }
-      }
+    const letterLast7 = await Letter.aggregate([
+      { $match: { createdAt: { $gte: sevenDaysAgo } } },
+      { $group: { _id: "$category", count: { $sum: 1 } } }
     ]);
 
-    // Downloaded
-    const downloaded = await Certificate.aggregate([
-      {
-        $match: {
-          status: 'downloaded'
-        }
-      },
-      {
-        $group: {
-          _id: '$category',
-          count: { $sum: 1 }
-        }
-      }
+    const last7Days = mergeAggResults(certLast7, letterLast7);
+
+    // LAST 30 DAYS
+    const certLast30 = await Certificate.aggregate([
+      { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+      { $group: { _id: "$category", count: { $sum: 1 } } }
     ]);
 
-    // Pending
-    const pending = await Certificate.aggregate([
-      {
-        $match: {
-          status: 'pending'
-        }
-      },
-      {
-        $group: {
-          _id: '$category',
-          count: { $sum: 1 }
-        }
-      }
+    const letterLast30 = await Letter.aggregate([
+      { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+      { $group: { _id: "$category", count: { $sum: 1 } } }
     ]);
 
-    // Category totals
-    const categoryStats = await Certificate.aggregate([
+    const lastMonth = mergeAggResults(certLast30, letterLast30);
+
+    // DOWNLOADED
+    const certDownloaded = await Certificate.aggregate([
+      { $match: { status: "downloaded" } },
+      { $group: { _id: "$category", count: { $sum: 1 } } }
+    ]);
+
+    const letterDownloaded = await Letter.aggregate([
+      { $match: { status: "downloaded" } },
+      { $group: { _id: "$category", count: { $sum: 1 } } }
+    ]);
+
+    const downloaded = mergeAggResults(certDownloaded, letterDownloaded);
+
+    // PENDING
+    const certPending = await Certificate.aggregate([
+      { $match: { status: "pending" } },
+      { $group: { _id: "$category", count: { $sum: 1 } } }
+    ]);
+
+    const letterPending = await Letter.aggregate([
+      { $match: { status: "pending" } },
+      { $group: { _id: "$category", count: { $sum: 1 } } }
+    ]);
+
+    const pending = mergeAggResults(certPending, letterPending);
+
+    // CATEGORY TOTALS (CERT + LETTER)
+    const certCategoryStats = await Certificate.aggregate([
       {
         $group: {
-          _id: '$category',
+          _id: "$category",
           total: { $sum: 1 },
-          downloaded: {
-            $sum: { $cond: [{ $eq: ['$status', 'downloaded'] }, 1, 0] }
-          },
-          pending: {
-            $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] }
-          }
+          downloaded: { $sum: { $cond: [{ $eq: ["$status", "downloaded"] }, 1, 0] } },
+          pending: { $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] } }
         }
       }
     ]);
 
-    // Bulk generation stats (last 7 days)
+    const letterCategoryStats = await Letter.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          total: { $sum: 1 },
+          downloaded: { $sum: { $cond: [{ $eq: ["$status", "downloaded"] }, 1, 0] } },
+          pending: { $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] } }
+        }
+      }
+    ]);
+
+    const categoryStats = [...certCategoryStats, ...letterCategoryStats].reduce((acc, item) => {
+      if (!acc[item._id]) {
+        acc[item._id] = { total: 0, downloaded: 0, pending: 0 };
+      }
+      acc[item._id].total += item.total;
+      acc[item._id].downloaded += item.downloaded;
+      acc[item._id].pending += item.pending;
+      return acc;
+    }, {});
+
+    // ------------------- BULK CERTIFICATE STATS ------------------- //
+
     const bulkGeneratedLast7Days = await ActivityLog.aggregate([
-      {
-        $match: {
-          action: 'bulk_created',
-          timestamp: { $gte: sevenDaysAgo }
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          totalBulkOperations: { $sum: 1 },
-          totalCertificates: { $sum: '$count' }
-        }
-      }
+      { $match: { action: "bulk_created", timestamp: { $gte: sevenDaysAgo } } },
+      { $group: { _id: null, totalBulkOperations: { $sum: 1 }, totalCertificates: { $sum: "$count" } } }
     ]);
 
-    // Bulk generation stats (last 30 days)
     const bulkGeneratedLastMonth = await ActivityLog.aggregate([
-      {
-        $match: {
-          action: 'bulk_created',
-          timestamp: { $gte: thirtyDaysAgo }
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          totalBulkOperations: { $sum: 1 },
-          totalCertificates: { $sum: '$count' }
-        }
-      }
+      { $match: { action: "bulk_created", timestamp: { $gte: thirtyDaysAgo } } },
+      { $group: { _id: null, totalBulkOperations: { $sum: 1 }, totalCertificates: { $sum: "$count" } } }
     ]);
 
-    // Total bulk downloads
     const bulkDownloads = await ActivityLog.aggregate([
-      {
-        $match: {
-          action: 'bulk_downloaded'
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          totalBulkDownloads: { $sum: 1 },
-          totalCertificatesDownloaded: { $sum: '$count' }
-        }
-      }
+      { $match: { action: "bulk_downloaded" } },
+      { $group: { _id: null, totalBulkDownloads: { $sum: 1 }, totalCertificatesDownloaded: { $sum: "$count" } } }
     ]);
 
-    // Individual vs Bulk certificate creation ratio
-    const creationStats = await Certificate.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalCertificates: { $sum: 1 }
-        }
-      }
-    ]);
+    // ------------------- CREATION RATIO (CERT + LETTER) ------------------- //
+    const certCount = await Certificate.countDocuments();
+    const letterCount = await Letter.countDocuments();
 
     const totalBulkCreated = bulkGeneratedLastMonth[0]?.totalCertificates || 0;
-    const totalCertificates = creationStats[0]?.totalCertificates || 0;
+    const totalCertificates = certCount + letterCount;
     const individualCreated = totalCertificates - totalBulkCreated;
 
-    console.log("individual: ", individualCreated);
-    console.log("bulk created: ", totalBulkCreated);
-    console.log("total certificates: ", totalCertificates);
-    
+    // ------------------- FORMAT FOR FRONTEND ------------------- //
 
     const formatStats = (data) => {
-      const mj = data.find(d => d._id === 'marketing-junction')?.count || 0;
-      const c4b = data.find(d => d._id === 'code4bharat')?.count || 0;
-      const fsd = data.find(d => d._id === 'FSD')?.count || 0;
-      const hr = data.find(d => d._id === 'HR')?.count || 0;
-      const bc = data.find(d => d._id === 'BOOTCAMP')?.count || 0;
-      const bvoc = data.find(d => d._id === 'BVOC')?.count || 0;
+      const getCount = (cat) => data.find(d => d._id === cat)?.count || 0;
       return {
-        total: mj + c4b + fsd + hr + bc + bvoc,
-        marketingJunction: mj,
-        code4bharat: c4b,
-        FSD: fsd,
-        HR: hr,
-        BOOTCAMP: bc,
-        BVOC: bvoc,
+        total: data.reduce((sum, d) => sum + d.count, 0),
+        marketingJunction: getCount("marketing-junction"),
+        code4bharat: getCount("code4bharat"),
+        FSD: getCount("FSD"),
+        HR: getCount("HR"),
+        BOOTCAMP: getCount("BOOTCAMP"),
+        BVOC: getCount("BVOC"),
       };
     };
-
-    // Format category stats for easier frontend consumption
-    const formattedCategories = {
-      'marketing-junction': {
-        total: 0,
-        downloaded: 0,
-        pending: 0
-      },
-      'code4bharat': {
-        total: 0,
-        downloaded: 0,
-        pending: 0
-      },
-      'FSD': {
-        total: 0,
-        downloaded: 0,
-        pending: 0
-      },
-      'HR': {
-        total: 0,
-        downloaded: 0,
-        pending: 0
-      },
-      'BOOTCAMP': {
-        total: 0,
-        downloaded: 0,
-        pending: 0
-      },
-      'BVOC': {
-        total: 0,
-        downloaded: 0,
-        pending: 0
-      },
-    };
-
-    categoryStats.forEach(cat => {
-      if (formattedCategories[cat._id]) {
-        formattedCategories[cat._id] = {
-          total: cat.total,
-          downloaded: cat.downloaded,
-          pending: cat.pending
-        };
-      }
-    });
 
     res.json({
       success: true,
@@ -221,7 +154,7 @@ const getDashboardStatistics = async (req, res) => {
         lastMonth: formatStats(lastMonth),
         downloaded: formatStats(downloaded),
         pending: formatStats(pending),
-        categories: formattedCategories,
+        categories: categoryStats,
         bulk: {
           last7Days: {
             operations: bulkGeneratedLast7Days[0]?.totalBulkOperations || 0,
@@ -243,19 +176,21 @@ const getDashboardStatistics = async (req, res) => {
         }
       }
     });
+
   } catch (error) {
-    console.error('Get stats error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error' 
+    console.error("Get stats error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
     });
   }
 };
 
+
 const getActivityLog = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 5;
-    
+
     const activities = await ActivityLog.find()
       .sort({ timestamp: -1 })
       .limit(limit)
@@ -264,8 +199,8 @@ const getActivityLog = async (req, res) => {
     const formattedActivities = activities.map(activity => {
       let action = '';
       let details = '';
-      
-      switch(activity.action) {
+
+      switch (activity.action) {
         case 'bulk_created':
           action = 'Bulk Certificate Generation';
           details = `${activity.count} certificates created`;
@@ -312,9 +247,9 @@ const getActivityLog = async (req, res) => {
     });
   } catch (error) {
     console.error('Get activity log error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error' 
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
     });
   }
 };
@@ -322,22 +257,22 @@ const getActivityLog = async (req, res) => {
 // Helper function to format time ago
 function getTimeAgo(date) {
   const seconds = Math.floor((new Date() - date) / 1000);
-  
+
   let interval = seconds / 31536000;
   if (interval > 1) return Math.floor(interval) + ' years ago';
-  
+
   interval = seconds / 2592000;
   if (interval > 1) return Math.floor(interval) + ' months ago';
-  
+
   interval = seconds / 86400;
   if (interval > 1) return Math.floor(interval) + ' days ago';
-  
+
   interval = seconds / 3600;
   if (interval > 1) return Math.floor(interval) + ' hours ago';
-  
+
   interval = seconds / 60;
   if (interval > 1) return Math.floor(interval) + ' mins ago';
-  
+
   return 'Just now';
 }
 
