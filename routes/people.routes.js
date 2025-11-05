@@ -4,6 +4,153 @@ import People from '../models/people.models.js';
 import { authenticate } from '../middleware/auth.middleware.js'; // optional, if you use it
 
 const router = express.Router();
+/**
+ * @route   PUT /api/people/update-by-name
+ * @desc    Update a person by name (instead of ID)
+ * @access  Public
+ */
+router.put(
+  '/update-by-name',
+  [
+    body('originalName').notEmpty().withMessage('Original name is required'),
+    body('name').optional().notEmpty().withMessage('Name cannot be empty'),
+    body('category')
+      .optional()
+      .isIn(['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR'])
+      .withMessage('Invalid category'),
+    body('phone')
+      .optional()
+      .matches(/^[0-9]{10}$/)
+      .withMessage('Phone must be a 10-digit number'),
+    body('parentPhone1')
+      .optional({ nullable: true, checkFalsy: true })
+      .matches(/^[0-9]{10}$/)
+      .withMessage('Parent Phone 1 must be a 10-digit number'),
+    body('parentPhone2')
+      .optional({ nullable: true, checkFalsy: true })
+      .matches(/^[0-9]{10}$/)
+      .withMessage('Parent Phone 2 must be a 10-digit number'),
+    body('aadhaarCard')
+      .optional({ nullable: true, checkFalsy: true })
+      .matches(/^[0-9]{12}$/)
+      .withMessage('Aadhaar card must be exactly 12 digits'),
+    body('address')
+      .optional({ nullable: true, checkFalsy: true })
+      .isLength({ max: 100 })
+      .withMessage('Address cannot exceed 100 characters'),
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        console.error('❌ Validation errors:', errors.array());
+        return res.status(400).json({ 
+          success: false,
+          message: errors.array()[0].msg,
+          errors: errors.array() 
+        });
+      }
+
+      const { originalName, originalPhone, name, category, batch, phone, parentPhone1, parentPhone2, aadhaarCard, address } = req.body;
+      
+      console.log('📝 Updating person by name:', { 
+        originalName,
+        originalPhone,
+        newName: name,
+        category,
+        batch,
+        phone,
+        parentPhone1,
+        parentPhone2,
+      });
+
+      // Find person by original name (and optionally phone for extra security)
+      const query = {
+        name: originalName
+      };
+
+      // If original phone is provided, use it as additional filter
+      if (originalPhone) {
+        query.phone = originalPhone;
+      }
+
+      console.log('🔍 Search query:', query);
+
+      // Validate batch requirement for FSD and BVOC
+      if (category && ['FSD', 'BVOC'].includes(category) && !batch) {
+        console.error('❌ Batch required for category:', category);
+        return res.status(400).json({ 
+          success: false,
+          message: 'Batch is required for FSD and BVOC categories' 
+        });
+      }
+
+      // Build update object
+      const updateData = {};
+      
+      if (name) updateData.name = name;
+      if (category) updateData.category = category;
+      if (batch !== undefined) updateData.batch = batch;
+
+      // Update parent phones (handle null/empty)
+      if (parentPhone1 !== undefined) {
+        updateData.parentPhone1 = parentPhone1 ? '91' + parentPhone1 : null;
+      }
+      if (parentPhone2 !== undefined) {
+        updateData.parentPhone2 = parentPhone2 ? '91' + parentPhone2 : null;
+      }
+
+      // Update aadhaar card (handle null/empty)
+      if (aadhaarCard !== undefined) {
+        updateData.aadhaarCard = aadhaarCard || null;
+      }
+
+      // Update address (handle null/empty)
+      if (address !== undefined) {
+        updateData.address = address ? address.trim() : null;
+      }
+
+      const person = await People.findOneAndUpdate(
+        query,
+        { $set: updateData },
+        { new: true, runValidators: true }
+      );
+
+      if (!person) {
+        console.error('❌ Person not found with name:', originalName);
+        return res.status(404).json({ 
+          success: false,
+          message: 'Person not found with the given name' 
+        });
+      }
+
+      res.status(200).json({ 
+        success: true,
+        message: 'Person updated successfully', 
+        person: {
+          name: person.name,
+          category: person.category,
+          batch: person.batch || '',
+          phone: person.phone,
+          parentPhone1: person.parentPhone1 || null,
+          parentPhone2: person.parentPhone2 || null,
+          aadhaarCard: person.aadhaarCard || null,
+          address: person.address || null,
+          disabled: person.disabled || false,
+          createdAt: person.createdAt,
+          updatedAt: person.updatedAt,
+        }
+      });
+    } catch (error) {
+      console.error('❌ Error updating person:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Server error', 
+        error: error.message 
+      });
+    }
+  }
+);
 
 /**
  * @route   POST /api/people
@@ -21,6 +168,22 @@ router.post(
     body('phone')
       .matches(/^[0-9]{10}$/)
       .withMessage('Phone must be a 10-digit number'),
+    body('parentPhone1')
+      .optional({ nullable: true, checkFalsy: true })
+      .matches(/^[0-9]{10}$/)
+      .withMessage('Parent Phone 1 must be a 10-digit number'),
+    body('parentPhone2')
+      .optional({ nullable: true, checkFalsy: true })
+      .matches(/^[0-9]{10}$/)
+      .withMessage('Parent Phone 2 must be a 10-digit number'),
+    body('aadhaarCard')
+      .optional({ nullable: true, checkFalsy: true })
+      .matches(/^[0-9]{12}$/)
+      .withMessage('Aadhaar card must be exactly 12 digits'),
+    body('address')
+      .optional({ nullable: true, checkFalsy: true })
+      .isLength({ max: 100 })
+      .withMessage('Address cannot exceed 100 characters'),
   ],
   async (req, res) => {
     try {
@@ -34,8 +197,14 @@ router.post(
         });
       }
 
-      const { name, category, batch, phone } = req.body;
-      console.log('📝 Adding new person:', { name, category, batch, phone });
+      const { name, category, batch, phone, parentPhone1, parentPhone2, aadhaarCard, address } = req.body;
+      console.log('📝 Adding new person:', { 
+        name, category, batch, phone, 
+        hasParentPhone1: !!parentPhone1,
+        hasParentPhone2: !!parentPhone2,
+        hasAadhaar: !!aadhaarCard,
+        hasAddress: !!address
+      });
 
       // Validate batch for FSD and BVOC
       if (['FSD', 'BVOC'].includes(category) && !batch) {
@@ -57,13 +226,29 @@ router.post(
         });
       }
 
-      const newPerson = new People({ 
+      const newPersonData = { 
         name, 
         category, 
         batch: batch || '', 
         phone: phoneWithCountryCode,
-        disabled: false // Initialize as enabled
-      });
+        disabled: false
+      };
+
+      // Add optional fields if provided
+      if (parentPhone1) {
+        newPersonData.parentPhone1 = '91' + parentPhone1;
+      }
+      if (parentPhone2) {
+        newPersonData.parentPhone2 = '91' + parentPhone2;
+      }
+      if (aadhaarCard) {
+        newPersonData.aadhaarCard = aadhaarCard;
+      }
+      if (address) {
+        newPersonData.address = address.trim();
+      }
+
+      const newPerson = new People(newPersonData);
       await newPerson.save();
 
       console.log('✅ Person added successfully:', newPerson._id);
@@ -113,7 +298,11 @@ router.get('/', async (req, res) => {
       category: p.category,
       batch: p.batch || '',
       phone: p.phone,
-      disabled: p.disabled || false, // Include disabled status
+      parentPhone1: p.parentPhone1 || null,
+      parentPhone2: p.parentPhone2 || null,
+      aadhaarCard: p.aadhaarCard || null,
+      address: p.address || null,
+      disabled: p.disabled || false,
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
     }));
@@ -167,6 +356,10 @@ router.get('/:id', async (req, res) => {
         category: person.category,
         batch: person.batch || '',
         phone: person.phone,
+        parentPhone1: person.parentPhone1 || null,
+        parentPhone2: person.parentPhone2 || null,
+        aadhaarCard: person.aadhaarCard || null,
+        address: person.address || null,
         disabled: person.disabled || false,
         createdAt: person.createdAt,
         updatedAt: person.updatedAt,
@@ -200,6 +393,22 @@ router.put(
       .optional()
       .matches(/^[0-9]{10}$/)
       .withMessage('Phone must be a 10-digit number'),
+    body('parentPhone1')
+      .optional({ nullable: true, checkFalsy: true })
+      .matches(/^[0-9]{10}$/)
+      .withMessage('Parent Phone 1 must be a 10-digit number'),
+    body('parentPhone2')
+      .optional({ nullable: true, checkFalsy: true })
+      .matches(/^[0-9]{10}$/)
+      .withMessage('Parent Phone 2 must be a 10-digit number'),
+    body('aadhaarCard')
+      .optional({ nullable: true, checkFalsy: true })
+      .matches(/^[0-9]{12}$/)
+      .withMessage('Aadhaar card must be exactly 12 digits'),
+    body('address')
+      .optional({ nullable: true, checkFalsy: true })
+      .isLength({ max: 100 })
+      .withMessage('Address cannot exceed 100 characters'),
   ],
   async (req, res) => {
     try {
@@ -213,28 +422,30 @@ router.put(
         });
       }
 
-      const { name, category, batch, phone } = req.body;
-      console.log('📝 Updating person:', req.params.id, { name, category, batch, phone });
-
-      // Check if person exists
-      const person = await People.findById(req.params.id);
-      if (!person) {
-        console.error('❌ Person not found:', req.params.id);
-        return res.status(404).json({ 
-          success: false,
-          message: 'Person not found' 
-        });
-      }
+      const { name, category, batch, phone, parentPhone1, parentPhone2, aadhaarCard, address } = req.body;
+      console.log('📝 Updating person:', req.params.id, { 
+        name, category, batch, phone,
+        hasParentPhone1: parentPhone1 !== undefined,
+        hasParentPhone2: parentPhone2 !== undefined,
+        hasAadhaar: aadhaarCard !== undefined,
+        hasAddress: address !== undefined
+      });
 
       // Validate batch requirement for FSD and BVOC
-      const newCategory = category || person.category;
-      if (['FSD', 'BVOC'].includes(newCategory) && !batch) {
-        console.error('❌ Batch required for category:', newCategory);
+      if (category && ['FSD', 'BVOC'].includes(category) && !batch) {
+        console.error('❌ Batch required for category:', category);
         return res.status(400).json({ 
           success: false,
           message: 'Batch is required for FSD and BVOC categories' 
         });
       }
+
+      // Build update object
+      const updateData = {};
+
+      if (name) updateData.name = name;
+      if (category) updateData.category = category;
+      if (batch !== undefined) updateData.batch = batch;
 
       // If phone is being updated, check for duplicates
       if (phone) {
@@ -250,15 +461,40 @@ router.put(
             message: 'Another person already exists with this phone number' 
           });
         }
-        person.phone = phoneWithCountryCode;
+        updateData.phone = phoneWithCountryCode;
       }
 
-      // Update fields if provided
-      if (name) person.name = name;
-      if (category) person.category = category;
-      if (batch !== undefined) person.batch = batch; // Allow empty string/null for non-FSD/BVOC
+      // Update parent phones (handle null/empty)
+      if (parentPhone1 !== undefined) {
+        updateData.parentPhone1 = parentPhone1 ? '91' + parentPhone1 : null;
+      }
+      if (parentPhone2 !== undefined) {
+        updateData.parentPhone2 = parentPhone2 ? '91' + parentPhone2 : null;
+      }
 
-      await person.save();
+      // Update aadhaar card (handle null/empty)
+      if (aadhaarCard !== undefined) {
+        updateData.aadhaarCard = aadhaarCard || null;
+      }
+
+      // Update address (handle null/empty)
+      if (address !== undefined) {
+        updateData.address = address ? address.trim() : null;
+      }
+
+      const person = await People.findByIdAndUpdate(
+        req.params.id,
+        { $set: updateData },
+        { new: true, runValidators: true }
+      );
+
+      if (!person) {
+        console.error('❌ Person not found:', req.params.id);
+        return res.status(404).json({ 
+          success: false,
+          message: 'Person not found' 
+        });
+      }
 
       console.log('✅ Person updated successfully:', person._id);
 
@@ -271,6 +507,10 @@ router.put(
           category: person.category,
           batch: person.batch || '',
           phone: person.phone,
+          parentPhone1: person.parentPhone1 || null,
+          parentPhone2: person.parentPhone2 || null,
+          aadhaarCard: person.aadhaarCard || null,
+          address: person.address || null,
           disabled: person.disabled || false,
           createdAt: person.createdAt,
           updatedAt: person.updatedAt,
@@ -311,8 +551,15 @@ router.patch('/:id', async (req, res) => {
       });
     }
 
-    // Find the person
-    const person = await People.findById(personId);
+    const action = disabled ? 'disabled' : 'enabled';
+
+    // Update disabled status
+    const person = await People.findByIdAndUpdate(
+      personId,
+      { $set: { disabled } },
+      { new: true, runValidators: true }
+    );
+
     if (!person) {
       console.error('❌ Person not found:', personId);
       return res.status(404).json({
@@ -320,19 +567,6 @@ router.patch('/:id', async (req, res) => {
         message: 'Person not found'
       });
     }
-
-    const previousState = person.disabled || false;
-    const action = disabled ? 'disabled' : 'enabled';
-
-    console.log('📊 Current state:', {
-      personName: person.name,
-      previousState: previousState ? 'disabled' : 'enabled',
-      newState: disabled ? 'disabled' : 'enabled'
-    });
-
-    // Update disabled status
-    person.disabled = disabled;
-    await person.save();
 
     console.log(`✅ Person ${action} successfully:`, {
       id: person._id,
@@ -349,6 +583,10 @@ router.patch('/:id', async (req, res) => {
         category: person.category,
         batch: person.batch || '',
         phone: person.phone,
+        parentPhone1: person.parentPhone1 || null,
+        parentPhone2: person.parentPhone2 || null,
+        aadhaarCard: person.aadhaarCard || null,
+        address: person.address || null,
         disabled: person.disabled,
         createdAt: person.createdAt,
         updatedAt: person.updatedAt,
@@ -431,10 +669,22 @@ router.get('/stats/summary', async (req, res) => {
       { $sort: { count: -1 } }
     ]);
 
+    // Count people with Aadhaar cards
+    const withAadhaar = await People.countDocuments({ 
+      aadhaarCard: { $exists: true, $ne: null } 
+    });
+
+    // Count people with addresses
+    const withAddress = await People.countDocuments({ 
+      address: { $exists: true, $ne: null } 
+    });
+
     const stats = {
       total,
       totalEnabled,
       totalDisabled,
+      withAadhaar,
+      withAddress,
       byCategory: categoryStats.map(s => ({ category: s._id, count: s.count })),
       byBatch: batchStats.map(s => ({ 
         category: s._id.category, 
@@ -450,7 +700,9 @@ router.get('/stats/summary', async (req, res) => {
     console.log('✅ Statistics fetched:', {
       total: stats.total,
       enabled: stats.totalEnabled,
-      disabled: stats.totalDisabled
+      disabled: stats.totalDisabled,
+      withAadhaar: stats.withAadhaar,
+      withAddress: stats.withAddress
     });
 
     res.json({

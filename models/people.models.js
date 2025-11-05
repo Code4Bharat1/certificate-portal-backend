@@ -33,18 +33,43 @@ const peopleSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       match: [/^91[0-9]{10}$/, 'Phone must be in format 91XXXXXXXXXX (12 digits with country code)'],
-      index: true, // Add index for faster queries
+      index: true,
+    },
+    parentPhone1: {
+      type: String,
+      trim: true,
+      match: [/^91[0-9]{10}$/, 'Parent Phone 1 must be in format 91XXXXXXXXXX (12 digits with country code)'],
+      default: null,
+    },
+    parentPhone2: {
+      type: String,
+      trim: true,
+      match: [/^91[0-9]{10}$/, 'Parent Phone 2 must be in format 91XXXXXXXXXX (12 digits with country code)'],
+      default: null,
+    },
+    aadhaarCard: {
+      type: String,
+      trim: true,
+      match: [/^[0-9]{12}$/, 'Aadhaar card must be exactly 12 digits'],
+      default: null,
+      sparse: true, // Allows multiple null values but enforces uniqueness when present
+    },
+    address: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Address cannot exceed 100 characters'],
+      default: null,
     },
     disabled: {
       type: Boolean,
       default: false,
-      index: true, // Add index for efficient disabled/enabled queries
+      index: true,
     },
   },
   { 
     timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true }
+    // toJSON: { virtuals: true },
+    // toObject: { virtuals: true }
   }
 );
 
@@ -62,6 +87,22 @@ peopleSchema.virtual('formattedPhone').get(function() {
     return `+91 ${this.phone.substring(2)}`;
   }
   return this.phone;
+});
+
+// Virtual for formatted parent phone 1
+peopleSchema.virtual('formattedParentPhone1').get(function() {
+  if (this.parentPhone1 && this.parentPhone1.startsWith('91')) {
+    return `+91 ${this.parentPhone1.substring(2)}`;
+  }
+  return this.parentPhone1;
+});
+
+// Virtual for formatted parent phone 2
+peopleSchema.virtual('formattedParentPhone2').get(function() {
+  if (this.parentPhone2 && this.parentPhone2.startsWith('91')) {
+    return `+91 ${this.parentPhone2.substring(2)}`;
+  }
+  return this.parentPhone2;
 });
 
 // Virtual for status display
@@ -97,6 +138,16 @@ peopleSchema.pre('save', function(next) {
   if (!['FSD', 'BVOC'].includes(this.category)) {
     this.batch = '';
   }
+
+  // Validate Aadhaar card format if provided
+  if (this.aadhaarCard && !/^[0-9]{12}$/.test(this.aadhaarCard)) {
+    return next(new Error('Aadhaar card must be exactly 12 digits'));
+  }
+
+  // Validate address length if provided
+  if (this.address && this.address.length > 100) {
+    return next(new Error('Address cannot exceed 100 characters'));
+  }
   
   next();
 });
@@ -122,6 +173,16 @@ peopleSchema.pre('findOneAndUpdate', function(next) {
     if (!update.batch) {
       return next(new Error(`Batch is required for ${update.category} category`));
     }
+  }
+
+  // Validate Aadhaar card in update
+  if (update.aadhaarCard && !/^[0-9]{12}$/.test(update.aadhaarCard)) {
+    return next(new Error('Aadhaar card must be exactly 12 digits'));
+  }
+
+  // Validate address length in update
+  if (update.address && update.address.length > 100) {
+    return next(new Error('Address cannot exceed 100 characters'));
   }
   
   next();
@@ -268,12 +329,16 @@ peopleSchema.methods.disable = async function() {
 // Instance method to get full details
 peopleSchema.methods.getFullDetails = function() {
   return {
-    id: this._id,
+    // id: this._id,
     name: this.name,
     category: this.category,
     batch: this.batch || 'N/A',
     phone: this.formattedPhone,
     phoneRaw: this.phone,
+    parentPhone1: this.formattedParentPhone1,
+    parentPhone2: this.formattedParentPhone2,
+    aadhaarCard: this.aadhaarCard || 'Not provided',
+    address: this.address || 'Not provided',
     disabled: this.disabled,
     status: this.statusDisplay,
     isActive: this.isActive(),
