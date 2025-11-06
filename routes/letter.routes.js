@@ -2,14 +2,31 @@ import express from "express";
 import {
   createLetter,
   previewLetter,
-  // getLetters,
+  getLetters,
+  getLetterById,
+  // downloadLetterAsJpg,
+  downloadLetterAsPdf
 } from "../controllers/letter.controllers.js";
-import { authenticate } from "../middleware/auth.middleware.js"; 
+import { authenticate } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
+// Create Letter
 router.post("/", authenticate, createLetter);
+
+// Preview Letter (no DB save)
 router.post("/preview", authenticate, previewLetter);
-// router.get("/", authenticate, getLetters);
+
+// List all letters
+router.get("/", authenticate, getLetters);
+
+// Get single letter
+router.get("/:id", authenticate, getLetterById);
+
+// Download JPG
+// router.get("/:id/download.jpg", authenticate, downloadLetterAsJpg);
+
+// Download PDF
+router.get("/:id/download.pdf", authenticate, downloadLetterAsPdf);
 
 export default router;
