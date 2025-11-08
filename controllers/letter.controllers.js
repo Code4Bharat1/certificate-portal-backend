@@ -397,6 +397,9 @@ export const previewLetter = async (req, res) => {
       course,
       description = "",
       subject = "",
+      role,
+      startDate,
+      endDate,
       committeeType,
       attendancePercent,
       assignmentName,
@@ -485,34 +488,34 @@ export const previewLetter = async (req, res) => {
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
+        ctx.fillText(`${outwardNo}`, width * 0.195, height * 0.223);
 
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(formattedDate, width * 0.079, height * 0.236);
+        ctx.fillText(formattedDate, width * 0.099, height * 0.236);
 
         // to name
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.023, height * 0.300);
+        ctx.fillText(name, width * 0.045, height * 0.300);
 
         // Subject / Title
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.43, height * 0.338);
+        ctx.fillText(name, width * 0.45, height * 0.338);
 
         // Dear name,
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name + ",", width * 0.077, height * 0.372);
+        ctx.fillText(name + ",", width * 0.095, height * 0.372);
 
         // const shortMonth = monthMap[performanceMonth] || performanceMonth; // fallback if custom
         const attendanceDate = attendanceMonth + " " + attendanceYear;
 
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(attendanceDate, width * 0.296, height * 0.422);
+        ctx.fillText(attendanceDate, width * 0.316, height * 0.422);
 
         // Letter ID
         ctx.font = 'bold 35px "Poppins"';
-        ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
+        ctx.fillText(`${tempId}`, width * 0.26, height * 0.732);
 
         // Footer
         ctx.font = '40px "Ovo", serif';
@@ -529,24 +532,24 @@ export const previewLetter = async (req, res) => {
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(`${outwardNo}`, width * 0.175, height * 0.230);
+        ctx.fillText(`${outwardNo}`, width * 0.178, height * 0.230);
 
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(formattedDate, width * 0.087, height * 0.2526);
+        ctx.fillText(formattedDate, width * 0.090, height * 0.2526);
 
         // to name
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.030, height * 0.325);
+        ctx.fillText(name, width * 0.033, height * 0.325);
 
         // Subject / Title
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.58, height * 0.370);
+        ctx.fillText(name, width * 0.59, height * 0.370);
 
         // Dear name,
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name + ",", width * 0.085, height * 0.409);
+        ctx.fillText(name + ",", width * 0.087, height * 0.409);
 
         const shortMonth = monthMap[performanceMonth] || performanceMonth; // fallback if custom
         const performanceDate = `${shortMonth} ${performanceYear}`;
@@ -554,7 +557,7 @@ export const previewLetter = async (req, res) => {
         // console.log(performanceDate);
 
         ctx.font = 'bold 28px "Poppins"';
-        ctx.fillText(performanceDate, width * 0.565, height * 0.465);
+        ctx.fillText(performanceDate, width * 0.566, height * 0.465);
 
         // Letter ID
         ctx.font = 'bold 25px "Poppins"';
@@ -609,43 +612,109 @@ export const previewLetter = async (req, res) => {
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
+        ctx.fillText(`${outwardNo}`, width * 0.185, height * 0.222);
 
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
-
-        // to name
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.023, height * 0.300);
+        ctx.fillText(formattedDate, width * 0.099, height * 0.240);
 
         // Subject / Title
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.43, height * 0.338);
+        ctx.fillText(name, width * 0.49, height * 0.280);
 
-        // Dear name,
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name + ",", width * 0.080, height * 0.372);
+        // === MAIN DESCRIPTION ===
+        const descLines = [
+          { text: "This is to certify that ", bold: false },
+          { text: name, bold: true },
+          { text: " was associated with ", bold: false },
+          { text: "Nexcore Alliance LLP", bold: true },
+          { text: " under its brand ", bold: false },
+          { text: "Code4Bharat", bold: true },
+          { text: " as a", bold: false },
+          { text: ` ${role} from ${startDate} to ${endDate}.`, bold: true },
+        ];
 
-        // const shortMonth = monthMap[performanceMonth] || performanceMonth; // fallback if custom
-        const performanceDate = `${performanceMonth} ${performanceYear}`;
+        const descY = height * 0.35;
+        const startX = width * 0.041;
+        const maxWidth = width * 0.90;
+        let currentX = startX;
+        let currentY = descY;
 
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(performanceDate, width * 0.296, height * 0.422);
+        const lineHeight = 32;
+
+        // Draw mixed-style line wrapping
+        descLines.forEach((part, idx) => {
+          const words = part.text.split(" ");
+          for (let i = 0; i < words.length; i++) {
+            const word = words[i] + " ";
+            ctx.font = `${part.bold ? "bold" : "normal"} 25px "Poppins"`;
+            const wordWidth = ctx.measureText(word).width;
+
+            if (currentX + wordWidth > startX + maxWidth) {
+              // wrap line
+              currentX = startX;
+              currentY += lineHeight;
+            }
+
+            ctx.fillText(word, currentX, currentY);
+            currentX += wordWidth;
+          }
+        });
+
+        // === DESCRIPTION PARAGRAPHS ===
+        ctx.fillStyle = "#1a1a1a";
+        ctx.font = '25px "Poppins"';
+
+        const paragraphs = (description || "")
+          .split(/\n\s*\n/)
+          .map(p => p.replace(/\n/g, " ").trim())
+          .filter(p => p.length > 0)
+          .slice(0, 2);
+
+        let descParagraphY = currentY + 40; // Start after the first section
+        const paraLineHeight = 30;
+        const paraSpacing = 30;
+
+        paragraphs.forEach((paragraph, idx) => {
+          const words = paragraph.split(" ");
+          let line = "";
+
+          words.forEach(word => {
+            const testLine = line + word + " ";
+            const testWidth = ctx.measureText(testLine).width;
+
+            if (testWidth > maxWidth) {
+              ctx.fillText(line.trim(), startX, descParagraphY);
+              line = word + " ";
+              descParagraphY += paraLineHeight;
+            } else {
+              line = testLine;
+            }
+          });
+
+          if (line.trim()) {
+            ctx.fillText(line.trim(), startX, descParagraphY);
+            descParagraphY += paraLineHeight;
+          }
+
+          if (idx < paragraphs.length - 1) {
+            descParagraphY += paraSpacing;
+          }
+        });
 
         // Letter ID
-        ctx.font = 'bold 35px "Poppins"';
-        ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.20, height * 0.780);
 
         // Footer
-        ctx.font = '40px "Ovo", serif';
+        ctx.font = '35px "Ovo", serif';
         ctx.textAlign = "center";
         ctx.fillStyle = "#1F2937";
         ctx.fillText(
           "https://certificate.nexcorealliance.com/verify-certificate",
           width / 2,
-          height * 0.843
+          height * 0.850
         );
       }
       else if (course === "Live Project Agreement") {
@@ -797,30 +866,30 @@ export const previewLetter = async (req, res) => {
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 22px "Poppins"`;
-        ctx.fillText(`${outwardNo}`, width * 0.170, height * 0.221);
+        ctx.fillText(`${outwardNo}`, width * 0.202, height * 0.221);
 
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 22px "Poppins"`;
-        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
+        ctx.fillText(formattedDate, width * 0.113, height * 0.238);
 
         // to name
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.022, height * 0.302);
+        ctx.fillText(name, width * 0.060, height * 0.302);
 
         // Dear name,
         ctx.font = 'bold 22px "Poppins"';
-        ctx.fillText(name + ",", width * 0.079, height * 0.378);
+        ctx.fillText(name + ",", width * 0.110, height * 0.380);
 
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(subjectName, width * 0.050, height * 0.430);
+        ctx.fillText(subjectName, width * 0.110, height * 0.433);
 
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(projectName, width * 0.270, height * 0.430);
+        ctx.fillText(projectName, width * 0.310, height * 0.433);
 
         // Letter ID
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(`${tempId}`, width * 0.19, height * 0.820);
+        ctx.fillText(`${tempId}`, width * 0.23, height * 0.708);
 
         // Footer
         ctx.font = '25px "Ovo", serif';
@@ -837,28 +906,28 @@ export const previewLetter = async (req, res) => {
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(`${outwardNo}`, width * 0.170, height * 0.225);
+        ctx.fillText(`${outwardNo}`, width * 0.186, height * 0.225);
 
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(formattedDate, width * 0.080, height * 0.242);
+        ctx.fillText(formattedDate, width * 0.099, height * 0.242);
 
         // to name
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.023, height * 0.310);
+        ctx.fillText(name, width * 0.040, height * 0.310);
 
         // Dear name,
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name + ",", width * 0.080, height * 0.383);
+        ctx.fillText(name + ",", width * 0.099, height * 0.383);
 
         // Desc percentage
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(attendancePercent, width * 0.515, height * 0.420);
+        ctx.fillText(attendancePercent, width * 0.532, height * 0.420);
 
         // Letter ID
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(`${tempId}`, width * 0.16, height * 0.710);
+        ctx.fillText(`${tempId}`, width * 0.18, height * 0.706);
 
         // Footer
         ctx.font = '35px "Ovo", serif';
@@ -875,38 +944,27 @@ export const previewLetter = async (req, res) => {
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
+        ctx.fillText(`${outwardNo}`, width * 0.209, height * 0.223);
 
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
+        ctx.fillText(formattedDate, width * 0.115, height * 0.236);
 
         // to name
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.023, height * 0.299);
+        ctx.fillText(name, width * 0.060, height * 0.299);
 
         // Dear name,
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name + ",", width * 0.077, height * 0.360);
-
-        // Split misconduct reason into two parts (50 chars each)
-        const part1 = misconductReason.slice(0, 50);
-        const part2 = misconductReason.slice(50, 100);
+        ctx.fillText(name + ",", width * 0.110, height * 0.362);
 
         ctx.font = 'bold 25px "Poppins"';
-
-        // Draw first 50 chars
-        ctx.fillText(part1.trim(), width * 0.390, height * 0.433);
-
-        // Draw next 50 chars (only if exists)
-        if (part2.trim()) {
-          ctx.fillText(part2.trim(), width * 0.390, height * 0.465);
-        }
+        ctx.fillText(misconductReason, width * 0.060, height * 0.450);
 
         // Letter ID
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(`${tempId}`, width * 0.16, height * 0.780);
+        ctx.fillText(`${tempId}`, width * 0.23, height * 0.678);
 
         // Footer
         ctx.font = '40px "Ovo", serif';
@@ -923,24 +981,24 @@ export const previewLetter = async (req, res) => {
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
+        ctx.fillText(`${outwardNo}`, width * 0.195, height * 0.220);
 
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
+        ctx.fillText(formattedDate, width * 0.099, height * 0.234);
 
         // to name
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.023, height * 0.300);
+        ctx.fillText(name, width * 0.047, height * 0.295);
 
         // Dear name,
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name + ",", width * 0.080, height * 0.360);
+        ctx.fillText(name + ",", width * 0.099, height * 0.358);
 
         // Letter ID
         ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(`${tempId}`, width * 0.16, height * 0.809);
+        ctx.fillText(`${tempId}`, width * 0.22, height * 0.702);
 
         // Footer
         ctx.font = '40px "Ovo", serif';
@@ -949,7 +1007,7 @@ export const previewLetter = async (req, res) => {
         ctx.fillText(
           "https://certificate.nexcorealliance.com/verify-certificate",
           width / 2,
-          height * 0.843
+          height * 0.851
         );
       }
       else if (course === "Warning Regarding Punctuality and Professional Discipline") {
@@ -991,12 +1049,12 @@ export const previewLetter = async (req, res) => {
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(`${outwardNo}`, width * 0.215, height * 0.223);
+        ctx.fillText(`${outwardNo}`, width * 0.201, height * 0.223);
 
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(formattedDate, width * 0.100, height * 0.240);
+        ctx.fillText(formattedDate, width * 0.105, height * 0.240);
 
         // to name
         ctx.font = 'bold 25px "Poppins"';
@@ -1020,7 +1078,7 @@ export const previewLetter = async (req, res) => {
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(auditFormattedDate, width * 0.746, height * 0.408);
+        ctx.fillText(auditFormattedDate, width * 0.743, height * 0.408);
 
         // Letter ID
         ctx.font = 'bold 25px "Poppins"';

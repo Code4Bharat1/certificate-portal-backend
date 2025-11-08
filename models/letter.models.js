@@ -126,7 +126,7 @@ const letterSchema = new mongoose.Schema(
 
     auditDate: {
       type: Date,
-      required: true,
+      required: false,
     },
 
     issueDate: {
