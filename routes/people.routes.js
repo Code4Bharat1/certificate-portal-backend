@@ -1,156 +1,26 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import People from '../models/people.models.js';
-import { authenticate } from '../middleware/auth.middleware.js'; // optional, if you use it
+import multer from 'multer';
+import xlsx from 'xlsx';
+import { authenticate } from '../middleware/auth.middleware.js'; // Optional
 
 const router = express.Router();
-/**
- * @route   PUT /api/people/update-by-name
- * @desc    Update a person by name (instead of ID)
- * @access  Public
- */
-router.put(
-  '/update-by-name',
-  [
-    body('originalName').notEmpty().withMessage('Original name is required'),
-    body('name').optional().notEmpty().withMessage('Name cannot be empty'),
-    body('category')
-      .optional()
-      .isIn(['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR'])
-      .withMessage('Invalid category'),
-    body('phone')
-      .optional()
-      .matches(/^[0-9]{10}$/)
-      .withMessage('Phone must be a 10-digit number'),
-    body('parentPhone1')
-      .optional({ nullable: true, checkFalsy: true })
-      .matches(/^[0-9]{10}$/)
-      .withMessage('Parent Phone 1 must be a 10-digit number'),
-    body('parentPhone2')
-      .optional({ nullable: true, checkFalsy: true })
-      .matches(/^[0-9]{10}$/)
-      .withMessage('Parent Phone 2 must be a 10-digit number'),
-    body('aadhaarCard')
-      .optional({ nullable: true, checkFalsy: true })
-      .matches(/^[0-9]{12}$/)
-      .withMessage('Aadhaar card must be exactly 12 digits'),
-    body('address')
-      .optional({ nullable: true, checkFalsy: true })
-      .isLength({ max: 100 })
-      .withMessage('Address cannot exceed 100 characters'),
-  ],
-  async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        console.error('❌ Validation errors:', errors.array());
-        return res.status(400).json({ 
-          success: false,
-          message: errors.array()[0].msg,
-          errors: errors.array() 
-        });
-      }
 
-      const { originalName, originalPhone, name, category, batch, phone, parentPhone1, parentPhone2, aadhaarCard, address } = req.body;
-      
-      console.log('📝 Updating person by name:', { 
-        originalName,
-        originalPhone,
-        newName: name,
-        category,
-        batch,
-        phone,
-        parentPhone1,
-        parentPhone2,
-      });
-
-      // Find person by original name (and optionally phone for extra security)
-      const query = {
-        name: originalName
-      };
-
-      // If original phone is provided, use it as additional filter
-      if (originalPhone) {
-        query.phone = originalPhone;
-      }
-
-      console.log('🔍 Search query:', query);
-
-      // Validate batch requirement for FSD and BVOC
-      if (category && ['FSD', 'BVOC'].includes(category) && !batch) {
-        console.error('❌ Batch required for category:', category);
-        return res.status(400).json({ 
-          success: false,
-          message: 'Batch is required for FSD and BVOC categories' 
-        });
-      }
-
-      // Build update object
-      const updateData = {};
-      
-      if (name) updateData.name = name;
-      if (category) updateData.category = category;
-      if (batch !== undefined) updateData.batch = batch;
-
-      // Update parent phones (handle null/empty)
-      if (parentPhone1 !== undefined) {
-        updateData.parentPhone1 = parentPhone1 ? '91' + parentPhone1 : null;
-      }
-      if (parentPhone2 !== undefined) {
-        updateData.parentPhone2 = parentPhone2 ? '91' + parentPhone2 : null;
-      }
-
-      // Update aadhaar card (handle null/empty)
-      if (aadhaarCard !== undefined) {
-        updateData.aadhaarCard = aadhaarCard || null;
-      }
-
-      // Update address (handle null/empty)
-      if (address !== undefined) {
-        updateData.address = address ? address.trim() : null;
-      }
-
-      const person = await People.findOneAndUpdate(
-        query,
-        { $set: updateData },
-        { new: true, runValidators: true }
-      );
-
-      if (!person) {
-        console.error('❌ Person not found with name:', originalName);
-        return res.status(404).json({ 
-          success: false,
-          message: 'Person not found with the given name' 
-        });
-      }
-
-      res.status(200).json({ 
-        success: true,
-        message: 'Person updated successfully', 
-        person: {
-          name: person.name,
-          category: person.category,
-          batch: person.batch || '',
-          phone: person.phone,
-          parentPhone1: person.parentPhone1 || null,
-          parentPhone2: person.parentPhone2 || null,
-          aadhaarCard: person.aadhaarCard || null,
-          address: person.address || null,
-          disabled: person.disabled || false,
-          createdAt: person.createdAt,
-          updatedAt: person.updatedAt,
-        }
-      });
-    } catch (error) {
-      console.error('❌ Error updating person:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Server error', 
-        error: error.message 
-      });
+// Configure multer for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+        file.mimetype === 'application/vnd.ms-excel') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only Excel files are allowed'));
     }
   }
-);
+});
 
 /**
  * @route   POST /api/people
@@ -159,15 +29,18 @@ router.put(
  */
 router.post(
   '/',
-  // authenticate, // uncomment if you want only logged-in users to add people
   [
-    body('name').notEmpty().withMessage('Name is required'),
+    body('name').notEmpty().trim().withMessage('Name is required')
+      .isLength({ max: 50 }).withMessage('Name cannot exceed 50 characters'),
     body('category')
       .isIn(['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR'])
       .withMessage('Invalid category'),
     body('phone')
       .matches(/^[0-9]{10}$/)
       .withMessage('Phone must be a 10-digit number'),
+    body('batch')
+      .optional()
+      .trim(),
     body('parentPhone1')
       .optional({ nullable: true, checkFalsy: true })
       .matches(/^[0-9]{10}$/)
@@ -182,6 +55,7 @@ router.post(
       .withMessage('Aadhaar card must be exactly 12 digits'),
     body('address')
       .optional({ nullable: true, checkFalsy: true })
+      .trim()
       .isLength({ max: 100 })
       .withMessage('Address cannot exceed 100 characters'),
   ],
@@ -198,6 +72,7 @@ router.post(
       }
 
       const { name, category, batch, phone, parentPhone1, parentPhone2, aadhaarCard, address } = req.body;
+      
       console.log('📝 Adding new person:', { 
         name, category, batch, phone, 
         hasParentPhone1: !!parentPhone1,
@@ -215,8 +90,10 @@ router.post(
         });
       }
 
+      // Add country code to phone
       const phoneWithCountryCode = '91' + phone;
 
+      // Check for duplicate phone
       const existing = await People.findOne({ phone: phoneWithCountryCode });
       if (existing) {
         console.error('❌ Duplicate phone number:', phoneWithCountryCode);
@@ -226,8 +103,9 @@ router.post(
         });
       }
 
+      // Prepare person data
       const newPersonData = { 
-        name, 
+        name: name.trim(), 
         category, 
         batch: batch || '', 
         phone: phoneWithCountryCode,
@@ -252,10 +130,24 @@ router.post(
       await newPerson.save();
 
       console.log('✅ Person added successfully:', newPerson._id);
+      
       res.status(201).json({ 
         success: true,
         message: 'Person added successfully', 
-        person: newPerson 
+        person: {
+          _id: newPerson._id,
+          name: newPerson.name,
+          category: newPerson.category,
+          batch: newPerson.batch || '',
+          phone: newPerson.phone,
+          parentPhone1: newPerson.parentPhone1 || null,
+          parentPhone2: newPerson.parentPhone2 || null,
+          aadhaarCard: newPerson.aadhaarCard || null,
+          address: newPerson.address || null,
+          disabled: newPerson.disabled,
+          createdAt: newPerson.createdAt,
+          updatedAt: newPerson.updatedAt,
+        }
       });
     } catch (error) {
       console.error('❌ Error adding person:', error);
@@ -270,30 +162,25 @@ router.post(
 
 /**
  * @route   GET /api/people
- * @desc    Get all people (with optional category and batch filters)
+ * @desc    Get all people (with optional filters)
  * @access  Public
  */
 router.get('/', async (req, res) => {
   try {
-    const { category, batch } = req.query;
+    const { category, batch, disabled } = req.query;
 
     let filter = {};
-    if (category) filter.category = category;
-    if (batch) filter.batch = batch;
+    if (category && category !== 'all') filter.category = category;
+    if (batch && batch !== 'all') filter.batch = batch;
+    if (disabled !== undefined) filter.disabled = disabled === 'true';
 
-    console.log('📊 Fetching with filter:', filter);
+    console.log('📊 Fetching people with filter:', filter);
 
     const people = await People.find(filter).sort({ createdAt: -1 });
 
-    if (people.length === 0) {
-      console.log('⚠️ No people found with filter:', filter);
-      return res.json({ success: true, names: [] });
-    }
-
-    // Format data for frontend - include all fields including disabled status
+    // Format data for frontend
     const names = people.map((p) => ({
       _id: p._id,
-      internId: p._id, // For backward compatibility
       name: p.name,
       category: p.category,
       batch: p.batch || '',
@@ -316,7 +203,13 @@ router.get('/', async (req, res) => {
       disabled: disabledCount
     });
 
-    res.json({ success: true, names });
+    res.json({ 
+      success: true, 
+      names,
+      count: names.length,
+      enabledCount,
+      disabledCount
+    });
   } catch (error) {
     console.error('❌ Error fetching people:', error);
     res.status(500).json({ 
@@ -346,7 +239,7 @@ router.get('/:id', async (req, res) => {
       });
     }
 
-    console.log('✅ Person found:', person.name, '- Disabled:', person.disabled);
+    console.log('✅ Person found:', person.name);
 
     res.json({ 
       success: true, 
@@ -376,23 +269,25 @@ router.get('/:id', async (req, res) => {
 });
 
 /**
- * @route   PUT /api/people/:id
- * @desc    Edit/update a person
+ * @route   PUT /api/people/update-by-name
+ * @desc    Update a person by name and phone
  * @access  Public
  */
 router.put(
-  '/:id',
-  // authenticate, // uncomment if you want only logged-in users to edit people
+  '/update-by-name',
   [
-    body('name').optional().notEmpty().withMessage('Name cannot be empty'),
+    body('originalName').notEmpty().withMessage('Original name is required'),
+    body('originalPhone').notEmpty().withMessage('Original phone is required'),
+    body('name').optional().trim().notEmpty().withMessage('Name cannot be empty')
+      .isLength({ max: 50 }).withMessage('Name cannot exceed 50 characters'),
     body('category')
       .optional()
       .isIn(['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR'])
       .withMessage('Invalid category'),
     body('phone')
       .optional()
-      .matches(/^[0-9]{10}$/)
-      .withMessage('Phone must be a 10-digit number'),
+      .matches(/^91[0-9]{10}$/)
+      .withMessage('Phone must be in format 91XXXXXXXXXX'),
     body('parentPhone1')
       .optional({ nullable: true, checkFalsy: true })
       .matches(/^[0-9]{10}$/)
@@ -407,6 +302,7 @@ router.put(
       .withMessage('Aadhaar card must be exactly 12 digits'),
     body('address')
       .optional({ nullable: true, checkFalsy: true })
+      .trim()
       .isLength({ max: 100 })
       .withMessage('Address cannot exceed 100 characters'),
   ],
@@ -422,14 +318,40 @@ router.put(
         });
       }
 
-      const { name, category, batch, phone, parentPhone1, parentPhone2, aadhaarCard, address } = req.body;
-      console.log('📝 Updating person:', req.params.id, { 
-        name, category, batch, phone,
-        hasParentPhone1: parentPhone1 !== undefined,
-        hasParentPhone2: parentPhone2 !== undefined,
-        hasAadhaar: aadhaarCard !== undefined,
-        hasAddress: address !== undefined
+      const { 
+        originalName, 
+        originalPhone, 
+        name, 
+        category, 
+        batch, 
+        phone, 
+        parentPhone1, 
+        parentPhone2, 
+        aadhaarCard, 
+        address 
+      } = req.body;
+      
+      console.log('📝 Updating person by name:', { 
+        originalName,
+        originalPhone,
+        newName: name,
+        category,
+        batch
       });
+
+      // Find person by original name and phone
+      const person = await People.findOne({
+        name: originalName,
+        phone: originalPhone
+      });
+
+      if (!person) {
+        console.error('❌ Person not found');
+        return res.status(404).json({ 
+          success: false,
+          message: 'Person not found with the given name and phone' 
+        });
+      }
 
       // Validate batch requirement for FSD and BVOC
       if (category && ['FSD', 'BVOC'].includes(category) && !batch) {
@@ -440,61 +362,31 @@ router.put(
         });
       }
 
-      // Build update object
-      const updateData = {};
+      // Update fields
+      if (name) person.name = name.trim();
+      if (category) person.category = category;
+      if (batch !== undefined) person.batch = batch;
+      if (phone) person.phone = phone;
 
-      if (name) updateData.name = name;
-      if (category) updateData.category = category;
-      if (batch !== undefined) updateData.batch = batch;
-
-      // If phone is being updated, check for duplicates
-      if (phone) {
-        const phoneWithCountryCode = '91' + phone;
-        const existing = await People.findOne({ 
-          phone: phoneWithCountryCode,
-          _id: { $ne: req.params.id } // Exclude current person
-        });
-        if (existing) {
-          console.error('❌ Duplicate phone number:', phoneWithCountryCode);
-          return res.status(400).json({ 
-            success: false,
-            message: 'Another person already exists with this phone number' 
-          });
-        }
-        updateData.phone = phoneWithCountryCode;
-      }
-
-      // Update parent phones (handle null/empty)
+      // Update parent phones
       if (parentPhone1 !== undefined) {
-        updateData.parentPhone1 = parentPhone1 ? '91' + parentPhone1 : null;
+        person.parentPhone1 = parentPhone1 ? '91' + parentPhone1 : null;
       }
       if (parentPhone2 !== undefined) {
-        updateData.parentPhone2 = parentPhone2 ? '91' + parentPhone2 : null;
+        person.parentPhone2 = parentPhone2 ? '91' + parentPhone2 : null;
       }
 
-      // Update aadhaar card (handle null/empty)
+      // Update aadhaar card
       if (aadhaarCard !== undefined) {
-        updateData.aadhaarCard = aadhaarCard || null;
+        person.aadhaarCard = aadhaarCard || null;
       }
 
-      // Update address (handle null/empty)
+      // Update address
       if (address !== undefined) {
-        updateData.address = address ? address.trim() : null;
+        person.address = address ? address.trim() : null;
       }
 
-      const person = await People.findByIdAndUpdate(
-        req.params.id,
-        { $set: updateData },
-        { new: true, runValidators: true }
-      );
-
-      if (!person) {
-        console.error('❌ Person not found:', req.params.id);
-        return res.status(404).json({ 
-          success: false,
-          message: 'Person not found' 
-        });
-      }
+      await person.save();
 
       console.log('✅ Person updated successfully:', person._id);
 
@@ -511,7 +403,7 @@ router.put(
           parentPhone2: person.parentPhone2 || null,
           aadhaarCard: person.aadhaarCard || null,
           address: person.address || null,
-          disabled: person.disabled || false,
+          disabled: person.disabled,
           createdAt: person.createdAt,
           updatedAt: person.updatedAt,
         }
@@ -551,9 +443,6 @@ router.patch('/:id', async (req, res) => {
       });
     }
 
-    const action = disabled ? 'disabled' : 'enabled';
-
-    // Update disabled status
     const person = await People.findByIdAndUpdate(
       personId,
       { $set: { disabled } },
@@ -568,11 +457,8 @@ router.patch('/:id', async (req, res) => {
       });
     }
 
-    console.log(`✅ Person ${action} successfully:`, {
-      id: person._id,
-      name: person.name,
-      disabled: person.disabled
-    });
+    const action = disabled ? 'disabled' : 'enabled';
+    console.log(`✅ Person ${action} successfully:`, person.name);
 
     res.status(200).json({
       success: true,
@@ -612,6 +498,7 @@ router.delete('/:id', async (req, res) => {
     console.log('🗑️ Deleting person:', req.params.id);
     
     const deleted = await People.findByIdAndDelete(req.params.id);
+    
     if (!deleted) {
       console.error('❌ Person not found:', req.params.id);
       return res.status(404).json({ 
@@ -624,7 +511,11 @@ router.delete('/:id', async (req, res) => {
 
     res.status(200).json({ 
       success: true,
-      message: 'Person deleted successfully' 
+      message: 'Person deleted successfully',
+      deletedPerson: {
+        name: deleted.name,
+        category: deleted.category
+      }
     });
   } catch (error) {
     console.error('❌ Error deleting person:', error);
@@ -637,8 +528,230 @@ router.delete('/:id', async (req, res) => {
 });
 
 /**
+ * @route   POST /api/people/bulk-upload
+ * @desc    Bulk upload people from Excel file
+ * @access  Public
+ */
+router.post('/bulk-upload', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded'
+      });
+    }
+
+    console.log('📤 Processing bulk upload...');
+
+    // Parse Excel file
+    const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const data = xlsx.utils.sheet_to_json(worksheet);
+
+    console.log(`📊 Found ${data.length} rows in Excel file`);
+
+    const successfulUploads = [];
+    const failedUploads = [];
+
+    for (const row of data) {
+      try {
+        // Validate required fields
+        if (!row.name || !row.category || !row.phone) {
+          failedUploads.push({
+            row,
+            error: 'Missing required fields (name, category, or phone)'
+          });
+          continue;
+        }
+
+        // Validate phone format
+        const phoneStr = String(row.phone).replace(/\D/g, '');
+        if (phoneStr.length !== 10) {
+          failedUploads.push({
+            row,
+            error: 'Phone must be 10 digits'
+          });
+          continue;
+        }
+
+        // Validate category
+        if (!['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR'].includes(row.category)) {
+          failedUploads.push({
+            row,
+            error: 'Invalid category'
+          });
+          continue;
+        }
+
+        // Validate batch for FSD and BVOC
+        if (['FSD', 'BVOC'].includes(row.category) && !row.batch) {
+          failedUploads.push({
+            row,
+            error: 'Batch is required for FSD and BVOC categories'
+          });
+          continue;
+        }
+
+        const phoneWithCountryCode = '91' + phoneStr;
+
+        // Check for duplicate
+        const existing = await People.findOne({ phone: phoneWithCountryCode });
+        if (existing) {
+          failedUploads.push({
+            row,
+            error: 'Phone number already exists'
+          });
+          continue;
+        }
+
+        // Prepare person data
+        const personData = {
+          name: String(row.name).trim(),
+          category: row.category,
+          batch: row.batch || '',
+          phone: phoneWithCountryCode,
+          disabled: false
+        };
+
+        // Add optional fields
+        if (row.parentPhone1) {
+          const pp1 = String(row.parentPhone1).replace(/\D/g, '');
+          if (pp1.length === 10) {
+            personData.parentPhone1 = '91' + pp1;
+          }
+        }
+
+        if (row.parentPhone2) {
+          const pp2 = String(row.parentPhone2).replace(/\D/g, '');
+          if (pp2.length === 10) {
+            personData.parentPhone2 = '91' + pp2;
+          }
+        }
+
+        if (row.aadhaarCard) {
+          const aadhaar = String(row.aadhaarCard).replace(/\D/g, '');
+          if (aadhaar.length === 12) {
+            personData.aadhaarCard = aadhaar;
+          }
+        }
+
+        if (row.address) {
+          personData.address = String(row.address).trim().substring(0, 100);
+        }
+
+        // Create person
+        const newPerson = new People(personData);
+        await newPerson.save();
+        
+        successfulUploads.push({
+          name: personData.name,
+          phone: personData.phone
+        });
+
+      } catch (error) {
+        failedUploads.push({
+          row,
+          error: error.message
+        });
+      }
+    }
+
+    console.log(`✅ Bulk upload completed: ${successfulUploads.length} success, ${failedUploads.length} failed`);
+
+    res.status(200).json({
+      success: true,
+      message: `Bulk upload completed: ${successfulUploads.length} successful, ${failedUploads.length} failed`,
+      count: successfulUploads.length,
+      successful: successfulUploads,
+      failed: failedUploads
+    });
+
+  } catch (error) {
+    console.error('❌ Bulk upload error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Bulk upload failed',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   GET /api/people/template
+ * @desc    Download Excel template for bulk upload
+ * @access  Public
+ */
+router.get('/template', (req, res) => {
+  try {
+    console.log('📥 Generating Excel template...');
+
+    // Create template data
+    const templateData = [
+      {
+        name: 'John Doe',
+        category: 'FSD',
+        batch: 'B-1 (June-2025)',
+        phone: '9876543210',
+        parentPhone1: '9876543211',
+        parentPhone2: '9876543212',
+        aadhaarCard: '123456789012',
+        address: '123 Main Street, City'
+      },
+      {
+        name: 'Jane Smith',
+        category: 'BVOC',
+        batch: 'B-1 2025',
+        phone: '9876543213',
+        parentPhone1: '',
+        parentPhone2: '',
+        aadhaarCard: '',
+        address: ''
+      }
+    ];
+
+    // Create worksheet
+    const worksheet = xlsx.utils.json_to_sheet(templateData);
+
+    // Set column widths
+    worksheet['!cols'] = [
+      { wch: 20 }, // name
+      { wch: 20 }, // category
+      { wch: 20 }, // batch
+      { wch: 15 }, // phone
+      { wch: 15 }, // parentPhone1
+      { wch: 15 }, // parentPhone2
+      { wch: 15 }, // aadhaarCard
+      { wch: 30 }  // address
+    ];
+
+    // Create workbook
+    const workbook = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(workbook, worksheet, 'People Template');
+
+    // Generate buffer
+    const buffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+    // Set headers
+    res.setHeader('Content-Disposition', 'attachment; filename=people-template.xlsx');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+    console.log('✅ Template generated successfully');
+    res.send(buffer);
+
+  } catch (error) {
+    console.error('❌ Error generating template:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to generate template',
+      error: error.message
+    });
+  }
+});
+
+/**
  * @route   GET /api/people/stats/summary
- * @desc    Get statistics (total people, per category, per batch, disabled count)
+ * @desc    Get statistics summary
  * @access  Public
  */
 router.get('/stats/summary', async (req, res) => {
@@ -655,26 +768,34 @@ router.get('/stats/summary', async (req, res) => {
       { $sort: { count: -1 } }
     ]);
 
-    // Count by batch (only for FSD and BVOC)
+    // Count by batch
     const batchStats = await People.aggregate([
-      { $match: { category: { $in: ['FSD', 'BVOC'] }, batch: { $exists: true, $ne: '' } } },
-      { $group: { _id: { category: '$category', batch: '$batch' }, count: { $sum: 1 } } },
+      { 
+        $match: { 
+          category: { $in: ['FSD', 'BVOC'] }, 
+          batch: { $exists: true, $ne: '' } 
+        } 
+      },
+      { 
+        $group: { 
+          _id: { category: '$category', batch: '$batch' }, 
+          count: { $sum: 1 } 
+        } 
+      },
       { $sort: { '_id.category': 1, '_id.batch': 1 } }
     ]);
 
-    // Count disabled people by category
+    // Count disabled by category
     const disabledByCategory = await People.aggregate([
       { $match: { disabled: true } },
       { $group: { _id: '$category', count: { $sum: 1 } } },
       { $sort: { count: -1 } }
     ]);
 
-    // Count people with Aadhaar cards
     const withAadhaar = await People.countDocuments({ 
       aadhaarCard: { $exists: true, $ne: null } 
     });
 
-    // Count people with addresses
     const withAddress = await People.countDocuments({ 
       address: { $exists: true, $ne: null } 
     });
@@ -697,13 +818,7 @@ router.get('/stats/summary', async (req, res) => {
       }))
     };
 
-    console.log('✅ Statistics fetched:', {
-      total: stats.total,
-      enabled: stats.totalEnabled,
-      disabled: stats.totalDisabled,
-      withAadhaar: stats.withAadhaar,
-      withAddress: stats.withAddress
-    });
+    console.log('✅ Statistics fetched successfully');
 
     res.json({
       success: true,
