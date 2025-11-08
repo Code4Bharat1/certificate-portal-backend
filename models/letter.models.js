@@ -5,7 +5,7 @@ const letterSchema = new mongoose.Schema(
     letterId: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
 
     name: {
@@ -25,23 +25,17 @@ const letterSchema = new mongoose.Schema(
       default: "",
     },
 
+    letterType: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
     course: {
       type: String,
       required: true,
-      enum: [
-        "Appreciation Letter",
-        "Experience Certificate",
-        "Internship Joining Letter",
-        "Memo",
-        "Non-Disclosure Agreement",
-        "Offer Letter",
-        "Warning Letter",
-        "Live Project Agreement",
-        "Community Letter"
-      ],
+      trim: true,
     },
-
-    /* ✅ NEW FIELDS TO SUPPORT FRONTEND */
 
     subject: {
       type: String,
@@ -73,12 +67,73 @@ const letterSchema = new mongoose.Schema(
       maxlength: 1000,
     },
 
+    committeeType: {
+      type: String,
+      enum: ["Technical", "Sports", "Cultural", ""],
+      default: "",
+    },
+
+    attendancePercent: {
+      type: Number,
+      min: 0,
+      max: 99,
+    },
+
+    subjectName: {
+      type: String,
+      maxlength: 10,
+    },
+
+    projectName: {
+      type: String,
+      maxlength: 15,
+    },
+
+    misconductReason: {
+      type: String,
+      maxlength: 50,
+    },
+
+    attendanceMonth: {
+      type: String,
+      maxlength: 15,
+    },
+
+    attendanceYear: {
+      type: String,
+      maxlength: 4,
+    },
+
+    performanceMonth: {
+      type: String,
+      maxlength: 15,
+    },
+
+    performanceYear: {
+      type: String,
+      maxlength: 4,
+    },
+
+    testingPhase: {
+      type: String,
+      maxlength: 15,
+    },
+
+    uncover: {
+      type: String,
+      maxlength: 15,
+    },
+
+    auditDate: {
+      type: Date,
+      required: true,
+    },
+
     issueDate: {
       type: Date,
       required: true,
     },
 
-    /* ✅ NEW FIELDS REQUESTED */
     outwardNo: {
       type: String,
       required: true,
@@ -116,5 +171,28 @@ const letterSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Auto generate outward number & serial
+// letterSchema.pre("validate", async function (next) {
+//   if (this.isNew) {
+//     const year = new Date().getFullYear();
+//     const prefix = "C4B"; // can be dynamic if needed per category
+
+//     // Find last letter to increment outwardSerial
+//     const last = await mongoose.model("Letter").findOne().sort({ outwardSerial: -1 });
+
+//     const nextSerial = last ? last.outwardSerial + 1 : 1;
+//     this.outwardSerial = nextSerial;
+
+//     // Generate outwardNo: C4B-001-YYYY format
+//     this.outwardNo = `${prefix}-${String(nextSerial).padStart(3, "0")}-${year}`;
+
+//     // Generate unique letterId if missing
+//     if (!this.letterId) {
+//       this.letterId = `${this.category}-${Date.now()}`;
+//     }
+//   }
+//   next();
+// });
 
 export default mongoose.model("Letter", letterSchema);
