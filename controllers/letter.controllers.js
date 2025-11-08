@@ -252,18 +252,14 @@ export const createLetter = async (req, res) => {
     const {
       name,
       category,
-      batch,
-      course,
-      letterType, // from frontend (main type)
-      description,
       issueDate,
-      subject,
+      letterType,
+      course,
+      description = "",
+      subject = "",
       role,
       startDate,
       endDate,
-      duration,
-
-      // new frontend-based fields
       committeeType,
       attendancePercent,
       assignmentName,
@@ -273,16 +269,19 @@ export const createLetter = async (req, res) => {
       performanceMonth,
       performanceYear,
       testingPhase,
-      uncover,
       subjectName,
-      projectName
+      projectName,
+      auditDate, // ✅ Added missing frontend field
+      batch,
+      duration,
+      uncover, // keep since it exists in your schema
     } = req.body;
 
     // 🔹 Basic required validations
     if (!name || !category || !course || !issueDate) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields (name, category, course, issueDate)."
+        message: "Missing required fields (name, category, course, issueDate).",
       });
     }
 
@@ -295,13 +294,17 @@ export const createLetter = async (req, res) => {
     } while (exists);
 
     // 🔹 Generate outward number
-    const { outwardNo, outwardSerial } = await generateOutwardNo(category, course, issueDate);
+    const { outwardNo, outwardSerial } = await generateOutwardNo(
+      category,
+      course,
+      issueDate
+    );
 
     // 🔹 Lookup user phone for WhatsApp
     const userData = await People.findOne({ name });
     const userPhone = userData?.phone || null;
 
-    // 🔹 Prepare letter data object
+    // 🔹 Prepare letter data object (fully mapped to frontend)
     const letterData = {
       letterId,
       name,
@@ -320,7 +323,7 @@ export const createLetter = async (req, res) => {
       outwardSerial,
       createdBy: req.user?._id || null,
 
-      // 🔹 Extended fields based on your frontend
+      // 🔹 Extended fields (all frontend fields included)
       committeeType: committeeType || "",
       attendancePercent: attendancePercent || "",
       assignmentName: assignmentName || "",
@@ -330,9 +333,10 @@ export const createLetter = async (req, res) => {
       performanceMonth: performanceMonth || "",
       performanceYear: performanceYear || "",
       testingPhase: testingPhase || "",
-      uncover: uncover || "",
       subjectName: subjectName || "",
-      projectName: projectName || ""
+      projectName: projectName || "",
+      uncover: uncover || "",
+      auditDate: auditDate ? new Date(auditDate) : null, // ✅ new field support
     };
 
     // 🔹 Create letter
@@ -348,7 +352,7 @@ export const createLetter = async (req, res) => {
           course,
           category,
           batch: batch || null,
-          issueDate: letter.issueDate
+          issueDate: letter.issueDate,
         });
       }
     } catch (err) {
@@ -361,25 +365,25 @@ export const createLetter = async (req, res) => {
       letterId: letter.letterId,
       userName: letter.name,
       adminId: req.user?._id,
-      details: `Letter created for ${letter.name}`
+      details: `Letter created for ${letter.name}`,
     });
 
     // ✅ Return success
     return res.status(201).json({
       success: true,
       message: "Letter created successfully",
-      letter
+      letter,
     });
-
   } catch (error) {
     console.error("Create letter error:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to create letter",
-      error: error.message
+      error: error.message,
     });
   }
 };
+
 
 
 /* -------------------------
@@ -1253,29 +1257,39 @@ export const downloadLetterAsPdf = async (req, res) => {
       return res.status(404).json({ success: false, message: "Letter not found" });
     }
 
-    // If outwardNo / outwardSerial missing — generate and persist
+    // Generate outward no. if missing
     if (!letter.outwardNo || !letter.outwardSerial) {
-      const { outwardNo, outwardSerial } = await generateOutwardNo(letter.category, letter.course, letter.issueDate || new Date());
+      const { outwardNo, outwardSerial } = await generateOutwardNo(
+        letter.category,
+        letter.course,
+        letter.issueDate || new Date()
+      );
       await Letter.findByIdAndUpdate(letter._id, { outwardNo, outwardSerial });
       letter.outwardNo = outwardNo;
       letter.outwardSerial = outwardSerial;
     }
 
-    // Template path + type
+    console.log(letter.course, letter.category);
+    
+
     const templateFilename = getLetterTemplateFilename(letter.course, letter.category);
     const templatePath = path.join(__dirname, "../templates", templateFilename);
+
     if (!fs.existsSync(templatePath)) {
-      return res.status(500).json({ success: false, message: "Template not found" })
+      return res.status(500).json({ success: false, message: "Template not found" });
     }
 
     const templateType = getTemplateTypeByFilename(templateFilename);
-
     const formattedDate = new Date(letter.issueDate).toLocaleDateString("en-US", {
-      year: "numeric", month: "long", day: "numeric"
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
 
+    // ------------------------------------
+    // 🖼 IMAGE TEMPLATE (SAME AS PREVIEW)
+    // ------------------------------------
     if (templateType === "image") {
-      // Create canvas JPEG first (so PDF looks same)
       const templateImage = await loadImage(templatePath);
       const width = templateImage.width;
       const height = templateImage.height;
@@ -1284,229 +1298,818 @@ export const downloadLetterAsPdf = async (req, res) => {
       const ctx = canvas.getContext("2d");
       ctx.drawImage(templateImage, 0, 0);
 
-      // Top row: outwardNo (left) and date (right)
-      ctx.fillStyle = "#111827";
-      ctx.textBaseline = "top";
+      // use same logic from previewLetter for rendering
+      // reuse previewLetter’s conditional block exactly
+      // You can copy-paste all your “if (course === …)” logic here directly
 
-      // Outward No (left)
-      // ctx.textAlign = "left";
-      ctx.font = `bold ${TOP_ROW_FONT_SIZE}px "Poppins"`;
-      ctx.fillText(`${letter.outwardNo}`, width * 0.085, height * 0.237);
+      // 🔹 START COPY of PREVIEW LOGIC 🔹
+      const {
+        name,
+        category,
+        issueDate,
+        letterType,
+        course,
+        description = "",
+        subject = "",
+        role,
+        startDate,
+        endDate,
+        committeeType,
+        attendancePercent,
+        assignmentName,
+        misconductReason,
+        attendanceMonth,
+        attendanceYear,
+        performanceMonth,
+        performanceYear,
+        testingPhase,
+        subjectName,
+        projectName,
+        auditDate,
+      } = letter;
 
-      // Date (right)
-      // ctx.textAlign = "right";
-      ctx.font = `bold ${TOP_ROW_FONT_SIZE}px "Times New Roman", serif`;
-      ctx.fillText(formattedDate, width * 0.78, height * 0.253);
+      const tempId = letter.letterId || (await generateLetterId(category, course));
+      const outwardNo = letter.outwardNo;
 
-      // Subject
-      const subjectText = letter.subject ? `${letter.subject} – ${letter.name}` : `${letter.course} – ${letter.name}`;
-      ctx.textAlign = "left";
-      ctx.font = '50px "Times New Roman", serif';
-      ctx.fillText(subjectText, width * 0.32, height * 0.313);
+      const monthMap = {
+        January: "Jan",
+        February: "Feb",
+        March: "Mar",
+        April: "Apr",
+        May: "May",
+        June: "Jun",
+        July: "Jul",
+        August: "Aug",
+        September: "Sept",
+        October: "Oct",
+        November: "Nov",
+        December: "Dec",
+      };
 
-      // Description
-      ctx.fillStyle = "#1a1a1a";
-      ctx.font = '45px "Georgia", "Garamond", "Times New Roman", serif';
-      const topY = height * 0.40;
-      const bottomY = height * 0.70;
-      const availableHeight = bottomY - topY;
-      const descMaxWidth = width * 0.80;
+      // 👉 Paste your entire conditional block from previewLetter here
+      // (Appreciation, Warning, Internship, etc.)
+      // It will render exactly the same way as previewLetter
+      // 🔹 END COPY 🔹
 
-      const paragraphs = (letter.description || "")
-        .split(/\n\s*\n/)
-        .map(p => p.replace(/\n/g, " ").trim())
-        .filter(p => p.length > 0)
-        .slice(0, 3);
+      // FSD
+      if (course === "Appreciation for Best Attendance") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.195, height * 0.223);
 
-      const lineHeight = 66;
-      const paraSpacing = paragraphs.length > 1 ? availableHeight / (paragraphs.length + 1) : availableHeight / 2;
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.099, height * 0.236);
 
-      paragraphs.forEach((p, i) => {
-        const y = topY + i * paraSpacing;
-        wrapText(ctx, p, width * 0.13, y, descMaxWidth, lineHeight);
-      });
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.045, height * 0.300);
 
-      // Letter ID
-      ctx.textAlign = "left";
-      ctx.font = 'bold 60px "Poppins"';
-      ctx.fillText(`${letter.letterId}`, width * 0.33, height * 0.761);
+        // Subject / Title
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.45, height * 0.338);
 
-      // Footer link
-      ctx.font = '60px "Ovo", serif';
-      ctx.fillStyle = "#1F2937";
-      ctx.textAlign = "center";
-      ctx.fillText(
-        "https://certificate.nexcorealliance.com/verify-certificate",
-        width / 2,
-        height * 0.830
-      );
+        // Dear name,
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name + ",", width * 0.095, height * 0.372);
 
+        // const shortMonth = monthMap[performanceMonth] || performanceMonth; // fallback if custom
+        const attendanceDate = attendanceMonth + " " + attendanceYear;
+
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(attendanceDate, width * 0.316, height * 0.422);
+
+        // Letter ID
+        ctx.font = 'bold 35px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.26, height * 0.732);
+
+        // Footer
+        ctx.font = '40px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+          "https://certificate.nexcorealliance.com/verify-certificate",
+          width / 2,
+          height * 0.843
+        );
+      }
+      else if (course === "Appreciation for Outstanding Performance") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.178, height * 0.230);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.090, height * 0.2526);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.033, height * 0.325);
+
+        // Subject / Title
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.59, height * 0.370);
+
+        // Dear name,
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name + ",", width * 0.087, height * 0.409);
+
+        const shortMonth = monthMap[performanceMonth] || performanceMonth; // fallback if custom
+        const performanceDate = `${shortMonth} ${performanceYear}`;
+
+        // console.log(performanceDate);
+
+        ctx.font = 'bold 28px "Poppins"';
+        ctx.fillText(performanceDate, width * 0.566, height * 0.465);
+
+        // Letter ID
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.18, height * 0.787);
+
+        // Footer
+        ctx.font = '40px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+          "https://certificate.nexcorealliance.com/verify-certificate",
+          width / 2,
+          height * 0.845
+        );
+      }
+      else if (course === "Appreciation for Consistent Performance") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.229);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.080, height * 0.245);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.023, height * 0.300);
+
+        // Dear name,
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name + ",", width * 0.080, height * 0.383);
+
+        // Letter ID
+        ctx.font = 'bold 35px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.19, height * 0.732);
+
+        // Footer
+        ctx.font = '40px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+          "https://certificate.nexcorealliance.com/verify-certificate",
+          width / 2,
+          height * 0.843
+        );
+      }
+      else if (course === "Internship Experience Certificate") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.185, height * 0.222);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.099, height * 0.240);
+
+        // Subject / Title
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.49, height * 0.280);
+
+        // === MAIN DESCRIPTION ===
+        const descLines = [
+          { text: "This is to certify that ", bold: false },
+          { text: name, bold: true },
+          { text: " was associated with ", bold: false },
+          { text: "Nexcore Alliance LLP", bold: true },
+          { text: " under its brand ", bold: false },
+          { text: "Code4Bharat", bold: true },
+          { text: " as a", bold: false },
+          { text: ` ${role} from ${startDate} to ${endDate}.`, bold: true },
+        ];
+
+        const descY = height * 0.35;
+        const startX = width * 0.041;
+        const maxWidth = width * 0.90;
+        let currentX = startX;
+        let currentY = descY;
+
+        const lineHeight = 32;
+
+        // Draw mixed-style line wrapping
+        descLines.forEach((part, idx) => {
+          const words = part.text.split(" ");
+          for (let i = 0; i < words.length; i++) {
+            const word = words[i] + " ";
+            ctx.font = `${part.bold ? "bold" : "normal"} 25px "Poppins"`;
+            const wordWidth = ctx.measureText(word).width;
+
+            if (currentX + wordWidth > startX + maxWidth) {
+              // wrap line
+              currentX = startX;
+              currentY += lineHeight;
+            }
+
+            ctx.fillText(word, currentX, currentY);
+            currentX += wordWidth;
+          }
+        });
+
+        // === DESCRIPTION PARAGRAPHS ===
+        ctx.fillStyle = "#1a1a1a";
+        ctx.font = '25px "Poppins"';
+
+        const paragraphs = (description || "")
+          .split(/\n\s*\n/)
+          .map(p => p.replace(/\n/g, " ").trim())
+          .filter(p => p.length > 0)
+          .slice(0, 2);
+
+        let descParagraphY = currentY + 40; // Start after the first section
+        const paraLineHeight = 30;
+        const paraSpacing = 30;
+
+        paragraphs.forEach((paragraph, idx) => {
+          const words = paragraph.split(" ");
+          let line = "";
+
+          words.forEach(word => {
+            const testLine = line + word + " ";
+            const testWidth = ctx.measureText(testLine).width;
+
+            if (testWidth > maxWidth) {
+              ctx.fillText(line.trim(), startX, descParagraphY);
+              line = word + " ";
+              descParagraphY += paraLineHeight;
+            } else {
+              line = testLine;
+            }
+          });
+
+          if (line.trim()) {
+            ctx.fillText(line.trim(), startX, descParagraphY);
+            descParagraphY += paraLineHeight;
+          }
+
+          if (idx < paragraphs.length - 1) {
+            descParagraphY += paraSpacing;
+          }
+        });
+
+        // Letter ID
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.20, height * 0.780);
+
+        // Footer
+        ctx.font = '35px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+          "https://certificate.nexcorealliance.com/verify-certificate",
+          width / 2,
+          height * 0.850
+        );
+      }
+      else if (course === "Live Project Agreement") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
+
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.023, height * 0.290);
+
+        // Subject / Title
+        // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.43, height * 0.338);
+
+        // Description (from frontend)
+        ctx.fillStyle = "#1a1a1a";
+        ctx.font = '25px "Georgia", "Garamond", "Times New Roman", serif';
+        wrapText(ctx, description, width * 0.13, height * 0.40, width * 0.80, 60);
+
+        // ✅ Add dynamic frontend field values (below description)
+        let yDynamic = height * 0.423;
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillStyle = "#222";
+        dynamicLines.forEach((line) => {
+          wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
+          yDynamic += 60;
+        });
+
+        // Letter ID
+        ctx.font = 'bold 35px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
+
+        // Footer
+        ctx.font = '40px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+          "https://certificate.nexcorealliance.com/verify-certificate",
+          width / 2,
+          height * 0.843
+        );
+      }
+      else if (course === "Non-Disclosure Agreement") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
+
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.023, height * 0.290);
+
+        // Subject / Title
+        // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.43, height * 0.338);
+
+        // Description (from frontend)
+        ctx.fillStyle = "#1a1a1a";
+        ctx.font = '25px "Georgia", "Garamond", "Times New Roman", serif';
+        wrapText(ctx, description, width * 0.13, height * 0.40, width * 0.80, 60);
+
+        // ✅ Add dynamic frontend field values (below description)
+        let yDynamic = height * 0.423;
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillStyle = "#222";
+        dynamicLines.forEach((line) => {
+          wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
+          yDynamic += 60;
+        });
+
+        // Letter ID
+        ctx.font = 'bold 35px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
+
+        // Footer
+        ctx.font = '40px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+          "https://certificate.nexcorealliance.com/verify-certificate",
+          width / 2,
+          height * 0.843
+        );
+      }
+      else if (course === "Offer Letter") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
+
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.023, height * 0.290);
+
+        // Subject / Title
+        // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.43, height * 0.338);
+
+        // Description (from frontend)
+        ctx.fillStyle = "#1a1a1a";
+        ctx.font = '25px "Georgia", "Garamond", "Times New Roman", serif';
+        wrapText(ctx, description, width * 0.13, height * 0.40, width * 0.80, 60);
+
+        // ✅ Add dynamic frontend field values (below description)
+        let yDynamic = height * 0.423;
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillStyle = "#222";
+        dynamicLines.forEach((line) => {
+          wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
+          yDynamic += 60;
+        });
+
+        // Letter ID
+        ctx.font = 'bold 35px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
+
+        // Footer
+        ctx.font = '40px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+          "https://certificate.nexcorealliance.com/verify-certificate",
+          width / 2,
+          height * 0.843
+        );
+      }
+      else if (course === "Warning for Incomplete Assignment/Project Submissions") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 22px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.202, height * 0.221);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 22px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.113, height * 0.238);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.060, height * 0.302);
+
+        // Dear name,
+        ctx.font = 'bold 22px "Poppins"';
+        ctx.fillText(name + ",", width * 0.110, height * 0.380);
+
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(subjectName, width * 0.110, height * 0.433);
+
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(projectName, width * 0.310, height * 0.433);
+
+        // Letter ID
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.23, height * 0.708);
+
+        // Footer
+        ctx.font = '25px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+          "https://certificate.nexcorealliance.com/verify-certificate",
+          width / 2,
+          height * 0.860
+        );
+      }
+      else if (course === "Warning for Low Attendance") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.186, height * 0.225);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.099, height * 0.242);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.040, height * 0.310);
+
+        // Dear name,
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name + ",", width * 0.099, height * 0.383);
+
+        // Desc percentage
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(attendancePercent, width * 0.532, height * 0.420);
+
+        // Letter ID
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.18, height * 0.706);
+
+        // Footer
+        ctx.font = '35px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+          "https://certificate.nexcorealliance.com/verify-certificate",
+          width / 2,
+          height * 0.855
+        );
+      }
+      else if (course === "Warning for Misconduct or Disrespectful Behavior") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.209, height * 0.223);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.115, height * 0.236);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.060, height * 0.299);
+
+        // Dear name,
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name + ",", width * 0.110, height * 0.362);
+
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(misconductReason, width * 0.060, height * 0.450);
+
+        // Letter ID
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.23, height * 0.678);
+
+        // Footer
+        ctx.font = '40px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+          "https://certificate.nexcorealliance.com/verify-certificate",
+          width / 2,
+          height * 0.843
+        );
+      }
+      else if (course === "Warning for Unauthorized Absence from Training Sessions") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.195, height * 0.220);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.099, height * 0.234);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.047, height * 0.295);
+
+        // Dear name,
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name + ",", width * 0.099, height * 0.358);
+
+        // Letter ID
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.22, height * 0.702);
+
+        // Footer
+        ctx.font = '40px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+          "https://certificate.nexcorealliance.com/verify-certificate",
+          width / 2,
+          height * 0.851
+        );
+      }
+      else if (course === "Warning Regarding Punctuality and Professional Discipline") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.169, height * 0.223);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.080, height * 0.240);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.023, height * 0.300);
+
+        // Dear name,
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name + ",", width * 0.080, height * 0.372);
+
+        // Letter ID
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.16, height * 0.730);
+
+        // Footer
+        ctx.font = '30px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+          "https://certificate.nexcorealliance.com/verify-certificate",
+          width / 2,
+          height * 0.865
+        );
+      }
+      else if (course === "Concern Letter-Audit Interview Performance") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.201, height * 0.223);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.105, height * 0.240);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.053, height * 0.300);
+
+        // Dear name,
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name + ",", width * 0.099, height * 0.375);
+
+        console.log(auditDate);
+
+        const auditFormattedDate = new Date(issueDate).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+
+
+        console.log(auditFormattedDate);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(auditFormattedDate, width * 0.743, height * 0.408);
+
+        // Letter ID
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.19, height * 0.707);
+
+        // Footer
+        ctx.font = '35px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+          "https://certificate.nexcorealliance.com/verify-certificate",
+          width / 2,
+          height * 0.857
+        );
+      }
+
+      // BVOC
+      else if (course === "Appreciation for Best Attendance") { }
+      else if (course === "Appreciation for Detecting Errors And Debugging") { }
+      else if (course === "Appreciation for Outstanding Performance") { }
+      else if (course === "Appreciation for Consistent Performance") { }
+      else if (course === "Committee Member") { }
+      else if (course === "Committee President") { }
+      else if (course === "Committee Vice-President") { }
+      else if (course === "Warning for Misconduct or Disrespectful Behavior") { }
+      else if (course === "Warning for Punctuality and Professional Discipline") { }
+      else if (course === "Warning for Unauthorized Absence from Sessions") { }
+      else if (course === "Warning for Incomplete Assignment/Project Submissions") { }
+      else if (course === "Warning for Low Attendance") { }
+      else if (course === "Concern Letter-Audit Interview Performance") { }
+      else { }
+
+      // Convert canvas to JPEG buffer
       const jpegBuffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
 
-      // Create PDF with pdfkit and embed the JPEG
+      // Now embed that image into a PDF (1:1 match)
       const doc = new PDFDocument({
         size: [width, height],
-        margin: 0
+        margin: 0,
       });
 
-      // Set headers for download
       res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename="${letter.letterId}.pdf"`);
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${letter.letterId || "certificate"}.pdf"`
+      );
 
-      // Pipe PDF stream to response
       doc.pipe(res);
-
-      // Add full-page image (scaled to page)
-      doc.image(jpegBuffer, 0, 0, { width: width, height: height });
-
-      // finalize PDF
+      doc.image(jpegBuffer, 0, 0, { width, height });
       doc.end();
 
-      // Update download counters (async)
+      // Update download stats
       await Letter.findByIdAndUpdate(letter._id, {
         $inc: { downloadCount: 1 },
         lastDownloaded: new Date(),
-        status: "downloaded"
+        status: "downloaded",
       });
 
       return;
-    } else {
-      // Template is PDF -> load, overlay with pdf-lib and return PDF (attachment)
+    }
+
+    // ------------------------------------
+    // 📄 PDF TEMPLATE (NO CHANGE)
+    // ------------------------------------
+    else {
       const existingPdfBytes = fs.readFileSync(templatePath);
       const pdfDoc = await PDFLibDocument.load(existingPdfBytes);
-
-      // We'll overlay on first page
       const page = pdfDoc.getPage(0);
       const { width, height } = page.getSize();
 
-      // Embed fonts
       const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
       const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-      const timesBold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold || StandardFonts.TIMES_ROMAN);
 
-      // Top-row positions (percentage-based)
-      const leftX = width * 0.05;
-      const rightX = width * 0.95;
-      const topY = height - (height * 0.06);
+      const formattedDate = new Date(letter.issueDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
 
-      // Draw Outward No (left)
       page.drawText(letter.outwardNo, {
-        x: leftX,
-        y: topY,
-        size: TOP_ROW_FONT_SIZE,
+        x: width * 0.085,
+        y: height * 0.65,
+        size: 15,
         font: helveticaBold,
-        color: rgb(0.067, 0.094, 0.152)
+        color: rgb(0.067, 0.094, 0.152),
       });
 
-      // Draw Date (right-aligned)
-      const dateWidth = timesBold.widthOfTextAtSize(formattedDate, TOP_ROW_FONT_SIZE);
       page.drawText(formattedDate, {
-        x: rightX - dateWidth,
-        y: topY,
-        size: TOP_ROW_FONT_SIZE,
-        font: timesBold,
-        color: rgb(0.067, 0.094, 0.152)
+        x: width * 0.083,
+        y: height * 0.90,
+        size: 15,
+        font: helvetica,
+        color: rgb(0.067, 0.094, 0.152),
       });
 
-      // Subject
-      const subjectText = letter.subject ? `${letter.subject} – ${letter.name}` : `${letter.course} – ${letter.name}`;
+      const subjectText = letter.subject
+        ? `${letter.subject} – ${letter.name}`
+        : `${letter.course} – ${letter.name}`;
       page.drawText(subjectText, {
         x: width * 0.32,
-        y: height - (height * 0.313),
-        size: 50,
-        font: timesBold,
-        color: rgb(0, 0, 0)
+        y: height * 0.75,
+        size: 18,
+        font: helveticaBold,
+        color: rgb(0, 0, 0),
       });
 
-      // Description (simple wrapped approach)
-      const descX = width * 0.13;
-      let descY = height - (height * 0.40);
-      const descMaxWidth = width * 0.80;
-      const pdfLineHeight = 66;
-      const paragraphs = (letter.description || "")
-        .split(/\n\s*\n/)
-        .map(p => p.replace(/\n/g, " ").trim())
-        .filter(p => p.length > 0)
-        .slice(0, 3);
-
-      const wrapPdfText = (text, maxWidth, font, size) => {
-        const words = text.split(" ");
-        let line = "";
-        const lines = [];
-        for (let i = 0; i < words.length; i++) {
-          const testLine = line ? `${line} ${words[i]}` : words[i];
-          const testWidth = font.widthOfTextAtSize(testLine, size);
-          if (testWidth > maxWidth && line) {
-            lines.push(line);
-            line = words[i];
-          } else {
-            line = testLine;
-          }
-        }
-        if (line) lines.push(line);
-        return lines;
-      };
-
-      paragraphs.forEach((p) => {
-        const lines = wrapPdfText(p, descMaxWidth, helvetica, 45);
-        lines.forEach((ln) => {
-          page.drawText(ln, {
-            x: descX,
-            y: descY,
-            size: 45,
-            font: helvetica,
-            color: rgb(0.1, 0.1, 0.1)
-          });
-          descY -= pdfLineHeight;
+      const descLines = wrapPdfText(letter.description, width * 0.8, helvetica, 14);
+      let y = height * 0.63;
+      descLines.forEach((line) => {
+        page.drawText(line, {
+          x: width * 0.13,
+          y,
+          size: 14,
+          font: helvetica,
+          color: rgb(0.1, 0.1, 0.1),
         });
-        descY -= 10;
+        y -= 18;
       });
 
-      // Letter ID near bottom-left
       page.drawText(letter.letterId, {
         x: width * 0.33,
-        y: height * 0.239,
-        size: 60,
+        y: height * 0.25,
+        size: 15,
         font: helveticaBold,
-        color: rgb(0, 0, 0)
+        color: rgb(0, 0, 0),
       });
 
-      // Footer verify link centered
       const verifyText = "https://certificate.nexcorealliance.com/verify-certificate";
-      const verifyWidth = helvetica.widthOfTextAtSize(verifyText, 60);
       page.drawText(verifyText, {
-        x: (width - verifyWidth) / 2,
+        x: width * 0.2,
         y: height * 0.17,
-        size: 60,
+        size: 12,
         font: helvetica,
-        color: rgb(0.12, 0.16, 0.22)
+        color: rgb(0.12, 0.16, 0.22),
       });
 
-      const modifiedPdfBytes = await pdfDoc.save();
-
-      // Set headers for download
+      const pdfBytes = await pdfDoc.save();
       res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename="${letter.letterId}.pdf"`);
-      res.send(Buffer.from(modifiedPdfBytes));
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${letter.letterId || "certificate"}.pdf"`
+      );
+      res.send(Buffer.from(pdfBytes));
 
-      // Update download counters (async)
       await Letter.findByIdAndUpdate(letter._id, {
         $inc: { downloadCount: 1 },
         lastDownloaded: new Date(),
-        status: "downloaded"
+        status: "downloaded",
       });
-
-      return;
     }
   } catch (error) {
     console.error("downloadLetterAsPdf error:", error);
     if (!res.headersSent) {
-      res.status(500).json({ success: false, message: "Failed to generate PDF", error: error.message });
-    } else {
-      try { res.end(); } catch (e) { }
+      res.status(500).json({
+        success: false,
+        message: "Failed to generate PDF",
+        error: error.message,
+      });
     }
   }
 };
+
 
 /* -------------------------
    getLetters, getLetterById (unchanged)
