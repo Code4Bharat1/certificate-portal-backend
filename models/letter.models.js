@@ -81,12 +81,12 @@ const letterSchema = new mongoose.Schema(
 
     subjectName: {
       type: String,
-      maxlength: 10,
+      maxlength: 20,
     },
 
     projectName: {
       type: String,
-      maxlength: 15,
+      maxlength: 40,
     },
 
     misconductReason: {
@@ -116,12 +116,12 @@ const letterSchema = new mongoose.Schema(
 
     testingPhase: {
       type: String,
-      maxlength: 15,
+      maxlength: 30,
     },
 
     uncover: {
       type: String,
-      maxlength: 15,
+      maxlength: 30,
     },
 
     auditDate: {
