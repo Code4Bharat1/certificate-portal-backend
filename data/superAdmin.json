@@ -1,0 +1,30 @@
+{
+  "id": "super_admin_001",
+  "email": "hr@nexcorealliance.com",
+  "password": "$2b$10$CGL8rpRaLu/GIJLjpUDUoe2YOmZ5a/zg.HJaKnzVKZG2X1q2GsrxW",
+  "profile": {
+    "name": "Super Admin",
+    "email": "hr@nexcorealliance.com",
+    "phone": "9892398976",
+    "whatsappNumber": "9892398976",
+    "organization": "Nexcore Alliance & Code 4 Bharat",
+    "designation": "HR Manager",
+    "location": "Mumbai, India",
+    "role": "Super Admin",
+    "adminType": "main",
+    "permissions": [
+      "marketing-junction",
+      "code4bharat",
+      "bootcamp",
+      "bvoc",
+      "fsd",
+      "hr",
+      "admin_management"
+    ],
+    "joinedDate": "2024-01-01T00:00:00.000Z",
+    "lastLogin": "2025-11-10T03:44:19.376Z",
+    "profileImage": "",
+    "status": "active",
+    "isSystemAdmin": true
+  }
+}

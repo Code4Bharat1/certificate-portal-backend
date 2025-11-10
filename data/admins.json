@@ -1,0 +1,32 @@
+[
+  {
+    "id": "admin_001",
+    "name": "Abhishek Sharma",
+    "email": "abhishek@code4bharat.com",
+    "phone": "9876543210",
+    "password": "$2b$10$1qoVvW4BdpDpme0sI9pXaOXh44a3He1fi2XioiAmluh0JoEjJT9r2",
+    "role": "code4bharat_admin",
+    "permissions": [
+      "code4bharat"
+    ],
+    "status": "active",
+    "lastLogin": "2025-11-08T10:30:00.000Z",
+    "createdAt": "2024-03-15T08:00:00.000Z",
+    "createdBy": "super_admin_001"
+  },
+  {
+    "id": "admin_002",
+    "name": "Priya Patel",
+    "email": "priya@marketingjunction.com",
+    "phone": "9876543211",
+    "password": "$2b$10$fMb7NVrVxMK/DqABdha2sO8wc6WBm5lAymnwLr1Jwc3gwJIaDG6/O",
+    "role": "marketing_junction_admin",
+    "permissions": [
+      "marketing-junction"
+    ],
+    "status": "active",
+    "lastLogin": "2025-11-09T11:45:00.000Z",
+    "createdAt": "2024-04-20T09:30:00.000Z",
+    "createdBy": "super_admin_001"
+  }
+]
