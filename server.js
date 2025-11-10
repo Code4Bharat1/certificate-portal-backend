@@ -54,6 +54,8 @@ const allowedOrigins = [
   'https://www.education.marketiqjunction.com',
   'https://certificate.nexcorealliance.com',
   'https://www.certificate.nexcorealliance.com',
+  'https://portal.nexcorealliance.com',
+  'https://www.portal.nexcorealliance.com',
   'http://localhost:3000', // certificate
   'http://localhost:3010', // c4b
   'http://localhost:3001'  // mj
