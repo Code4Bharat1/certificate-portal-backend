@@ -1,4 +1,5 @@
 import { rgb, StandardFonts } from "pdf-lib";
+import { wrapText } from "../controllers/letter.controllers.js";
 
 // Convert performanceMonth to short form (e.g., "Jan", "Feb", etc.)
 const monthMap = {
@@ -15,22 +16,6 @@ const monthMap = {
     November: "Nov",
     December: "Dec"
 };
-
-/* Helper for PDF text wrapping */
-function wrapPdfText(text, maxWidth, font, size) {
-  const words = text.split(" ");
-  let line = "";
-  const lines = [];
-  for (let word of words) {
-    const test = line + word + " ";
-    if (font.widthOfTextAtSize(test, size) > maxWidth) {
-      lines.push(line.trim());
-      line = word + " ";
-    } else line = test;
-  }
-  if (line) lines.push(line.trim());
-  return lines;
-}
 
 const getFSDTemplateCode = async (
     ctx,
