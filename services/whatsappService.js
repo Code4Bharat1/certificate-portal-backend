@@ -314,9 +314,13 @@ export const getLetterMessageTemplate = (letterType, subType, data) => {
     category,
     batch,
     issueDate,
+    credentialId,
     letterId,
     organizationName = 'Nexcore Alliance',
   } = data;
+  
+  // Use credentialId if available, otherwise fallback to letterId
+  const finalId = credentialId || letterId;
 
   const formattedDate = new Date(issueDate).toLocaleDateString('en-IN', {
     year: 'numeric',
@@ -334,885 +338,1447 @@ export const getLetterMessageTemplate = (letterType, subType, data) => {
     baseUrl = 'https://portal.nexcorealliance.com';
   }
 
-  const verificationLink = `${baseUrl}/verify-letter/${letterId}`;
-  const downloadLink = `${baseUrl}/download-letter/${letterId}`;
+  const verificationLink = `${baseUrl}/verify-certificate/`;
+  const downloadLink = `${baseUrl}/verify-certificate-`;
+
+  // Get Terms & Conditions link based on category
+  const getTermsLink = () => {
+    if (category?.toLowerCase().includes('fsd') || 
+        category?.toLowerCase().includes('bvoc') || 
+        category?.toLowerCase().includes('dm')) {
+      return 'https://forms.gle/FSD_DM_FORM_LINK'; // Replace with actual FSD/DM form link
+    } else if (category?.toLowerCase().includes('marketing') || 
+               category?.toLowerCase().includes('mj') || 
+               category?.toLowerCase().includes('code4bharat') || 
+               category?.toLowerCase().includes('c4b')) {
+      return 'https://forms.gle/MJ_C4B_FORM_LINK'; // Replace with actual MJ/C4B form link
+    } else {
+      return 'https://forms.gle/HR_OPS_FORM_LINK'; // Replace with actual HR/Operations form link
+    }
+  };
 
   // Letter type specific messages
   const templates = {
     'Appreciation Letter': {
       'Appreciation for Best Performance': `
-🌟 *Congratulations on Your Outstanding Achievement!*
+╔═══════════════════════════╗
+   🏆 *EXCELLENCE RECOGNIZED* 🏆
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-We are delighted to inform you that you have been recognized for your *exceptional performance*!
+We are delighted to recognize your *exceptional performance* that has set new benchmarks of excellence!
 
-📜 *Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-🏆 Recognition: *Best Performance*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *RECOGNITION DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Your dedication, hard work, and consistent excellence have set a benchmark for others. This achievement reflects your commitment to quality and professional growth.
+👤 *Recipient:* ${userName}
+🎖️ *Achievement:* Best Performance
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *Verify Your Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+💡 *YOUR ACHIEVEMENT*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Your Letter:*
-${downloadLink}
+Your unwavering dedication, consistent excellence, and outstanding contributions have distinguished you among your peers. This recognition reflects your commitment to quality, innovation, and professional growth.
 
-Keep up the excellent work! We look forward to your continued success.
+You have not only met expectations but exceeded them remarkably, setting a gold standard for others to aspire to.
 
----
-_With Pride & Best Wishes,_
-*${organizationName} Team*
-💼 Building Future Leaders
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Keep up the exceptional work! Your journey of excellence continues to inspire us all.
+
+*With Pride & Highest Regards,*
+_${organizationName} Team_
+🌟 *Celebrating Excellence, Inspiring Greatness*
+
+📞 *Support:* +91 9892398976
       `.trim(),
 
       'Appreciation for Consistent Performance': `
-⭐ *Recognition for Your Consistent Excellence!*
+╔═══════════════════════════╗
+   ⭐ *CONSISTENCY HONORED* ⭐
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-We are pleased to acknowledge your *consistent and reliable performance* throughout your tenure with us!
+We are pleased to recognize your *exemplary consistency and reliability* throughout your journey with us!
 
-📜 *Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-🎯 Recognition: *Consistent Performance*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *RECOGNITION DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Your steady commitment and reliable work ethic have been instrumental in maintaining high standards. Consistency is the key to greatness, and you have demonstrated this admirably.
+👤 *Recipient:* ${userName}
+🎯 *Achievement:* Consistent Performance
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *Verify Your Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+💡 *YOUR ACHIEVEMENT*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Your Letter:*
-${downloadLink}
+Consistency is the hallmark of true professionals, and you have demonstrated this quality admirably. Your steady commitment, reliable work ethic, and unwavering dedication have been instrumental in maintaining high standards.
 
-Thank you for being a dependable team member!
+While many shine momentarily, you have proven that sustained excellence is the true measure of capability. Your consistent contributions create a foundation of trust and reliability.
 
----
-_With Appreciation,_
-*${organizationName} Team*
-🌟 Excellence Through Consistency
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Thank you for being a dependable pillar of excellence!
+
+*With Sincere Appreciation,*
+_${organizationName} Team_
+🌟 *Excellence Through Consistency*
+
+📞 *Support:* +91 9892398976
       `.trim(),
 
       'Appreciation for Detecting Errors and Debugging': `
-🔍 *Recognition for Your Technical Excellence!*
+╔═══════════════════════════╗
+   🔍 *TECHNICAL EXCELLENCE* 🔍
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-We are impressed to recognize your *exceptional skills in error detection and debugging*!
+We are impressed to recognize your *exceptional technical acumen* in error detection and debugging!
 
-📜 *Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-💻 Recognition: *Error Detection & Debugging*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *RECOGNITION DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Your sharp analytical skills and attention to detail have saved countless hours and prevented potential issues. Your ability to identify and resolve complex problems is truly commendable.
+👤 *Recipient:* ${userName}
+💻 *Achievement:* Error Detection & Debugging Excellence
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *Verify Your Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+💡 *YOUR ACHIEVEMENT*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Your Letter:*
-${downloadLink}
+Your sharp analytical skills, meticulous attention to detail, and systematic problem-solving approach have proven invaluable. You possess the rare ability to identify complex issues quickly and resolve them efficiently.
 
-Keep leveraging your problem-solving expertise!
+Your contributions have:
+• Prevented potential system failures
+• Saved countless development hours
+• Enhanced code quality standards
+• Mentored peers in best practices
 
----
-_With Technical Admiration,_
-*${organizationName} Team*
-🐛 Making Code Better, One Bug at a Time
+This technical excellence and dedication to quality make you an asset to any development team.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Continue leveraging your problem-solving expertise to create robust solutions!
+
+*With Technical Admiration,*
+_${organizationName} Team_
+🐛 *Making Code Better, One Solution at a Time*
+
+📞 *Support:* +91 9892398976
       `.trim(),
 
       'Appreciation for Outstanding Performance': `
-🏆 *Congratulations on Your Exceptional Achievement!*
+╔═══════════════════════════╗
+   🏆 *EXCELLENCE ACHIEVED* 🏆
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
 We are thrilled to recognize your *outstanding performance* that has exceeded all expectations!
 
-📜 *Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-⭐ Recognition: *Outstanding Performance*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *RECOGNITION DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Your exceptional contributions, innovative approach, and dedication have made a significant impact. You have consistently demonstrated excellence and set new standards of achievement.
+👤 *Recipient:* ${userName}
+⭐ *Achievement:* Outstanding Performance
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *Verify Your Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+💡 *YOUR ACHIEVEMENT*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Your Letter:*
-${downloadLink}
+Your exceptional contributions, innovative thinking, and unwavering dedication have made a significant and lasting impact. You have consistently demonstrated:
 
-We are proud to have you as part of our team!
+✓ Exceptional work quality
+✓ Innovative problem-solving
+✓ Leadership by example
+✓ Commitment to excellence
 
----
-_With Highest Regards,_
-*${organizationName} Team*
-🌟 Celebrating Excellence
+You don't just meet standards—you set them. Your performance serves as an inspiration and benchmark for professional excellence.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+We are proud to have you as part of our community. Continue to soar!
+
+*With Highest Regards,*
+_${organizationName} Team_
+🌟 *Celebrating Outstanding Achievement*
+
+📞 *Support:* +91 9892398976
       `.trim(),
 
       'Appreciation for Best Attendance': `
-🎯 *Recognition for Your Exemplary Attendance!*
+╔═══════════════════════════╗
+   🎯 *COMMITMENT HONORED* 🎯
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-We are pleased to acknowledge your *outstanding attendance record*!
+We are pleased to recognize your *exemplary attendance record* and unwavering commitment!
 
-📜 *Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-📅 Recognition: *Best Attendance*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *RECOGNITION DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Your punctuality and regular presence demonstrate your commitment and professionalism. Consistency in attendance is a reflection of dedication, and you have set a wonderful example.
+👤 *Recipient:* ${userName}
+📅 *Achievement:* Best Attendance
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *Verify Your Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+💡 *YOUR ACHIEVEMENT*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Your Letter:*
-${downloadLink}
+Your punctuality and consistent presence demonstrate exceptional professionalism and commitment. Attendance is more than just being present—it reflects:
 
-Thank you for your reliability and dedication!
+✓ Dedication to learning
+✓ Respect for time and commitments
+✓ Professional work ethic
+✓ Reliability and accountability
 
----
-_With Appreciation,_
-*${organizationName} Team*
-⏰ Punctuality is the Soul of Business
+You have set a wonderful example for your peers, proving that success begins with showing up consistently.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Thank you for your reliability and exemplary dedication!
+
+*With Appreciation,*
+_${organizationName} Team_
+⏰ *Punctuality: The Soul of Professional Excellence*
+
+📞 *Support:* +91 9892398976
       `.trim(),
     },
 
     'Experience Certificate': {
       default: `
-📄 *Your Experience Certificate is Ready!*
+╔═══════════════════════════╗
+   📄 *EXPERIENCE VALIDATED* 📄
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-We are pleased to provide you with your *Experience Certificate* acknowledging your valuable contribution to our organization.
+We are pleased to provide you with your *Experience Certificate*, validating your professional journey and contributions.
 
-📜 *Certificate Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-📋 Document: *Experience Certificate*
-🆔 Certificate ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *CERTIFICATE DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-This certificate validates your professional experience and contributions during your tenure with us. We wish you the very best in your future endeavors.
+👤 *Name:* ${userName}
+📜 *Document:* Experience Certificate
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *Verify Your Certificate:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+💼 *ABOUT THIS CERTIFICATE*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Your Certificate:*
-${downloadLink}
+This certificate officially validates your professional experience and acknowledges the valuable contributions you made during your tenure with ${organizationName}.
 
-Best wishes for your career ahead!
+Your dedication, skills, and professional conduct have been exemplary. We wish you continued success in all your future endeavors.
 
----
-_With Best Regards,_
-*${organizationName} Team*
-💼 Your Success is Our Pride
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR CERTIFICATE*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Best wishes for a bright and successful career ahead!
+
+*With Best Regards,*
+_${organizationName} Team_
+💼 *Your Success is Our Pride*
+
+📞 *Support:* +91 9892398976
       `.trim(),
     },
 
     'Internship Joining Letter': {
       'Internship Joining Letter - Paid': `
-🎉 *Welcome to Our Team - Paid Internship!*
+╔═══════════════════════════╗
+   🎉 *WELCOME ABOARD!* 🎉
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-Congratulations! We are delighted to welcome you as a *Paid Intern* at ${organizationName}!
+*Congratulations!* We are delighted to welcome you as a *Paid Intern* at ${organizationName}!
 
-📜 *Joining Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-💼 Position: *Paid Intern*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *JOINING LETTER DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-We are excited to have you on board! This internship will provide you with valuable industry experience, mentorship, and opportunities for professional growth.
+👤 *Name:* ${userName}
+💼 *Position:* Paid Intern
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *Verify Your Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🚀 *WHAT AWAITS YOU*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Your Letter:*
-${downloadLink}
+This internship offers you:
+✓ Real-world industry experience
+✓ Expert mentorship & guidance
+✓ Skill development opportunities
+✓ Professional growth pathways
+✓ Stipend for your contributions
 
-📞 *Next Steps:*
-Please review the terms and conditions in your joining letter and confirm your acceptance at your earliest convenience.
+We believe in nurturing talent and providing meaningful learning experiences that shape successful careers.
 
-We look forward to working with you!
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
----
-_Welcome Aboard!_
-*${organizationName} Team*
-🚀 Begin Your Journey to Success
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📌 *NEXT STEPS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+1. Review all terms and conditions
+2. Confirm your acceptance
+3. Complete onboarding formalities
+4. Prepare to embark on your learning journey
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+We look forward to working with you and supporting your professional development!
+
+*Welcome to the Team!*
+_${organizationName} Team_
+🚀 *Begin Your Journey to Excellence*
+
+📞 *Support:* +91 9892398976
       `.trim(),
 
       'Internship Joining Letter - Unpaid': `
-🎉 *Welcome to Our Learning Community!*
+╔═══════════════════════════╗
+   🎉 *WELCOME TO LEARNING!* 🎉
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-Congratulations! We are pleased to welcome you as an *Intern* at ${organizationName}!
+*Congratulations!* We are pleased to welcome you as an *Intern* at ${organizationName}!
 
-📜 *Joining Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-📚 Position: *Intern*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *JOINING LETTER DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-This internship offers you an excellent opportunity to gain practical experience, develop professional skills, and build your career foundation.
+👤 *Name:* ${userName}
+📚 *Position:* Intern
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *Verify Your Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🌟 *YOUR LEARNING JOURNEY*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Your Letter:*
-${downloadLink}
+This internship provides:
+✓ Hands-on practical experience
+✓ Industry-standard skill development
+✓ Professional mentorship
+✓ Real-world project exposure
+✓ Career foundation building
 
-📞 *Next Steps:*
-Please review the internship terms and confirm your acceptance. We're excited to support your learning journey!
+While this is an unpaid internship, the knowledge, experience, and skills you'll gain are invaluable investments in your future career.
 
----
-_Welcome to the Team!_
-*${organizationName} Team*
-📖 Learn, Grow, Succeed
-      `.trim(),
-    },
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-    'Memo': {
-      default: `
-📋 *Important Official Memorandum*
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
 
-Dear ${userName},
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📌 *NEXT STEPS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-This is to inform you that an official memorandum has been issued regarding important organizational matters.
+1. Review internship terms carefully
+2. Confirm your acceptance
+3. Complete joining formalities
+4. Get ready to learn and grow
 
-📜 *Memo Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-📄 Document: *Official Memo*
-🆔 Memo ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━
 
-Please review the memo carefully and take necessary actions as specified.
+We're excited to support your learning and professional development!
 
-🔗 *View Memo:*
-${verificationLink}
+*Welcome to the Team!*
+_${organizationName} Team_
+📖 *Learn. Grow. Succeed.*
 
-⬇️ *Download Memo:*
-${downloadLink}
-
-For any queries, please contact the administration.
-
----
-_Official Communication,_
-*${organizationName} Team*
-📢 Stay Informed, Stay Connected
-      `.trim(),
-    },
-
-    'Non-Disclosure Agreement': {
-      default: `
-🔒 *Non-Disclosure Agreement - Action Required*
-
-Dear ${userName},
-
-We are sending you an important *Non-Disclosure Agreement (NDA)* that requires your attention and acknowledgment.
-
-📜 *NDA Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-📋 Document: *Non-Disclosure Agreement*
-🆔 Document ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
-
-This agreement ensures the protection of confidential information and intellectual property. Please review it carefully.
-
-🔗 *View NDA:*
-${verificationLink}
-
-⬇️ *Download NDA:*
-${downloadLink}
-
-⚠️ *Action Required:*
-Please review, sign, and return the acknowledgment copy at your earliest convenience.
-
----
-_Confidentiality Matters,_
-*${organizationName} Team*
-🔐 Protecting What Matters
-      `.trim(),
-    },
-
-    'Offer Letter': {
-      default: `
-🎊 *Congratulations - Job Offer Letter!*
-
-Dear ${userName},
-
-*Congratulations!* We are thrilled to extend you an offer to join ${organizationName}!
-
-📜 *Offer Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-💼 Document: *Job Offer Letter*
-🆔 Offer ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
-
-We are excited to have you join our team! Your skills and experience make you an excellent fit for this role.
-
-🔗 *View Offer Letter:*
-${verificationLink}
-
-⬇️ *Download Offer Letter:*
-${downloadLink}
-
-📞 *Next Steps:*
-Please review the offer details and confirm your acceptance by the specified deadline. We look forward to welcoming you aboard!
-
----
-_Excited to Have You!_
-*${organizationName} Team*
-🎯 Your Career, Our Commitment
-      `.trim(),
-    },
-
-    'Promotion Letter': {
-      default: `
-🎉 *Congratulations on Your Well-Deserved Promotion!*
-
-Dear ${userName},
-
-We are delighted to inform you about your *promotion* in recognition of your outstanding contributions and dedication!
-
-📜 *Promotion Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-🚀 Document: *Promotion Letter*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
-
-Your hard work, leadership, and exceptional performance have earned you this advancement. We are confident you will excel in your new role!
-
-🔗 *Verify Your Letter:*
-${verificationLink}
-
-⬇️ *Download Your Letter:*
-${downloadLink}
-
-Congratulations once again! We look forward to your continued success.
-
----
-_With Pride & Congratulations,_
-*${organizationName} Team*
-📈 Growing Together, Succeeding Together
-      `.trim(),
-    },
-
-    'Timeline Letter': {
-      default: `
-📅 *Important Timeline Information*
-
-Dear ${userName},
-
-We are sharing important timeline information regarding your program/project activities.
-
-📜 *Timeline Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-⏰ Document: *Timeline Letter*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
-
-Please review the timeline carefully and ensure you meet all scheduled deadlines and milestones.
-
-🔗 *View Timeline:*
-${verificationLink}
-
-⬇️ *Download Timeline:*
-${downloadLink}
-
-⏰ Time management is key to success. Plan accordingly!
-
----
-_Stay Organized,_
-*${organizationName} Team*
-📊 Plan. Execute. Succeed.
+📞 *Support:* +91 9892398976
       `.trim(),
     },
 
     'Warning Letter': {
       'Warning for Incomplete Assignment/Project Submissions': `
-⚠️ *Official Warning - Incomplete Submissions*
+╔═══════════════════════════╗
+   ⚠️ *OFFICIAL WARNING* ⚠️
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-This is an official warning regarding *incomplete assignment/project submissions*.
+This is an *official warning* regarding incomplete assignment/project submissions.
 
-📜 *Warning Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-⚠️ Subject: *Incomplete Submissions*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *WARNING DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Timely completion and submission of assignments/projects is crucial for your learning and evaluation. Multiple instances of incomplete submissions have been noted.
+👤 *Name:* ${userName}
+⚠️ *Subject:* Incomplete Submissions
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *View Warning Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📌 *CONCERN RAISED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Letter:*
-${downloadLink}
+Multiple instances of incomplete or missing assignment/project submissions have been recorded. Timely completion and submission are crucial for:
 
-🔴 *Action Required:*
-Please ensure all pending work is completed immediately and maintain submission deadlines going forward. Continued non-compliance may result in further disciplinary action.
+• Your learning progress evaluation
+• Skill development assessment  
+• Academic/professional records
+• Overall program completion
 
-We believe in your potential and expect improvement.
+This pattern affects not only your grades but also your learning outcomes and professional development.
 
----
-_Academic/Professional Standards,_
-*${organizationName} Team*
-📝 Discipline Leads to Excellence
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *VIEW WARNING LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔴 *IMMEDIATE ACTION REQUIRED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+1. Complete all pending submissions immediately
+2. Adhere to all future deadlines strictly
+3. Seek help if facing difficulties
+4. Maintain consistent work quality
+
+*Consequences of Non-Compliance:*
+Continued non-compliance may result in academic penalties, reduced grades, or removal from the program.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+We believe in your potential and expect immediate improvement. Our team is available to support you.
+
+*Academic Standards Office,*
+_${organizationName} Team_
+📝 *Discipline & Dedication Lead to Excellence*
+
+📞 *Support:* +91 9892398976
       `.trim(),
 
       'Warning for Low Attendance': `
-⚠️ *Official Warning - Attendance Concern*
+╔═══════════════════════════╗
+   ⚠️ *ATTENDANCE WARNING* ⚠️
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-This is an official warning regarding your *low attendance record*.
+This is an *official warning* regarding your below-standard attendance record.
 
-📜 *Warning Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-⚠️ Subject: *Low Attendance*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *WARNING DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Regular attendance is mandatory for successful completion of the program and your professional development. Your attendance has fallen below acceptable standards.
+👤 *Name:* ${userName}
+⚠️ *Subject:* Low Attendance
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *View Warning Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📌 *CONCERN RAISED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Letter:*
-${downloadLink}
+Your attendance has fallen significantly below the required standards. Regular attendance is mandatory for:
 
-🔴 *Action Required:*
-Immediate improvement in attendance is expected. Further absences without valid reasons may lead to serious consequences, including removal from the program.
+• Comprehensive skill acquisition
+• Effective learning outcomes
+• Program completion eligibility
+• Professional development
+• Academic standing maintenance
 
-Your presence matters for your own success.
+Absence from sessions results in knowledge gaps that directly impact your overall performance and future opportunities.
 
----
-_Attendance & Discipline,_
-*${organizationName} Team*
-⏰ Presence Builds Excellence
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *VIEW WARNING LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔴 *IMMEDIATE ACTION REQUIRED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+1. Attend all future sessions without fail
+2. Inform in advance for any unavoidable absences
+3. Provide valid documentation for medical/emergency leaves
+4. Meet with your coordinator to discuss attendance recovery
+
+*Consequences of Non-Compliance:*
+Failure to improve attendance may result in ineligibility for certification, program termination, or academic penalties.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your presence is essential for your own success. We expect immediate improvement.
+
+*Academic Affairs Office,*
+_${organizationName} Team_
+⏰ *Presence Builds Excellence*
+
+📞 *Support:* +91 9892398976
       `.trim(),
 
       'Warning for Misconduct or Disrespectful Behavior': `
-⚠️ *Official Warning - Behavioral Concern*
+╔═══════════════════════════╗
+   ⚠️ *BEHAVIORAL WARNING* ⚠️
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-This is an official warning regarding *misconduct and disrespectful behavior*.
+This is an *official warning* regarding misconduct and disrespectful behavior.
 
-📜 *Warning Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-⚠️ Subject: *Misconduct/Disrespectful Behavior*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *WARNING DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Professional and respectful behavior is expected from all members at all times. Recent incidents of misconduct have been brought to our attention.
+👤 *Name:* ${userName}
+⚠️ *Subject:* Misconduct/Disrespectful Behavior
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *View Warning Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📌 *CONCERN RAISED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Letter:*
-${downloadLink}
+Recent incidents of misconduct and disrespectful behavior have been brought to our attention. We maintain strict standards of conduct that include:
 
-🔴 *Action Required:*
-Any further instances of disrespectful behavior or misconduct will result in immediate disciplinary action, which may include termination/dismissal.
+• Respectful interaction with peers and faculty
+• Professional communication at all times
+• Adherence to organizational policies
+• Maintaining a positive learning environment
+• Upholding ethical standards
 
-We expect professional conduct at all times.
+Such behavior disrupts the learning environment and is unacceptable under any circumstances.
 
----
-_Code of Conduct,_
-*${organizationName} Team*
-🤝 Respect is Non-Negotiable
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *VIEW WARNING LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔴 *IMMEDIATE ACTION REQUIRED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+1. Demonstrate immediate behavioral improvement
+2. Maintain professional conduct at all times
+3. Issue formal apologies if applicable
+4. Attend mandatory counseling session if required
+
+*Consequences of Non-Compliance:*
+Any further instances of misconduct or disrespectful behavior will result in immediate disciplinary action, including possible termination/dismissal from the program.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Professional conduct is non-negotiable. We expect strict adherence to behavioral standards.
+
+*Disciplinary Committee,*
+_${organizationName} Team_
+🤝 *Respect is Mandatory, Not Optional*
+
+📞 *Support:* +91 9892398976
       `.trim(),
 
       'Warning for Unauthorized Absence from Training Sessions': `
-⚠️ *Official Warning - Unauthorized Absence*
+╔═══════════════════════════╗
+   ⚠️ *ABSENCE WARNING* ⚠️
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-This is an official warning regarding *unauthorized absence from training sessions*.
+This is an *official warning* regarding unauthorized absence from mandatory training sessions.
 
-📜 *Warning Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-⚠️ Subject: *Unauthorized Absence*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *WARNING DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Attendance at all scheduled training sessions is mandatory. Unauthorized absences disrupt the learning process and show lack of commitment.
+👤 *Name:* ${userName}
+⚠️ *Subject:* Unauthorized Training Absence
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *View Warning Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📌 *CONCERN RAISED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Letter:*
-${downloadLink}
+You have been absent from mandatory training sessions without prior authorization or valid justification. Attendance at training sessions is compulsory because:
 
-🔴 *Action Required:*
-Ensure full attendance at all future sessions. Prior approval is required for any planned absence. Continued violations may lead to program termination.
+• Training builds essential skills
+• Sessions are structured for progressive learning
+• Missed sessions create knowledge gaps
+• It reflects commitment to the program
+• Unauthorized absence disrupts group dynamics
 
-Your commitment is essential for success.
+Your absence without permission demonstrates lack of seriousness toward the program.
 
----
-_Training & Development,_
-*${organizationName} Team*
-📚 Learning Requires Presence
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *VIEW WARNING LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔴 *IMMEDIATE ACTION REQUIRED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+1. Ensure 100% attendance at all future training sessions
+2. Request prior permission for any planned absence with valid reasons
+3. Provide proper documentation for emergency absences
+4. Schedule make-up sessions for missed content
+
+*Consequences of Non-Compliance:*
+Continued unauthorized absences will result in program termination and ineligibility for certification.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your commitment to training is essential for your skill development and career success.
+
+*Training & Development Office,*
+_${organizationName} Team_
+📚 *Learning Requires Presence & Commitment*
+
+📞 *Support:* +91 9892398976
       `.trim(),
 
       'Warning Regarding Punctuality and Professional Discipline': `
-⚠️ *Official Warning - Punctuality & Discipline*
+╔═══════════════════════════╗
+   ⚠️ *PUNCTUALITY WARNING* ⚠️
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-This is an official warning regarding *punctuality and professional discipline*.
+This is an *official warning* regarding punctuality issues and lack of professional discipline.
 
-📜 *Warning Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-⚠️ Subject: *Punctuality & Discipline Issues*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *WARNING DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Punctuality and professional discipline are fundamental expectations. Repeated instances of late arrivals and lack of discipline have been observed.
+👤 *Name:* ${userName}
+⚠️ *Subject:* Punctuality & Discipline Issues
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *View Warning Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📌 *CONCERN RAISED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Letter:*
-${downloadLink}
+Repeated instances of late arrivals and lack of professional discipline have been documented. Punctuality and discipline are fundamental to:
 
-🔴 *Action Required:*
-Immediate improvement in punctuality and adherence to professional standards is expected. Failure to comply will result in further disciplinary measures.
+• Professional credibility
+• Team coordination
+• Respect for others' time
+• Organizational efficiency
+• Personal character development
 
-Time is respect. Discipline is success.
+Chronic tardiness reflects poorly on your commitment and professionalism.
 
----
-_Professional Standards,_
-*${organizationName} Team*
-⏱️ Punctuality Reflects Professionalism
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *VIEW WARNING LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔴 *IMMEDIATE ACTION REQUIRED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+1. Arrive on time for all sessions and activities
+2. Demonstrate professional discipline
+3. Plan your schedule to ensure punctuality
+4. Show respect for institutional timings
+
+*Consequences of Non-Compliance:*
+Continued tardiness and lack of discipline will result in further disciplinary action, including program removal.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Punctuality is a reflection of professionalism. Discipline is the bridge to success.
+
+*Disciplinary Office,*
+_${organizationName} Team_
+⏱️ *Time Waits for No One*
+
+📞 *Support:* +91 9892398976
       `.trim(),
 
       'Warning for Unauthorized Absence from Sessions': `
-⚠️ *Official Warning - Unauthorized Absence*
+╔═══════════════════════════╗
+   ⚠️ *ABSENCE WARNING* ⚠️
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-This is an official warning regarding *unauthorized absence from sessions*.
+This is an *official warning* regarding unauthorized absence from mandatory sessions.
 
-📜 *Warning Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-⚠️ Subject: *Unauthorized Absence from Sessions*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *WARNING DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Regular attendance at all scheduled sessions is mandatory. Your unauthorized absences affect your learning progress and overall performance.
+👤 *Name:* ${userName}
+⚠️ *Subject:* Unauthorized Session Absence
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *View Warning Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📌 *CONCERN RAISED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Letter:*
-${downloadLink}
+You have been absent from mandatory sessions without authorization or valid documentation. Regular attendance is essential for:
 
-🔴 *Action Required:*
-Full attendance is required for all future sessions. Any absence must be pre-approved with valid reasons. Continued violations will lead to serious consequences.
+• Complete curriculum coverage
+• Skill mastery and competency
+• Peer collaboration opportunities
+• Assessment eligibility
+• Program completion requirements
 
-Your dedication matters.
+Unauthorized absences severely impact your learning trajectory and overall performance.
 
----
-_Academic Integrity,_
-*${organizationName} Team*
-📖 Commitment to Learning
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *VIEW WARNING LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔴 *IMMEDIATE ACTION REQUIRED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+1. Attend all future sessions without exception
+2. Seek prior permission for any unavoidable absence
+3. Submit valid documentation for medical/emergency leaves
+4. Make up for missed content immediately
+
+*Consequences of Non-Compliance:*
+Continued unauthorized absences will lead to serious consequences including certification ineligibility and program termination.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your presence is critical to your success. We expect full attendance compliance.
+
+*Academic Operations,*
+_${organizationName} Team_
+📖 *Commitment Starts with Presence*
+
+📞 *Support:* +91 9892398976
       `.trim(),
 
       'Warning for Punctuality and Discipline': `
-⚠️ *Official Warning - Discipline Concern*
+╔═══════════════════════════╗
+   ⚠️ *DISCIPLINE WARNING* ⚠️
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-This is an official warning regarding *punctuality and discipline issues*.
+This is an *official warning* regarding punctuality and discipline concerns.
 
-📜 *Warning Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-⚠️ Subject: *Punctuality & Discipline*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *WARNING DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Maintaining punctuality and discipline is essential for a productive learning environment. Your behavior has not met expected standards.
+👤 *Name:* ${userName}
+⚠️ *Subject:* Punctuality & Discipline
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *View Warning Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📌 *CONCERN RAISED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Letter:*
-${downloadLink}
+Your behavior has consistently fallen short of expected standards in terms of punctuality and discipline. These qualities are non-negotiable for:
 
-🔴 *Action Required:*
-Immediate correction in behavior is expected. Adherence to time schedules and disciplinary norms is mandatory going forward.
+• Professional success
+• Effective learning
+• Team collaboration
+• Career advancement
+• Personal integrity
 
-Excellence begins with discipline.
+Lack of discipline creates barriers to your own growth and affects the learning environment.
 
----
-_Standards of Excellence,_
-*${organizationName} Team*
-🎯 Discipline is the Bridge to Goals
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *VIEW WARNING LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔴 *IMMEDIATE ACTION REQUIRED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+1. Strictly adhere to all schedules and timings
+2. Demonstrate professional discipline consistently
+3. Follow all institutional rules and regulations
+4. Show immediate and sustained improvement
+
+*Consequences of Non-Compliance:*
+Failure to improve will result in escalated disciplinary action and potential program removal.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Discipline is the foundation of all achievement. Excellence begins with self-control.
+
+*Student Affairs Office,*
+_${organizationName} Team_
+🎯 *Discipline: The Bridge to Your Goals*
+
+📞 *Support:* +91 9892398976
       `.trim(),
     },
 
     'Committee Letter': {
       'Committee Member': `
-🎖️ *Congratulations - Committee Member Appointment!*
+╔═══════════════════════════╗
+   🎖️ *LEADERSHIP APPOINTMENT* 🎖️
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-We are pleased to inform you that you have been appointed as a *Committee Member*!
+*Congratulations!* You have been appointed as a *Committee Member*!
 
-📜 *Appointment Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-🏅 Position: *Committee Member*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *APPOINTMENT DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Your leadership qualities and dedication have been recognized. As a committee member, you will play a vital role in organizational activities and decision-making.
+👤 *Name:* ${userName}
+🏅 *Position:* Committee Member
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Appointment Date:* ${formattedDate}
 
-🔗 *View Appointment Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🌟 *YOUR ROLE & RESPONSIBILITIES*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Letter:*
-${downloadLink}
+Your leadership qualities, dedication, and proven capabilities have earned you this position. As a Committee Member, you will:
 
-We look forward to your valuable contributions!
+✓ Contribute to organizational decisions
+✓ Represent student/team interests
+✓ Facilitate communication and initiatives
+✓ Support organizational activities
+✓ Mentor and guide peers
 
----
-_Leadership Team,_
-*${organizationName} Team*
-👥 Together We Lead
+This is an opportunity to develop leadership skills and make meaningful contributions to the organization.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+We look forward to your valuable contributions and leadership!
+
+*With Confidence & Best Wishes,*
+_${organizationName} Team_
+👥 *Together We Lead, Together We Succeed*
+
+📞 *Support:* +91 9892398976
       `.trim(),
 
       'Committee President': `
-👑 *Congratulations - Committee President Appointment!*
+╔═══════════════════════════╗
+   👑 *PRESIDENTIAL APPOINTMENT* 👑
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-We are honored to appoint you as the *Committee President*!
+*Congratulations!* We are honored to appoint you as the *Committee President*!
 
-📜 *Appointment Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-🏆 Position: *Committee President*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *APPOINTMENT DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Your exceptional leadership skills, vision, and commitment have earned you this prestigious position. As President, you will lead the committee and represent the organization in key initiatives.
+👤 *Name:* ${userName}
+🏆 *Position:* Committee President
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Appointment Date:* ${formattedDate}
 
-🔗 *View Appointment Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🌟 *YOUR LEADERSHIP ROLE*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Letter:*
-${downloadLink}
+Your exceptional leadership skills, vision, and unwavering commitment have distinguished you as the ideal leader for this prestigious position. As President, you will:
 
-We have full confidence in your leadership!
+✓ Lead and guide the entire committee
+✓ Represent the organization in key initiatives
+✓ Drive strategic decisions and planning
+✓ Mentor committee members and peers
+✓ Champion organizational values and goals
+✓ Serve as the primary liaison
 
----
-_Executive Leadership,_
-*${organizationName} Team*
-👑 Leading with Vision and Purpose
+This position carries significant responsibility and offers tremendous opportunities for leadership development and organizational impact.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+We have complete confidence in your leadership and vision. Lead with purpose, inspire with action!
+
+*With Pride & Highest Confidence,*
+_${organizationName} Team_
+👑 *Leading with Vision, Inspiring with Purpose*
+
+📞 *Support:* +91 9892398976
       `.trim(),
 
       'Committee Vice-President': `
-🏅 *Congratulations - Committee Vice-President Appointment!*
+╔═══════════════════════════╗
+   🏅 *VICE-PRESIDENTIAL APPOINTMENT* 🏅
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-We are delighted to appoint you as the *Committee Vice-President*!
+*Congratulations!* You have been appointed as the *Committee Vice-President*!
 
-📜 *Appointment Letter Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-⭐ Position: *Committee Vice-President*
-🆔 Letter ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *APPOINTMENT DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Your proven leadership abilities and dedication make you an ideal choice for this important role. As Vice-President, you will support committee operations and lead key initiatives.
+👤 *Name:* ${userName}
+⭐ *Position:* Committee Vice-President
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Appointment Date:* ${formattedDate}
 
-🔗 *View Appointment Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🌟 *YOUR LEADERSHIP ROLE*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Letter:*
-${downloadLink}
+Your proven leadership abilities, reliability, and dedication make you the perfect choice for this senior position. As Vice-President, you will:
 
-We look forward to your leadership!
+✓ Support and collaborate with the President
+✓ Lead key organizational initiatives
+✓ Oversee committee operations
+✓ Represent the organization when needed
+✓ Mentor committee members
+✓ Drive strategic implementation
 
----
-_Senior Leadership,_
-*${organizationName} Team*
-🌟 Leading by Example
+This role positions you as a core leader in shaping organizational direction and success.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+We look forward to your strategic leadership and impactful contributions!
+
+*With Confidence & Best Wishes,*
+_${organizationName} Team_
+🌟 *Leading by Example, Inspiring Excellence*
+
+📞 *Support:* +91 9892398976
+      `.trim(),
+    },
+
+    'Memo': {
+      default: `
+╔═══════════════════════════╗
+   📋 *OFFICIAL MEMORANDUM* 📋
+╚═══════════════════════════╝
+
+Dear *${userName}*,
+
+This is an *official memorandum* regarding important organizational matters that require your attention.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *MEMORANDUM DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+👤 *Recipient:* ${userName}
+📄 *Document:* Official Memo
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📌 *ACTION REQUIRED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Please review the complete memorandum carefully and take all necessary actions as specified within the stipulated timeframe.
+
+This memo contains important information, instructions, or updates that may impact your program participation or responsibilities.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR MEMO*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *View:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+For any queries or clarifications, please contact the administration office.
+
+*Official Communication,*
+_${organizationName} Team_
+📬 *Your Documents, Our Priority*
+
+📞 *Support:* +91 9892398976
+      `.trim(),
+    },
+
+    'Non-Disclosure Agreement': {
+      default: `
+╔═══════════════════════════╗
+   🔒 *CONFIDENTIALITY AGREEMENT* 🔒
+╚═══════════════════════════╝
+
+Dear *${userName}*,
+
+We are sending you an important *Non-Disclosure Agreement (NDA)* that requires your immediate attention and acknowledgment.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *NDA DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+👤 *Name:* ${userName}
+📜 *Document:* Non-Disclosure Agreement
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔐 *ABOUT THIS AGREEMENT*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+This NDA ensures the protection of:
+• Confidential organizational information
+• Proprietary data and processes
+• Intellectual property rights
+• Sensitive business information
+• Trade secrets and methodologies
+
+By signing this agreement, you commit to maintaining strict confidentiality regarding all sensitive information you may encounter.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR NDA*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *View:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+⚠️ *URGENT ACTION REQUIRED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+1. Read the NDA thoroughly and carefully
+2. Understand all terms and obligations
+3. Sign and return the acknowledgment copy
+4. Comply with all confidentiality requirements
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Confidentiality is paramount. This agreement is legally binding and must be treated with utmost seriousness.
+
+*Legal & Compliance Office,*
+_${organizationName} Team_
+🔐 *Protecting What Matters - Trust Through Confidentiality*
+
+📞 *Support:* +91 9892398976
+      `.trim(),
+    },
+
+    'Offer Letter': {
+      default: `
+╔═══════════════════════════╗
+   🎊 *JOB OFFER - CONGRATULATIONS!* 🎊
+╚═══════════════════════════╝
+
+Dear *${userName}*,
+
+*Congratulations!* We are thrilled to extend you an official job offer to join ${organizationName}!
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *OFFER LETTER DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+👤 *Name:* ${userName}
+💼 *Document:* Job Offer Letter
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Offer Date:* ${formattedDate}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🌟 *WHY YOU WERE CHOSEN*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Your skills, experience, and demonstrated capabilities make you an excellent fit for this role. We believe you will be a valuable addition to our team and contribute significantly to our organizational success.
+
+This offer reflects our confidence in your abilities and our excitement about having you join our professional family.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR OFFER LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *View:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *TERMS & CONDITIONS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Please review and fill the Terms & Conditions form:
+
+📄 *T&C Form Link:*
+${getTermsLink()}
+
+⚠️ *IMPORTANT NOTE:*
+If the link is not opening, please:
+1. Save this WhatsApp number first
+2. Reply to this message requesting resend
+3. We will assist you immediately
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📌 *NEXT STEPS - ACTION REQUIRED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+1. ✅ Download your offer letter
+2. ✅ Read all terms carefully
+3. ✅ Fill the T&C form (link above)
+4. ✅ Sign the offer letter
+5. ✅ Send back the signed copy via WhatsApp or email
+6. ✅ Clarify any questions with HR
+7. ✅ Complete pre-joining formalities
+
+*🔴 Important:* Please send your signed copy to confirm acceptance!
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+We are excited to welcome you aboard and look forward to a successful professional journey together!
+
+*With Excitement & Best Wishes,*
+_${organizationName} Team_
+🎯 *Your Career, Our Commitment*
+
+📞 *Support:* +91 9892398976
+      `.trim(),
+    },
+
+    'Promotion Letter': {
+      default: `
+╔═══════════════════════════╗
+   🎉 *PROMOTION - CONGRATULATIONS!* 🎉
+╚═══════════════════════════╝
+
+Dear *${userName}*,
+
+*Congratulations!* We are delighted to inform you about your well-deserved *promotion*!
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *PROMOTION DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+👤 *Name:* ${userName}
+🚀 *Document:* Promotion Letter
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Effective Date:* ${formattedDate}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🏆 *YOUR ACHIEVEMENT*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+This promotion is a recognition of your:
+✓ Outstanding contributions
+✓ Exceptional work quality
+✓ Leadership capabilities
+✓ Dedication and commitment
+✓ Professional growth
+
+Your hard work, innovation, and consistent excellence have earned you this advancement. We are confident that you will excel in your new role and continue to inspire those around you.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *Verify:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your success is our success. Congratulations once again on this well-earned promotion!
+
+*With Pride & Congratulations,*
+_${organizationName} Team_
+📈 *Growing Together, Succeeding Together*
+
+📞 *Support:* +91 9892398976
+      `.trim(),
+    },
+
+    'Timeline Letter': {
+      default: `
+╔═══════════════════════════╗
+   📅 *IMPORTANT TIMELINE* 📅
+╚═══════════════════════════╝
+
+Dear *${userName}*,
+
+We are sharing important *timeline information* regarding your program/project activities and deadlines.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *TIMELINE DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+👤 *Name:* ${userName}
+⏰ *Document:* Timeline Letter
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📌 *IMPORTANCE OF TIMELINES*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Adhering to timelines is critical for:
+• Structured learning progression
+• Timely completion of deliverables
+• Meeting program requirements
+• Maintaining quality standards
+• Professional development
+
+Please review all dates and deadlines carefully and plan your activities accordingly to ensure successful and timely completion.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR TIMELINE*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *View:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Time management is key to success. Plan, prioritize, and execute effectively!
+
+*With Best Wishes,*
+_${organizationName} Team_
+📊 *Plan. Execute. Succeed.*
+
+📞 *Support:* +91 9892398976
       `.trim(),
     },
 
     'Live Project Agreement': {
       default: `
-🚀 *Live Project Agreement - Action Required*
+╔═══════════════════════════╗
+   🚀 *LIVE PROJECT OPPORTUNITY* 🚀
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-We are excited to inform you about the *Live Project Agreement* for your upcoming practical learning experience!
+We are excited to present you with the *Live Project Agreement* for an immersive practical learning experience!
 
-📜 *Agreement Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-💼 Document: *Live Project Agreement*
-🆔 Agreement ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *AGREEMENT DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-This agreement outlines the terms, responsibilities, and expectations for your live project participation. Real-world experience awaits!
+👤 *Name:* ${userName}
+💼 *Document:* Live Project Agreement
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *View Agreement:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🌟 *ABOUT LIVE PROJECTS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Agreement:*
-${downloadLink}
+This agreement outlines your participation in real-world projects that will provide:
+✓ Hands-on industry experience
+✓ Application of theoretical knowledge
+✓ Practical skill development
+✓ Professional work exposure
+✓ Portfolio-worthy deliverables
+✓ Industry-standard practices
 
-📞 *Next Steps:*
-Please review the terms carefully and acknowledge your agreement. This is your opportunity to apply your learning in real scenarios!
+Live projects bridge the gap between learning and professional practice, giving you invaluable real-world experience.
 
----
-_Practical Learning,_
-*${organizationName} Team*
-💡 Theory Meets Practice
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR AGREEMENT*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *View:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📌 *NEXT STEPS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+1. Review all terms and conditions carefully
+2. Understand your responsibilities and deliverables
+3. Acknowledge and accept the agreement
+4. Prepare to apply your skills in real scenarios
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+This is your opportunity to transform theory into practice. Embrace this learning journey!
+
+*With Excitement,*
+_${organizationName} Team_
+💡 *Where Theory Meets Practice*
+
+📞 *Support:* +91 9892398976
       `.trim(),
     },
 
     'Other': {
       default: `
-📄 *Official Document Ready*
+╔═══════════════════════════╗
+   📄 *OFFICIAL DOCUMENT* 📄
+╚═══════════════════════════╝
 
-Dear ${userName},
+Dear *${userName}*,
 
-An official document has been generated for you.
+An official document has been generated and is ready for your review.
 
-📜 *Document Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Name: ${userName}
-📋 Document Type: Official Letter
-🆔 Document ID: ${letterId}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *DOCUMENT DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-Please review the document carefully.
+👤 *Name:* ${userName}
+📋 *Document:* Official Letter
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *View Document:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS YOUR DOCUMENT*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Document:*
-${downloadLink}
+🔍 *View:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
 
-For any queries, please contact administration.
+━━━━━━━━━━━━━━━━━━━━━━━━
 
----
-_Official Communication,_
-*${organizationName} Team*
-📬 Your Documents, Our Priority
+Please review the document carefully. For any queries, contact our administration office.
+
+*Official Communication,*
+_${organizationName} Team_
+📢 *Stay Informed, Stay Connected*
+
+📞 *Support:* +91 9892398976
       `.trim(),
     },
   };
@@ -1237,9 +1803,13 @@ export const getParentNotificationTemplate = (letterType, subType, data) => {
     category,
     batch,
     issueDate,
+    credentialId,
     letterId,
     organizationName = 'Nexcore Alliance',
   } = data;
+  
+  // Use credentialId if available, otherwise fallback to letterId
+  const finalId = credentialId || letterId;
 
   const formattedDate = new Date(issueDate).toLocaleDateString('en-IN', {
     year: 'numeric',
@@ -1257,113 +1827,228 @@ export const getParentNotificationTemplate = (letterType, subType, data) => {
     baseUrl = 'https://portal.nexcorealliance.com';
   }
 
-  const verificationLink = `${baseUrl}/verify-letter/${letterId}`;
-  const downloadLink = `${baseUrl}/download-letter/${letterId}`;
-
-  // Generic parent notification for all letter types
-  const parentMessage = `
-📢 *Important Update about ${userName}'s Academic Progress*
-
-Dear ${parentName},
-
-We are sending this notification regarding an official document issued to your ward, ${userName}.
-
-📜 *Document Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Student Name: ${userName}
-📄 Document Type: ${letterType}${subType ? ` - ${subType}` : ''}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
-
-As a parent/guardian of a BVOC student, we keep you informed about all official communications sent to your ward. Please review the document with your ward.
-
-🔗 *View Document:*
-${verificationLink}
-
-⬇️ *Download Document:*
-${downloadLink}
-
-If you have any questions or concerns, please contact our administrative office.
-
----
-_Parent Communication,_
-*${organizationName} Team*
-👨‍👩‍👧‍👦 Partners in Education
-  `.trim();
+  const verificationLink = `${baseUrl}/verify-certificate`;
+  const downloadLink = `${baseUrl}/verify-certificate`;
 
   // Warning letters have a specific parent notification template
   if (letterType === 'Warning Letter') {
     return `
-⚠️ *Important Notice: Academic/Behavioral Warning Issued*
+╔═══════════════════════════╗
+   ⚠️ *PARENT NOTIFICATION* ⚠️
+╚═══════════════════════════╝
 
-Dear ${parentName},
+Dear *${parentName}*,
 
-This is to inform you that a warning letter has been issued to your ward, ${userName}, regarding ${subType?.replace('Warning for ', '') || 'academic/behavioral concerns'}.
+This is an important notification regarding your ward's academic/professional conduct.
 
-📜 *Warning Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Student Name: ${userName}
-⚠️ Subject: ${subType?.replace('Warning for ', '') || 'Academic/Behavioral Warning'}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *NOTIFICATION DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-We request your attention to this matter and your support in ensuring that your ward addresses these concerns promptly. Parental guidance is crucial at this stage.
+👤 *Student Name:* ${userName}
+⚠️ *Subject:* ${subType?.replace('Warning for ', '') || 'Academic/Behavioral Warning'}
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
 
-🔗 *View Warning Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📌 *PARENTAL ATTENTION REQUIRED*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Warning Letter:*
-${downloadLink}
+A formal warning letter has been issued to your ward regarding the matter mentioned above. As part of our BVOC parent communication protocol, we believe in keeping parents informed about all official communications.
 
-Please discuss this matter with your ward and encourage improvement. Our team is available to provide any support needed.
+Your involvement and guidance are crucial at this stage. We request you to:
 
----
-_Parent Communication,_
-*${organizationName} Team*
-👨‍👩‍👧‍👦 Supporting Student Success Together
+✓ Review the warning letter with your ward
+✓ Discuss the concerns raised
+✓ Provide necessary guidance and support
+✓ Ensure your ward takes corrective action
+✓ Monitor their progress going forward
+
+Parental support significantly impacts student success and behavioral improvement.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS THE WARNING LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *View:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+If you have any concerns or would like to discuss this matter further, please feel free to contact us. Our team is available to provide any support needed.
+
+*With Regards,*
+_${organizationName} Team_
+👨‍👩‍👧‍👦 *Parents & Institution: Partners in Student Success*
+
+📞 *Support:* +91 9892398976
     `.trim();
   }
 
   // Appreciation letters have a positive parent notification template
   if (letterType === 'Appreciation Letter') {
     return `
-🌟 *Good News: Your Ward Has Been Recognized!*
+╔═══════════════════════════╗
+   🌟 *PROUD PARENT MOMENT!* 🌟
+╚═══════════════════════════╝
 
-Dear ${parentName},
+Dear *${parentName}*,
 
-We are delighted to inform you that your ward, ${userName}, has received an appreciation letter for ${subType?.replace('Appreciation for ', '') || 'their outstanding efforts'}!
+We are delighted to share wonderful news about your ward's achievement!
 
-📜 *Recognition Details:*
-━━━━━━━━━━━━━━━━━━
-👤 Student Name: ${userName}
-🏆 Recognition: ${subType?.replace('Appreciation for ', '') || 'Outstanding Achievement'}
-🏷️ Category: ${category}
-${batch ? `🎓 Batch: ${batch}` : ''}
-📅 Issue Date: ${formattedDate}
-━━━━━━━━━━━━━━━━━━
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *RECOGNITION DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-We believe in recognizing and celebrating achievements of our students and sharing this proud moment with parents. Your support has contributed to your ward's success!
+👤 *Student Name:* ${userName}
+🏆 *Recognition:* ${subType?.replace('Appreciation for ', '') || 'Outstanding Achievement'}
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Recognition Date:* ${formattedDate}
 
-🔗 *View Appreciation Letter:*
-${verificationLink}
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🎉 *CELEBRATING SUCCESS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-⬇️ *Download Appreciation Letter:*
-${downloadLink}
+Your ward, ${userName}, has received an *Appreciation Letter* for their exceptional performance! This recognition reflects:
 
-Congratulations to both you and your ward for this achievement!
+✓ Outstanding dedication and effort
+✓ Excellence in their field
+✓ Commitment to quality
+✓ Professional growth
+✓ Positive contribution to the program
 
----
-_Parent Communication,_
-*${organizationName} Team*
-👨‍👩‍👧‍👦 Celebrating Student Success Together
+We believe in celebrating achievements and sharing these proud moments with parents. Your support and encouragement have undoubtedly contributed to your ward's success.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *VIEW THE APPRECIATION LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *View:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+*Congratulations* to both you and your ward for this well-deserved recognition!
+
+*With Pride & Joy,*
+_${organizationName} Team_
+👨‍👩‍👧‍👦 *Celebrating Student Excellence Together*
+
+📞 *Support:* +91 9892398976
     `.trim();
   }
 
-  return parentMessage;
+  // Committee appointments get special parent notification
+  if (letterType === 'Committee Letter') {
+    return `
+╔═══════════════════════════╗
+   🎖️ *LEADERSHIP ACHIEVEMENT!* 🎖️
+╚═══════════════════════════╝
+
+Dear *${parentName}*,
+
+We are pleased to inform you about your ward's leadership appointment!
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *APPOINTMENT DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+👤 *Student Name:* ${userName}
+🏅 *Position:* ${subType || 'Committee Member'}
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Appointment Date:* ${formattedDate}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🌟 *A PROUD MOMENT*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Your ward has been recognized for their leadership qualities and has been appointed to a committee position. This achievement reflects:
+
+✓ Leadership capabilities
+✓ Responsibility and maturity
+✓ Peer recognition
+✓ Organizational trust
+✓ Personal development
+
+Committee positions provide valuable experience in leadership, teamwork, and organizational management that will benefit their professional future.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *VIEW APPOINTMENT LETTER*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *View:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+Congratulations on your ward's leadership recognition!
+
+*With Pride,*
+_${organizationName} Team_
+👨‍👩‍👧‍👦 *Nurturing Future Leaders Together*
+
+📞 *Support:* +91 9892398976
+    `.trim();
+  }
+
+  // Generic parent notification for all other letter types
+  return `
+╔═══════════════════════════╗
+   📢 *PARENT NOTIFICATION* 📢
+╚═══════════════════════════╝
+
+Dear *${parentName}*,
+
+We are writing to inform you about an official document issued to your ward.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📋 *DOCUMENT DETAILS*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+👤 *Student Name:* ${userName}
+📄 *Document Type:* ${letterType}${subType ? ` - ${subType}` : ''}
+🆔 *Credential ID:* ${finalId}
+🏷️ *Program:* ${category}
+${batch ? `📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+📌 *PARENT COMMUNICATION*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+As part of our BVOC parent engagement initiative, we keep parents informed about all official communications sent to students. 
+
+We encourage you to:
+✓ Review the document with your ward
+✓ Discuss its contents and implications
+✓ Provide guidance as needed
+✓ Support their academic/professional journey
+
+Your involvement plays a crucial role in your ward's success and development.
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+🔗 *ACCESS THE DOCUMENT*
+┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔍 *View:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+If you have any questions, concerns, or would like to discuss this matter, please feel free to contact our administrative office.
+
+*With Best Regards,*
+_${organizationName} Team_
+👨‍👩‍👧‍👦 *Partners in Education & Development*
+
+📞 *Support:* +91 9892398976
+  `.trim();
 };
 
 // Export as a single default object
