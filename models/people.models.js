@@ -12,7 +12,7 @@ const peopleSchema = new mongoose.Schema(
     category: {
       type: String,
       enum: {
-        values: ['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR', 'DM'],
+        values: ['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR', 'DM','OPERTIONS DEPARTMENT'],
         message: '{VALUE} is not a valid category',
       },
       required: [true, 'Category is required'],

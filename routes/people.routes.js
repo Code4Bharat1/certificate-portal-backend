@@ -33,7 +33,7 @@ router.post(
     body('name').notEmpty().trim().withMessage('Name is required')
       .isLength({ max: 50 }).withMessage('Name cannot exceed 50 characters'),
     body('category')
-      .isIn(['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR','DM'])
+      .isIn(['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR','DM','OPERTIONS DEPARTMENT'])
       .withMessage('Invalid category'),
     body('phone')
       .matches(/^[0-9]{10}$/)
@@ -282,7 +282,7 @@ router.put(
       .isLength({ max: 50 }).withMessage('Name cannot exceed 50 characters'),
     body('category')
       .optional()
-      .isIn(['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR','DM'])
+      .isIn(['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR','DM','OPERTIONS DEPARTMENT'])
       .withMessage('Invalid category'),
     body('phone')
       .optional()
@@ -576,7 +576,7 @@ router.post('/bulk-upload', upload.single('file'), async (req, res) => {
         }
 
         // Validate category
-        if (!['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR','DM'].includes(row.category)) {
+        if (!['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR','DM','OPERTIONS DEPARTMENT'].includes(row.category)) {
           failedUploads.push({
             row,
             error: 'Invalid category'
