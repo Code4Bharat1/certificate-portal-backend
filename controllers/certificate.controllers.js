@@ -572,7 +572,7 @@ const downloadCertificateAsPdf = async (req, res) => {
       }
     );
 
-    const verifyURL = "https://certificate.nexcorealliance.com/verify-certificate";
+    const verifyURL = "https://portal.nexcorealliance.com/verify-certificate";
 
     const tempId = type === "Certificate" ? certificate.certificateId : certificate.letterId
     // console.log(tempId);
@@ -646,7 +646,7 @@ const downloadCertificateAsPdf = async (req, res) => {
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.fillText(
-        "https://certificate.nexcorealliance.com/verify-certificate",
+        "https://portal.nexcorealliance.com/verify-certificate",
         width / 2,
         height * 0.830
       );
@@ -893,7 +893,7 @@ const downloadCertificateAsPdf = async (req, res) => {
 //       ctx.fillStyle = "#1F2937";
 //       ctx.textAlign = "center";
 //       ctx.fillText(
-//         "https://certificate.nexcorealliance.com/verify-certificate",
+//         "https://portal.nexcorealliance.com/verify-certificate",
 //         width / 2,
 //         height * 0.830
 //       );
@@ -1105,7 +1105,7 @@ const downloadCertificateAsJpg = async (req, res) => {
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.fillText(
-        "https://certificate.nexcorealliance.com/verify-certificate",
+        "https://portal.nexcorealliance.com/verify-certificate",
         width / 2,
         height * 0.830
       );

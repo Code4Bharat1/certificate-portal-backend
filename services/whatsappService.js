@@ -192,7 +192,7 @@ export const sendCertificateNotification = async (certificateData) => {
       category?.toLowerCase().includes('bvoc') ||
       category?.toLowerCase().includes('bootchamp')
     ) {
-      baseVerificationUrl = 'https://certificate.nexcorealliance.com/verify-certificate';
+      baseVerificationUrl = 'https://portal.nexcorealliance.com/verify-certificate';
     } else {
       // Default fallback if no match found
       baseVerificationUrl = `${process.env.FRONTEND_URL}/verify`;
@@ -331,7 +331,7 @@ export const getLetterMessageTemplate = (letterType, subType, data) => {
   } else if (category?.toLowerCase().includes('marketing-junction')) {
     baseUrl = 'https://education.marketiqjunction.com';
   } else {
-    baseUrl = 'https://certificate.nexcorealliance.com';
+    baseUrl = 'https://portal.nexcorealliance.com';
   }
 
   const verificationLink = `${baseUrl}/verify-letter/${letterId}`;
@@ -1254,7 +1254,7 @@ export const getParentNotificationTemplate = (letterType, subType, data) => {
   } else if (category?.toLowerCase().includes('marketing-junction')) {
     baseUrl = 'https://education.marketiqjunction.com';
   } else {
-    baseUrl = 'https://certificate.nexcorealliance.com';
+    baseUrl = 'https://portal.nexcorealliance.com';
   }
 
   const verificationLink = `${baseUrl}/verify-letter/${letterId}`;

@@ -78,8 +78,6 @@ export async function generateLetterId(category, course) {
    (unchanged, used to produce outwardNo/outwardSerial)
    ------------------------- */
 export async function generateOutwardNo(category, course, issueDate) {
-  const cat = category || "";
-  const crs = course || "";
   const issue = issueDate ? new Date(issueDate) : new Date();
 
   const yyyy = issue.getFullYear();
@@ -87,42 +85,38 @@ export async function generateOutwardNo(category, course, issueDate) {
   const dd = String(issue.getDate()).padStart(2, "0");
   const datePart = `${yyyy}/${mm}/${dd}`;
 
-  // ✅ Get the last outwardSerial globally (no category / no course filter)
+  // ✅ Get the last letter globally — no category/course filters
   let lastLetter = await Letter.findOne({})
     .sort({ outwardSerial: -1, createdAt: -1 })
     .lean();
 
   let maxSerial = 0;
+
   if (lastLetter) {
     if (typeof lastLetter.outwardSerial === "number" && lastLetter.outwardSerial > 0) {
       maxSerial = lastLetter.outwardSerial;
     } else if (lastLetter.outwardNo) {
-      const m = String(lastLetter.outwardNo).match(/(\d+)\s*$/);
-      if (m && m[1]) maxSerial = parseInt(m[1], 10);
+      const match = String(lastLetter.outwardNo).match(/(\d+)\s*$/);
+      if (match && match[1]) {
+        maxSerial = parseInt(match[1], 10);
+      }
     }
   }
 
-  // ✅ Continuous serial for all categories now
+  // ✅ Continuous outward serial for all categories/courses
   let nextSerial = maxSerial + 1;
 
-  // Special FSD offsets still applied (optional - remove if not needed)
-  if (cat === "FSD" && crs === "Warning Letter") {
-    if (maxSerial < 4) nextSerial = 5;
-  }
-  if (cat === "FSD" && crs === "Offer Letter") {
-    if (maxSerial < 49) nextSerial = 50;
+  // ✅ Ensure numbering starts from 5 if no previous letters
+  if (nextSerial < 5) {
+    nextSerial = 5;
   }
 
-  const appreciationTypes = ["Appreciation Letter", "Experience Certificate"];
-  let outwardNo;
-  if (appreciationTypes.includes(crs)) {
-    outwardNo = `Outward no.:-NEX/${datePart}/${nextSerial}`;
-  } else {
-    outwardNo = `NEX/${datePart}-${nextSerial}`;
-  }
+  // ✅ Unified outward number format (no category logic)
+  const outwardNo = `NEX/${datePart}/${nextSerial}`;
 
   return { outwardNo, outwardSerial: nextSerial };
 }
+
 
 /* -------------------------
    Template filename helper (unchanged)
@@ -530,7 +524,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.843
           );
@@ -576,7 +570,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.845
           );
@@ -610,7 +604,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.843
           );
@@ -720,7 +714,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.850
           );
@@ -768,7 +762,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.843
           );
@@ -816,7 +810,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.843
           );
@@ -864,7 +858,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.843
           );
@@ -904,7 +898,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.860
           );
@@ -942,7 +936,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.855
           );
@@ -979,7 +973,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.843
           );
@@ -1013,7 +1007,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.851
           );
@@ -1047,7 +1041,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.865
           );
@@ -1097,7 +1091,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.857
           );
@@ -1147,7 +1141,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.850
           );
@@ -1189,7 +1183,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.850
           );
@@ -1237,7 +1231,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.850
           );
@@ -1275,7 +1269,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.850
           );
@@ -1313,7 +1307,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.850
           );
@@ -1351,7 +1345,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.855
           );
@@ -1389,7 +1383,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.855
           );
@@ -1439,7 +1433,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.865
           );
@@ -1479,7 +1473,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.855
           );
@@ -1517,7 +1511,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.855
           );
@@ -1554,7 +1548,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.858
           );
@@ -1588,7 +1582,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.865
           );
@@ -1622,7 +1616,7 @@ export const previewLetter = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.851
           );
@@ -1641,88 +1635,285 @@ export const previewLetter = async (req, res) => {
     else {
       const existingPdfBytes = fs.readFileSync(templatePath);
       const pdfDoc = await PDFLibDocument.load(existingPdfBytes);
-      const page = pdfDoc.getPage(0);
-      const { width, height } = page.getSize();
+      const pages = pdfDoc.getPages();
+      const firstPage = pages[0];
+      const secondPage = pages[1];
+      const { width, height } = firstPage.getSize();
 
       const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
       const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+      const darkColor = rgb(0.067, 0.094, 0.152);
 
-      // Outward No + Date
-      page.drawText(outwardNo, {
-        x: width * 0.085,
-        y: height * 0.65,
-        size: 15,
-        font: helveticaBold,
-        color: rgb(0.067, 0.094, 0.152),
-      });
+      const verifyText = "https://portal.nexcorealliance.com/verify-certificate";
 
-      page.drawText(formattedDate, {
-        x: width * 0.083,
-        y: height * 0.90,
-        size: 15,
-        font: helvetica,
-        color: rgb(0.067, 0.094, 0.152),
-      });
+      /* ============================================================
+         🎓 OFFER LETTER (2 Pages)
+      ============================================================ */
+      if (course === "Offer Letter") {
+        // Page 1 dynamic fields
+        // offer letter no.
+        firstPage.drawText(`${outwardNo}`, {
+          x: width * 0.25,
+          y: height * 0.768,
+          size: 12,
+          font: helveticaBold,
+          color: darkColor,
+        });
 
-      // Subject
-      const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
-      page.drawText(subjectText, {
-        x: width * 0.32,
-        y: height * 0.75,
-        size: 18,
-        font: helveticaBold,
-        color: rgb(0, 0, 0),
-      });
-
-      // Description
-      const descLines = wrapPdfText(description, width * 0.8, helvetica, 14);
-      let y = height * 0.63;
-      descLines.forEach((line) => {
-        page.drawText(line, {
+        // Date
+        firstPage.drawText(`${formattedDate}`, {
           x: width * 0.13,
-          y,
+          y: height * 0.745,
+          size: 12,
+          font: helvetica,
+          color: darkColor,
+        });
+
+        // to name
+        firstPage.drawText(`${name}`, {
+          x: width * 0.072,
+          y: height * 0.69,
+          size: 12,
+          font: helveticaBold,
+          color: rgb(0, 0, 0),
+        });
+
+        // Dear name
+        firstPage.drawText(`${name},`, {
+          x: width * 0.13,
+          y: height * 0.64,
+          size: 12,
+          font: helveticaBold,
+          color: rgb(0, 0, 0),
+        });
+
+        // Add a second page for Offer Letter
+        // const secondPage = pdfDoc.addPage([width, height]);
+
+        // start date
+        secondPage.drawText(`${startDate}`, {
+          x: width * 0.10,
+          y: height * 0.85,
           size: 14,
           font: helvetica,
-          color: rgb(0.1, 0.1, 0.1),
+          color: darkColor,
         });
-        y -= 18;
-      });
 
-      // ✅ Dynamic Frontend Values
-      dynamicLines.forEach((line) => {
-        page.drawText(line, {
-          x: width * 0.13,
-          y,
+        // end date
+        secondPage.drawText(`${endDate}`, {
+          x: width * 0.10,
+          y: height * 0.80,
+          size: 14,
+          font: helvetica,
+          color: darkColor,
+        });
+
+        // credentail ID
+        secondPage.drawText(`${tempId}`, {
+          x: width * 0.10,
+          y: height * 0.75,
+          size: 14,
+          font: helveticaBold,
+          color: rgb(0, 0, 0),
+        });
+
+        // Intern's Acceptance
+        secondPage.drawText(
+          `I, ${name}, accept the terms and conditions stated in this Internship cum Training Offer Letter.`,
+          {
+            x: width * 0.10,
+            y: height * 0.65,
+            size: 13,
+            font: helvetica,
+            color: rgb(0, 0, 0),
+          }
+        );
+
+        // Verify URL
+        secondPage.drawText(`${verifyText}`, {
+          x: width * 0.10,
+          y: height * 0.60,
+          size: 12,
+          font: helvetica,
+          color: darkColor,
+        });
+      }
+
+      /* ============================================================
+         🚀 LIVE PROJECT AGREEMENT
+      ============================================================ */
+      else if (course === "Live Project Agreement") {
+        const page = firstPage;
+
+        page.drawText(`This Live Project Agreement is entered into by:`, {
+          x: width * 0.10,
+          y: height * 0.85,
+          size: 14,
+          font: helvetica,
+          color: darkColor,
+        });
+
+        page.drawText(`${name}`, {
+          x: width * 0.10,
+          y: height * 0.80,
+          size: 14,
+          font: helveticaBold,
+          color: rgb(0, 0, 0),
+        });
+
+        page.drawText(`Start Date: ${startDate}`, {
+          x: width * 0.10,
+          y: height * 0.75,
+          size: 14,
+          font: helvetica,
+          color: darkColor,
+        });
+
+        page.drawText(`End Date: ${endDate}`, {
+          x: width * 0.10,
+          y: height * 0.70,
+          size: 14,
+          font: helvetica,
+          color: darkColor,
+        });
+
+        page.drawText(`Letter ID: ${tempId}`, {
+          x: width * 0.10,
+          y: height * 0.65,
+          size: 14,
+          font: helveticaBold,
+          color: rgb(0, 0, 0),
+        });
+
+        page.drawText(`Verify at: ${verifyText}`, {
+          x: width * 0.10,
+          y: height * 0.60,
+          size: 12,
+          font: helvetica,
+          color: darkColor,
+        });
+      }
+
+      /* ============================================================
+         🔒 NON-DISCLOSURE AGREEMENT (NDA)
+      ============================================================ */
+      else if (course === "Non-Disclosure Agreement") {
+        const page = firstPage;
+
+        page.drawText(`Non-Disclosure Agreement (NDA)`, {
+          x: width * 0.30,
+          y: height * 0.90,
+          size: 16,
+          font: helveticaBold,
+          color: rgb(0, 0, 0),
+        });
+
+        page.drawText(`This agreement is made on ${formattedDate}`, {
+          x: width * 0.10,
+          y: height * 0.83,
+          size: 14,
+          font: helvetica,
+          color: darkColor,
+        });
+
+        page.drawText(`${name} agrees to maintain confidentiality regarding all materials, data, and intellectual property shared during the engagement.`, {
+          x: width * 0.10,
+          y: height * 0.75,
           size: 13,
           font: helvetica,
-          color: rgb(0.2, 0.2, 0.2),
+          color: rgb(0, 0, 0),
         });
-        y -= 16;
-      });
 
-      // Letter ID + Footer
-      page.drawText(tempId, {
-        x: width * 0.33,
-        y: height * 0.25,
-        size: 15,
-        font: helveticaBold,
-        color: rgb(0, 0, 0),
-      });
+        page.drawText(`Letter ID: ${tempId}`, {
+          x: width * 0.10,
+          y: height * 0.68,
+          size: 14,
+          font: helveticaBold,
+          color: rgb(0, 0, 0),
+        });
 
-      const verifyText = "https://certificate.nexcorealliance.com/verify-certificate";
-      page.drawText(verifyText, {
-        x: width * 0.2,
-        y: height * 0.17,
-        size: 12,
-        font: helvetica,
-        color: rgb(0.12, 0.16, 0.22),
-      });
+        page.drawText(`Verify at: ${verifyText}`, {
+          x: width * 0.10,
+          y: height * 0.63,
+          size: 12,
+          font: helvetica,
+          color: darkColor,
+        });
+      }
 
+      /* ============================================================
+         🧾 Default PDF Fallback (your existing logic)
+      ============================================================ */
+      else {
+        const page = firstPage;
+
+        // Outward No + Date
+        page.drawText(outwardNo, {
+          x: width * 0.085,
+          y: height * 0.65,
+          size: 15,
+          font: helveticaBold,
+          color: darkColor,
+        });
+
+        page.drawText(formattedDate, {
+          x: width * 0.083,
+          y: height * 0.90,
+          size: 15,
+          font: helvetica,
+          color: darkColor,
+        });
+
+        // Subject
+        const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
+        page.drawText(subjectText, {
+          x: width * 0.32,
+          y: height * 0.75,
+          size: 18,
+          font: helveticaBold,
+          color: rgb(0, 0, 0),
+        });
+
+        // Description
+        const descLines = wrapPdfText(description, width * 0.8, helvetica, 14);
+        let y = height * 0.63;
+        descLines.forEach((line) => {
+          page.drawText(line, {
+            x: width * 0.13,
+            y,
+            size: 14,
+            font: helvetica,
+            color: rgb(0.1, 0.1, 0.1),
+          });
+          y -= 18;
+        });
+
+        page.drawText(tempId, {
+          x: width * 0.33,
+          y: height * 0.25,
+          size: 15,
+          font: helveticaBold,
+          color: rgb(0, 0, 0),
+        });
+
+        page.drawText(verifyText, {
+          x: width * 0.2,
+          y: height * 0.17,
+          size: 12,
+          font: helvetica,
+          color: rgb(0.12, 0.16, 0.22),
+        });
+      }
+
+      /* ============================================================
+         💾 Send PDF Response
+      ============================================================ */
       const pdfBytes = await pdfDoc.save();
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", "inline; filename=preview.pdf");
       return res.send(Buffer.from(pdfBytes));
     }
+
   } catch (error) {
     console.error("Preview letter error:", error);
     res.status(500).json({
@@ -1900,7 +2091,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.843
           );
@@ -1946,7 +2137,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.845
           );
@@ -1980,7 +2171,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.843
           );
@@ -2090,7 +2281,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.850
           );
@@ -2138,7 +2329,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.843
           );
@@ -2186,7 +2377,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.843
           );
@@ -2234,7 +2425,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.843
           );
@@ -2274,7 +2465,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.860
           );
@@ -2312,7 +2503,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.855
           );
@@ -2349,7 +2540,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.843
           );
@@ -2383,7 +2574,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.851
           );
@@ -2417,7 +2608,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.865
           );
@@ -2467,7 +2658,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.857
           );
@@ -2517,7 +2708,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.850
           );
@@ -2559,7 +2750,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.850
           );
@@ -2607,7 +2798,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.850
           );
@@ -2645,7 +2836,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.850
           );
@@ -2683,7 +2874,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.850
           );
@@ -2721,7 +2912,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.855
           );
@@ -2759,7 +2950,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.855
           );
@@ -2809,7 +3000,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.865
           );
@@ -2849,7 +3040,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.855
           );
@@ -2887,7 +3078,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.855
           );
@@ -2924,7 +3115,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.858
           );
@@ -2958,7 +3149,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.865
           );
@@ -2992,7 +3183,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           ctx.textAlign = "center";
           ctx.fillStyle = "#1F2937";
           ctx.fillText(
-            "https://certificate.nexcorealliance.com/verify-certificate",
+            "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.851
           );
@@ -3095,7 +3286,7 @@ export const downloadLetterAsPdf = async (req, res) => {
         color: rgb(0, 0, 0),
       });
 
-      const verifyText = "https://certificate.nexcorealliance.com/verify-certificate";
+      const verifyText = "https://portal.nexcorealliance.com/verify-certificate";
       page.drawText(verifyText, {
         x: width * 0.2,
         y: height * 0.17,
