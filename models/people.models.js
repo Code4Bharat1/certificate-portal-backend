@@ -67,8 +67,8 @@ const peopleSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       match: [
-        /^91[0-9]{10}$/,
-        "Phone must be in 10 digits)",
+        /^[0-9]{10}$/,
+        "Phone must be in 10 digits",
       ],
       index: true,
     },

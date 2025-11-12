@@ -198,6 +198,26 @@ export function getLetterTemplateFilename(course, category) {
 
       "Concern Letter-Audit Interview Performance": "BVOC-concern-letter.jpg"
     },
+    DM: {
+      // "Appreciation Letter": "Letter.jpg",
+      // "Experience Certificate": "Letter.jpg",
+      // 'Warning Letter': "FSD-WarningLetter.jpg",
+
+      "Appreciation for Best Attendance": "DM-appreciation-for-bestAttendance.jpg",
+      "Appreciation for Outstanding Performance": "DM-appreciation-for-outstanding-performance.jpg",
+      "Appreciation for Consistent Performance": "DM-appreciation-for-consistent-performer.jpg",
+
+      "Internship Experience Certificate": "DM-internship-experience-certificate.jpg",
+      'Offer Letter': "DM-OfferLetter.pdf",
+
+      "Warning for Incomplete Assignment/Project Submissions": "DM-warning-incomplete-assignment.jpg",
+      "Warning for Low Attendance": "DM-warning-low-attendance.jpg",
+      "Warning for Misconduct or Disrespectful Behavior": "DM-warning-for-misconduct.jpg",
+      "Warning for Unauthorized Absence from Training Sessions": "DM-warning-for-unauthorized-absence.jpg",
+      "Warning Regarding Punctuality and Professional Discipline": "DM-warning-regarding-punctuality.jpg",
+
+      "Concern Letter-Audit Interview Performance": "DM-concern-letter.jpg"
+    },
   };
 
   return templateMap[category]?.[course] || `${category}-default.jpg`;
@@ -564,8 +584,40 @@ export const previewLetter = async (req, res) => {
           projectName,
           auditDate
         );
-      } else if (category === "BVOC") {
+      }
+      else if (category === "BVOC") {
         await TemplateCode.getBVOCTemplateCode(
+          ctx,
+          width,
+          height,
+          issueDate,
+          course,
+          name,
+          outwardNo,
+          formattedDate,
+          tempId,
+          description,
+          subject,
+          role,
+          startDate,
+          endDate,
+          committeeType,
+          attendancePercent,
+          assignmentName,
+          misconductReason,
+          attendanceMonth,
+          attendanceYear,
+          performanceMonth,
+          performanceYear,
+          testingPhase,
+          uncover,
+          subjectName,
+          projectName,
+          auditDate
+        );
+      }
+      else if (category === "DM") {
+        await TemplateCode.getDMTemplateCode(
           ctx,
           width,
           height,
@@ -623,7 +675,7 @@ export const previewLetter = async (req, res) => {
           endDate,
         });
       }
-      
+
       const pdfBytes = await pdfDoc.save();
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", "inline; filename=preview.pdf");
@@ -795,8 +847,40 @@ export const downloadLetterAsPdf = async (req, res) => {
           projectName,
           auditDate
         );
-      } else if (category === "BVOC") {
+      }
+      else if (category === "BVOC") {
         TemplateCode.getBVOCTemplateCode(
+          ctx,
+          width,
+          height,
+          issueDate,
+          course,
+          name,
+          outwardNo,
+          formattedDate,
+          tempId,
+          description,
+          subject,
+          role,
+          startDate,
+          endDate,
+          committeeType,
+          attendancePercent,
+          assignmentName,
+          misconductReason,
+          attendanceMonth,
+          attendanceYear,
+          performanceMonth,
+          performanceYear,
+          testingPhase,
+          uncover,
+          subjectName,
+          projectName,
+          auditDate
+        );
+      }
+      else if (category === "DM") {
+        TemplateCode.getDMTemplateCode(
           ctx,
           width,
           height,

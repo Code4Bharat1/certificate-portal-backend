@@ -17,7 +17,7 @@ const letterSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: ["code4bharat", "marketing-junction", "FSD", "HR", "BVOC"],
+      enum: ["code4bharat", "marketing-junction", "FSD", "HR", "BVOC", "DM", "OD"],
     },
 
     batch: {
