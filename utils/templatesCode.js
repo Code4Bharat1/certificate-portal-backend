@@ -1,5 +1,6 @@
 import { rgb, StandardFonts } from "pdf-lib";
 import { wrapText } from "../controllers/letter.controllers.js";
+import People from "../models/people.models.js";
 
 // Convert performanceMonth to short form (e.g., "Jan", "Feb", etc.)
 const monthMap = {
@@ -1220,298 +1221,468 @@ const getBVOCTemplateCode = async (
 /**
  * Draw dynamic PDF templates based on course type
  */
-const drawPdfTemplate = async (
-  pdfDoc,
-  course,
-  {
-    name,
-    outwardNo,
-    formattedDate,
-    tempId,
-    description,
-    subject,
-    startDate,
-    endDate,
-  }
+const drawFSDPdfTemplate = async (
+    pdfDoc,
+    course,
+    {
+        name,
+        outwardNo,
+        issueDate,
+        formattedDate,
+        tempId,
+        description,
+        subject,
+        startDate,
+        endDate,
+    }
 ) => {
-  const pages = pdfDoc.getPages();
-  const firstPage = pages[0];
-  const secondPage = pages[1];
-  const { width, height } = firstPage.getSize();
+    const pages = pdfDoc.getPages();
+    const firstPage = pages[0];
+    const secondPage = pages[1];
+    const { width, height } = firstPage.getSize();
 
-  const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-  const darkColor = rgb(0.067, 0.094, 0.152);
-  const verifyText = "https://portal.nexcorealliance.com/verify-certificate";
+    let thirdPage;
+    let fourthPage;
 
-  /* ============================================================
-     🎓 OFFER LETTER (2 Pages)
-  ============================================================ */
-  if (course === "Offer Letter") {
-    firstPage.drawText(`${outwardNo}`, {
-      x: width * 0.25,
-      y: height * 0.768,
-      size: 12,
-      font: helveticaBold,
-      color: darkColor,
-    });
+    if (pages[2]) {
+        thirdPage = pages[2];
+    }
+    if (pages[3]) {
+        fourthPage = pages[3];
+    }
 
-    firstPage.drawText(`${formattedDate}`, {
-      x: width * 0.13,
-      y: height * 0.745,
-      size: 12,
-      font: helvetica,
-      color: darkColor,
-    });
+    const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const darkColor = rgb(0.067, 0.094, 0.152);
+    const verifyText = "https://portal.nexcorealliance.com/verify-certificate";
 
-    firstPage.drawText(`${name}`, {
-      x: width * 0.072,
-      y: height * 0.69,
-      size: 12,
-      font: helveticaBold,
-      color: rgb(0, 0, 0),
-    });
+    /* ============================================================
+       🎓 OFFER LETTER (2 Pages)
+    ============================================================ */
+    if (course === "Offer Letter") {
+        // first page
+        firstPage.drawText(`${outwardNo}`, {
+            x: width * 0.25,
+            y: height * 0.768,
+            size: 12,
+            font: helveticaBold,
+            color: darkColor,
+        });
 
-    firstPage.drawText(`${name},`, {
-      x: width * 0.13,
-      y: height * 0.64,
-      size: 12,
-      font: helveticaBold,
-      color: rgb(0, 0, 0),
-    });
+        firstPage.drawText(`${formattedDate}`, {
+            x: width * 0.13,
+            y: height * 0.745,
+            size: 12,
+            font: helveticaBold,
+            color: darkColor,
+        });
 
-    secondPage.drawText(`${startDate}`, {
-      x: width * 0.10,
-      y: height * 0.85,
-      size: 14,
-      font: helvetica,
-      color: darkColor,
-    });
+        firstPage.drawText(`${name}`, {
+            x: width * 0.072,
+            y: height * 0.69,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
 
-    secondPage.drawText(`${endDate}`, {
-      x: width * 0.10,
-      y: height * 0.80,
-      size: 14,
-      font: helvetica,
-      color: darkColor,
-    });
+        firstPage.drawText(`${name},`, {
+            x: width * 0.13,
+            y: height * 0.64,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
 
-    secondPage.drawText(`${tempId}`, {
-      x: width * 0.10,
-      y: height * 0.75,
-      size: 14,
-      font: helveticaBold,
-      color: rgb(0, 0, 0),
-    });
+        // Second Page
+        const startformattedDate = new Date(startDate).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
 
-    secondPage.drawText(
-      `I, ${name}, accept the terms and conditions stated in this Internship cum Training Offer Letter.`,
-      {
-        x: width * 0.10,
-        y: height * 0.65,
-        size: 13,
-        font: helvetica,
-        color: rgb(0, 0, 0),
-      }
-    );
+        const endformattedDate = new Date(endDate).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
 
-    secondPage.drawText(`${verifyText}`, {
-      x: width * 0.10,
-      y: height * 0.60,
-      size: 12,
-      font: helvetica,
-      color: darkColor,
-    });
-  }
+        secondPage.drawText(`${startformattedDate}`, {
+            x: width * 0.20,
+            y: height * 0.673,
+            size: 12,
+            font: helvetica,
+            color: darkColor,
+        });
 
-  /* ============================================================
-     🚀 LIVE PROJECT AGREEMENT
-  ============================================================ */
-  else if (course === "Live Project Agreement") {
-    const page = firstPage;
-    page.drawText(`This Live Project Agreement is entered into by:`, {
-      x: width * 0.10,
-      y: height * 0.85,
-      size: 14,
-      font: helvetica,
-      color: darkColor,
-    });
+        secondPage.drawText(`${endformattedDate}`, {
+            x: width * 0.20,
+            y: height * 0.652,
+            size: 12,
+            font: helvetica,
+            color: darkColor,
+        });
 
-    page.drawText(`${name}`, {
-      x: width * 0.10,
-      y: height * 0.80,
-      size: 14,
-      font: helveticaBold,
-      color: rgb(0, 0, 0),
-    });
+        secondPage.drawText(`${tempId}`, {
+            x: width * 0.24,
+            y: height * 0.363,
+            size: 13,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
 
-    page.drawText(`Start Date: ${startDate}`, {
-      x: width * 0.10,
-      y: height * 0.75,
-      size: 14,
-      font: helvetica,
-      color: darkColor,
-    });
+        /* ==========================
+           ✅ Intern's Acceptance
+        ========================== */
+        const acceptanceY = height * 0.23;
+        const acceptanceX = width * 0.05;
+        const maxWidth = width * 0.90;
 
-    page.drawText(`End Date: ${endDate}`, {
-      x: width * 0.10,
-      y: height * 0.70,
-      size: 14,
-      font: helvetica,
-      color: darkColor,
-    });
+        const acceptanceText = `I, ${name}, accept the terms and conditions stated in this Internship cum Training Offer Letter.`;
 
-    page.drawText(`Letter ID: ${tempId}`, {
-      x: width * 0.10,
-      y: height * 0.65,
-      size: 14,
-      font: helveticaBold,
-      color: rgb(0, 0, 0),
-    });
-
-    page.drawText(`Verify at: ${verifyText}`, {
-      x: width * 0.10,
-      y: height * 0.60,
-      size: 12,
-      font: helvetica,
-      color: darkColor,
-    });
-  }
-
-  /* ============================================================
-     🔒 NON-DISCLOSURE AGREEMENT
-  ============================================================ */
-  else if (course === "Non-Disclosure Agreement") {
-    const page = firstPage;
-    page.drawText(`Non-Disclosure Agreement (NDA)`, {
-      x: width * 0.30,
-      y: height * 0.90,
-      size: 16,
-      font: helveticaBold,
-      color: rgb(0, 0, 0),
-    });
-
-    page.drawText(`This agreement is made on ${formattedDate}`, {
-      x: width * 0.10,
-      y: height * 0.83,
-      size: 14,
-      font: helvetica,
-      color: darkColor,
-    });
-
-    page.drawText(
-      `${name} agrees to maintain confidentiality regarding all materials, data, and intellectual property shared during the engagement.`,
-      {
-        x: width * 0.10,
-        y: height * 0.75,
-        size: 13,
-        font: helvetica,
-        color: rgb(0, 0, 0),
-      }
-    );
-
-    page.drawText(`Letter ID: ${tempId}`, {
-      x: width * 0.10,
-      y: height * 0.68,
-      size: 14,
-      font: helveticaBold,
-      color: rgb(0, 0, 0),
-    });
-
-    page.drawText(`Verify at: ${verifyText}`, {
-      x: width * 0.10,
-      y: height * 0.63,
-      size: 12,
-      font: helvetica,
-      color: darkColor,
-    });
-  }
-
-  /* ============================================================
-     🧾 DEFAULT TEMPLATE (fallback)
-  ============================================================ */
-  else {
-    const page = firstPage;
-    page.drawText(outwardNo, {
-      x: width * 0.085,
-      y: height * 0.65,
-      size: 15,
-      font: helveticaBold,
-      color: darkColor,
-    });
-
-    page.drawText(formattedDate, {
-      x: width * 0.083,
-      y: height * 0.90,
-      size: 15,
-      font: helvetica,
-      color: darkColor,
-    });
-
-    const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
-    page.drawText(subjectText, {
-      x: width * 0.32,
-      y: height * 0.75,
-      size: 18,
-      font: helveticaBold,
-      color: rgb(0, 0, 0),
-    });
-
-    const wrapPdfText = (text, maxWidth, font, size) => {
-      const words = text.split(" ");
-      const lines = [];
-      let currentLine = "";
-      const testFont = font;
-      words.forEach((word) => {
-        const testLine = currentLine + word + " ";
-        const width = testFont.widthOfTextAtSize(testLine, size);
-        if (width > maxWidth && currentLine) {
-          lines.push(currentLine.trim());
-          currentLine = word + " ";
-        } else {
-          currentLine = testLine;
+        // Dynamic font sizing
+        let fontSize = 13;
+        let textWidth = helvetica.widthOfTextAtSize(acceptanceText, fontSize);
+        while (textWidth > maxWidth && fontSize > 9) {
+            fontSize -= 0.5;
+            textWidth = helvetica.widthOfTextAtSize(acceptanceText, fontSize);
         }
-      });
-      if (currentLine) lines.push(currentLine.trim());
-      return lines;
-    };
 
-    const descLines = wrapPdfText(description, width * 0.8, helvetica, 14);
-    let y = height * 0.63;
-    descLines.forEach((line) => {
-      page.drawText(line, {
-        x: width * 0.13,
-        y,
-        size: 14,
-        font: helvetica,
-        color: rgb(0.1, 0.1, 0.1),
-      });
-      y -= 18;
-    });
+        // Word wrap helper
+        const wrapText = (text, font, size, maxWidth) => {
+            const words = text.split(" ");
+            let line = "";
+            const lines = [];
 
-    page.drawText(tempId, {
-      x: width * 0.33,
-      y: height * 0.25,
-      size: 15,
-      font: helveticaBold,
-      color: rgb(0, 0, 0),
-    });
+            for (let i = 0; i < words.length; i++) {
+                const testLine = line + words[i] + " ";
+                const testWidth = font.widthOfTextAtSize(testLine, size);
+                if (testWidth > maxWidth && i > 0) {
+                    lines.push(line.trim());
+                    line = words[i] + " ";
+                } else {
+                    line = testLine;
+                }
+            }
+            lines.push(line.trim());
+            return lines;
+        };
 
-    page.drawText(verifyText, {
-      x: width * 0.2,
-      y: height * 0.17,
-      size: 12,
-      font: helvetica,
-      color: rgb(0.12, 0.16, 0.22),
-    });
-  }
+        // Split into wrapped lines
+        const wrappedLines = wrapText(acceptanceText, helvetica, fontSize, maxWidth);
 
-  return pdfDoc;
+        let currentY = acceptanceY;
+        wrappedLines.forEach((line) => {
+            // Handle bold name rendering
+            const nameParts = line.split(name);
+            if (nameParts.length > 1) {
+                let xPos = acceptanceX;
+                for (let i = 0; i < nameParts.length; i++) {
+                    if (nameParts[i]) {
+                        secondPage.drawText(nameParts[i], {
+                            x: xPos,
+                            y: currentY,
+                            size: fontSize,
+                            font: helvetica,
+                            color: rgb(0, 0, 0),
+                        });
+                        xPos += helvetica.widthOfTextAtSize(nameParts[i], fontSize);
+                    }
+                    if (i < nameParts.length - 1) {
+                        secondPage.drawText(name, {
+                            x: xPos,
+                            y: currentY,
+                            size: fontSize,
+                            font: helveticaBold,
+                            color: rgb(0, 0, 0),
+                        });
+                        xPos += helveticaBold.widthOfTextAtSize(name, fontSize);
+                    }
+                }
+            } else {
+                secondPage.drawText(line, {
+                    x: acceptanceX,
+                    y: currentY,
+                    size: fontSize,
+                    font: helvetica,
+                    color: rgb(0, 0, 0),
+                });
+            }
+            currentY -= fontSize + 4;
+        });
+
+        // verify link
+        secondPage.drawText(`${verifyText}`, {
+            x: width * 0.23,
+            y: height * 0.135,
+            size: 14,
+            font: helvetica,
+            color: darkColor,
+        });
+    }
+
+    /* ============================================================
+       🚀 LIVE PROJECT AGREEMENT
+    ============================================================ */
+    if (course === "Live Project Agreement") {
+        // Fetch Aadhaar and Address from PEOPLE collection
+        const person = await People.findOne({ name });
+        const aadhaarNo = person?.aadhaarCard || "N/A";
+        const address = person?.address || "N/A";
+
+        /* -------------------- 🧾 FIRST PAGE -------------------- */
+        // Outward Number (right side of “OutWard Number:”)
+        firstPage.drawText(`${outwardNo}`, {
+            x: width * 0.25,
+            y: height * 0.77,
+            size: 12,
+            font: helveticaBold,
+            color: darkColor,
+        });
+
+        // Date (right side of “Date:-”)
+        firstPage.drawText(`${formattedDate}`, {
+            x: width * 0.72,
+            y: height * 0.773,
+            size: 12,
+            font: helveticaBold,
+            color: darkColor,
+        });
+
+        // Issue Date (used in paragraph start)
+        firstPage.drawText(`${issueDate},`, {
+            x: width * 0.84,
+            y: height * 0.70,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        // Dynamic description paragraph
+        const descY = height * 0.50; // below header text
+        const descX = width * 0.08;
+        const maxWidth = width * 0.82;
+
+        // Dynamic description paragraph (Live Project Agreement)
+        const descText = `${name}, enrolled under the Code4Bharat Training Program and selected to participate in live client projects during the final project phase, residing at ${address}, Aadhaar No. ${aadhaarNo}.`;
+
+        // const descX = width * 0.10; // left margin
+        // const maxWidth = width * 0.80; // paragraph width
+        let currentY = height * 0.52; // proper vertical placement
+
+        // Adjust font size dynamically based on text width
+        let fontSize = 35;
+        let textWidth = helvetica.widthOfTextAtSize(descText, fontSize);
+        while (textWidth > maxWidth && fontSize > 9) {
+            fontSize -= 0.5;
+            textWidth = helvetica.widthOfTextAtSize(descText, fontSize);
+        }
+
+        // Proper word wrapping with smoother spacing
+        const wrapText = (text, font, size, maxWidth) => {
+            const words = text.split(" ");
+            const lines = [];
+            let line = "";
+
+            for (const word of words) {
+                const testLine = line + word + " ";
+                const testWidth = font.widthOfTextAtSize(testLine, size);
+                if (testWidth > maxWidth && line.length > 0) {
+                    lines.push(line.trim());
+                    line = word + " ";
+                } else {
+                    line = testLine;
+                }
+            }
+            if (line) lines.push(line.trim());
+            return lines;
+        };
+
+        const wrappedLines = wrapText(descText, helvetica, fontSize, maxWidth);
+
+        // Draw each line neatly spaced (like a paragraph)
+        const lineSpacing = fontSize + 4;
+        wrappedLines.forEach((line) => {
+            firstPage.drawText(line, {
+                x: descX,
+                y: currentY,
+                size: fontSize,
+                font: helvetica,
+                color: rgb(0, 0, 0),
+            });
+            currentY -= lineSpacing;
+        });
+
+
+        /* -------------------- 🧾 LAST PAGE -------------------- */
+        // Credential ID / Temp ID
+        fourthPage.drawText(`${tempId}`, {
+            x: width * 0.21,
+            y: height * 0.402,
+            size: 13,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        // Verification link
+        fourthPage.drawText(`${verifyText}`, {
+            x: width * 0.24,
+            y: height * 0.125,
+            size: 14,
+            font: helvetica,
+            color: darkColor,
+        });
+    }
+
+
+    /* ============================================================
+       🔒 NON-DISCLOSURE AGREEMENT
+    ============================================================ */
+    else if (course === "Non-Disclosure Agreement") {
+        const page = firstPage;
+        page.drawText(`Non-Disclosure Agreement (NDA)`, {
+            x: width * 0.30,
+            y: height * 0.90,
+            size: 16,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        page.drawText(`This agreement is made on ${formattedDate}`, {
+            x: width * 0.10,
+            y: height * 0.83,
+            size: 14,
+            font: helvetica,
+            color: darkColor,
+        });
+
+        page.drawText(
+            `${name} agrees to maintain confidentiality regarding all materials, data, and intellectual property shared during the engagement.`,
+            {
+                x: width * 0.10,
+                y: height * 0.75,
+                size: 13,
+                font: helvetica,
+                color: rgb(0, 0, 0),
+            }
+        );
+
+        page.drawText(`Letter ID: ${tempId}`, {
+            x: width * 0.10,
+            y: height * 0.68,
+            size: 14,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        page.drawText(`Verify at: ${verifyText}`, {
+            x: width * 0.10,
+            y: height * 0.63,
+            size: 12,
+            font: helvetica,
+            color: darkColor,
+        });
+    }
+
+    /* ============================================================
+       🧾 DEFAULT TEMPLATE (fallback)
+    ============================================================ */
+    // else {
+    //     const page = firstPage;
+    //     page.drawText(outwardNo, {
+    //         x: width * 0.085,
+    //         y: height * 0.65,
+    //         size: 15,
+    //         font: helveticaBold,
+    //         color: darkColor,
+    //     });
+
+    //     page.drawText(formattedDate, {
+    //         x: width * 0.083,
+    //         y: height * 0.90,
+    //         size: 15,
+    //         font: helvetica,
+    //         color: darkColor,
+    //     });
+
+    //     const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
+    //     page.drawText(subjectText, {
+    //         x: width * 0.32,
+    //         y: height * 0.75,
+    //         size: 18,
+    //         font: helveticaBold,
+    //         color: rgb(0, 0, 0),
+    //     });
+
+    //     const wrapPdfText = (text, maxWidth, font, size) => {
+    //         const words = text.split(" ");
+    //         const lines = [];
+    //         let currentLine = "";
+    //         const testFont = font;
+    //         words.forEach((word) => {
+    //             const testLine = currentLine + word + " ";
+    //             const width = testFont.widthOfTextAtSize(testLine, size);
+    //             if (width > maxWidth && currentLine) {
+    //                 lines.push(currentLine.trim());
+    //                 currentLine = word + " ";
+    //             } else {
+    //                 currentLine = testLine;
+    //             }
+    //         });
+    //         if (currentLine) lines.push(currentLine.trim());
+    //         return lines;
+    //     };
+
+    //     const descLines = wrapPdfText(description, width * 0.8, helvetica, 14);
+    //     let y = height * 0.63;
+    //     descLines.forEach((line) => {
+    //         page.drawText(line, {
+    //             x: width * 0.13,
+    //             y,
+    //             size: 14,
+    //             font: helvetica,
+    //             color: rgb(0.1, 0.1, 0.1),
+    //         });
+    //         y -= 18;
+    //     });
+
+    //     page.drawText(tempId, {
+    //         x: width * 0.33,
+    //         y: height * 0.25,
+    //         size: 15,
+    //         font: helveticaBold,
+    //         color: rgb(0, 0, 0),
+    //     });
+
+    //     page.drawText(verifyText, {
+    //         x: width * 0.2,
+    //         y: height * 0.17,
+    //         size: 12,
+    //         font: helvetica,
+    //         color: rgb(0.12, 0.16, 0.22),
+    //     });
+    // }
+
+    return pdfDoc;
 };
 
+function splitTextIntoLines(text, maxCharsPerLine = 90) {
+    const words = text.split(" ");
+    const lines = [];
+    let currentLine = "";
+    for (let word of words) {
+        if ((currentLine + word).length > maxCharsPerLine) {
+            lines.push(currentLine.trim());
+            currentLine = word + " ";
+        } else {
+            currentLine += word + " ";
+        }
+    }
+    if (currentLine.trim() !== "") lines.push(currentLine.trim());
+    return lines;
+}
 
 export default {
     getFSDTemplateCode,
     getBVOCTemplateCode,
-    drawPdfTemplate,
+    drawFSDPdfTemplate,
 }

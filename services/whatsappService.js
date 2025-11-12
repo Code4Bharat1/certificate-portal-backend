@@ -339,7 +339,7 @@ export const getLetterMessageTemplate = (letterType, subType, data) => {
   }
 
   const verificationLink = `${baseUrl}/verify-certificate/`;
-  const downloadLink = `${baseUrl}/verify-certificate-`;
+  const downloadLink = `${baseUrl}/verify-certificate/`;
 
   // Get Terms & Conditions link based on category
   const getTermsLink = () => {

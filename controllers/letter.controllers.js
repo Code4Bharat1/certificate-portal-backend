@@ -8,7 +8,11 @@ import { fileURLToPath } from "url";
 import { validationResult } from "express-validator";
 import People from "../models/people.models.js";
 import ActivityLog from "../models/activitylog.models.js";
-import { sendCertificateNotification } from "../services/whatsappService.js";
+import {
+  sendWhatsAppMessage,
+  getLetterMessageTemplate,
+  getParentNotificationTemplate
+} from '../services/whatsappService.js';
 import { PDFDocument as PDFLibDocument, StandardFonts, rgb } from "pdf-lib";
 
 import TemplateCode from "../utils/templatesCode.js"
@@ -250,6 +254,7 @@ export const createLetter = async (req, res) => {
       category,
       issueDate,
       letterType,
+      subType,  // ⚠️ IMPORTANT: Make sure this comes from frontend
       course,
       description = "",
       subject = "",
@@ -267,17 +272,19 @@ export const createLetter = async (req, res) => {
       testingPhase,
       subjectName,
       projectName,
-      auditDate, // ✅ Added missing frontend field
+      auditDate,
       batch,
       duration,
-      uncover, // keep since it exists in your schema
+      uncover,
+      parentPhone,    // ⚠️ For parent notification
+      parentName,     // ⚠️ For parent notification
     } = req.body;
 
     // 🔹 Basic required validations
-    if (!name || !category || !course || !issueDate) {
+    if (!name || !category || !course || !issueDate || !letterType) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields (name, category, course, issueDate).",
+        message: "Missing required fields (name, category, course, issueDate, letterType).",
       });
     }
 
@@ -300,13 +307,14 @@ export const createLetter = async (req, res) => {
     const userData = await People.findOne({ name });
     const userPhone = userData?.phone || null;
 
-    // 🔹 Prepare letter data object (fully mapped to frontend)
+    // 🔹 Prepare letter data object
     const letterData = {
       letterId,
       name,
       category,
       batch: batch || "",
       letterType: letterType || "",
+      subType: subType || "default",  // ⚠️ IMPORTANT
       course,
       subject: subject?.trim() || "",
       role: role || "",
@@ -318,8 +326,6 @@ export const createLetter = async (req, res) => {
       outwardNo,
       outwardSerial,
       createdBy: req.user?._id || null,
-
-      // 🔹 Extended fields (all frontend fields included)
       committeeType: committeeType || "",
       attendancePercent: attendancePercent || "",
       assignmentName: assignmentName || "",
@@ -332,27 +338,72 @@ export const createLetter = async (req, res) => {
       subjectName: subjectName || "",
       projectName: projectName || "",
       uncover: uncover || "",
-      auditDate: auditDate ? new Date(auditDate) : null, // ✅ new field support
+      auditDate: auditDate ? new Date(auditDate) : null,
+      parentPhone: parentPhone || null,
+      parentName: parentName || null,
     };
 
     // 🔹 Create letter
     const letter = await Letter.create(letterData);
 
-    // 🔹 Send WhatsApp notification if user has phone
+    // ✅ CORRECTED: Send WhatsApp notification for LETTERS
     try {
       if (userPhone && letterId) {
-        await sendCertificateNotification({
-          userName: name,
-          userPhone,
-          certificateId: letterId,
-          course,
-          category,
-          batch: batch || null,
-          issueDate: letter.issueDate,
-        });
+        console.log('📱 Sending letter notification to:', userPhone);
+        console.log('📋 Letter Type:', letterType);
+        console.log('📋 Sub Type:', subType || 'default');
+
+        // 🔹 Get the letter message template
+        const letterMessage = getLetterMessageTemplate(
+          letterType,
+          course || 'default',
+          {
+            userName: name,
+            category,
+            batch: batch || null,
+            issueDate: letter.issueDate,
+            credentialId: letterId,
+            letterId: letterId,
+            organizationName: 'Nexcore Alliance',
+          }
+        );
+
+        // 🔹 Send WhatsApp message to user
+        const result = await sendWhatsAppMessage(userPhone, letterMessage);
+        console.log('✅ Letter notification sent:', result);
+
+        // 🔹 Send parent notification if applicable
+        if (
+          parentPhone &&
+          parentName &&
+          (letterType === 'Warning Letter' ||
+            letterType === 'Appreciation Letter' ||
+            letterType === 'Committee Letter')
+        ) {
+          console.log('📱 Sending parent notification to:', parentPhone);
+
+          const parentMessage = getParentNotificationTemplate(
+            letterType,
+            subType || 'default',
+            {
+              userName: name,
+              parentName,
+              category,
+              batch: batch || null,
+              issueDate: letter.issueDate,
+              credentialId: letterId,
+              letterId: letterId,
+              organizationName: 'Nexcore Alliance',
+            }
+          );
+
+          const parentResult = await sendWhatsAppMessage(parentPhone, parentMessage);
+          console.log('✅ Parent notification sent:', parentResult);
+        }
       }
     } catch (err) {
-      console.error("WhatsApp send error:", err);
+      console.error("❌ WhatsApp send error:", err);
+      // Don't fail the whole request if WhatsApp fails
     }
 
     // 🔹 Log admin activity
@@ -559,17 +610,20 @@ export const previewLetter = async (req, res) => {
       const existingPdfBytes = fs.readFileSync(templatePath);
       const pdfDoc = await PDFLibDocument.load(existingPdfBytes);
 
-      await TemplateCode.drawPdfTemplate(pdfDoc, course, {
-        name,
-        outwardNo,
-        formattedDate,
-        tempId,
-        description,
-        subject,
-        startDate,
-        endDate,
-      });
-
+      if (category === "FSD") {
+        await TemplateCode.drawFSDPdfTemplate(pdfDoc, course, {
+          name,
+          outwardNo,
+          issueDate,
+          formattedDate,
+          tempId,
+          description,
+          subject,
+          startDate,
+          endDate,
+        });
+      }
+      
       const pdfBytes = await pdfDoc.save();
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", "inline; filename=preview.pdf");
@@ -805,26 +859,29 @@ export const downloadLetterAsPdf = async (req, res) => {
 
     /* ----------------------------------
    📄 PDF Template Rendering (Download)
----------------------------------- */
+  ---------------------------------- */
     else {
       const existingPdfBytes = fs.readFileSync(templatePath);
       const pdfDoc = await PDFLibDocument.load(existingPdfBytes);
 
-      // Reuse the same unified drawPdfTemplate logic
-      await TemplateCode.drawPdfTemplate(pdfDoc, letter.course, {
-        name: letter.name,
-        outwardNo: letter.outwardNo,
-        formattedDate: new Date(letter.issueDate).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }),
-        tempId: letter.letterId,
-        description: letter.description,
-        subject: letter.subject,
-        startDate: letter.startDate,
-        endDate: letter.endDate,
-      });
+      if (letter.category === "FSD") {
+        // Reuse the same unified drawPdfTemplate logic
+        await TemplateCode.drawFSDPdfTemplate(pdfDoc, letter.course, {
+          name: letter.name,
+          outwardNo: letter.outwardNo,
+          issueDate: letter.issueDate,
+          formattedDate: new Date(letter.issueDate).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          tempId: letter.letterId,
+          description: letter.description,
+          subject: letter.subject,
+          startDate: letter.startDate,
+          endDate: letter.endDate,
+        });
+      }
 
       // Save PDF and send as downloadable file
       const pdfBytes = await pdfDoc.save();
