@@ -12,7 +12,7 @@ const peopleSchema = new mongoose.Schema(
     category: {
       type: String,
       enum: {
-        values: ['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR', 'DM','OPERTIONS DEPARTMENT'],
+        values: ['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR', 'DM', 'OPERTIONS DEPARTMENT'],
         message: '{VALUE} is not a valid category',
       },
       required: [true, 'Category is required'],
@@ -20,11 +20,10 @@ const peopleSchema = new mongoose.Schema(
     batch: {
       type: String,
       required: function() {
-        // Batch is required only for FSD and BVOC categories
         return ['FSD', 'BVOC'].includes(this.category);
       },
       trim: true,
-      match: [/^B-\d+$/, 'Batch must be in format B-1, B-2, etc.'],
+      match: [/^B-\d+/, 'Batch must start with B- followed by a number'],
       default: '',
     },
     phone: {
@@ -35,24 +34,48 @@ const peopleSchema = new mongoose.Schema(
       match: [/^91[0-9]{10}$/, 'Phone must be in format 91XXXXXXXXXX (12 digits with country code)'],
       index: true,
     },
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email address'],
+      default: null,
+      sparse: true, // Allows multiple null values but enforces uniqueness when present
+    },
     parentPhone1: {
       type: String,
       trim: true,
-      match: [/^91[0-9]{10}$/, 'Parent Phone 1 must be in format 91XXXXXXXXXX (12 digits with country code)'],
+      match: [/^91[0-9]{10}$/, 'Father Phone must be in format 91XXXXXXXXXX (12 digits with country code)'],
       default: null,
+    },
+    fatherEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid father email address'],
+      default: null,
+      sparse: true,
     },
     parentPhone2: {
       type: String,
       trim: true,
-      match: [/^91[0-9]{10}$/, 'Parent Phone 2 must be in format 91XXXXXXXXXX (12 digits with country code)'],
+      match: [/^91[0-9]{10}$/, 'Mother Phone must be in format 91XXXXXXXXXX (12 digits with country code)'],
       default: null,
+    },
+    motherEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid mother email address'],
+      default: null,
+      sparse: true,
     },
     aadhaarCard: {
       type: String,
       trim: true,
       match: [/^[0-9]{12}$/, 'Aadhaar card must be exactly 12 digits'],
       default: null,
-      sparse: true, // Allows multiple null values but enforces uniqueness when present
+      sparse: true,
     },
     address: {
       type: String,
@@ -68,8 +91,6 @@ const peopleSchema = new mongoose.Schema(
   },
   { 
     timestamps: true,
-    // toJSON: { virtuals: true },
-    // toObject: { virtuals: true }
   }
 );
 
@@ -89,7 +110,7 @@ peopleSchema.virtual('formattedPhone').get(function() {
   return this.phone;
 });
 
-// Virtual for formatted parent phone 1
+// Virtual for formatted parent phone 1 (Father)
 peopleSchema.virtual('formattedParentPhone1').get(function() {
   if (this.parentPhone1 && this.parentPhone1.startsWith('91')) {
     return `+91 ${this.parentPhone1.substring(2)}`;
@@ -97,7 +118,7 @@ peopleSchema.virtual('formattedParentPhone1').get(function() {
   return this.parentPhone1;
 });
 
-// Virtual for formatted parent phone 2
+// Virtual for formatted parent phone 2 (Mother)
 peopleSchema.virtual('formattedParentPhone2').get(function() {
   if (this.parentPhone2 && this.parentPhone2.startsWith('91')) {
     return `+91 ${this.parentPhone2.substring(2)}`;
@@ -112,17 +133,12 @@ peopleSchema.virtual('statusDisplay').get(function() {
 
 // Index for efficient category-based queries
 peopleSchema.index({ category: 1, createdAt: -1 });
-
-// Compound index for category + batch queries
 peopleSchema.index({ category: 1, batch: 1 });
-
-// Compound index for category + disabled queries
 peopleSchema.index({ category: 1, disabled: 1 });
-
-// Compound index for batch + disabled queries
 peopleSchema.index({ batch: 1, disabled: 1 });
+peopleSchema.index({ email: 1 });
 
-// Pre-save hook to validate batch requirement
+// Pre-save hook to validate batch requirement and email logic
 peopleSchema.pre('save', function(next) {
   // Log disabled status changes
   if (this.isModified('disabled')) {
@@ -139,6 +155,14 @@ peopleSchema.pre('save', function(next) {
     this.batch = '';
   }
 
+  // Validate parent emails only for BVOC category
+  if (this.category !== 'BVOC') {
+    this.fatherEmail = null;
+    this.motherEmail = null;
+    this.parentPhone1 = null;
+    this.parentPhone2 = null;
+  }
+
   // Validate Aadhaar card format if provided
   if (this.aadhaarCard && !/^[0-9]{12}$/.test(this.aadhaarCard)) {
     return next(new Error('Aadhaar card must be exactly 12 digits'));
@@ -147,6 +171,21 @@ peopleSchema.pre('save', function(next) {
   // Validate address length if provided
   if (this.address && this.address.length > 100) {
     return next(new Error('Address cannot exceed 100 characters'));
+  }
+
+  // Validate email format
+  if (this.email && !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(this.email)) {
+    return next(new Error('Invalid email format'));
+  }
+
+  // Validate father email format
+  if (this.fatherEmail && !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(this.fatherEmail)) {
+    return next(new Error('Invalid father email format'));
+  }
+
+  // Validate mother email format
+  if (this.motherEmail && !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(this.motherEmail)) {
+    return next(new Error('Invalid mother email format'));
   }
   
   next();
@@ -183,6 +222,21 @@ peopleSchema.pre('findOneAndUpdate', function(next) {
   // Validate address length in update
   if (update.address && update.address.length > 100) {
     return next(new Error('Address cannot exceed 100 characters'));
+  }
+
+  // Validate email in update
+  if (update.email && !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(update.email)) {
+    return next(new Error('Invalid email format'));
+  }
+
+  // Validate father email in update
+  if (update.fatherEmail && !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(update.fatherEmail)) {
+    return next(new Error('Invalid father email format'));
+  }
+
+  // Validate mother email in update
+  if (update.motherEmail && !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(update.motherEmail)) {
+    return next(new Error('Invalid mother email format'));
   }
   
   next();
@@ -260,25 +314,6 @@ peopleSchema.statics.getBatchStats = async function() {
   ]);
 };
 
-// Static method to get disabled statistics by category
-peopleSchema.statics.getDisabledStatsByCategory = async function() {
-  console.log('📊 [STATS] Fetching disabled statistics by category...');
-  return await this.aggregate([
-    {
-      $match: { disabled: true },
-    },
-    {
-      $group: {
-        _id: '$category',
-        count: { $sum: 1 },
-      },
-    },
-    {
-      $sort: { count: -1 },
-    },
-  ]);
-};
-
 // Instance method to check if batch is required
 peopleSchema.methods.requiresBatch = function() {
   return ['FSD', 'BVOC'].includes(this.category);
@@ -329,14 +364,16 @@ peopleSchema.methods.disable = async function() {
 // Instance method to get full details
 peopleSchema.methods.getFullDetails = function() {
   return {
-    // id: this._id,
     name: this.name,
     category: this.category,
     batch: this.batch || 'N/A',
     phone: this.formattedPhone,
     phoneRaw: this.phone,
+    email: this.email || 'Not provided',
     parentPhone1: this.formattedParentPhone1,
+    fatherEmail: this.fatherEmail || 'Not provided',
     parentPhone2: this.formattedParentPhone2,
+    motherEmail: this.motherEmail || 'Not provided',
     aadhaarCard: this.aadhaarCard || 'Not provided',
     address: this.address || 'Not provided',
     disabled: this.disabled,

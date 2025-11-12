@@ -38,17 +38,29 @@ router.post(
     body('phone')
       .matches(/^[0-9]{10}$/)
       .withMessage('Phone must be a 10-digit number'),
+    body('email')
+      .optional({ nullable: true, checkFalsy: true })
+      .isEmail()
+      .withMessage('Please enter a valid email address'),
     body('batch')
       .optional()
       .trim(),
     body('parentPhone1')
       .optional({ nullable: true, checkFalsy: true })
       .matches(/^[0-9]{10}$/)
-      .withMessage('Parent Phone 1 must be a 10-digit number'),
+      .withMessage('Father Phone must be a 10-digit number'),
+    body('fatherEmail')
+      .optional({ nullable: true, checkFalsy: true })
+      .isEmail()
+      .withMessage('Please enter a valid father email address'),
     body('parentPhone2')
       .optional({ nullable: true, checkFalsy: true })
       .matches(/^[0-9]{10}$/)
-      .withMessage('Parent Phone 2 must be a 10-digit number'),
+      .withMessage('Mother Phone must be a 10-digit number'),
+    body('motherEmail')
+      .optional({ nullable: true, checkFalsy: true })
+      .isEmail()
+      .withMessage('Please enter a valid mother email address'),
     body('aadhaarCard')
       .optional({ nullable: true, checkFalsy: true })
       .matches(/^[0-9]{12}$/)
@@ -71,12 +83,30 @@ router.post(
         });
       }
 
-      const { name, category, batch, phone, parentPhone1, parentPhone2, aadhaarCard, address } = req.body;
+      const { 
+        name, 
+        category, 
+        batch, 
+        phone, 
+        email, 
+        parentPhone1, 
+        fatherEmail, 
+        parentPhone2, 
+        motherEmail, 
+        aadhaarCard, 
+        address 
+      } = req.body;
       
       console.log('📝 Adding new person:', { 
-        name, category, batch, phone, 
+        name, 
+        category, 
+        batch, 
+        phone, 
+        hasEmail: !!email,
         hasParentPhone1: !!parentPhone1,
+        hasFatherEmail: !!fatherEmail,
         hasParentPhone2: !!parentPhone2,
+        hasMotherEmail: !!motherEmail,
         hasAadhaar: !!aadhaarCard,
         hasAddress: !!address
       });
@@ -103,6 +133,18 @@ router.post(
         });
       }
 
+      // Check for duplicate email if provided
+      if (email) {
+        const existingEmail = await People.findOne({ email: email.toLowerCase() });
+        if (existingEmail) {
+          console.error('❌ Duplicate email:', email);
+          return res.status(400).json({ 
+            success: false,
+            message: 'Person already exists with this email address' 
+          });
+        }
+      }
+
       // Prepare person data
       const newPersonData = { 
         name: name.trim(), 
@@ -112,13 +154,28 @@ router.post(
         disabled: false
       };
 
-      // Add optional fields if provided
-      if (parentPhone1) {
-        newPersonData.parentPhone1 = '91' + parentPhone1;
+      // Add email if provided
+      if (email) {
+        newPersonData.email = email.toLowerCase().trim();
       }
-      if (parentPhone2) {
-        newPersonData.parentPhone2 = '91' + parentPhone2;
+
+      // Add parent fields only for BVOC category
+      if (category === 'BVOC') {
+        if (parentPhone1) {
+          newPersonData.parentPhone1 = '91' + parentPhone1;
+        }
+        if (fatherEmail) {
+          newPersonData.fatherEmail = fatherEmail.toLowerCase().trim();
+        }
+        if (parentPhone2) {
+          newPersonData.parentPhone2 = '91' + parentPhone2;
+        }
+        if (motherEmail) {
+          newPersonData.motherEmail = motherEmail.toLowerCase().trim();
+        }
       }
+
+      // Add other optional fields
       if (aadhaarCard) {
         newPersonData.aadhaarCard = aadhaarCard;
       }
@@ -140,8 +197,11 @@ router.post(
           category: newPerson.category,
           batch: newPerson.batch || '',
           phone: newPerson.phone,
+          email: newPerson.email || null,
           parentPhone1: newPerson.parentPhone1 || null,
+          fatherEmail: newPerson.fatherEmail || null,
           parentPhone2: newPerson.parentPhone2 || null,
+          motherEmail: newPerson.motherEmail || null,
           aadhaarCard: newPerson.aadhaarCard || null,
           address: newPerson.address || null,
           disabled: newPerson.disabled,
@@ -185,8 +245,11 @@ router.get('/', async (req, res) => {
       category: p.category,
       batch: p.batch || '',
       phone: p.phone,
+      email: p.email || null,
       parentPhone1: p.parentPhone1 || null,
+      fatherEmail: p.fatherEmail || null,
       parentPhone2: p.parentPhone2 || null,
+      motherEmail: p.motherEmail || null,
       aadhaarCard: p.aadhaarCard || null,
       address: p.address || null,
       disabled: p.disabled || false,
@@ -249,8 +312,11 @@ router.get('/:id', async (req, res) => {
         category: person.category,
         batch: person.batch || '',
         phone: person.phone,
+        email: person.email || null,
         parentPhone1: person.parentPhone1 || null,
+        fatherEmail: person.fatherEmail || null,
         parentPhone2: person.parentPhone2 || null,
+        motherEmail: person.motherEmail || null,
         aadhaarCard: person.aadhaarCard || null,
         address: person.address || null,
         disabled: person.disabled || false,
@@ -288,14 +354,26 @@ router.put(
       .optional()
       .matches(/^91[0-9]{10}$/)
       .withMessage('Phone must be in format 91XXXXXXXXXX'),
+    body('email')
+      .optional({ nullable: true, checkFalsy: true })
+      .isEmail()
+      .withMessage('Please enter a valid email address'),
     body('parentPhone1')
       .optional({ nullable: true, checkFalsy: true })
       .matches(/^[0-9]{10}$/)
-      .withMessage('Parent Phone 1 must be a 10-digit number'),
+      .withMessage('Father Phone must be a 10-digit number'),
+    body('fatherEmail')
+      .optional({ nullable: true, checkFalsy: true })
+      .isEmail()
+      .withMessage('Please enter a valid father email address'),
     body('parentPhone2')
       .optional({ nullable: true, checkFalsy: true })
       .matches(/^[0-9]{10}$/)
-      .withMessage('Parent Phone 2 must be a 10-digit number'),
+      .withMessage('Mother Phone must be a 10-digit number'),
+    body('motherEmail')
+      .optional({ nullable: true, checkFalsy: true })
+      .isEmail()
+      .withMessage('Please enter a valid mother email address'),
     body('aadhaarCard')
       .optional({ nullable: true, checkFalsy: true })
       .matches(/^[0-9]{12}$/)
@@ -324,9 +402,12 @@ router.put(
         name, 
         category, 
         batch, 
-        phone, 
-        parentPhone1, 
-        parentPhone2, 
+        phone,
+        email,
+        parentPhone1,
+        fatherEmail,
+        parentPhone2,
+        motherEmail,
         aadhaarCard, 
         address 
       } = req.body;
@@ -362,18 +443,37 @@ router.put(
         });
       }
 
-      // Update fields
+      // Update basic fields
       if (name) person.name = name.trim();
       if (category) person.category = category;
       if (batch !== undefined) person.batch = batch;
       if (phone) person.phone = phone;
 
-      // Update parent phones
-      if (parentPhone1 !== undefined) {
-        person.parentPhone1 = parentPhone1 ? '91' + parentPhone1 : null;
+      // Update email
+      if (email !== undefined) {
+        person.email = email ? email.toLowerCase().trim() : null;
       }
-      if (parentPhone2 !== undefined) {
-        person.parentPhone2 = parentPhone2 ? '91' + parentPhone2 : null;
+
+      // Update parent fields based on category
+      if (category === 'BVOC' || person.category === 'BVOC') {
+        if (parentPhone1 !== undefined) {
+          person.parentPhone1 = parentPhone1 ? '91' + parentPhone1 : null;
+        }
+        if (fatherEmail !== undefined) {
+          person.fatherEmail = fatherEmail ? fatherEmail.toLowerCase().trim() : null;
+        }
+        if (parentPhone2 !== undefined) {
+          person.parentPhone2 = parentPhone2 ? '91' + parentPhone2 : null;
+        }
+        if (motherEmail !== undefined) {
+          person.motherEmail = motherEmail ? motherEmail.toLowerCase().trim() : null;
+        }
+      } else {
+        // Clear parent fields if not BVOC
+        person.parentPhone1 = null;
+        person.fatherEmail = null;
+        person.parentPhone2 = null;
+        person.motherEmail = null;
       }
 
       // Update aadhaar card
@@ -399,8 +499,11 @@ router.put(
           category: person.category,
           batch: person.batch || '',
           phone: person.phone,
+          email: person.email || null,
           parentPhone1: person.parentPhone1 || null,
+          fatherEmail: person.fatherEmail || null,
           parentPhone2: person.parentPhone2 || null,
+          motherEmail: person.motherEmail || null,
           aadhaarCard: person.aadhaarCard || null,
           address: person.address || null,
           disabled: person.disabled,
@@ -469,8 +572,11 @@ router.patch('/:id', async (req, res) => {
         category: person.category,
         batch: person.batch || '',
         phone: person.phone,
+        email: person.email || null,
         parentPhone1: person.parentPhone1 || null,
+        fatherEmail: person.fatherEmail || null,
         parentPhone2: person.parentPhone2 || null,
+        motherEmail: person.motherEmail || null,
         aadhaarCard: person.aadhaarCard || null,
         address: person.address || null,
         disabled: person.disabled,
@@ -614,21 +720,46 @@ router.post('/bulk-upload', upload.single('file'), async (req, res) => {
           disabled: false
         };
 
-        // Add optional fields
-        if (row.parentPhone1) {
-          const pp1 = String(row.parentPhone1).replace(/\D/g, '');
-          if (pp1.length === 10) {
-            personData.parentPhone1 = '91' + pp1;
+        // Add email if provided
+        if (row.email) {
+          const emailStr = String(row.email).trim().toLowerCase();
+          if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(emailStr)) {
+            personData.email = emailStr;
           }
         }
 
-        if (row.parentPhone2) {
-          const pp2 = String(row.parentPhone2).replace(/\D/g, '');
-          if (pp2.length === 10) {
-            personData.parentPhone2 = '91' + pp2;
+        // Add parent fields only for BVOC
+        if (row.category === 'BVOC') {
+          if (row.parentPhone1) {
+            const pp1 = String(row.parentPhone1).replace(/\D/g, '');
+            if (pp1.length === 10) {
+              personData.parentPhone1 = '91' + pp1;
+            }
+          }
+
+          if (row.fatherEmail) {
+            const fEmail = String(row.fatherEmail).trim().toLowerCase();
+            if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(fEmail)) {
+              personData.fatherEmail = fEmail;
+            }
+          }
+
+          if (row.parentPhone2) {
+            const pp2 = String(row.parentPhone2).replace(/\D/g, '');
+            if (pp2.length === 10) {
+              personData.parentPhone2 = '91' + pp2;
+            }
+          }
+
+          if (row.motherEmail) {
+            const mEmail = String(row.motherEmail).trim().toLowerCase();
+            if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mEmail)) {
+              personData.motherEmail = mEmail;
+            }
           }
         }
 
+        // Add other optional fields
         if (row.aadhaarCard) {
           const aadhaar = String(row.aadhaarCard).replace(/\D/g, '');
           if (aadhaar.length === 12) {
@@ -678,11 +809,11 @@ router.post('/bulk-upload', upload.single('file'), async (req, res) => {
 });
 
 /**
- * @route   GET /api/people/template
+ * @route   GET /api/people/template/download
  * @desc    Download Excel template for bulk upload
  * @access  Public
  */
-router.get('/template', (req, res) => {
+router.get('/template/download', (req, res) => {
   try {
     console.log('📥 Generating Excel template...');
 
@@ -691,22 +822,28 @@ router.get('/template', (req, res) => {
       {
         name: 'John Doe',
         category: 'FSD',
-        batch: 'B-1 (June-2025)',
+        batch: 'B-1',
         phone: '9876543210',
-        parentPhone1: '9876543211',
-        parentPhone2: '9876543212',
+        email: 'john.doe@example.com',
+        parentPhone1: '',
+        fatherEmail: '',
+        parentPhone2: '',
+        motherEmail: '',
         aadhaarCard: '123456789012',
         address: '123 Main Street, City'
       },
       {
         name: 'Jane Smith',
         category: 'BVOC',
-        batch: 'B-1 2025',
+        batch: 'B-2',
         phone: '9876543213',
-        parentPhone1: '',
-        parentPhone2: '',
-        aadhaarCard: '',
-        address: ''
+        email: 'jane.smith@example.com',
+        parentPhone1: '9876543214',
+        fatherEmail: 'father@example.com',
+        parentPhone2: '9876543215',
+        motherEmail: 'mother@example.com',
+        aadhaarCard: '123456789013',
+        address: '456 Oak Street, City'
       }
     ];
 
@@ -717,10 +854,13 @@ router.get('/template', (req, res) => {
     worksheet['!cols'] = [
       { wch: 20 }, // name
       { wch: 20 }, // category
-      { wch: 20 }, // batch
+      { wch: 15 }, // batch
       { wch: 15 }, // phone
+      { wch: 30 }, // email
       { wch: 15 }, // parentPhone1
+      { wch: 30 }, // fatherEmail
       { wch: 15 }, // parentPhone2
+      { wch: 30 }, // motherEmail
       { wch: 15 }, // aadhaarCard
       { wch: 30 }  // address
     ];
@@ -800,12 +940,17 @@ router.get('/stats/summary', async (req, res) => {
       address: { $exists: true, $ne: null } 
     });
 
+    const withEmail = await People.countDocuments({ 
+      email: { $exists: true, $ne: null } 
+    });
+
     const stats = {
       total,
       totalEnabled,
       totalDisabled,
       withAadhaar,
       withAddress,
+      withEmail,
       byCategory: categoryStats.map(s => ({ category: s._id, count: s.count })),
       byBatch: batchStats.map(s => ({ 
         category: s._id.category, 
