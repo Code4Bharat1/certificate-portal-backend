@@ -15,7 +15,7 @@ const router = express.Router();
 router.post("/", authenticate, createLetter);
 
 // Preview Letter (no DB save)
-router.post("/preview", authenticate, previewLetter);
+router.post("/preview", previewLetter);
 
 // List all letters
 router.get("/", authenticate, getLetters);
@@ -27,6 +27,6 @@ router.get("/:id", authenticate, getLetterById);
 // router.get("/:id/download.jpg", authenticate, downloadLetterAsJpg);
 
 // Download PDF
-router.get("/:id/download.pdf", authenticate, downloadLetterAsPdf);
+router.get("/:id/download.pdf", downloadLetterAsPdf);
 
 export default router;
