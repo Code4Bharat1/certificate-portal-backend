@@ -344,14 +344,14 @@ export const getLetterMessageTemplate = (letterType, subType, data) => {
   // Get Terms & Conditions link based on category
   const getTermsLink = () => {
     if (category?.toLowerCase().includes('fsd') || 
-        category?.toLowerCase().includes('bvoc') || 
+        // category?.toLowerCase().includes('bvoc') || 
         category?.toLowerCase().includes('dm')) {
       return 'https://forms.gle/FSD_DM_FORM_LINK'; // Replace with actual FSD/DM form link
     } else if (category?.toLowerCase().includes('marketing') || 
                category?.toLowerCase().includes('mj') || 
                category?.toLowerCase().includes('code4bharat') || 
                category?.toLowerCase().includes('c4b')) {
-      return 'https://forms.gle/MJ_C4B_FORM_LINK'; // Replace with actual MJ/C4B form link
+      return '${baseUrl}/termsandconditions/C4B'; // Replace with actual MJ/C4B form link
     } else {
       return 'https://forms.gle/HR_OPS_FORM_LINK'; // Replace with actual HR/Operations form link
     }
