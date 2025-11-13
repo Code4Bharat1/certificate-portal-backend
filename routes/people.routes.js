@@ -286,7 +286,7 @@ router.put(
       .withMessage('Invalid category'),
     body('phone')
       .optional()
-      .matches(/^[0-9]{10}$/)
+      .matches(/^91[0-9]{10}$/)
       .withMessage('Phone must be of 10-digit number'),
     body('parentPhone1')
       .optional({ nullable: true, checkFalsy: true })
@@ -357,7 +357,9 @@ router.put(
       if (batch !== undefined) updateData.batch = batch;
       if (phone) updateData.phone = phone;
       if (email) updateData.email = email;  // ✅ Added
-      
+      // if (Phone !== undefined) {
+      //   updateData.Phone = Phone1 ? '91' + Phone1 : null;
+      // }
       // Update parent email (required for BVOC)
       if (parentEmail !== undefined) {
         updateData.parentEmail = parentEmail || null;
