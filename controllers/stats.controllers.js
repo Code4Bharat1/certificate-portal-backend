@@ -133,18 +133,53 @@ export const getDashboardStatistics = async (req, res) => {
     const individualCreated = totalCertificates - totalBulkCreated;
 
     // ------------------- FORMAT FOR FRONTEND ------------------- //
+    
+    // Define all possible categories with their mappings
+    const categoryMapping = {
+      'marketing-junction': 'marketingJunction',
+      'code4bharat': 'code4bharat',
+      'FSD': 'FSD',
+      'HR': 'HR',
+      'BOOTCAMP': 'BOOTCAMP',
+      'BVOC': 'BVOC',
+      'DM': 'DM',
+      'OD': 'OD',  // Operations Department
+      'MonthlyReport': 'MonthlyReport'
+    };
 
     const formatStats = (data) => {
-      const getCount = (cat) => data.find(d => d._id === cat)?.count || 0;
-      return {
-        total: data.reduce((sum, d) => sum + d.count, 0),
-        marketingJunction: getCount("marketing-junction"),
-        code4bharat: getCount("code4bharat"),
-        FSD: getCount("FSD"),
-        HR: getCount("HR"),
-        BOOTCAMP: getCount("BOOTCAMP"),
-        BVOC: getCount("BVOC"),
+      // Initialize result with all categories set to 0
+      const result = {
+        total: 0,
+        marketingJunction: 0,
+        code4bharat: 0,
+        FSD: 0,
+        HR: 0,
+        BOOTCAMP: 0,
+        BVOC: 0,
+        DM: 0,
+        OD: 0,
+        MonthlyReport: 0
       };
+
+      // Calculate total and populate categories
+      data.forEach(item => {
+        const categoryKey = item._id;
+        const mappedKey = categoryMapping[categoryKey] || categoryKey;
+        
+        // Add to total
+        result.total += item.count;
+        
+        // Add to specific category if it exists in result
+        if (result.hasOwnProperty(mappedKey)) {
+          result[mappedKey] += item.count;
+        } else {
+          // If category not in predefined list, add it dynamically
+          result[mappedKey] = item.count;
+        }
+      });
+
+      return result;
     };
 
     res.json({
