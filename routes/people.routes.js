@@ -56,8 +56,8 @@ router.post(
     body('address')
       .optional({ nullable: true, checkFalsy: true })
       .trim()
-      .isLength({ max: 100 })
-      .withMessage('Address cannot exceed 100 characters'),
+      .isLength({ max: 200 })
+      .withMessage('Address cannot exceed 200 characters'),
   ],
   async (req, res) => {
     try {
@@ -303,8 +303,8 @@ router.put(
     body('address')
       .optional({ nullable: true, checkFalsy: true })
       .trim()
-      .isLength({ max: 100 })
-      .withMessage('Address cannot exceed 100 characters'),
+      .isLength({ max: 200 })
+      .withMessage('Address cannot exceed 200 characters'),
   ],
   async (req, res) => {
     try {
@@ -654,7 +654,7 @@ router.post('/bulk-upload', upload.single('file'), async (req, res) => {
         }
 
         if (row.address) {
-          personData.address = String(row.address).trim().substring(0, 100);
+          personData.address = String(row.address).trim().substring(0, 200);
         }
 
         // Create person

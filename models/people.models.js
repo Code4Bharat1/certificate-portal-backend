@@ -104,7 +104,7 @@ const peopleSchema = new mongoose.Schema(
     address: {
       type: String,
       trim: true,
-      maxlength: [100, "Address cannot exceed 100 characters"],
+      maxlength: [200, "Address cannot exceed 200 characters"],
       default: null,
     },
 
@@ -193,8 +193,8 @@ peopleSchema.pre("save", function (next) {
   }
 
   // Validate address length if provided
-  if (this.address && this.address.length > 100) {
-    return next(new Error("Address cannot exceed 100 characters"));
+  if (this.address && this.address.length > 200) {
+    return next(new Error("Address cannot exceed 200 characters"));
   }
 
   next();
@@ -237,8 +237,8 @@ peopleSchema.pre("findOneAndUpdate", function (next) {
   }
 
   // Validate address length in update
-  if (update.address && update.address.length > 100) {
-    return next(new Error("Address cannot exceed 100 characters"));
+  if (update.address && update.address.length > 200) {
+    return next(new Error("Address cannot exceed 200 characters"));
   }
   // Validate parentEmail requirement for BVOC
   if (this.category === "BVOC" && !this.parentEmail) {
