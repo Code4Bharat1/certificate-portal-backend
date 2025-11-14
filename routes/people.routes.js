@@ -9,18 +9,36 @@ const router = express.Router();
 
 // Configure multer for file uploads
 const storage = multer.memoryStorage();
-const upload = multer({ 
+const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: (req, file, cb) => {
     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
-        file.mimetype === 'application/vnd.ms-excel') {
+      file.mimetype === 'application/vnd.ms-excel') {
       cb(null, true);
     } else {
       cb(new Error('Only Excel files are allowed'));
     }
   }
 });
+
+function formatPhone(num) {
+  if (!num) return null;
+  num = num.toString();
+
+  // Already has +91 or 91 and is 12 digits
+  if (num.length === 12 && num.startsWith("91")) {
+    return num;
+  }
+
+  // If phone is 10 digits, add 91
+  if (num.length === 10) {
+    return "91" + num;
+  }
+
+  return null; // fallback for invalid formats
+}
+
 
 /**
  * @route   POST /api/people
@@ -36,7 +54,7 @@ router.post(
       .isIn(['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR', 'DM', 'Operations Department'])
       .withMessage('Invalid category'),
     body('phone')
-      .matches(/^91[0-9]{10}$/)
+      .matches(/^[0-9]{10}$/)
       .withMessage('Phone must be a 10-digit number'),
     body('batch')
       .optional()
@@ -64,17 +82,17 @@ router.post(
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         console.error('❌ Validation errors:', errors.array());
-        return res.status(400).json({ 
+        return res.status(400).json({
           success: false,
           message: errors.array()[0].msg,
-          errors: errors.array() 
+          errors: errors.array()
         });
       }
 
       const { name, category, batch, phone, parentPhone1, parentPhone2, aadhaarCard, address } = req.body;
-      
-      console.log('📝 Adding new person:', { 
-        name, category, batch, phone, 
+
+      console.log('📝 Adding new person:', {
+        name, category, batch, phone,
         hasParentPhone1: !!parentPhone1,
         hasParentPhone2: !!parentPhone2,
         hasAadhaar: !!aadhaarCard,
@@ -84,9 +102,9 @@ router.post(
       // Validate batch for FSD and BVOC
       if (['FSD', 'BVOC'].includes(category) && !batch) {
         console.error('❌ Batch required for category:', category);
-        return res.status(400).json({ 
+        return res.status(400).json({
           success: false,
-          message: 'Batch is required for FSD and BVOC categories' 
+          message: 'Batch is required for FSD and BVOC categories'
         });
       }
 
@@ -97,17 +115,17 @@ router.post(
       const existing = await People.findOne({ phone: phoneWithCountryCode });
       if (existing) {
         console.error('❌ Duplicate phone number:', phoneWithCountryCode);
-        return res.status(400).json({ 
+        return res.status(400).json({
           success: false,
-          message: 'Person already exists with this phone number' 
+          message: 'Person already exists with this phone number'
         });
       }
 
       // Prepare person data
-      const newPersonData = { 
-        name: name.trim(), 
-        category, 
-        batch: batch || '', 
+      const newPersonData = {
+        name: name.trim(),
+        category,
+        batch: batch || '',
         phone: phoneWithCountryCode,
         disabled: false
       };
@@ -130,10 +148,10 @@ router.post(
       await newPerson.save();
 
       console.log('✅ Person added successfully:', newPerson._id);
-      
-      res.status(201).json({ 
+
+      res.status(201).json({
         success: true,
-        message: 'Person added successfully', 
+        message: 'Person added successfully',
         person: {
           _id: newPerson._id,
           name: newPerson.name,
@@ -151,10 +169,10 @@ router.post(
       });
     } catch (error) {
       console.error('❌ Error adding person:', error);
-      res.status(500).json({ 
+      res.status(500).json({
         success: false,
-        message: 'Server error', 
-        error: error.message 
+        message: 'Server error',
+        error: error.message
       });
     }
   }
@@ -165,7 +183,7 @@ router.post(
  * @desc    Get all people (with optional filters)
  * @access  Public
  */
-router.get('/', async (req, res) => {
+router.get('/all', async (req, res) => {
   try {
     const { category, batch, disabled } = req.query;
 
@@ -179,20 +197,26 @@ router.get('/', async (req, res) => {
     const people = await People.find(filter).sort({ createdAt: -1 });
 
     // Format data for frontend
-    const names = people.map((p) => ({
-      _id: p._id,
-      name: p.name,
-      category: p.category,
-      batch: p.batch || '',
-      phone: p.phone,
-      parentPhone1: p.parentPhone1 || null,
-      parentPhone2: p.parentPhone2 || null,
-      aadhaarCard: p.aadhaarCard || null,
-      address: p.address || null,
-      disabled: p.disabled || false,
-      createdAt: p.createdAt,
-      updatedAt: p.updatedAt,
-    }));
+    const names = people.map((p) => {
+      const phone = p.phone?.toString() || "";
+      console.log("Original:", phone, " → Sliced:", phone.slice(-10));
+
+      return {
+        _id: p._id,
+        name: p.name,
+        category: p.category,
+        batch: p.batch || '',
+        phone: phone ? phone.slice(-10) : null,
+        parentPhone1: p.parentPhone1 ? p.parentPhone1.toString().slice(-10) : null,
+        parentPhone2: p.parentPhone2 ? p.parentPhone2.toString().slice(-10) : null,
+        aadhaarCard: p.aadhaarCard || null,
+        address: p.address || null,
+        disabled: p.disabled || false,
+        createdAt: p.createdAt,
+        updatedAt: p.updatedAt,
+      };
+    });
+
 
     const enabledCount = names.filter(p => !p.disabled).length;
     const disabledCount = names.filter(p => p.disabled).length;
@@ -203,8 +227,8 @@ router.get('/', async (req, res) => {
       disabled: disabledCount
     });
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       names,
       count: names.length,
       enabledCount,
@@ -212,10 +236,10 @@ router.get('/', async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Error fetching people:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       message: 'Server error',
-      error: error.message 
+      error: error.message
     });
   }
 });
@@ -228,29 +252,29 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     console.log('🔍 Fetching person by ID:', req.params.id);
-    
+
     const person = await People.findById(req.params.id);
-    
+
     if (!person) {
       console.error('❌ Person not found:', req.params.id);
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: 'Person not found' 
+        message: 'Person not found'
       });
     }
 
     console.log('✅ Person found:', person.name);
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       person: {
         _id: person._id,
         name: person.name,
         category: person.category,
         batch: person.batch || '',
-        phone: person.phone,
-        parentPhone1: person.parentPhone1 || null,
-        parentPhone2: person.parentPhone2 || null,
+        phone: p.phone ? p.phone.toString().slice(-10) : null,
+        parentPhone1: p.parentPhone1 ? p.parentPhone1.toString().slice(-10) : null,
+        parentPhone2: p.parentPhone2 ? p.parentPhone2.toString().slice(-10) : null,
         aadhaarCard: person.aadhaarCard || null,
         address: person.address || null,
         disabled: person.disabled || false,
@@ -260,10 +284,10 @@ router.get('/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Error fetching person:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       message: 'Server error',
-      error: error.message 
+      error: error.message
     });
   }
 });
@@ -286,7 +310,7 @@ router.put(
       .withMessage('Invalid category'),
     body('phone')
       .optional()
-      .matches(/^91[0-9]{10}$/)
+      .matches(/^[0-9]{10}$/)
       .withMessage('Phone must be of 10-digit number'),
     body('parentPhone1')
       .optional({ nullable: true, checkFalsy: true })
@@ -311,29 +335,29 @@ router.put(
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         console.error('❌ Validation errors:', errors.array());
-        return res.status(400).json({ 
+        return res.status(400).json({
           success: false,
           message: errors.array()[0].msg,
-          errors: errors.array() 
+          errors: errors.array()
         });
       }
 
-      const { 
-        originalName, 
-        originalPhone, 
-        name, 
-        category, 
-        batch, 
-        phone, 
-        parentPhone1, 
-        parentPhone2, 
-        aadhaarCard, 
+      const {
+        originalName,
+        originalPhone,
+        name,
+        category,
+        batch,
+        phone,
+        parentPhone1,
+        parentPhone2,
+        aadhaarCard,
         address,
         email,           // ✅ Added
         parentEmail      // ✅ Added
       } = req.body;
-      
-      console.log('📝 Updating person by name:', { 
+
+      console.log('📝 Updating person by name:', {
         originalName,
         originalPhone,
         newName: name,
@@ -344,9 +368,9 @@ router.put(
       // Validate batch requirement for FSD and BVOC
       if (category && ['FSD', 'BVOC'].includes(category) && !batch) {
         console.error('❌ Batch required for category:', category);
-        return res.status(400).json({ 
+        return res.status(400).json({
           success: false,
-          message: 'Batch is required for FSD and BVOC categories' 
+          message: 'Batch is required for FSD and BVOC categories'
         });
       }
 
@@ -365,13 +389,19 @@ router.put(
         updateData.parentEmail = parentEmail || null;
       }
 
-      // Update parent phones
+      // Update phones
+      if (phone !== undefined) {
+        updateData.phone = formatPhone(phone);
+      }
+
       if (parentPhone1 !== undefined) {
-        updateData.parentPhone1 = parentPhone1 ? '91' + parentPhone1 : null;
+        updateData.parentPhone1 = formatPhone(parentPhone1);
       }
+
       if (parentPhone2 !== undefined) {
-        updateData.parentPhone2 = parentPhone2 ? '91' + parentPhone2 : null;
+        updateData.parentPhone2 = formatPhone(parentPhone2);
       }
+
 
       // Update aadhaar card
       if (aadhaarCard !== undefined) {
@@ -387,10 +417,10 @@ router.put(
       const person = await People.findOneAndUpdate(
         {
           name: originalName,
-          phone: originalPhone
+          phone: '91' + originalPhone
         },
         { $set: updateData },
-        { 
+        {
           new: true,  // Return updated document
           runValidators: true  // Run schema validators
         }
@@ -398,17 +428,17 @@ router.put(
 
       if (!person) {
         console.error('❌ Person not found');
-        return res.status(404).json({ 
+        return res.status(404).json({
           success: false,
-          message: 'Person not found with the given name and phone' 
+          message: 'Person not found with the given name and phone'
         });
       }
 
       console.log('✅ Person updated successfully:', person._id);
 
-      res.status(200).json({ 
+      res.status(200).json({
         success: true,
-        message: 'Person updated successfully', 
+        message: 'Person updated successfully',
         person: {
           name: person.name,
           category: person.category,
@@ -427,10 +457,10 @@ router.put(
       });
     } catch (error) {
       console.error('❌ Error updating person:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Server error', 
-        error: error.message 
+      res.status(500).json({
+        success: false,
+        message: 'Server error',
+        error: error.message
       });
     }
   }
@@ -461,7 +491,7 @@ router.patch('/:id', async (req, res) => {
     }
 
     const person = await People.findOneAndUpdate(
-      { name : personName },
+      { name: personName },
       { $set: { disabled } },
       { new: true, runValidators: true }
     );
@@ -513,20 +543,20 @@ router.patch('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     console.log('🗑️ Deleting person:', req.params.id);
-    
+
     const deleted = await People.findByIdAndDelete(req.params.id);
-    
+
     if (!deleted) {
       console.error('❌ Person not found:', req.params.id);
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Person not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Person not found'
       });
     }
 
     console.log('✅ Person deleted successfully:', deleted.name);
 
-    res.status(200).json({ 
+    res.status(200).json({
       success: true,
       message: 'Person deleted successfully',
       deletedPerson: {
@@ -536,10 +566,10 @@ router.delete('/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Error deleting person:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error', 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
     });
   }
 });
@@ -593,7 +623,7 @@ router.post('/bulk-upload', upload.single('file'), async (req, res) => {
         }
 
         // Validate category
-        if (!['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR','DM', 'Operations Department'].includes(row.category)) {
+        if (!['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR', 'DM', 'Operations Department'].includes(row.category)) {
           failedUploads.push({
             row,
             error: 'Invalid category'
@@ -660,7 +690,7 @@ router.post('/bulk-upload', upload.single('file'), async (req, res) => {
         // Create person
         const newPerson = new People(personData);
         await newPerson.save();
-        
+
         successfulUploads.push({
           name: personData.name,
           phone: personData.phone
@@ -774,11 +804,11 @@ router.get('/template', (req, res) => {
 router.get('/stats/summary', async (req, res) => {
   try {
     console.log('📊 Fetching statistics...');
-    
+
     const total = await People.countDocuments();
     const totalDisabled = await People.countDocuments({ disabled: true });
     const totalEnabled = total - totalDisabled;
-    
+
     // Count by category
     const categoryStats = await People.aggregate([
       { $group: { _id: '$category', count: { $sum: 1 } } },
@@ -787,17 +817,17 @@ router.get('/stats/summary', async (req, res) => {
 
     // Count by batch
     const batchStats = await People.aggregate([
-      { 
-        $match: { 
-          category: { $in: ['FSD', 'BVOC'] }, 
-          batch: { $exists: true, $ne: '' } 
-        } 
+      {
+        $match: {
+          category: { $in: ['FSD', 'BVOC'] },
+          batch: { $exists: true, $ne: '' }
+        }
       },
-      { 
-        $group: { 
-          _id: { category: '$category', batch: '$batch' }, 
-          count: { $sum: 1 } 
-        } 
+      {
+        $group: {
+          _id: { category: '$category', batch: '$batch' },
+          count: { $sum: 1 }
+        }
       },
       { $sort: { '_id.category': 1, '_id.batch': 1 } }
     ]);
@@ -809,12 +839,12 @@ router.get('/stats/summary', async (req, res) => {
       { $sort: { count: -1 } }
     ]);
 
-    const withAadhaar = await People.countDocuments({ 
-      aadhaarCard: { $exists: true, $ne: null } 
+    const withAadhaar = await People.countDocuments({
+      aadhaarCard: { $exists: true, $ne: null }
     });
 
-    const withAddress = await People.countDocuments({ 
-      address: { $exists: true, $ne: null } 
+    const withAddress = await People.countDocuments({
+      address: { $exists: true, $ne: null }
     });
 
     const stats = {
@@ -824,14 +854,14 @@ router.get('/stats/summary', async (req, res) => {
       withAadhaar,
       withAddress,
       byCategory: categoryStats.map(s => ({ category: s._id, count: s.count })),
-      byBatch: batchStats.map(s => ({ 
-        category: s._id.category, 
-        batch: s._id.batch, 
-        count: s.count 
+      byBatch: batchStats.map(s => ({
+        category: s._id.category,
+        batch: s._id.batch,
+        count: s.count
       })),
-      disabledByCategory: disabledByCategory.map(s => ({ 
-        category: s._id, 
-        count: s.count 
+      disabledByCategory: disabledByCategory.map(s => ({
+        category: s._id,
+        count: s.count
       }))
     };
 
@@ -843,10 +873,10 @@ router.get('/stats/summary', async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Error fetching stats:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       message: 'Server error',
-      error: error.message 
+      error: error.message
     });
   }
 });
