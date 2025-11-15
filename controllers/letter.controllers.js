@@ -138,12 +138,14 @@ export function getLetterTemplateFilename(course, category) {
       'Non-Disclosure Agreement': "NDA.pdf",
     },
     "marketing-junction": {
-      "Appreciation Letter": "Letter.jpg",
-      "Experience Certificate": "Letter.jpg",
-      'Internship Joining Letter - Unpaid': "Letter.jpg",
-      'Internship Joining Letter - Paid': "Letter.jpg",
-      'Memo': "Letter.jpg",
-      'Non-Disclosure Agreement': "NDA.pdf",
+      // "Appreciation Letter": "Letter.jpg",
+      "Experience Certificate": "MJ-experience-certificate.jpg",
+      // 'Internship Joining Letter - Unpaid': "Letter.jpg",
+      // 'Internship Joining Letter - Paid': "Letter.jpg",
+      'Non-Disclosure Agreement': "MJ-NDA.pdf",
+      "Timeline Letter": "Timeline Letter.jpg",
+      "Non Paid to Paid": "Non-Paid-to-Paid-Promotion-Letter.png",
+      "Stipend Revision": "Stipend-Revision-Promotion-Letter.png",
     },
     HR: {
       "Appreciation Letter": "Letter.jpg",
@@ -647,6 +649,37 @@ export const previewLetter = async (req, res) => {
           auditDate
         );
       }
+      else if (category === "marketing-junction") {
+        await TemplateCode.getMJTemplateCode(
+          ctx,
+          width,
+          height,
+          issueDate,
+          course,
+          name,
+          outwardNo,
+          formattedDate,
+          tempId,
+          description,
+          subject,
+          role,
+          startDate,
+          endDate,
+          committeeType,
+          attendancePercent,
+          assignmentName,
+          misconductReason,
+          attendanceMonth,
+          attendanceYear,
+          performanceMonth,
+          performanceYear,
+          testingPhase,
+          uncover,
+          subjectName,
+          projectName,
+          auditDate
+        );
+      }
 
       else { }
 
@@ -881,6 +914,37 @@ export const downloadLetterAsPdf = async (req, res) => {
       }
       else if (category === "DM") {
         TemplateCode.getDMTemplateCode(
+          ctx,
+          width,
+          height,
+          issueDate,
+          course,
+          name,
+          outwardNo,
+          formattedDate,
+          tempId,
+          description,
+          subject,
+          role,
+          startDate,
+          endDate,
+          committeeType,
+          attendancePercent,
+          assignmentName,
+          misconductReason,
+          attendanceMonth,
+          attendanceYear,
+          performanceMonth,
+          performanceYear,
+          testingPhase,
+          uncover,
+          subjectName,
+          projectName,
+          auditDate
+        );
+      }
+      else if (category === "marketing-junction") {
+        await TemplateCode.getMJTemplateCode(
           ctx,
           width,
           height,

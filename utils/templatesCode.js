@@ -285,150 +285,150 @@ const getFSDTemplateCode = async (
             height * 0.850
         );
     }
-    else if (course === "Live Project Agreement") {
-        // Top row
-        ctx.fillStyle = "#111827";
-        ctx.textBaseline = "top";
-        ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
+    // else if (course === "Live Project Agreement") {
+    //     // Top row
+    //     ctx.fillStyle = "#111827";
+    //     ctx.textBaseline = "top";
+    //     ctx.font = `bold 25px "Poppins"`;
+    //     ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
 
-        ctx.fillStyle = "#111827";
-        ctx.textBaseline = "top";
-        ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
+    //     ctx.fillStyle = "#111827";
+    //     ctx.textBaseline = "top";
+    //     ctx.font = `bold 25px "Poppins"`;
+    //     ctx.fillText(formattedDate, width * 0.080, height * 0.236);
 
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.023, height * 0.290);
+    //     ctx.font = 'bold 25px "Poppins"';
+    //     ctx.fillText(name, width * 0.023, height * 0.290);
 
-        // Subject / Title
-        // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.43, height * 0.338);
+    //     // Subject / Title
+    //     // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
+    //     ctx.font = 'bold 25px "Poppins"';
+    //     ctx.fillText(name, width * 0.43, height * 0.338);
 
-        // Description (from frontend)
-        ctx.fillStyle = "#1a1a1a";
-        ctx.font = '25px "Georgia", "Garamond", "Times New Roman", serif';
-        wrapText(ctx, description, width * 0.13, height * 0.40, width * 0.80, 60);
+    //     // Description (from frontend)
+    //     ctx.fillStyle = "#1a1a1a";
+    //     ctx.font = '25px "Georgia", "Garamond", "Times New Roman", serif';
+    //     wrapText(ctx, description, width * 0.13, height * 0.40, width * 0.80, 60);
 
-        // ✅ Add dynamic frontend field values (below description)
-        let yDynamic = height * 0.423;
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillStyle = "#222";
-        dynamicLines.forEach((line) => {
-            wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
-            yDynamic += 60;
-        });
+    //     // ✅ Add dynamic frontend field values (below description)
+    //     let yDynamic = height * 0.423;
+    //     ctx.font = 'bold 25px "Poppins"';
+    //     ctx.fillStyle = "#222";
+    //     dynamicLines.forEach((line) => {
+    //         wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
+    //         yDynamic += 60;
+    //     });
 
-        // Letter ID
-        ctx.font = 'bold 35px "Poppins"';
-        ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
+    //     // Letter ID
+    //     ctx.font = 'bold 35px "Poppins"';
+    //     ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
 
-        // Footer
-        ctx.font = '40px "Ovo", serif';
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#1F2937";
-        ctx.fillText(
-            "https://portal.nexcorealliance.com/verify-certificate",
-            width / 2,
-            height * 0.843
-        );
-    }
-    else if (course === "Non-Disclosure Agreement") {
-        // Top row
-        ctx.fillStyle = "#111827";
-        ctx.textBaseline = "top";
-        ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
+    //     // Footer
+    //     ctx.font = '40px "Ovo", serif';
+    //     ctx.textAlign = "center";
+    //     ctx.fillStyle = "#1F2937";
+    //     ctx.fillText(
+    //         "https://portal.nexcorealliance.com/verify-certificate",
+    //         width / 2,
+    //         height * 0.843
+    //     );
+    // }
+    // else if (course === "Non-Disclosure Agreement") {
+    //     // Top row
+    //     ctx.fillStyle = "#111827";
+    //     ctx.textBaseline = "top";
+    //     ctx.font = `bold 25px "Poppins"`;
+    //     ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
 
-        ctx.fillStyle = "#111827";
-        ctx.textBaseline = "top";
-        ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
+    //     ctx.fillStyle = "#111827";
+    //     ctx.textBaseline = "top";
+    //     ctx.font = `bold 25px "Poppins"`;
+    //     ctx.fillText(formattedDate, width * 0.080, height * 0.236);
 
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.023, height * 0.290);
+    //     ctx.font = 'bold 25px "Poppins"';
+    //     ctx.fillText(name, width * 0.023, height * 0.290);
 
-        // Subject / Title
-        // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.43, height * 0.338);
+    //     // Subject / Title
+    //     // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
+    //     ctx.font = 'bold 25px "Poppins"';
+    //     ctx.fillText(name, width * 0.43, height * 0.338);
 
-        // Description (from frontend)
-        ctx.fillStyle = "#1a1a1a";
-        ctx.font = '25px "Georgia", "Garamond", "Times New Roman", serif';
-        wrapText(ctx, description, width * 0.13, height * 0.40, width * 0.80, 60);
+    //     // Description (from frontend)
+    //     ctx.fillStyle = "#1a1a1a";
+    //     ctx.font = '25px "Georgia", "Garamond", "Times New Roman", serif';
+    //     wrapText(ctx, description, width * 0.13, height * 0.40, width * 0.80, 60);
 
-        // ✅ Add dynamic frontend field values (below description)
-        let yDynamic = height * 0.423;
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillStyle = "#222";
-        dynamicLines.forEach((line) => {
-            wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
-            yDynamic += 60;
-        });
+    //     // ✅ Add dynamic frontend field values (below description)
+    //     let yDynamic = height * 0.423;
+    //     ctx.font = 'bold 25px "Poppins"';
+    //     ctx.fillStyle = "#222";
+    //     dynamicLines.forEach((line) => {
+    //         wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
+    //         yDynamic += 60;
+    //     });
 
-        // Letter ID
-        ctx.font = 'bold 35px "Poppins"';
-        ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
+    //     // Letter ID
+    //     ctx.font = 'bold 35px "Poppins"';
+    //     ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
 
-        // Footer
-        ctx.font = '40px "Ovo", serif';
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#1F2937";
-        ctx.fillText(
-            "https://portal.nexcorealliance.com/verify-certificate",
-            width / 2,
-            height * 0.843
-        );
-    }
-    else if (course === "Offer Letter") {
-        // Top row
-        ctx.fillStyle = "#111827";
-        ctx.textBaseline = "top";
-        ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
+    //     // Footer
+    //     ctx.font = '40px "Ovo", serif';
+    //     ctx.textAlign = "center";
+    //     ctx.fillStyle = "#1F2937";
+    //     ctx.fillText(
+    //         "https://portal.nexcorealliance.com/verify-certificate",
+    //         width / 2,
+    //         height * 0.843
+    //     );
+    // }
+    // else if (course === "Offer Letter") {
+    //     // Top row
+    //     ctx.fillStyle = "#111827";
+    //     ctx.textBaseline = "top";
+    //     ctx.font = `bold 25px "Poppins"`;
+    //     ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
 
-        ctx.fillStyle = "#111827";
-        ctx.textBaseline = "top";
-        ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
+    //     ctx.fillStyle = "#111827";
+    //     ctx.textBaseline = "top";
+    //     ctx.font = `bold 25px "Poppins"`;
+    //     ctx.fillText(formattedDate, width * 0.080, height * 0.236);
 
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.023, height * 0.290);
+    //     ctx.font = 'bold 25px "Poppins"';
+    //     ctx.fillText(name, width * 0.023, height * 0.290);
 
-        // Subject / Title
-        // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.43, height * 0.338);
+    //     // Subject / Title
+    //     // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
+    //     ctx.font = 'bold 25px "Poppins"';
+    //     ctx.fillText(name, width * 0.43, height * 0.338);
 
-        // Description (from frontend)
-        ctx.fillStyle = "#1a1a1a";
-        ctx.font = '25px "Georgia", "Garamond", "Times New Roman", serif';
-        wrapText(ctx, description, width * 0.13, height * 0.40, width * 0.80, 60);
+    //     // Description (from frontend)
+    //     ctx.fillStyle = "#1a1a1a";
+    //     ctx.font = '25px "Georgia", "Garamond", "Times New Roman", serif';
+    //     wrapText(ctx, description, width * 0.13, height * 0.40, width * 0.80, 60);
 
-        // ✅ Add dynamic frontend field values (below description)
-        let yDynamic = height * 0.423;
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillStyle = "#222";
-        dynamicLines.forEach((line) => {
-            wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
-            yDynamic += 60;
-        });
+    //     // ✅ Add dynamic frontend field values (below description)
+    //     let yDynamic = height * 0.423;
+    //     ctx.font = 'bold 25px "Poppins"';
+    //     ctx.fillStyle = "#222";
+    //     dynamicLines.forEach((line) => {
+    //         wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
+    //         yDynamic += 60;
+    //     });
 
-        // Letter ID
-        ctx.font = 'bold 35px "Poppins"';
-        ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
+    //     // Letter ID
+    //     ctx.font = 'bold 35px "Poppins"';
+    //     ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
 
-        // Footer
-        ctx.font = '40px "Ovo", serif';
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#1F2937";
-        ctx.fillText(
-            "https://portal.nexcorealliance.com/verify-certificate",
-            width / 2,
-            height * 0.843
-        );
-    }
+    //     // Footer
+    //     ctx.font = '40px "Ovo", serif';
+    //     ctx.textAlign = "center";
+    //     ctx.fillStyle = "#1F2937";
+    //     ctx.fillText(
+    //         "https://portal.nexcorealliance.com/verify-certificate",
+    //         width / 2,
+    //         height * 0.843
+    //     );
+    // }
     else if (course === "Warning for Incomplete Assignment/Project Submissions") {
         // Top row
         ctx.fillStyle = "#111827";
@@ -1761,6 +1761,615 @@ const getDMTemplateCode = async (
         // Top row
         ctx.fillStyle = "#111827";
         ctx.textBaseline = "top";
+        ctx.font = `bold 20px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.209, height * 0.223);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 20px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.115, height * 0.236);
+
+        // to name
+        ctx.font = 'bold 20px "Poppins"';
+        ctx.fillText(name, width * 0.060, height * 0.299);
+
+        // Dear name,
+        ctx.font = 'bold 20px "Poppins"';
+        ctx.fillText(name + ",", width * 0.110, height * 0.362);
+
+        ctx.font = 'bold 20px "Poppins"';
+        ctx.fillText(misconductReason, width * 0.060, height * 0.450);
+
+        // Letter ID
+        ctx.font = 'bold 20px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.23, height * 0.678);
+
+        // Footer
+        ctx.font = '30px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+            "https://portal.nexcorealliance.com/verify-certificate",
+            width / 2,
+            height * 0.850
+        );
+    }
+    else if (course === "Warning for Unauthorized Absence from Training Sessions") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.195, height * 0.220);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.099, height * 0.234);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.047, height * 0.295);
+
+        // Dear name,
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name + ",", width * 0.099, height * 0.358);
+
+        // Letter ID
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.22, height * 0.702);
+
+        // Footer
+        ctx.font = '40px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+            "https://portal.nexcorealliance.com/verify-certificate",
+            width / 2,
+            height * 0.851
+        );
+    }
+    else if (course === "Warning Regarding Punctuality and Professional Discipline") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.169, height * 0.223);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.080, height * 0.240);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.023, height * 0.300);
+
+        // Dear name,
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name + ",", width * 0.080, height * 0.372);
+
+        // Letter ID
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.16, height * 0.730);
+
+        // Footer
+        ctx.font = '30px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+            "https://portal.nexcorealliance.com/verify-certificate",
+            width / 2,
+            height * 0.865
+        );
+    }
+}
+
+const getMJTemplateCode = async (
+    ctx,
+    width,
+    height,
+    issueDate,
+    course,
+    name,
+    outwardNo,
+    formattedDate,
+    tempId,
+    description,
+    subject,
+    role,
+    startDate,
+    endDate,
+    committeeType,
+    attendancePercent,
+    assignmentName,
+    misconductReason,
+    attendanceMonth,
+    attendanceYear,
+    performanceMonth,
+    performanceYear,
+    testingPhase,
+    uncover,
+    subjectName,
+    projectName,
+    auditDate
+) => {
+
+    // FSD
+    if (course === "Appreciation for Best Attendance") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.195, height * 0.223);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.099, height * 0.236);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.045, height * 0.300);
+
+        const attendanceDate = attendanceMonth + " " + attendanceYear;
+
+        // Subject / Title
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(attendanceDate, width * 0.45, height * 0.338);
+
+        // Dear name,
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name + ",", width * 0.095, height * 0.372);
+
+        // const shortMonth = monthMap[performanceMonth] || performanceMonth; // fallback if custom
+        // const attendanceDate = attendanceMonth + " " + attendanceYear;
+
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(attendanceDate, width * 0.316, height * 0.422);
+
+        // Letter ID
+        ctx.font = 'bold 35px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.26, height * 0.732);
+
+        // Footer
+        ctx.font = '40px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+            "https://portal.nexcorealliance.com/verify-certificate",
+            width / 2,
+            height * 0.843
+        );
+    }
+    else if (course === "Appreciation for Outstanding Performance") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.178, height * 0.230);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.090, height * 0.2526);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.033, height * 0.325);
+
+        // Subject / Title
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.59, height * 0.370);
+
+        // Dear name,
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name + ",", width * 0.087, height * 0.409);
+
+        const shortMonth = monthMap[performanceMonth] || performanceMonth; // fallback if custom
+        const performanceDate = `${shortMonth} ${performanceYear}`;
+
+        // console.log(performanceDate);
+
+        ctx.font = 'bold 28px "Poppins"';
+        ctx.fillText(performanceDate, width * 0.566, height * 0.465);
+
+        // Letter ID
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.18, height * 0.787);
+
+        // Footer
+        ctx.font = '40px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+            "https://portal.nexcorealliance.com/verify-certificate",
+            width / 2,
+            height * 0.845
+        );
+    }
+    else if (course === "Appreciation for Consistent Performance") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.229);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.080, height * 0.245);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.023, height * 0.300);
+
+        // Dear name,
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name + ",", width * 0.080, height * 0.383);
+
+        // Letter ID
+        ctx.font = 'bold 35px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.19, height * 0.732);
+
+        // Footer
+        ctx.font = '40px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+            "https://portal.nexcorealliance.com/verify-certificate",
+            width / 2,
+            height * 0.843
+        );
+    }
+    else if (course === "Experience Certificate") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 20px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.185, height * 0.230);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 20px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.099, height * 0.253);
+
+        // Subject / Title
+        ctx.font = 'bold 20px "Poppins"';
+        ctx.fillText(name, width * 0.38, height * 0.290);
+
+        // Second Page
+        const startformattedDate = new Date(startDate).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+
+        const endformattedDate = new Date(endDate).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+
+        // === MAIN DESCRIPTION ===
+        const descLines = [
+            { text: "This is to certify that ", bold: false },
+            { text: name, bold: true },
+            { text: " was associated with ", bold: false },
+            { text: "Nexcore Alliance LLP", bold: true },
+            { text: " under its brand ", bold: false },
+            { text: "MarketiQ Junction", bold: true },
+            { text: " as a", bold: false },
+            { text: ` ${role} from ${startformattedDate} to ${endformattedDate}.`, bold: true },
+        ];
+
+        const descY = height * 0.35;
+        const startX = width * 0.041;
+        const maxWidth = width * 0.90;
+        let currentX = startX;
+        let currentY = descY;
+
+        const lineHeight = 32;
+
+        // Draw mixed-style line wrapping
+        descLines.forEach((part, idx) => {
+            const words = part.text.split(" ");
+            for (let i = 0; i < words.length; i++) {
+                const word = words[i] + " ";
+                ctx.font = `${part.bold ? "bold" : "normal"} 25px "Poppins"`;
+                const wordWidth = ctx.measureText(word).width;
+
+                if (currentX + wordWidth > startX + maxWidth) {
+                    // wrap line
+                    currentX = startX;
+                    currentY += lineHeight;
+                }
+
+                ctx.fillText(word, currentX, currentY);
+                currentX += wordWidth;
+            }
+        });
+
+        // === DESCRIPTION PARAGRAPHS ===
+        ctx.fillStyle = "#1a1a1a";
+        ctx.font = '25px "Poppins"';
+
+        const paragraphs = (description || "")
+            .split(/\n\s*\n/)
+            .map(p => p.replace(/\n/g, " ").trim())
+            .filter(p => p.length > 0)
+            .slice(0, 2);
+
+        let descParagraphY = currentY + 40; // Start after the first section
+        const paraLineHeight = 30;
+        const paraSpacing = 30;
+
+        paragraphs.forEach((paragraph, idx) => {
+            const words = paragraph.split(" ");
+            let line = "";
+
+            words.forEach(word => {
+                const testLine = line + word + " ";
+                const testWidth = ctx.measureText(testLine).width;
+
+                if (testWidth > maxWidth) {
+                    ctx.fillText(line.trim(), startX, descParagraphY);
+                    line = word + " ";
+                    descParagraphY += paraLineHeight;
+                } else {
+                    line = testLine;
+                }
+            });
+
+            if (line.trim()) {
+                ctx.fillText(line.trim(), startX, descParagraphY);
+                descParagraphY += paraLineHeight;
+            }
+
+            if (idx < paragraphs.length - 1) {
+                descParagraphY += paraSpacing;
+            }
+        });
+
+        // Letter ID
+        ctx.font = 'bold 20px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.18, height * 0.789);
+
+        // Footer
+        ctx.font = '35px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+            "https://portal.nexcorealliance.com/verify-certificate",
+            width / 2,
+            height * 0.850
+        );
+    }
+    else if (course === "Live Project Agreement") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
+
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.023, height * 0.290);
+
+        // Subject / Title
+        // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.43, height * 0.338);
+
+        // Description (from frontend)
+        ctx.fillStyle = "#1a1a1a";
+        ctx.font = '25px "Georgia", "Garamond", "Times New Roman", serif';
+        wrapText(ctx, description, width * 0.13, height * 0.40, width * 0.80, 60);
+
+        // ✅ Add dynamic frontend field values (below description)
+        let yDynamic = height * 0.423;
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillStyle = "#222";
+        dynamicLines.forEach((line) => {
+            wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
+            yDynamic += 60;
+        });
+
+        // Letter ID
+        ctx.font = 'bold 35px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
+
+        // Footer
+        ctx.font = '40px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+            "https://portal.nexcorealliance.com/verify-certificate",
+            width / 2,
+            height * 0.843
+        );
+    }
+    else if (course === "Non-Disclosure Agreement") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
+
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.023, height * 0.290);
+
+        // Subject / Title
+        // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.43, height * 0.338);
+
+        // Description (from frontend)
+        ctx.fillStyle = "#1a1a1a";
+        ctx.font = '25px "Georgia", "Garamond", "Times New Roman", serif';
+        wrapText(ctx, description, width * 0.13, height * 0.40, width * 0.80, 60);
+
+        // ✅ Add dynamic frontend field values (below description)
+        let yDynamic = height * 0.423;
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillStyle = "#222";
+        dynamicLines.forEach((line) => {
+            wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
+            yDynamic += 60;
+        });
+
+        // Letter ID
+        ctx.font = 'bold 35px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
+
+        // Footer
+        ctx.font = '40px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+            "https://portal.nexcorealliance.com/verify-certificate",
+            width / 2,
+            height * 0.843
+        );
+    }
+    else if (course === "Offer Letter") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
+
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.023, height * 0.290);
+
+        // Subject / Title
+        // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.43, height * 0.338);
+
+        // Description (from frontend)
+        ctx.fillStyle = "#1a1a1a";
+        ctx.font = '25px "Georgia", "Garamond", "Times New Roman", serif';
+        wrapText(ctx, description, width * 0.13, height * 0.40, width * 0.80, 60);
+
+        // ✅ Add dynamic frontend field values (below description)
+        let yDynamic = height * 0.423;
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillStyle = "#222";
+        dynamicLines.forEach((line) => {
+            wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
+            yDynamic += 60;
+        });
+
+        // Letter ID
+        ctx.font = 'bold 35px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
+
+        // Footer
+        ctx.font = '40px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+            "https://portal.nexcorealliance.com/verify-certificate",
+            width / 2,
+            height * 0.843
+        );
+    }
+    else if (course === "Warning for Incomplete Assignment/Project Submissions") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 22px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.202, height * 0.221);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 22px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.113, height * 0.238);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.060, height * 0.302);
+
+        // Dear name,
+        ctx.font = 'bold 22px "Poppins"';
+        ctx.fillText(name + ",", width * 0.110, height * 0.380);
+
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(subjectName, width * 0.110, height * 0.433);
+
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(projectName, width * 0.310, height * 0.433);
+
+        // Letter ID
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.23, height * 0.708);
+
+        // Footer
+        ctx.font = '25px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+            "https://portal.nexcorealliance.com/verify-certificate",
+            width / 2,
+            height * 0.860
+        );
+    }
+    else if (course === "Warning for Low Attendance") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.186, height * 0.225);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.099, height * 0.242);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.040, height * 0.310);
+
+        // Dear name,
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name + ",", width * 0.099, height * 0.383);
+
+        // Desc percentage
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(attendancePercent, width * 0.532, height * 0.420);
+
+        // Letter ID
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.18, height * 0.706);
+
+        // Footer
+        ctx.font = '35px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+            "https://portal.nexcorealliance.com/verify-certificate",
+            width / 2,
+            height * 0.855
+        );
+    }
+    else if (course === "Warning for Misconduct or Disrespectful Behavior") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
         ctx.font = `bold 25px "Poppins"`;
         ctx.fillText(`${outwardNo}`, width * 0.209, height * 0.223);
 
@@ -1860,6 +2469,56 @@ const getDMTemplateCode = async (
             "https://portal.nexcorealliance.com/verify-certificate",
             width / 2,
             height * 0.865
+        );
+    }
+    else if (course === "Concern Letter-Audit Interview Performance") {
+        // Top row
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(`${outwardNo}`, width * 0.201, height * 0.223);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(formattedDate, width * 0.105, height * 0.240);
+
+        // to name
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name, width * 0.053, height * 0.300);
+
+        // Dear name,
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(name + ",", width * 0.099, height * 0.375);
+
+        // console.log(auditDate);
+
+        const auditFormattedDate = new Date(auditDate).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+        });
+
+
+        // console.log(auditFormattedDate);
+
+        ctx.fillStyle = "#111827";
+        ctx.textBaseline = "top";
+        ctx.font = `bold 25px "Poppins"`;
+        ctx.fillText(auditFormattedDate, width * 0.743, height * 0.408);
+
+        // Letter ID
+        ctx.font = 'bold 25px "Poppins"';
+        ctx.fillText(`${tempId}`, width * 0.19, height * 0.707);
+
+        // Footer
+        ctx.font = '35px "Ovo", serif';
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1F2937";
+        ctx.fillText(
+            "https://portal.nexcorealliance.com/verify-certificate",
+            width / 2,
+            height * 0.857
         );
     }
 }
@@ -2331,5 +2990,6 @@ export default {
     getFSDTemplateCode,
     getBVOCTemplateCode,
     getDMTemplateCode,
+    getMJTemplateCode,
     drawFSDPdfTemplate,
 }

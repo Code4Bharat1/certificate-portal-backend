@@ -91,7 +91,7 @@ const letterSchema = new mongoose.Schema(
 
     misconductReason: {
       type: String,
-      maxlength: 100,
+      maxlength: 70,
     },
 
     attendanceMonth: {
