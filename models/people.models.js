@@ -20,7 +20,7 @@ const peopleSchema = new mongoose.Schema(
           "BVOC",
           "HR",
           "DM",
-          "Operations Department",
+          "OD",
         ],
         message: "{VALUE} is not a valid category",
       },

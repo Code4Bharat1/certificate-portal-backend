@@ -51,7 +51,7 @@ router.post(
     body('name').notEmpty().trim().withMessage('Name is required')
       .isLength({ max: 50 }).withMessage('Name cannot exceed 50 characters'),
     body('category')
-      .isIn(['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR', 'DM', 'Operations Department'])
+      .isIn(['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR', 'DM', 'OD'])
       .withMessage('Invalid category'),
     body('phone')
       .matches(/^[0-9]{10}$/)
@@ -89,14 +89,16 @@ router.post(
         });
       }
 
-      const { name, category, batch, phone, parentPhone1, parentPhone2, aadhaarCard, address } = req.body;
+      const { name, category, batch, phone, parentPhone1, parentPhone2, aadhaarCard, address, email, parentEmail } = req.body;
 
       console.log('📝 Adding new person:', {
         name, category, batch, phone,
         hasParentPhone1: !!parentPhone1,
         hasParentPhone2: !!parentPhone2,
         hasAadhaar: !!aadhaarCard,
-        hasAddress: !!address
+        hasAddress: !!address,
+        hasEmail: !!email,
+        hasParentEmail: !!parentEmail,
       });
 
       // Validate batch for FSD and BVOC
@@ -143,6 +145,12 @@ router.post(
       if (address) {
         newPersonData.address = address.trim();
       }
+      if (email) {
+        newPersonData.email = email;
+      }
+      if (parentEmail) {
+        newPersonData.parentEmail = parentEmail;
+      }
 
       const newPerson = new People(newPersonData);
       await newPerson.save();
@@ -183,7 +191,7 @@ router.post(
  * @desc    Get all people (with optional filters)
  * @access  Public
  */
-router.get('/all', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { category, batch, disabled } = req.query;
 
@@ -200,7 +208,7 @@ router.get('/all', async (req, res) => {
     const names = people.map((p) => {
       // ✅ FIXED: Changed 'person' to 'p' to match the iterator variable
       const phone = p.phone?.toString() || "";
-      console.log("Original:", phone, " → Sliced:", phone.slice(-10));
+      // console.log("Original:", phone, " → Sliced:", phone.slice(-10));
 
       return {
         _id: p._id,
@@ -212,6 +220,7 @@ router.get('/all', async (req, res) => {
         parentPhone2: p.parentPhone2 ? p.parentPhone2.toString().slice(-10) : null,
         aadhaarCard: p.aadhaarCard || null,
         address: p.address || null,
+        email: p.email || null,
         disabled: p.disabled || false,
         createdAt: p.createdAt,
         updatedAt: p.updatedAt,
@@ -259,7 +268,7 @@ router.put(
       .isLength({ max: 50 }).withMessage('Name cannot exceed 50 characters'),
     body('category')
       .optional()
-      .isIn(['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR', 'DM', 'Operations Department'])
+      .isIn(['code4bharat', 'marketing-junction', 'FSD', 'BVOC', 'HR', 'DM', 'OD'])
       .withMessage('Invalid category'),
     body('phone')
       .optional()
@@ -306,8 +315,8 @@ router.put(
         parentPhone2,
         aadhaarCard,
         address,
-        email,           // ✅ Added
-        parentEmail      // ✅ Added
+        email,
+        parentEmail,
       } = req.body;
 
       console.log('📝 Updating person by name:', {
@@ -315,7 +324,8 @@ router.put(
         originalPhone,
         newName: name,
         category,
-        batch
+        batch,
+        email,
       });
 
       // Validate batch requirement for FSD and BVOC
@@ -366,11 +376,13 @@ router.put(
         updateData.address = address ? address.trim() : null;
       }
 
+      // const originalPhoneWithCountryCode = '91' + originalPhone;
+
       // ✅ Use findOneAndUpdate instead of save() to avoid _id validation issues
       const person = await People.findOneAndUpdate(
         {
           name: originalName,
-          phone: '91' + originalPhone
+          phone: updateData.phone,
         },
         { $set: updateData },
         {
