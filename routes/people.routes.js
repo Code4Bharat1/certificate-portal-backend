@@ -198,7 +198,7 @@ router.get('/all', async (req, res) => {
 
     // Format data for frontend
     const names = people.map((p) => {
-      const phone = p.phone?.toString() || "";
+      const phone = person.phone?.toString() || "";
       console.log("Original:", phone, " → Sliced:", phone.slice(-10));
 
       return {
@@ -272,7 +272,7 @@ router.get('/:id', async (req, res) => {
         name: person.name,
         category: person.category,
         batch: person.batch || '',
-        phone: p.phone ? p.phone.toString().slice(-10) : null,
+        phone: person.phone ? person.phone.toString().slice(-10) : null,
         parentPhone1: p.parentPhone1 ? p.parentPhone1.toString().slice(-10) : null,
         parentPhone2: p.parentPhone2 ? p.parentPhone2.toString().slice(-10) : null,
         aadhaarCard: person.aadhaarCard || null,
@@ -466,119 +466,6 @@ router.put(
   }
 );
 
-/**
- * @route   PATCH /api/people/:id
- * @desc    Toggle disable/enable status of a person
- * @access  Public
- */
-router.patch('/:id', async (req, res) => {
-  try {
-    const { disabled } = req.body;
-    const personName = req.params.id;
-
-    console.log('🔄 Toggle disable request:', {
-      personName,
-      newDisabledState: disabled
-    });
-
-    // Validate disabled field
-    if (typeof disabled !== 'boolean') {
-      console.error('❌ Invalid disabled value:', disabled);
-      return res.status(400).json({
-        success: false,
-        message: 'disabled field must be a boolean value'
-      });
-    }
-
-    const person = await People.findOneAndUpdate(
-      { name: personName },
-      { $set: { disabled } },
-      { new: true, runValidators: true }
-    );
-
-    if (!person) {
-      console.error('❌ Person not found:', personName);
-      return res.status(404).json({
-        success: false,
-        message: 'Person not found'
-      });
-    }
-
-    const action = disabled ? 'disabled' : 'enabled';
-    console.log(`✅ Person ${action} successfully:`, person.name);
-
-    res.status(200).json({
-      success: true,
-      message: `Person ${action} successfully`,
-      person: {
-        // _id: person._id,
-        name: person.name,
-        category: person.category,
-        batch: person.batch || '',
-        phone: person.phone,
-        parentPhone1: person.parentPhone1 || null,
-        parentPhone2: person.parentPhone2 || null,
-        aadhaarCard: person.aadhaarCard || null,
-        address: person.address || null,
-        disabled: person.disabled,
-        createdAt: person.createdAt,
-        updatedAt: person.updatedAt,
-      }
-    });
-  } catch (error) {
-    console.error('❌ Error toggling disable status:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-    });
-  }
-});
-
-/**
- * @route   DELETE /api/people/:id
- * @desc    Delete a person
- * @access  Public
- */
-router.delete('/:id', async (req, res) => {
-  try {
-    console.log('🗑️ Deleting person:', req.params.id);
-
-    const deleted = await People.findByIdAndDelete(req.params.id);
-
-    if (!deleted) {
-      console.error('❌ Person not found:', req.params.id);
-      return res.status(404).json({
-        success: false,
-        message: 'Person not found'
-      });
-    }
-
-    console.log('✅ Person deleted successfully:', deleted.name);
-
-    res.status(200).json({
-      success: true,
-      message: 'Person deleted successfully',
-      deletedPerson: {
-        name: deleted.name,
-        category: deleted.category
-      }
-    });
-  } catch (error) {
-    console.error('❌ Error deleting person:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-    });
-  }
-});
-
-/**
- * @route   POST /api/people/bulk-upload
- * @desc    Bulk upload people from Excel file
- * @access  Public
- */
 router.post('/bulk-upload', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
@@ -880,5 +767,121 @@ router.get('/stats/summary', async (req, res) => {
     });
   }
 });
+
+
+/**
+ * @route   PATCH /api/people/:id
+ * @desc    Toggle disable/enable status of a person
+ * @access  Public
+ */
+router.patch('/:id', async (req, res) => {
+  try {
+    const { disabled } = req.body;
+    const personName = req.params.id;
+
+    console.log('🔄 Toggle disable request:', {
+      personName,
+      newDisabledState: disabled
+    });
+
+    // Validate disabled field
+    if (typeof disabled !== 'boolean') {
+      console.error('❌ Invalid disabled value:', disabled);
+      return res.status(400).json({
+        success: false,
+        message: 'disabled field must be a boolean value'
+      });
+    }
+
+    const person = await People.findOneAndUpdate(
+      { name: personName },
+      { $set: { disabled } },
+      { new: true, runValidators: true }
+    );
+
+    if (!person) {
+      console.error('❌ Person not found:', personName);
+      return res.status(404).json({
+        success: false,
+        message: 'Person not found'
+      });
+    }
+
+    const action = disabled ? 'disabled' : 'enabled';
+    console.log(`✅ Person ${action} successfully:`, person.name);
+
+    res.status(200).json({
+      success: true,
+      message: `Person ${action} successfully`,
+      person: {
+        // _id: person._id,
+        name: person.name,
+        category: person.category,
+        batch: person.batch || '',
+        phone: person.phone,
+        parentPhone1: person.parentPhone1 || null,
+        parentPhone2: person.parentPhone2 || null,
+        aadhaarCard: person.aadhaarCard || null,
+        address: person.address || null,
+        disabled: person.disabled,
+        createdAt: person.createdAt,
+        updatedAt: person.updatedAt,
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error toggling disable status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   DELETE /api/people/:id
+ * @desc    Delete a person
+ * @access  Public
+ */
+router.delete('/:id', async (req, res) => {
+  try {
+    console.log('🗑️ Deleting person:', req.params.id);
+
+    const deleted = await People.findByIdAndDelete(req.params.id);
+
+    if (!deleted) {
+      console.error('❌ Person not found:', req.params.id);
+      return res.status(404).json({
+        success: false,
+        message: 'Person not found'
+      });
+    }
+
+    console.log('✅ Person deleted successfully:', deleted.name);
+
+    res.status(200).json({
+      success: true,
+      message: 'Person deleted successfully',
+      deletedPerson: {
+        name: deleted.name,
+        category: deleted.category
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error deleting person:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   POST /api/people/bulk-upload
+ * @desc    Bulk upload people from Excel file
+ * @access  Public
+ */
+
 
 export default router;
