@@ -244,53 +244,6 @@ router.get('/all', async (req, res) => {
   }
 });
 
-/**
- * @route   GET /api/people/:id
- * @desc    Get a single person by ID
- * @access  Public
- */
-router.get('/:id', async (req, res) => {
-  try {
-    console.log('🔍 Fetching person by ID:', req.params.id);
-
-    const person = await People.findById(req.params.id);
-
-    if (!person) {
-      console.error('❌ Person not found:', req.params.id);
-      return res.status(404).json({
-        success: false,
-        message: 'Person not found'
-      });
-    }
-
-    console.log('✅ Person found:', person.name);
-
-    res.json({
-      success: true,
-      person: {
-        _id: person._id,
-        name: person.name,
-        category: person.category,
-        batch: person.batch || '',
-        phone: person.phone ? person.phone.toString().slice(-10) : null,
-        parentPhone1: p.parentPhone1 ? p.parentPhone1.toString().slice(-10) : null,
-        parentPhone2: p.parentPhone2 ? p.parentPhone2.toString().slice(-10) : null,
-        aadhaarCard: person.aadhaarCard || null,
-        address: person.address || null,
-        disabled: person.disabled || false,
-        createdAt: person.createdAt,
-        updatedAt: person.updatedAt,
-      }
-    });
-  } catch (error) {
-    console.error('❌ Error fetching person:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-    });
-  }
-});
 
 /**
  * @route   PUT /api/people/update-by-name
@@ -768,6 +721,54 @@ router.get('/stats/summary', async (req, res) => {
   }
 });
 
+
+/**
+ * @route   GET /api/people/:id
+ * @desc    Get a single person by ID
+ * @access  Public
+ */
+router.get('/:id', async (req, res) => {
+  try {
+    console.log('🔍 Fetching person by ID:', req.params.id);
+
+    const person = await People.findById(req.params.id);
+
+    if (!person) {
+      console.error('❌ Person not found:', req.params.id);
+      return res.status(404).json({
+        success: false,
+        message: 'Person not found'
+      });
+    }
+
+    console.log('✅ Person found:', person.name);
+
+    res.json({
+      success: true,
+      person: {
+        _id: person._id,
+        name: person.name,
+        category: person.category,
+        batch: person.batch || '',
+        phone: person.phone ? person.phone.toString().slice(-10) : null,
+        parentPhone1: p.parentPhone1 ? p.parentPhone1.toString().slice(-10) : null,
+        parentPhone2: p.parentPhone2 ? p.parentPhone2.toString().slice(-10) : null,
+        aadhaarCard: person.aadhaarCard || null,
+        address: person.address || null,
+        disabled: person.disabled || false,
+        createdAt: person.createdAt,
+        updatedAt: person.updatedAt,
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error fetching person:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+});
 
 /**
  * @route   PATCH /api/people/:id
