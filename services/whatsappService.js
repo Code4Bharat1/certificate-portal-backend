@@ -404,6 +404,8 @@ _${organizationName} Team_
 🌟 *Celebrating Excellence, Inspiring Greatness*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
 
       'Appreciation for Consistent Performance': `
@@ -450,6 +452,8 @@ _${organizationName} Team_
 🌟 *Excellence Through Consistency*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
 
       'Appreciation for Detecting Errors and Debugging': `
@@ -502,6 +506,8 @@ _${organizationName} Team_
 🐛 *Making Code Better, One Solution at a Time*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
 
       'Appreciation for Outstanding Performance': `
@@ -553,6 +559,8 @@ _${organizationName} Team_
 🌟 *Celebrating Outstanding Achievement*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
 
       'Appreciation for Best Attendance': `
@@ -604,6 +612,8 @@ _${organizationName} Team_
 ⏰ *Punctuality: The Soul of Professional Excellence*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
     },
 
@@ -652,6 +662,8 @@ _${organizationName} Team_
 💼 *Your Success is Our Pride*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
     },
 
@@ -714,6 +726,8 @@ _${organizationName} Team_
 🚀 *Begin Your Journey to Excellence*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
 
       'Internship Joining Letter - Unpaid': `
@@ -774,6 +788,8 @@ _${organizationName} Team_
 📖 *Learn. Grow. Succeed.*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
     },
 
@@ -839,6 +855,8 @@ _${organizationName} Team_
 📝 *Discipline & Dedication Lead to Excellence*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
 
       'Warning for Low Attendance': `
@@ -903,6 +921,8 @@ _${organizationName} Team_
 ⏰ *Presence Builds Excellence*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
 
       'Warning for Misconduct or Disrespectful Behavior': `
@@ -967,6 +987,8 @@ _${organizationName} Team_
 🤝 *Respect is Mandatory, Not Optional*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
 
       'Warning for Unauthorized Absence from Training Sessions': `
@@ -1031,6 +1053,8 @@ _${organizationName} Team_
 📚 *Learning Requires Presence & Commitment*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
 
       'Warning Regarding Punctuality and Professional Discipline': `
@@ -1095,6 +1119,8 @@ _${organizationName} Team_
 ⏱️ *Time Waits for No One*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
 
       'Warning for Unauthorized Absence from Sessions': `
@@ -1159,6 +1185,8 @@ _${organizationName} Team_
 📖 *Commitment Starts with Presence*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
 
       'Warning for Punctuality and Discipline': `
@@ -1223,6 +1251,8 @@ _${organizationName} Team_
 🎯 *Discipline: The Bridge to Your Goals*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
     },
 
@@ -1277,6 +1307,8 @@ _${organizationName} Team_
 👥 *Together We Lead, Together We Succeed*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
 
       'Committee President': `
@@ -1330,6 +1362,8 @@ _${organizationName} Team_
 👑 *Leading with Vision, Inspiring with Purpose*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
 
       'Committee Vice-President': `
@@ -1383,6 +1417,8 @@ _${organizationName} Team_
 🌟 *Leading by Example, Inspiring Excellence*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
     },
 
@@ -1431,6 +1467,8 @@ _${organizationName} Team_
 📬 *Your Documents, Our Priority*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
     },
 
@@ -1493,6 +1531,8 @@ _${organizationName} Team_
 🔐 *Protecting What Matters - Trust Through Confidentiality*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
     },
 
@@ -1570,6 +1610,8 @@ _${organizationName} Team_
 🎯 *Your Career, Our Commitment*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
     },
 
@@ -1623,6 +1665,8 @@ _${organizationName} Team_
 📈 *Growing Together, Succeeding Together*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
     },
 
@@ -1676,6 +1720,8 @@ _${organizationName} Team_
 📊 *Plan. Execute. Succeed.*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
     },
 
@@ -1739,6 +1785,8 @@ _${organizationName} Team_
 💡 *Where Theory Meets Practice*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
     },
 
@@ -1779,6 +1827,8 @@ _${organizationName} Team_
 📢 *Stay Informed, Stay Connected*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
       `.trim(),
     },
   };
@@ -1884,6 +1934,8 @@ _${organizationName} Team_
 👨‍👩‍👧‍👦 *Parents & Institution: Partners in Student Success*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
     `.trim();
   }
 
@@ -1939,6 +1991,8 @@ _${organizationName} Team_
 👨‍👩‍👧‍👦 *Celebrating Student Excellence Together*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
     `.trim();
   }
 
@@ -1994,6 +2048,8 @@ _${organizationName} Team_
 👨‍👩‍👧‍👦 *Nurturing Future Leaders Together*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
     `.trim();
   }
 
@@ -2048,6 +2104,8 @@ _${organizationName} Team_
 👨‍👩‍👧‍👦 *Partners in Education & Development*
 
 📞 *Support:* +91 9892398976
+📌 Please send the signed copy to us via email.  
+📌 If the link does not open, please save this WhatsApp number and try again for further updates.
   `.trim();
 };
 
