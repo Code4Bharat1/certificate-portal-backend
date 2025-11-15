@@ -198,7 +198,8 @@ router.get('/all', async (req, res) => {
 
     // Format data for frontend
     const names = people.map((p) => {
-      const phone = person.phone?.toString() || "";
+      // ✅ FIXED: Changed 'person' to 'p' to match the iterator variable
+      const phone = p.phone?.toString() || "";
       console.log("Original:", phone, " → Sliced:", phone.slice(-10));
 
       return {
@@ -216,7 +217,6 @@ router.get('/all', async (req, res) => {
         updatedAt: p.updatedAt,
       };
     });
-
 
     const enabledCount = names.filter(p => !p.disabled).length;
     const disabledCount = names.filter(p => p.disabled).length;
@@ -418,6 +418,12 @@ router.put(
     }
   }
 );
+
+/**
+ * @route   POST /api/people/bulk-upload
+ * @desc    Bulk upload people from Excel file
+ * @access  Public
+ */
 
 router.post('/bulk-upload', upload.single('file'), async (req, res) => {
   try {
@@ -751,8 +757,9 @@ router.get('/:id', async (req, res) => {
         category: person.category,
         batch: person.batch || '',
         phone: person.phone ? person.phone.toString().slice(-10) : null,
-        parentPhone1: p.parentPhone1 ? p.parentPhone1.toString().slice(-10) : null,
-        parentPhone2: p.parentPhone2 ? p.parentPhone2.toString().slice(-10) : null,
+        // ✅ FIXED: Changed 'p' to 'person' to match the variable
+        parentPhone1: person.parentPhone1 ? person.parentPhone1.toString().slice(-10) : null,
+        parentPhone2: person.parentPhone2 ? person.parentPhone2.toString().slice(-10) : null,
         aadhaarCard: person.aadhaarCard || null,
         address: person.address || null,
         disabled: person.disabled || false,
@@ -878,11 +885,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-/**
- * @route   POST /api/people/bulk-upload
- * @desc    Bulk upload people from Excel file
- * @access  Public
- */
+
 
 
 export default router;
