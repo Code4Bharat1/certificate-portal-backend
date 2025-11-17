@@ -34,19 +34,7 @@ const TOP_ROW_FONT_SIZE = 15;
    (unchanged) ...
    ------------------------- */
 // (Paste the same generateLetterId implementation here)
-export async function generateLetterId(category, course) {
-  const courseMap = {
-    "Appreciation Letter": "APP",
-    "Experience Certificate": "EXP",
-    "Internship Joining Letter": "INT",
-    "Memo": "MEM",
-    "Non-Disclosure Agreement": "NDA",
-    "Offer Letter": "OFF",
-    "Warning Letter": "WRN",
-    "Live Project Agreement": "LPA",
-    "Community Letter": "COM"
-  };
-
+export async function generateLetterId(category) {
   const catMap = {
     "code4bharat": "C4B",
     "marketing-junction": "MJ",
@@ -55,29 +43,41 @@ export async function generateLetterId(category, course) {
     "BVOC": "BVOC"
   };
 
-  const courseAbbr = courseMap[course] || course
-    .split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 3);
-
   const catAbbr = catMap[category] || category.toUpperCase().slice(0, 4);
 
-  const regex = new RegExp(`^${courseAbbr}-${catAbbr}-(\\d+)$`);
-  const last = await Letter.find({ letterId: { $regex: `^${courseAbbr}-${catAbbr}-` } })
+  // Get today's date in YYYY-MM-DD
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  const dateStr = `${yyyy}-${mm}-${dd}`;
+
+  // Regex to match: C4B-YYYY-MM-DD-XX
+  const regex = new RegExp(`^${catAbbr}-${dateStr}-(\\d+)$`);
+
+  // Find last ID for today's date
+  const last = await Letter.find({
+    letterId: { $regex: `^${catAbbr}-${dateStr}-` }
+  })
     .select("letterId")
     .sort({ createdAt: -1 })
     .limit(1)
     .lean();
 
   let nextNum = 1;
-  if (last && last.length) {
+
+  if (last.length) {
     const match = last[0].letterId.match(regex);
     if (match && match[1]) {
       nextNum = parseInt(match[1], 10) + 1;
     }
   }
 
-  const padded = String(nextNum).padStart(5, "0");
-  return `${courseAbbr}-${catAbbr}-${padded}`;
+  const padded = String(nextNum).padStart(2, "0");
+
+  return `${catAbbr}-${dateStr}-${padded}`;
 }
+
 
 /* -------------------------
    Helper: generateOutwardNo
@@ -132,50 +132,45 @@ export function getLetterTemplateFilename(course, category) {
     code4bharat: {
       "Appreciation Letter": "Letter.jpg",
       "Experience Certificate": "Letter.jpg",
-      'Internship Joining Letter - Unpaid': "C4B-internship-unpaid.pdf",
-      'Internship Joining Letter - Paid': "C4B-internship-paid.pdf",
-      'Memo': "Letter.jpg",
-      'Non-Disclosure Agreement': "NDA.pdf",
+      'Internship Joining Letter - Unpaid': "C4B/C4B-internship-unpaid.pdf",
+      'Internship Joining Letter - Paid': "C4B/C4B-internship-paid.pdf",
+      'Non-Disclosure Agreement': "C4B/C4B-NDA.pdf",
+      // 'Memo': "Letter.jpg",
+      "Timeline Letter": "common/Timeline Letter.jpg",
+      "Non Paid to Paid": "common/Non-Paid-to-Paid-Promotion-Letter.png",
+      "Stipend Revision": "common/Stipend-Revision-Promotion-Letter.png",
     },
     "marketing-junction": {
       // "Appreciation Letter": "Letter.jpg",
-      "Experience Certificate": "MJ-experience-certificate.jpg",
-      // 'Internship Joining Letter - Unpaid': "Letter.jpg",
-      // 'Internship Joining Letter - Paid': "Letter.jpg",
-      'Non-Disclosure Agreement': "MJ-NDA.pdf",
-      "Timeline Letter": "Timeline Letter.jpg",
-      "Non Paid to Paid": "Non-Paid-to-Paid-Promotion-Letter.png",
-      "Stipend Revision": "Stipend-Revision-Promotion-Letter.png",
-    },
-    HR: {
-      "Appreciation Letter": "Letter.jpg",
-      "Experience Certificate": "Letter.jpg",
-      'Internship Joining Letter - Unpaid': "Letter.jpg",
-      'Internship Joining Letter - Paid': "Letter.jpg",
-      'Memo': "Letter.jpg",
-      'Non-Disclosure Agreement': "NDA.pdf",
+      "Experience Certificate": "MJ/MJ-experience-certificate.jpg",
+      'Internship Joining Letter - Unpaid': "MJ/MJ-internship-unpaid.pdf",
+      'Internship Joining Letter - Paid': "MJ/MJ-internship-paid.pdf",
+      'Non-Disclosure Agreement': "MJ/MJ-NDA.pdf",
+      "Timeline Letter": "common/Timeline Letter.jpg",
+      "Non Paid to Paid": "common/Non-Paid-to-Paid-Promotion-Letter.png",
+      "Stipend Revision": "common/Stipend-Revision-Promotion-Letter.png",
     },
     FSD: {
       // "Appreciation Letter": "Letter.jpg",
       // "Experience Certificate": "Letter.jpg",
       // 'Warning Letter': "FSD-WarningLetter.jpg",
 
-      "Appreciation for Best Attendance": "FSD-appreciation-for-bestAttendance.jpg",
-      "Appreciation for Outstanding Performance": "FSD-appreciation-for-outstanding-performance.jpg",
-      "Appreciation for Consistent Performance": "FSD-appreciation-for-consistent-performer.png",
+      "Appreciation for Best Attendance": "FSD/FSD-appreciation-for-bestAttendance.jpg",
+      "Appreciation for Outstanding Performance": "FSD/FSD-appreciation-for-outstanding-performance.jpg",
+      "Appreciation for Consistent Performance": "FSD/FSD-appreciation-for-consistent-performer.png",
 
-      "Internship Experience Certificate": "FSD-internship-experience-certificate.jpg",
-      'Live Project Agreement': "FSD-LiveProject.pdf",
-      'Non-Disclosure Agreement': "NDA.pdf",
-      'Offer Letter': "FSD-OfferLetter.pdf",
+      "Internship Experience Certificate": "FSD/FSD-internship-experience-certificate.jpg",
+      'Live Project Agreement': "FSD/FSD-LiveProject.pdf",
+      'Non-Disclosure Agreement': "FSD/NDA.pdf",
+      'Offer Letter': "FSD/FSD-OfferLetter.pdf",
 
-      "Warning for Incomplete Assignment/Project Submissions": "FSD-warning-incomplete-assignment.jpg",
-      "Warning for Low Attendance": "FSD-warning-low-attendance.jpg",
-      "Warning for Misconduct or Disrespectful Behavior": "FSD-warning-for-misconduct.jpg",
-      "Warning for Unauthorized Absence from Training Sessions": "FSD-warning-for-unauthorized-absence.jpg",
-      "Warning Regarding Punctuality and Professional Discipline": "FSD-warning-regarding-punctuality.jpg",
+      "Warning for Incomplete Assignment/Project Submissions": "FSD/FSD-warning-incomplete-assignment.jpg",
+      "Warning for Low Attendance": "FSD/FSD-warning-low-attendance.jpg",
+      "Warning for Misconduct or Disrespectful Behavior": "FSD/FSD-warning-for-misconduct.jpg",
+      "Warning for Unauthorized Absence from Training Sessions": "FSD/FSD-warning-for-unauthorized-absence.jpg",
+      "Warning Regarding Punctuality and Professional Discipline": "FSD/FSD-warning-regarding-punctuality.jpg",
 
-      "Concern Letter-Audit Interview Performance": "FSD-concern-letter.jpg"
+      "Concern Letter-Audit Interview Performance": "FSD/FSD-concern-letter.jpg"
     },
     BVOC: {
       // "Appreciation Letter": "Letter.jpg",
@@ -183,42 +178,64 @@ export function getLetterTemplateFilename(course, category) {
       // 'Warning Letter': "BVOC-WarningLetter.jpg",
       // 'Community Letter': "Letter.jpg",
 
-      "Appreciation for Best Attendance": "BVOC-appreciation-for-bestAttendance.jpg",
-      "Appreciation for Detecting Errors And Debugging": "BVOC-appreciation-for-debugging.jpg",
-      "Appreciation for Outstanding Performance": "BVOC-appreciation-for-outstanding-performance.jpg",
-      "Appreciation for Consistent Performance": "BVOC-appreciation-for-consistent-performer.jpg",
+      "Appreciation for Best Attendance": "BVOC/BVOC-appreciation-for-bestAttendance.jpg",
+      "Appreciation for Detecting Errors And Debugging": "BVOC/BVOC-appreciation-for-debugging.jpg",
+      "Appreciation for Outstanding Performance": "BVOC/BVOC-appreciation-for-outstanding-performance.jpg",
+      "Appreciation for Consistent Performance": "BVOC/BVOC-appreciation-for-consistent-performer.jpg",
 
-      "Committee Member": "BVOC-committe-member.jpg",
-      "Committee President": "BVOC-committe-president.jpg",
-      "Committee Vice-President": "BVOC-committe-vice-president.jpg",
+      "Committee Member": "BVOC/BVOC-committe-member.jpg",
+      "Committee President": "BVOC/BVOC-committe-president.jpg",
+      "Committee Vice-President": "BVOC/BVOC-committe-vice-president.jpg",
 
-      "Warning for Incomplete Assignment/Project Submissions": "BVOC-warning-incomplete-assignment.jpg",
-      "Warning for Low Attendance": "BVOC-warning-low-attendance.jpg",
-      "Warning for Misconduct or Disrespectful Behavior": "BVOC-warning-for-misconduct.jpg",
-      "Warning for Punctuality and Discipline": "BVOC-warning-for-punctuality.jpg",
-      "Warning for Unauthorized Absence from Sessions": "BVOC-warning-for-unauthorized-absence.jpg",
+      "Warning for Incomplete Assignment/Project Submissions": "BVOC/BVOC-warning-incomplete-assignment.jpg",
+      "Warning for Low Attendance": "BVOC/BVOC-warning-low-attendance.jpg",
+      "Warning for Misconduct or Disrespectful Behavior": "BVOC/BVOC-warning-for-misconduct.jpg",
+      "Warning for Punctuality and Discipline": "BVOC/BVOC-warning-for-punctuality.jpg",
+      "Warning for Unauthorized Absence from Sessions": "BVOC/BVOC-warning-for-unauthorized-absence.jpg",
 
-      "Concern Letter-Audit Interview Performance": "BVOC-concern-letter.jpg"
+      "Concern Letter-Audit Interview Performance": "BVOC/BVOC-concern-letter.jpg"
     },
     DM: {
       // "Appreciation Letter": "Letter.jpg",
       // "Experience Certificate": "Letter.jpg",
       // 'Warning Letter': "FSD-WarningLetter.jpg",
 
-      "Appreciation for Best Attendance": "DM-appreciation-for-bestAttendance.jpg",
-      "Appreciation for Outstanding Performance": "DM-appreciation-for-outstanding-performance.jpg",
-      "Appreciation for Consistent Performance": "DM-appreciation-for-consistent-performer.jpg",
+      "Appreciation for Best Attendance": "DM/DM-appreciation-for-bestAttendance.jpg",
+      "Appreciation for Outstanding Performance": "DM/DM-appreciation-for-outstanding-performance.jpg",
+      "Appreciation for Consistent Performance": "DM/DM-appreciation-for-consistent-performer.jpg",
 
-      "Internship Experience Certificate": "DM-internship-experience-certificate.jpg",
-      'Offer Letter': "DM-OfferLetter.pdf",
+      "Internship Experience Certificate": "DM/DM-internship-experience-certificate.jpg",
+      'Offer Letter': "DM/DM-OfferLetter.pdf",
 
-      "Warning for Incomplete Assignment/Project Submissions": "DM-warning-incomplete-assignment.jpg",
-      "Warning for Low Attendance": "DM-warning-low-attendance.jpg",
-      "Warning for Misconduct or Disrespectful Behavior": "DM-warning-for-misconduct.jpg",
-      "Warning for Unauthorized Absence from Training Sessions": "DM-warning-for-unauthorized-absence.jpg",
-      "Warning Regarding Punctuality and Professional Discipline": "DM-warning-regarding-punctuality.jpg",
+      "Warning for Incomplete Assignment/Project Submissions": "DM/DM-warning-incomplete-assignment.jpg",
+      "Warning for Low Attendance": "DM/DM-warning-low-attendance.jpg",
+      "Warning for Misconduct or Disrespectful Behavior": "DM/DM-warning-for-misconduct.jpg",
+      "Warning for Unauthorized Absence from Training Sessions": "DM/DM-warning-for-unauthorized-absence.jpg",
+      "Warning Regarding Punctuality and Professional Discipline": "DM/DM-warning-regarding-punctuality.jpg",
 
-      "Concern Letter-Audit Interview Performance": "DM-concern-letter.jpg"
+      "Concern Letter-Audit Interview Performance": "DM/DM-concern-letter.jpg"
+    },
+    HR: {
+      "Appreciation Letter": "Letter.jpg",
+      "Experience Certificate": "Letter.jpg",
+      'Internship Joining Letter - Unpaid': "Letter.jpg",
+      'Internship Joining Letter - Paid': "Letter.jpg",
+      // 'Memo': "Letter.jpg",
+      'Non-Disclosure Agreement': "NDA.pdf",
+      "Timeline Letter": "common/Timeline Letter.jpg",
+      "Non Paid to Paid": "common/Non-Paid-to-Paid-Promotion-Letter.png",
+      "Stipend Revision": "common/Stipend-Revision-Promotion-Letter.png",
+    },
+    OD: {
+      "Appreciation Letter": "Letter.jpg",
+      "Experience Certificate": "Letter.jpg",
+      'Internship Joining Letter - Unpaid': "Letter.jpg",
+      'Internship Joining Letter - Paid': "Letter.jpg",
+      // 'Memo': "Letter.jpg",
+      'Non-Disclosure Agreement': "NDA.pdf",
+      "Timeline Letter": "common/Timeline Letter.jpg",
+      "Non Paid to Paid": "common/Non-Paid-to-Paid-Promotion-Letter.png",
+      "Stipend Revision": "common/Stipend-Revision-Promotion-Letter.png",
     },
   };
 
