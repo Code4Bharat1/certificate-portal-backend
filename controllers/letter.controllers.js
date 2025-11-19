@@ -130,22 +130,24 @@ export async function generateOutwardNo(category, course, issueDate) {
 export function getLetterTemplateFilename(course, category) {
   const templateMap = {
     code4bharat: {
-      "Appreciation Letter": "Letter.jpg",
-      "Experience Certificate": "Letter.jpg",
       'Internship Joining Letter - Unpaid': "C4B/C4B-internship-unpaid.pdf",
       'Internship Joining Letter - Paid': "C4B/C4B-internship-paid.pdf",
       'Non-Disclosure Agreement': "C4B/C4B-NDA.pdf",
       // 'Memo': "Letter.jpg",
+      // common
+      "Appreciation Letter": "common/Appreciation.jpg",
+      "Experience Certificate": "common/Experience-certificate.jpg",
       "Timeline Letter": "common/Timeline Letter.jpg",
       "Non Paid to Paid": "common/Non-Paid-to-Paid-Promotion-Letter.png",
       "Stipend Revision": "common/Stipend-Revision-Promotion-Letter.png",
     },
     "marketing-junction": {
-      // "Appreciation Letter": "Letter.jpg",
-      "Experience Certificate": "MJ/MJ-experience-certificate.jpg",
       'Internship Joining Letter - Unpaid': "MJ/MJ-internship-unpaid.pdf",
       'Internship Joining Letter - Paid': "MJ/MJ-internship-paid.pdf",
       'Non-Disclosure Agreement': "MJ/MJ-NDA.pdf",
+      // common
+      "Appreciation Letter": "common/Appreciation.jpg",
+      "Experience Certificate": "common/Experience-certificate.jpg",
       "Timeline Letter": "common/Timeline Letter.jpg",
       "Non Paid to Paid": "common/Non-Paid-to-Paid-Promotion-Letter.png",
       "Stipend Revision": "common/Stipend-Revision-Promotion-Letter.png",
@@ -216,23 +218,25 @@ export function getLetterTemplateFilename(course, category) {
       "Concern Letter-Audit Interview Performance": "DM/DM-concern-letter.jpg"
     },
     HR: {
-      "Appreciation Letter": "Letter.jpg",
-      "Experience Certificate": "Letter.jpg",
-      'Internship Joining Letter - Unpaid': "Letter.jpg",
-      'Internship Joining Letter - Paid': "Letter.jpg",
+      'Internship Joining Letter - Unpaid': "HR/HR-internship-unpaid.pdf",
+      'Internship Joining Letter - Paid': "HR/HR-internship-paid.pdf",
+      'Non-Disclosure Agreement': "HR/HR-NDA.pdf",
       // 'Memo': "Letter.jpg",
-      'Non-Disclosure Agreement': "NDA.pdf",
+      // common
+      "Appreciation Letter": "common/Appreciation.jpg",
+      "Experience Certificate": "common/Experience-certificate.jpg",
       "Timeline Letter": "common/Timeline Letter.jpg",
       "Non Paid to Paid": "common/Non-Paid-to-Paid-Promotion-Letter.png",
       "Stipend Revision": "common/Stipend-Revision-Promotion-Letter.png",
     },
     OD: {
-      "Appreciation Letter": "Letter.jpg",
-      "Experience Certificate": "Letter.jpg",
-      'Internship Joining Letter - Unpaid': "Letter.jpg",
-      'Internship Joining Letter - Paid': "Letter.jpg",
+      'Internship Joining Letter - Unpaid': "OD/OD-internship-unpaid.pdf",
+      'Internship Joining Letter - Paid': "OD/OD-internship-paid.pdf",
+      'Non-Disclosure Agreement': "OD/OD-NDA.pdf",
       // 'Memo': "Letter.jpg",
-      'Non-Disclosure Agreement': "NDA.pdf",
+      // common
+      "Appreciation Letter": "common/Appreciation.jpg",
+      "Experience Certificate": "common/Experience-certificate.jpg",
       "Timeline Letter": "common/Timeline Letter.jpg",
       "Non Paid to Paid": "common/Non-Paid-to-Paid-Promotion-Letter.png",
       "Stipend Revision": "common/Stipend-Revision-Promotion-Letter.png",
@@ -288,18 +292,21 @@ export const createLetter = async (req, res) => {
       return res.status(400).json({ success: false, errors: errors.array() });
     }
 
+    // ✅ Extract ALL fields from frontend formData
     const {
       name,
       category,
       issueDate,
       letterType,
-      subType,  // ⚠️ IMPORTANT: Make sure this comes from frontend
+      subType,
       course,
       description = "",
       subject = "",
       role,
       startDate,
       endDate,
+      duration,
+      batch,
       committeeType,
       attendancePercent,
       assignmentName,
@@ -309,25 +316,36 @@ export const createLetter = async (req, res) => {
       performanceMonth,
       performanceYear,
       testingPhase,
+      uncover,
       subjectName,
       projectName,
       auditDate,
-      batch,
-      duration,
-      uncover,
-      parentPhone,    // ⚠️ For parent notification
-      parentName,     // ⚠️ For parent notification
+
+      // Newly added missing fields:
+      trainingStartDate,
+      trainingEndDate,
+      officialStartDate,
+      completionDate,
+      responsibilities,
+      amount,
+      effectiveFrom,
+
+      // phone related
+      // parentPhone1,
+      // parentPhone2,
+      // parentName,
     } = req.body;
 
-    // 🔹 Basic required validations
+    // Basic validations
     if (!name || !category || !course || !issueDate || !letterType) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields (name, category, course, issueDate, letterType).",
+        message:
+          "Missing required fields (name, category, course, issueDate, letterType).",
       });
     }
 
-    // 🔹 Generate unique letterId
+    // Generate Letter ID
     let letterId;
     let exists;
     do {
@@ -335,32 +353,32 @@ export const createLetter = async (req, res) => {
       exists = await Letter.findOne({ letterId });
     } while (exists);
 
-    // 🔹 Generate outward number
+    // Generate outward no
     const { outwardNo, outwardSerial } = await generateOutwardNo(
       category,
       course,
       issueDate
     );
 
-    // 🔹 Lookup user phone for WhatsApp
+    // Get user phone
     const userData = await People.findOne({ name });
     const userPhone = userData?.phone || null;
 
-    // 🔹 Prepare letter data object
+    // Prepare DB object with ALL fields included
     const letterData = {
       letterId,
       name,
       category,
       batch: batch || "",
       letterType: letterType || "",
-      subType: subType || "default",  // ⚠️ IMPORTANT
+      subType: subType || "default",
       course,
-      subject: subject?.trim() || "",
+      subject: subject.trim(),
       role: role || "",
-      startDate: startDate ? new Date(startDate) : undefined,
-      endDate: endDate ? new Date(endDate) : undefined,
+      startDate: startDate ? new Date(startDate) : null,
+      endDate: endDate ? new Date(endDate) : null,
       duration: duration || "",
-      description: description?.trim() || "",
+      description: description.trim(),
       issueDate: new Date(issueDate),
       outwardNo,
       outwardSerial,
@@ -378,74 +396,76 @@ export const createLetter = async (req, res) => {
       projectName: projectName || "",
       uncover: uncover || "",
       auditDate: auditDate ? new Date(auditDate) : null,
-      parentPhone: parentPhone || null,
-      parentName: parentName || null,
+
+      // NEWLY ADDED FIELDS
+      trainingStartDate: trainingStartDate ? new Date(trainingStartDate) : null,
+      trainingEndDate: trainingEndDate ? new Date(trainingEndDate) : null,
+      officialStartDate: officialStartDate ? new Date(officialStartDate) : null,
+      completionDate: completionDate ? new Date(completionDate) : null,
+      responsibilities: responsibilities || "",
+      amount: amount || "",
+      effectiveFrom: effectiveFrom ? new Date(effectiveFrom) : null,
+
+      // parent phones
+      parentPhone1: userData.parentPhone1 || null,
+      parentPhone2: userData.parentPhone2 || null,
+      // parentName: parentName || null,
     };
 
-    // 🔹 Create letter
+    // Create letter
     const letter = await Letter.create(letterData);
 
-    // ✅ CORRECTED: Send WhatsApp notification for LETTERS
+    // Send WhatsApp Message
     try {
       if (userPhone && letterId) {
-        console.log('📱 Sending letter notification to:', userPhone);
-        console.log('📋 Letter Type:', letterType);
-        console.log('📋 Sub Type:', subType || 'default');
-
-        // 🔹 Get the letter message template
         const letterMessage = getLetterMessageTemplate(
           letterType,
-          course || 'default',
+          course || "default",
           {
             userName: name,
             category,
-            batch: batch || null,
+            batch,
             issueDate: letter.issueDate,
             credentialId: letterId,
             letterId: letterId,
-            organizationName: 'Nexcore Alliance',
+            organizationName: "Nexcore Alliance",
           }
         );
 
-        // 🔹 Send WhatsApp message to user
-        const result = await sendWhatsAppMessage(userPhone, letterMessage);
-        console.log('✅ Letter notification sent:', result);
+        await sendWhatsAppMessage(userPhone, letterMessage);
 
-        // 🔹 Send parent notification if applicable
+        console.log(userData.parentPhone1, userData.parentPhone2, category);
+        
+        // Notify parents only for selected letter types
         if (
-          parentPhone &&
-          parentName &&
-          (letterType === 'Warning Letter' ||
-            letterType === 'Appreciation Letter' ||
-            letterType === 'Committee Letter')
+          userData.parentPhone1 &&
+          userData.parentPhone2 &&
+          category === "BVOC"
         ) {
-          console.log('📱 Sending parent notification to:', parentPhone);
-
           const parentMessage = getParentNotificationTemplate(
             letterType,
-            subType || 'default',
+            course,
             {
               userName: name,
-              parentName,
+              // parentName,
               category,
-              batch: batch || null,
+              batch,
               issueDate: letter.issueDate,
               credentialId: letterId,
               letterId: letterId,
-              organizationName: 'Nexcore Alliance',
+              organizationName: "Nexcore Alliance",
             }
           );
 
-          const parentResult = await sendWhatsAppMessage(parentPhone, parentMessage);
-          console.log('✅ Parent notification sent:', parentResult);
+          await sendWhatsAppMessage(userData.parentPhone1, parentMessage);
+          await sendWhatsAppMessage(userData.parentPhone2, parentMessage);
         }
       }
     } catch (err) {
-      console.error("❌ WhatsApp send error:", err);
-      // Don't fail the whole request if WhatsApp fails
+      console.error("WhatsApp error:", err);
     }
 
-    // 🔹 Log admin activity
+    // Log admin activity
     await ActivityLog.create({
       action: "created",
       letterId: letter.letterId,
@@ -454,7 +474,6 @@ export const createLetter = async (req, res) => {
       details: `Letter created for ${letter.name}`,
     });
 
-    // ✅ Return success
     return res.status(201).json({
       success: true,
       message: "Letter created successfully",
@@ -469,6 +488,7 @@ export const createLetter = async (req, res) => {
     });
   }
 };
+
 
 
 
@@ -503,6 +523,13 @@ export const previewLetter = async (req, res) => {
       subjectName,
       projectName,
       auditDate,
+      trainingStartDate,
+      trainingEndDate,
+      officialStartDate,
+      completionDate,
+      responsibilities,
+      amount,
+      effectiveFrom,
     } = req.body;
 
     if (!name || !category || !issueDate || !course) {
@@ -694,7 +721,14 @@ export const previewLetter = async (req, res) => {
           uncover,
           subjectName,
           projectName,
-          auditDate
+          auditDate,
+          trainingStartDate,
+          trainingEndDate,
+          officialStartDate,
+          completionDate,
+          responsibilities,
+          amount,
+          effectiveFrom,
         );
       }
 
@@ -723,6 +757,22 @@ export const previewLetter = async (req, res) => {
           subject,
           startDate,
           endDate,
+        });
+      }
+      else if (category === "marketing-junction") {
+        await TemplateCode.drawMJPdfTemplate(pdfDoc, course, {
+          name,
+          outwardNo,
+          formattedDate,
+          tempId,
+          role,
+          trainingStartDate,
+          trainingEndDate,
+          officialStartDate,
+          completionDate,
+          responsibilities,
+          amount,
+          effectiveFrom,
         });
       }
 

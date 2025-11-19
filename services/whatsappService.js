@@ -1849,7 +1849,7 @@ _${organizationName} Team_
 export const getParentNotificationTemplate = (letterType, subType, data) => {
   const {
     userName,
-    parentName,
+    // parentName,
     category,
     batch,
     issueDate,
@@ -1886,8 +1886,6 @@ export const getParentNotificationTemplate = (letterType, subType, data) => {
 ╔═══════════════════════════╗
    ⚠️ *PARENT NOTIFICATION* ⚠️
 ╚═══════════════════════════╝
-
-Dear *${parentName}*,
 
 This is an important notification regarding your ward's academic/professional conduct.
 
@@ -1946,8 +1944,6 @@ _${organizationName} Team_
    🌟 *PROUD PARENT MOMENT!* 🌟
 ╚═══════════════════════════╝
 
-Dear *${parentName}*,
-
 We are delighted to share wonderful news about your ward's achievement!
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -2003,8 +1999,6 @@ _${organizationName} Team_
    🎖️ *LEADERSHIP ACHIEVEMENT!* 🎖️
 ╚═══════════════════════════╝
 
-Dear *${parentName}*,
-
 We are pleased to inform you about your ward's leadership appointment!
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -2058,8 +2052,6 @@ _${organizationName} Team_
 ╔═══════════════════════════╗
    📢 *PARENT NOTIFICATION* 📢
 ╚═══════════════════════════╝
-
-Dear *${parentName}*,
 
 We are writing to inform you about an official document issued to your ward.
 

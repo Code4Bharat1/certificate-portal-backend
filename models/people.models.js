@@ -34,7 +34,7 @@ const peopleSchema = new mongoose.Schema(
         return ["FSD", "BVOC"].includes(this.category);
       },
       trim: true,
-      match: [/^B-\d+$/, "Batch must be in format B-1, B-2, etc."],
+      // match: [/^B-\d+$/, "Batch must be in format B-1, B-2, etc."],
       default: "",
     },
 

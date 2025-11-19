@@ -129,6 +129,41 @@ const letterSchema = new mongoose.Schema(
       required: false,
     },
 
+    trainingStartDate: {
+      type: Date,
+      required: false,
+    },
+
+    trainingEndDate: {
+      type: Date,
+      required: false,
+    },
+
+    officialStartDate: {
+      type: Date,
+      required: false,
+    },
+
+    completionDate: {
+      type: Date,
+      required: false,
+    },
+
+    responsibilities: {
+      type: Date,
+      required: false,
+    },
+
+    amount: {
+      type: Date,
+      required: false,
+    },
+
+    effectiveFrom: {
+      type: Date,
+      required: false,
+    },
+
     issueDate: {
       type: Date,
       required: true,
