@@ -11,11 +11,15 @@ import ActivityLog from "../models/activitylog.models.js";
 import {
   sendWhatsAppMessage,
   getLetterMessageTemplate,
-  getParentNotificationTemplate
-} from '../services/whatsappService.js';
+  getParentNotificationTemplate,
+} from "../services/whatsappService.js";
+import emailService from "../services/emailService.js";
+const { getLetterEmailTemplate, getParentNotificationEmailTemplate, sendEmail, sendParentNotification } = emailService;
+
+
 import { PDFDocument as PDFLibDocument, StandardFonts, rgb } from "pdf-lib";
 
-import TemplateCode from "../utils/templatesCode.js"
+import TemplateCode from "../utils/templatesCode.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,11 +40,11 @@ const TOP_ROW_FONT_SIZE = 15;
 // (Paste the same generateLetterId implementation here)
 export async function generateLetterId(category) {
   const catMap = {
-    "code4bharat": "C4B",
+    code4bharat: "C4B",
     "marketing-junction": "MJ",
-    "FSD": "FSD",
-    "HR": "HR",
-    "BVOC": "BVOC"
+    FSD: "FSD",
+    HR: "HR",
+    BVOC: "BVOC",
   };
 
   const catAbbr = catMap[category] || category.toUpperCase().slice(0, 4);
@@ -57,7 +61,7 @@ export async function generateLetterId(category) {
 
   // Find last ID for today's date
   const last = await Letter.find({
-    letterId: { $regex: `^${catAbbr}-${dateStr}-` }
+    letterId: { $regex: `^${catAbbr}-${dateStr}-` },
   })
     .select("letterId")
     .sort({ createdAt: -1 })
@@ -77,7 +81,6 @@ export async function generateLetterId(category) {
 
   return `${catAbbr}-${dateStr}-${padded}`;
 }
-
 
 /* -------------------------
    Helper: generateOutwardNo
@@ -99,7 +102,10 @@ export async function generateOutwardNo(category, course, issueDate) {
   let maxSerial = 0;
 
   if (lastLetter) {
-    if (typeof lastLetter.outwardSerial === "number" && lastLetter.outwardSerial > 0) {
+    if (
+      typeof lastLetter.outwardSerial === "number" &&
+      lastLetter.outwardSerial > 0
+    ) {
       maxSerial = lastLetter.outwardSerial;
     } else if (lastLetter.outwardNo) {
       const match = String(lastLetter.outwardNo).match(/(\d+)\s*$/);
@@ -123,16 +129,15 @@ export async function generateOutwardNo(category, course, issueDate) {
   return { outwardNo, outwardSerial: nextSerial };
 }
 
-
 /* -------------------------
    Template filename helper (unchanged)
    ------------------------- */
 export function getLetterTemplateFilename(course, category) {
   const templateMap = {
     code4bharat: {
-      'Internship Joining Letter - Unpaid': "C4B/C4B-internship-unpaid.pdf",
-      'Internship Joining Letter - Paid': "C4B/C4B-internship-paid.pdf",
-      'Non-Disclosure Agreement': "C4B/C4B-NDA.pdf",
+      "Internship Joining Letter - Unpaid": "C4B/C4B-internship-unpaid.pdf",
+      "Internship Joining Letter - Paid": "C4B/C4B-internship-paid.pdf",
+      "Non-Disclosure Agreement": "C4B/C4B-NDA.pdf",
       // 'Memo': "Letter.jpg",
       // common
       "Appreciation Letter": "common/Appreciation.jpg",
@@ -142,9 +147,9 @@ export function getLetterTemplateFilename(course, category) {
       "Stipend Revision": "common/Stipend-Revision-Promotion-Letter.png",
     },
     "marketing-junction": {
-      'Internship Joining Letter - Unpaid': "MJ/MJ-internship-unpaid.pdf",
-      'Internship Joining Letter - Paid': "MJ/MJ-internship-paid.pdf",
-      'Non-Disclosure Agreement': "MJ/MJ-NDA.pdf",
+      "Internship Joining Letter - Unpaid": "MJ/MJ-internship-unpaid.pdf",
+      "Internship Joining Letter - Paid": "MJ/MJ-internship-paid.pdf",
+      "Non-Disclosure Agreement": "MJ/MJ-NDA.pdf",
       // common
       "Appreciation Letter": "common/Appreciation.jpg",
       "Experience Certificate": "common/Experience-certificate.jpg",
@@ -157,22 +162,31 @@ export function getLetterTemplateFilename(course, category) {
       // "Experience Certificate": "Letter.jpg",
       // 'Warning Letter': "FSD-WarningLetter.jpg",
 
-      "Appreciation for Best Attendance": "FSD/FSD-appreciation-for-bestAttendance.jpg",
-      "Appreciation for Outstanding Performance": "FSD/FSD-appreciation-for-outstanding-performance.jpg",
-      "Appreciation for Consistent Performance": "FSD/FSD-appreciation-for-consistent-performer.png",
+      "Appreciation for Best Attendance":
+        "FSD/FSD-appreciation-for-bestAttendance.jpg",
+      "Appreciation for Outstanding Performance":
+        "FSD/FSD-appreciation-for-outstanding-performance.jpg",
+      "Appreciation for Consistent Performance":
+        "FSD/FSD-appreciation-for-consistent-performer.png",
 
-      "Internship Experience Certificate": "FSD/FSD-internship-experience-certificate.jpg",
-      'Live Project Agreement': "FSD/FSD-LiveProject.pdf",
-      'Non-Disclosure Agreement': "FSD/NDA.pdf",
-      'Offer Letter': "FSD/FSD-OfferLetter.pdf",
+      "Internship Experience Certificate":
+        "FSD/FSD-internship-experience-certificate.jpg",
+      "Live Project Agreement": "FSD/FSD-LiveProject.pdf",
+      "Non-Disclosure Agreement": "FSD/NDA.pdf",
+      "Offer Letter": "FSD/FSD-OfferLetter.pdf",
 
-      "Warning for Incomplete Assignment/Project Submissions": "FSD/FSD-warning-incomplete-assignment.jpg",
+      "Warning for Incomplete Assignment/Project Submissions":
+        "FSD/FSD-warning-incomplete-assignment.jpg",
       "Warning for Low Attendance": "FSD/FSD-warning-low-attendance.jpg",
-      "Warning for Misconduct or Disrespectful Behavior": "FSD/FSD-warning-for-misconduct.jpg",
-      "Warning for Unauthorized Absence from Training Sessions": "FSD/FSD-warning-for-unauthorized-absence.jpg",
-      "Warning Regarding Punctuality and Professional Discipline": "FSD/FSD-warning-regarding-punctuality.jpg",
+      "Warning for Misconduct or Disrespectful Behavior":
+        "FSD/FSD-warning-for-misconduct.jpg",
+      "Warning for Unauthorized Absence from Training Sessions":
+        "FSD/FSD-warning-for-unauthorized-absence.jpg",
+      "Warning Regarding Punctuality and Professional Discipline":
+        "FSD/FSD-warning-regarding-punctuality.jpg",
 
-      "Concern Letter-Audit Interview Performance": "FSD/FSD-concern-letter.jpg"
+      "Concern Letter-Audit Interview Performance":
+        "FSD/FSD-concern-letter.jpg",
     },
     BVOC: {
       // "Appreciation Letter": "Letter.jpg",
@@ -180,47 +194,64 @@ export function getLetterTemplateFilename(course, category) {
       // 'Warning Letter': "BVOC-WarningLetter.jpg",
       // 'Community Letter': "Letter.jpg",
 
-      "Appreciation for Best Attendance": "BVOC/BVOC-appreciation-for-bestAttendance.jpg",
-      "Appreciation for Detecting Errors And Debugging": "BVOC/BVOC-appreciation-for-debugging.jpg",
-      "Appreciation for Outstanding Performance": "BVOC/BVOC-appreciation-for-outstanding-performance.jpg",
-      "Appreciation for Consistent Performance": "BVOC/BVOC-appreciation-for-consistent-performer.jpg",
+      "Appreciation for Best Attendance":
+        "BVOC/BVOC-appreciation-for-bestAttendance.jpg",
+      "Appreciation for Detecting Errors And Debugging":
+        "BVOC/BVOC-appreciation-for-debugging.jpg",
+      "Appreciation for Outstanding Performance":
+        "BVOC/BVOC-appreciation-for-outstanding-performance.jpg",
+      "Appreciation for Consistent Performance":
+        "BVOC/BVOC-appreciation-for-consistent-performer.jpg",
 
       "Committee Member": "BVOC/BVOC-committe-member.jpg",
       "Committee President": "BVOC/BVOC-committe-president.jpg",
       "Committee Vice-President": "BVOC/BVOC-committe-vice-president.jpg",
 
-      "Warning for Incomplete Assignment/Project Submissions": "BVOC/BVOC-warning-incomplete-assignment.jpg",
+      "Warning for Incomplete Assignment/Project Submissions":
+        "BVOC/BVOC-warning-incomplete-assignment.jpg",
       "Warning for Low Attendance": "BVOC/BVOC-warning-low-attendance.jpg",
-      "Warning for Misconduct or Disrespectful Behavior": "BVOC/BVOC-warning-for-misconduct.jpg",
-      "Warning for Punctuality and Discipline": "BVOC/BVOC-warning-for-punctuality.jpg",
-      "Warning for Unauthorized Absence from Sessions": "BVOC/BVOC-warning-for-unauthorized-absence.jpg",
+      "Warning for Misconduct or Disrespectful Behavior":
+        "BVOC/BVOC-warning-for-misconduct.jpg",
+      "Warning for Punctuality and Discipline":
+        "BVOC/BVOC-warning-for-punctuality.jpg",
+      "Warning for Unauthorized Absence from Sessions":
+        "BVOC/BVOC-warning-for-unauthorized-absence.jpg",
 
-      "Concern Letter-Audit Interview Performance": "BVOC/BVOC-concern-letter.jpg"
+      "Concern Letter-Audit Interview Performance":
+        "BVOC/BVOC-concern-letter.jpg",
     },
     DM: {
       // "Appreciation Letter": "Letter.jpg",
       // "Experience Certificate": "Letter.jpg",
       // 'Warning Letter': "FSD-WarningLetter.jpg",
 
-      "Appreciation for Best Attendance": "DM/DM-appreciation-for-bestAttendance.jpg",
-      "Appreciation for Outstanding Performance": "DM/DM-appreciation-for-outstanding-performance.jpg",
-      "Appreciation for Consistent Performance": "DM/DM-appreciation-for-consistent-performer.jpg",
+      "Appreciation for Best Attendance":
+        "DM/DM-appreciation-for-bestAttendance.jpg",
+      "Appreciation for Outstanding Performance":
+        "DM/DM-appreciation-for-outstanding-performance.jpg",
+      "Appreciation for Consistent Performance":
+        "DM/DM-appreciation-for-consistent-performer.jpg",
 
-      "Internship Experience Certificate": "DM/DM-internship-experience-certificate.jpg",
-      'Offer Letter': "DM/DM-OfferLetter.pdf",
+      "Internship Experience Certificate":
+        "DM/DM-internship-experience-certificate.jpg",
+      "Offer Letter": "DM/DM-OfferLetter.pdf",
 
-      "Warning for Incomplete Assignment/Project Submissions": "DM/DM-warning-incomplete-assignment.jpg",
+      "Warning for Incomplete Assignment/Project Submissions":
+        "DM/DM-warning-incomplete-assignment.jpg",
       "Warning for Low Attendance": "DM/DM-warning-low-attendance.jpg",
-      "Warning for Misconduct or Disrespectful Behavior": "DM/DM-warning-for-misconduct.jpg",
-      "Warning for Unauthorized Absence from Training Sessions": "DM/DM-warning-for-unauthorized-absence.jpg",
-      "Warning Regarding Punctuality and Professional Discipline": "DM/DM-warning-regarding-punctuality.jpg",
+      "Warning for Misconduct or Disrespectful Behavior":
+        "DM/DM-warning-for-misconduct.jpg",
+      "Warning for Unauthorized Absence from Training Sessions":
+        "DM/DM-warning-for-unauthorized-absence.jpg",
+      "Warning Regarding Punctuality and Professional Discipline":
+        "DM/DM-warning-regarding-punctuality.jpg",
 
-      "Concern Letter-Audit Interview Performance": "DM/DM-concern-letter.jpg"
+      "Concern Letter-Audit Interview Performance": "DM/DM-concern-letter.jpg",
     },
     HR: {
-      'Internship Joining Letter - Unpaid': "HR/HR-internship-unpaid.pdf",
-      'Internship Joining Letter - Paid': "HR/HR-internship-paid.pdf",
-      'Non-Disclosure Agreement': "HR/HR-NDA.pdf",
+      "Internship Joining Letter - Unpaid": "HR/HR-internship-unpaid.pdf",
+      "Internship Joining Letter - Paid": "HR/HR-internship-paid.pdf",
+      "Non-Disclosure Agreement": "HR/HR-NDA.pdf",
       // 'Memo': "Letter.jpg",
       // common
       "Appreciation Letter": "common/Appreciation.jpg",
@@ -230,9 +261,9 @@ export function getLetterTemplateFilename(course, category) {
       "Stipend Revision": "common/Stipend-Revision-Promotion-Letter.png",
     },
     OD: {
-      'Internship Joining Letter - Unpaid': "OD/OD-internship-unpaid.pdf",
-      'Internship Joining Letter - Paid': "OD/OD-internship-paid.pdf",
-      'Non-Disclosure Agreement': "OD/OD-NDA.pdf",
+      "Internship Joining Letter - Unpaid": "OD/OD-internship-unpaid.pdf",
+      "Internship Joining Letter - Paid": "OD/OD-internship-paid.pdf",
+      "Non-Disclosure Agreement": "OD/OD-NDA.pdf",
       // 'Memo': "Letter.jpg",
       // common
       "Appreciation Letter": "common/Appreciation.jpg",
@@ -416,54 +447,62 @@ export const createLetter = async (req, res) => {
     const letter = await Letter.create(letterData);
 
     // Send WhatsApp Message
-    try {
-      if (userPhone && letterId) {
-        const letterMessage = getLetterMessageTemplate(
-          letterType,
-          course || "default",
-          {
-            userName: name,
-            category,
-            batch,
-            issueDate: letter.issueDate,
-            credentialId: letterId,
-            letterId: letterId,
-            organizationName: "Nexcore Alliance",
-          }
-        );
+   try {
+  const subType = letter.subType || letterType; // safest
 
-        await sendWhatsAppMessage(userPhone, letterMessage);
+  const templateData = {
+    userName: name,
+    category,
+    batch,
+    issueDate: letter.issueDate,
+    credentialId: letterId,
+    letterId: letterId,
+    organizationName: "Nexcore Alliance",
+  };
 
-        console.log(userData.parentPhone1, userData.parentPhone2, category);
-        
-        // Notify parents only for selected letter types
-        if (
-          userData.parentPhone1 &&
-          userData.parentPhone2 &&
-          category === "BVOC"
-        ) {
-          const parentMessage = getParentNotificationTemplate(
-            letterType,
-            course,
-            {
-              userName: name,
-              // parentName,
-              category,
-              batch,
-              issueDate: letter.issueDate,
-              credentialId: letterId,
-              letterId: letterId,
-              organizationName: "Nexcore Alliance",
-            }
-          );
+  // ----------------------- WHATSAPP TO STUDENT -----------------------
+  if (userPhone && letterId) {
+    // WhatsApp = plain text required
+    const html = getLetterMessageTemplate(letterType, subType, templateData);
+    const waText = html.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
 
-          await sendWhatsAppMessage(userData.parentPhone1, parentMessage);
-          await sendWhatsAppMessage(userData.parentPhone2, parentMessage);
-        }
-      }
-    } catch (err) {
-      console.error("WhatsApp error:", err);
+    await sendWhatsAppMessage(userPhone, waText);
+
+    // Parent WhatsApp only for BVOC
+    if (userData.parentPhone1 && userData.parentPhone2 && category === "BVOC") {
+      const parentHtml = getParentNotificationTemplate(letterType, subType, templateData);
+      const parentWaText = parentHtml.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
+
+      await sendWhatsAppMessage(userData.parentPhone1, parentWaText);
+      await sendWhatsAppMessage(userData.parentPhone2, parentWaText);
     }
+  }
+
+  // ----------------------- EMAIL TO STUDENT -----------------------
+  if (userData.email && letterId) {
+    const htmlContent = emailService.getLetterEmailTemplate(letterType, subType, templateData);
+    const emailSubject = `${letterType}${subType ? " - " + subType : ""} | ${templateData.organizationName}`;
+
+    await emailService.sendEmail(
+      userData.email,
+      emailSubject,
+      htmlContent
+    );
+
+    // Parent WhatsApp notifications
+    if (userData.parentPhone1 && userData.parentPhone2 && category === "BVOC") {
+      const parentHtml = emailService.getParentNotificationEmailTemplate(letterType, subType, templateData);
+      const parentWaText = parentHtml.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
+
+      await sendWhatsAppMessage(userData.parentPhone1, parentWaText);
+      await sendWhatsAppMessage(userData.parentPhone2, parentWaText);
+    }
+  }
+
+} catch (err) {
+  console.error("WhatsApp/Email error:", err);
+}
+
 
     // Log admin activity
     await ActivityLog.create({
@@ -488,9 +527,6 @@ export const createLetter = async (req, res) => {
     });
   }
 };
-
-
-
 
 /* -------------------------
    previewLetter
@@ -630,8 +666,7 @@ export const previewLetter = async (req, res) => {
           projectName,
           auditDate
         );
-      }
-      else if (category === "BVOC") {
+      } else if (category === "BVOC") {
         await TemplateCode.getBVOCTemplateCode(
           ctx,
           width,
@@ -661,8 +696,7 @@ export const previewLetter = async (req, res) => {
           projectName,
           auditDate
         );
-      }
-      else if (category === "DM") {
+      } else if (category === "DM") {
         await TemplateCode.getDMTemplateCode(
           ctx,
           width,
@@ -692,8 +726,7 @@ export const previewLetter = async (req, res) => {
           projectName,
           auditDate
         );
-      }
-      else if (category === "marketing-junction") {
+      } else if (category === "marketing-junction") {
         await TemplateCode.getMJTemplateCode(
           ctx,
           width,
@@ -728,21 +761,19 @@ export const previewLetter = async (req, res) => {
           completionDate,
           responsibilities,
           amount,
-          effectiveFrom,
+          effectiveFrom
         );
+      } else {
       }
-
-      else { }
 
       const buffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
       res.setHeader("Content-Type", "image/jpeg");
       return res.send(buffer);
-    }
+    } else {
 
     /* ----------------------------------
    📄 PDF Template Rendering
 ---------------------------------- */
-    else {
       const existingPdfBytes = fs.readFileSync(templatePath);
       const pdfDoc = await PDFLibDocument.load(existingPdfBytes);
 
@@ -758,8 +789,7 @@ export const previewLetter = async (req, res) => {
           startDate,
           endDate,
         });
-      }
-      else if (category === "marketing-junction") {
+      } else if (category === "marketing-junction") {
         await TemplateCode.drawMJPdfTemplate(pdfDoc, course, {
           name,
           outwardNo,
@@ -781,8 +811,6 @@ export const previewLetter = async (req, res) => {
       res.setHeader("Content-Disposition", "inline; filename=preview.pdf");
       return res.send(Buffer.from(pdfBytes));
     }
-
-
   } catch (error) {
     console.error("Preview letter error:", error);
     res.status(500).json({
@@ -809,7 +837,6 @@ function wrapPdfText(text, maxWidth, font, size) {
   return lines;
 }
 
-
 /* -------------------------
    downloadLetterAsPdf
    - If letter missing outwardNo/outwardSerial -> generate and persist
@@ -829,7 +856,9 @@ export const downloadLetterAsPdf = async (req, res) => {
     }
 
     if (!letter) {
-      return res.status(404).json({ success: false, message: "Letter not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Letter not found" });
     }
 
     // Generate outward no. if missing
@@ -846,20 +875,27 @@ export const downloadLetterAsPdf = async (req, res) => {
 
     console.log(letter.course, letter.category);
 
-
-    const templateFilename = getLetterTemplateFilename(letter.course, letter.category);
+    const templateFilename = getLetterTemplateFilename(
+      letter.course,
+      letter.category
+    );
     const templatePath = path.join(__dirname, "../templates", templateFilename);
 
     if (!fs.existsSync(templatePath)) {
-      return res.status(500).json({ success: false, message: "Template not found" });
+      return res
+        .status(500)
+        .json({ success: false, message: "Template not found" });
     }
 
     const templateType = getTemplateTypeByFilename(templateFilename);
-    const formattedDate = new Date(letter.issueDate).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    const formattedDate = new Date(letter.issueDate).toLocaleDateString(
+      "en-US",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }
+    );
 
     // ------------------------------------
     // 🖼 IMAGE TEMPLATE (SAME AS PREVIEW)
@@ -899,7 +935,8 @@ export const downloadLetterAsPdf = async (req, res) => {
         auditDate,
       } = letter;
 
-      const tempId = letter.letterId || (await generateLetterId(category, course));
+      const tempId =
+        letter.letterId || (await generateLetterId(category, course));
       const outwardNo = letter.outwardNo;
 
       // const monthMap = {
@@ -947,8 +984,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           projectName,
           auditDate
         );
-      }
-      else if (category === "BVOC") {
+      } else if (category === "BVOC") {
         TemplateCode.getBVOCTemplateCode(
           ctx,
           width,
@@ -978,8 +1014,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           projectName,
           auditDate
         );
-      }
-      else if (category === "DM") {
+      } else if (category === "DM") {
         TemplateCode.getDMTemplateCode(
           ctx,
           width,
@@ -1009,8 +1044,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           projectName,
           auditDate
         );
-      }
-      else if (category === "marketing-junction") {
+      } else if (category === "marketing-junction") {
         await TemplateCode.getMJTemplateCode(
           ctx,
           width,
@@ -1040,8 +1074,8 @@ export const downloadLetterAsPdf = async (req, res) => {
           projectName,
           auditDate
         );
+      } else {
       }
-      else { }
 
       // Convert canvas to JPEG buffer
       const jpegBuffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
@@ -1070,12 +1104,11 @@ export const downloadLetterAsPdf = async (req, res) => {
       });
 
       return;
-    }
+    } else {
 
     /* ----------------------------------
    📄 PDF Template Rendering (Download)
   ---------------------------------- */
-    else {
       const existingPdfBytes = fs.readFileSync(templatePath);
       const pdfDoc = await PDFLibDocument.load(existingPdfBytes);
 
@@ -1085,11 +1118,14 @@ export const downloadLetterAsPdf = async (req, res) => {
           name: letter.name,
           outwardNo: letter.outwardNo,
           issueDate: letter.issueDate,
-          formattedDate: new Date(letter.issueDate).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
+          formattedDate: new Date(letter.issueDate).toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          ),
           tempId: letter.letterId,
           description: letter.description,
           subject: letter.subject,
@@ -1114,7 +1150,6 @@ export const downloadLetterAsPdf = async (req, res) => {
         status: "downloaded",
       });
     }
-
   } catch (error) {
     console.error("downloadLetterAsPdf error:", error);
     if (!res.headersSent) {
@@ -1127,7 +1162,6 @@ export const downloadLetterAsPdf = async (req, res) => {
   }
 };
 
-
 /* -------------------------
    getLetters, getLetterById (unchanged)
    ------------------------- */
@@ -1137,7 +1171,9 @@ export const getLetters = async (req, res) => {
     res.status(200).json({ success: true, data: letters });
   } catch (error) {
     console.error("getLetters error:", error);
-    res.status(500).json({ success: false, message: "Failed to fetch letters" });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch letters" });
   }
 };
 
@@ -1149,7 +1185,10 @@ export const getLetterById = async (req, res) => {
     if (isObjectId) letter = await Letter.findById(identifier);
     else letter = await Letter.findOne({ letterId: identifier });
 
-    if (!letter) return res.status(404).json({ success: false, message: "Letter not found" });
+    if (!letter)
+      return res
+        .status(404)
+        .json({ success: false, message: "Letter not found" });
     res.status(200).json({ success: true, data: letter });
   } catch (error) {
     console.error("getLetterById error:", error);
