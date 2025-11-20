@@ -16,12 +16,39 @@ export const getEmailAccountByCategory = (category) => {
       fromName: "Code4Bharat Team",
     };
   }
-
+  if (cat.includes("marketing-junction") || cat.includes("MJ")) {
+    return {
+      user: process.env.EMAIL_USER_C4B,
+      pass: process.env.EMAIL_PASSWORD_C4B,
+      fromName: "marketing-junction Team",
+    };
+  }
+  if (cat.includes("HR") || cat.includes("HR")) {
+    return {
+      user: process.env.EMAIL_USER_C4B,
+      pass: process.env.EMAIL_PASSWORD_C4B,
+      fromName: "HR Team",
+    };
+  }
+ if (cat.includes("OD") || cat.includes("OD")) {
+    return {
+      user: process.env.EMAIL_USER_C4B,
+      pass: process.env.EMAIL_PASSWORD_C4B,
+      fromName: "OD Team",
+    };
+  }
   if (cat.includes("fsd")) {
     return {
       user: process.env.EMAIL_USER_FSD,
       pass: process.env.EMAIL_PASSWORD_FSD,
       fromName: "FSD Team",
+    };
+  }
+  if (cat.includes("DM")) {
+    return {
+      user: process.env.EMAIL_USER_FSD,
+      pass: process.env.EMAIL_PASSWORD_FSD,
+      fromName: "DM Team",
     };
   }
 
