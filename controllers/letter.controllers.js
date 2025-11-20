@@ -447,61 +447,61 @@ export const createLetter = async (req, res) => {
     const letter = await Letter.create(letterData);
 
     // Send WhatsApp Message
-   try {
-  const subType = letter.subType || letterType; // safest
+    try {
+      const subType = letter.subType || letterType; // safest
 
-  const templateData = {
-    userName: name,
-    category,
-    batch,
-    issueDate: letter.issueDate,
-    credentialId: letterId,
-    letterId: letterId,
-    organizationName: "Nexcore Alliance",
-  };
+      const templateData = {
+        userName: name,
+        category,
+        batch,
+        issueDate: letter.issueDate,
+        credentialId: letterId,
+        letterId: letterId,
+        organizationName: "Nexcore Alliance",
+      };
 
-  // ----------------------- WHATSAPP TO STUDENT -----------------------
-  if (userPhone && letterId) {
-    // WhatsApp = plain text required
-    const html = getLetterMessageTemplate(letterType, subType, templateData);
-    const waText = html.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
+      // ----------------------- WHATSAPP TO STUDENT -----------------------
+      if (userPhone && letterId) {
+        // WhatsApp = plain text required
+        const html = getLetterMessageTemplate(letterType, subType, templateData);
+        const waText = html.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
 
-    await sendWhatsAppMessage(userPhone, waText);
+        await sendWhatsAppMessage(userPhone, waText);
 
-    // Parent WhatsApp only for BVOC
-    if (userData.parentPhone1 && userData.parentPhone2 && category === "BVOC") {
-      const parentHtml = getParentNotificationTemplate(letterType, subType, templateData);
-      const parentWaText = parentHtml.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
+        // Parent WhatsApp only for BVOC
+        if (userData.parentPhone1 && userData.parentPhone2 && category === "BVOC") {
+          const parentHtml = getParentNotificationTemplate(letterType, subType, templateData);
+          const parentWaText = parentHtml.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
 
-      await sendWhatsAppMessage(userData.parentPhone1, parentWaText);
-      await sendWhatsAppMessage(userData.parentPhone2, parentWaText);
+          await sendWhatsAppMessage(userData.parentPhone1, parentWaText);
+          await sendWhatsAppMessage(userData.parentPhone2, parentWaText);
+        }
+      }
+
+      // ----------------------- EMAIL TO STUDENT -----------------------
+      if (userData.email && letterId) {
+        const htmlContent = emailService.getLetterEmailTemplate(letterType, subType, templateData);
+        const emailSubject = `${letterType}${subType ? " - " + subType : ""} | ${templateData.organizationName}`;
+
+        await emailService.sendEmail(
+          userData.email,
+          emailSubject,
+          htmlContent
+        );
+
+        // Parent WhatsApp notifications
+        if (userData.parentPhone1 && userData.parentPhone2 && category === "BVOC") {
+          const parentHtml = emailService.getParentNotificationEmailTemplate(letterType, subType, templateData);
+          const parentWaText = parentHtml.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
+
+          await sendWhatsAppMessage(userData.parentPhone1, parentWaText);
+          await sendWhatsAppMessage(userData.parentPhone2, parentWaText);
+        }
+      }
+
+    } catch (err) {
+      console.error("WhatsApp/Email error:", err);
     }
-  }
-
-  // ----------------------- EMAIL TO STUDENT -----------------------
-  if (userData.email && letterId) {
-    const htmlContent = emailService.getLetterEmailTemplate(letterType, subType, templateData);
-    const emailSubject = `${letterType}${subType ? " - " + subType : ""} | ${templateData.organizationName}`;
-
-    await emailService.sendEmail(
-      userData.email,
-      emailSubject,
-      htmlContent
-    );
-
-    // Parent WhatsApp notifications
-    if (userData.parentPhone1 && userData.parentPhone2 && category === "BVOC") {
-      const parentHtml = emailService.getParentNotificationEmailTemplate(letterType, subType, templateData);
-      const parentWaText = parentHtml.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
-
-      await sendWhatsAppMessage(userData.parentPhone1, parentWaText);
-      await sendWhatsAppMessage(userData.parentPhone2, parentWaText);
-    }
-  }
-
-} catch (err) {
-  console.error("WhatsApp/Email error:", err);
-}
 
 
     // Log admin activity
@@ -546,6 +546,7 @@ export const previewLetter = async (req, res) => {
       role,
       startDate,
       endDate,
+      duration,
       committeeType,
       attendancePercent,
       assignmentName,
@@ -771,9 +772,9 @@ export const previewLetter = async (req, res) => {
       return res.send(buffer);
     } else {
 
-    /* ----------------------------------
-   📄 PDF Template Rendering
----------------------------------- */
+      /* ----------------------------------
+     📄 PDF Template Rendering
+  ---------------------------------- */
       const existingPdfBytes = fs.readFileSync(templatePath);
       const pdfDoc = await PDFLibDocument.load(existingPdfBytes);
 
@@ -803,6 +804,7 @@ export const previewLetter = async (req, res) => {
           responsibilities,
           amount,
           effectiveFrom,
+          duration,
         });
       }
 
@@ -861,6 +863,9 @@ export const downloadLetterAsPdf = async (req, res) => {
         .json({ success: false, message: "Letter not found" });
     }
 
+    console.log(letter);
+    
+
     // Generate outward no. if missing
     if (!letter.outwardNo || !letter.outwardSerial) {
       const { outwardNo, outwardSerial } = await generateOutwardNo(
@@ -873,7 +878,7 @@ export const downloadLetterAsPdf = async (req, res) => {
       letter.outwardSerial = outwardSerial;
     }
 
-    console.log(letter.course, letter.category);
+    // console.log(letter.course, letter.category);
 
     const templateFilename = getLetterTemplateFilename(
       letter.course,
@@ -918,8 +923,6 @@ export const downloadLetterAsPdf = async (req, res) => {
         description = "",
         subject = "",
         role,
-        startDate,
-        endDate,
         committeeType,
         attendancePercent,
         assignmentName,
@@ -938,6 +941,18 @@ export const downloadLetterAsPdf = async (req, res) => {
       const tempId =
         letter.letterId || (await generateLetterId(category, course));
       const outwardNo = letter.outwardNo;
+
+      const formatDate = (date) => {
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${year}/${month}/${day}`;
+      };
+
+      const startDate = formatDate(letter.startDate);
+      const endDate = formatDate(letter.endDate);
+      const effectiveFrom = formatDate(letter.effectiveFrom)
 
       // const monthMap = {
       //   January: "Jan",
@@ -1106,9 +1121,9 @@ export const downloadLetterAsPdf = async (req, res) => {
       return;
     } else {
 
-    /* ----------------------------------
-   📄 PDF Template Rendering (Download)
-  ---------------------------------- */
+      /* ----------------------------------
+     📄 PDF Template Rendering (Download)
+    ---------------------------------- */
       const existingPdfBytes = fs.readFileSync(templatePath);
       const pdfDoc = await PDFLibDocument.load(existingPdfBytes);
 
@@ -1131,6 +1146,29 @@ export const downloadLetterAsPdf = async (req, res) => {
           subject: letter.subject,
           startDate: letter.startDate,
           endDate: letter.endDate,
+        });
+      } else if (letter.category === "marketing-junction") {
+        await TemplateCode.drawMJPdfTemplate(pdfDoc, letter.course, {
+          name: letter.name,
+          outwardNo: letter.outwardNo,
+          formattedDate: new Date(letter.issueDate).toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          ),
+          tempId: letter.letterId,
+          role: letter.role,
+          trainingStartDate: letter.trainingStartDate,
+          trainingEndDate: letter.trainingEndDate,
+          officialStartDate: letter.officialStartDate,
+          completionDate: letter.completionDate,
+          responsibilities: letter.responsibilities,
+          amount: letter.amount,
+          effectiveFrom: letter.effectiveFrom,
+          duration: letter.duration,
         });
       }
 

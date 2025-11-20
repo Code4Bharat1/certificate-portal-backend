@@ -2151,150 +2151,6 @@ const getMJTemplateCode = async (
             height * 0.850
         );
     }
-    else if (course === "Live Project Agreement") {
-        // Top row
-        ctx.fillStyle = "#111827";
-        ctx.textBaseline = "top";
-        ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
-
-        ctx.fillStyle = "#111827";
-        ctx.textBaseline = "top";
-        ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
-
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.023, height * 0.290);
-
-        // Subject / Title
-        // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.43, height * 0.338);
-
-        // Description (from frontend)
-        ctx.fillStyle = "#1a1a1a";
-        ctx.font = '25px "Georgia", "Garamond", "Times New Roman", serif';
-        wrapText(ctx, description, width * 0.13, height * 0.40, width * 0.80, 60);
-
-        // ✅ Add dynamic frontend field values (below description)
-        let yDynamic = height * 0.423;
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillStyle = "#222";
-        dynamicLines.forEach((line) => {
-            wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
-            yDynamic += 60;
-        });
-
-        // Letter ID
-        ctx.font = 'bold 35px "Poppins"';
-        ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
-
-        // Footer
-        ctx.font = '40px "Ovo", serif';
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#1F2937";
-        ctx.fillText(
-            "https://portal.nexcorealliance.com/verify-certificate",
-            width / 2,
-            height * 0.843
-        );
-    }
-    else if (course === "Non-Disclosure Agreement") {
-        // Top row
-        ctx.fillStyle = "#111827";
-        ctx.textBaseline = "top";
-        ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
-
-        ctx.fillStyle = "#111827";
-        ctx.textBaseline = "top";
-        ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
-
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.023, height * 0.290);
-
-        // Subject / Title
-        // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.43, height * 0.338);
-
-        // Description (from frontend)
-        ctx.fillStyle = "#1a1a1a";
-        ctx.font = '25px "Georgia", "Garamond", "Times New Roman", serif';
-        wrapText(ctx, description, width * 0.13, height * 0.40, width * 0.80, 60);
-
-        // ✅ Add dynamic frontend field values (below description)
-        let yDynamic = height * 0.423;
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillStyle = "#222";
-        dynamicLines.forEach((line) => {
-            wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
-            yDynamic += 60;
-        });
-
-        // Letter ID
-        ctx.font = 'bold 35px "Poppins"';
-        ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
-
-        // Footer
-        ctx.font = '40px "Ovo", serif';
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#1F2937";
-        ctx.fillText(
-            "https://portal.nexcorealliance.com/verify-certificate",
-            width / 2,
-            height * 0.843
-        );
-    }
-    else if (course === "Offer Letter") {
-        // Top row
-        ctx.fillStyle = "#111827";
-        ctx.textBaseline = "top";
-        ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
-
-        ctx.fillStyle = "#111827";
-        ctx.textBaseline = "top";
-        ctx.font = `bold 25px "Poppins"`;
-        ctx.fillText(formattedDate, width * 0.080, height * 0.236);
-
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.023, height * 0.290);
-
-        // Subject / Title
-        // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillText(name, width * 0.43, height * 0.338);
-
-        // Description (from frontend)
-        ctx.fillStyle = "#1a1a1a";
-        ctx.font = '25px "Georgia", "Garamond", "Times New Roman", serif';
-        wrapText(ctx, description, width * 0.13, height * 0.40, width * 0.80, 60);
-
-        // ✅ Add dynamic frontend field values (below description)
-        let yDynamic = height * 0.423;
-        ctx.font = 'bold 25px "Poppins"';
-        ctx.fillStyle = "#222";
-        dynamicLines.forEach((line) => {
-            wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
-            yDynamic += 60;
-        });
-
-        // Letter ID
-        ctx.font = 'bold 35px "Poppins"';
-        ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
-
-        // Footer
-        ctx.font = '40px "Ovo", serif';
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#1F2937";
-        ctx.fillText(
-            "https://portal.nexcorealliance.com/verify-certificate",
-            width / 2,
-            height * 0.843
-        );
-    }
 }
 
 /**
@@ -2745,354 +2601,656 @@ const drawFSDPdfTemplate = async (
 };
 
 const drawMJPdfTemplate = async (pdfDoc, course, fields = {}) => {
-  const pages = pdfDoc.getPages();
-  const firstPage = pages[0];
-  const secondPage = pages[1];
-  const thirdPage = pages[2];
-  const fourthPage = pages[3];
+    const pages = pdfDoc.getPages();
+    const firstPage = pages[0];
+    const secondPage = pages[1];
+    const thirdPage = pages[2];
+    const fourthPage = pages[3];
 
-  const { width, height } = firstPage.getSize();
+    const { width, height } = firstPage.getSize();
 
-  const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-  const darkColor = rgb(0.067, 0.094, 0.152);
-  const verifyText = "https://portal.nexcorealliance.com/verify-certificate";
+    const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const darkColor = rgb(0.067, 0.094, 0.152);
+    const verifyText = "https://portal.nexcorealliance.com/verify-certificate";
 
-  const {
-    name,
-    outwardNo,
-    formattedDate,
-    tempId,
-    role,
-    trainingStartDate,
-    trainingEndDate,
-    officialStartDate,
-    completionDate,
-    responsibilities = "",
-    amount,
-    effectiveFrom,
-  } = fields;
+    const {
+        name,
+        outwardNo,
+        formattedDate,
+        tempId,
+        role,
+        trainingStartDate,
+        trainingEndDate,
+        officialStartDate,
+        completionDate,
+        responsibilities = "",
+        amount,
+        effectiveFrom,
+        duration,
+    } = fields;
 
-  /* ===========================================================
-     📄 INTERNSHIP LETTER (PAID / UNPAID)
-  ============================================================ */
-  if (
-    course === "Internship Joining Letter - Paid" ||
-    course === "Internship Joining Letter - Unpaid"
-  ) {
-    // --- HEADER ---
-    if (outwardNo) {
-      firstPage.drawText(outwardNo, {
-        x: width * 0.21,
-        y: height * 0.754,
-        size: 12,
-        font: helveticaBold,
-        color: darkColor,
-      });
-    }
+    /* ===========================================================
+       📄 INTERNSHIP LETTER (PAID / UNPAID)
+    ============================================================ */
+    if (course === "Internship Joining Letter - Unpaid") {
+        // --- HEADER ---
+        if (outwardNo) {
+            firstPage.drawText(outwardNo, {
+                x: width * 0.21,
+                y: height * 0.754,
+                size: 12,
+                font: helveticaBold,
+                color: darkColor,
+            });
+        }
 
-    if (formattedDate) {
-      firstPage.drawText(formattedDate, {
-        x: width * 0.10,
-        y: height * 0.731,
-        size: 12,
-        font: helveticaBold,
-        color: darkColor,
-      });
-    }
+        if (formattedDate) {
+            firstPage.drawText(formattedDate, {
+                x: width * 0.10,
+                y: height * 0.731,
+                size: 12,
+                font: helveticaBold,
+                color: darkColor,
+            });
+        }
 
-    if (name) {
-      // To
-      firstPage.drawText(name, {
-        x: width * 0.038,
-        y: height * 0.655,
-        size: 13,
-        font: helveticaBold,
-        color: rgb(0, 0, 0),
-      });
-      // Subject
-      firstPage.drawText(name, {
-        x: width * 0.390,
-        y: height * 0.613,
-        size: 13,
-        font: helveticaBold,
-        color: rgb(0, 0, 0),
-      });
-      // Dear
-      firstPage.drawText(`${name},`, {
-        x: width * 0.095,
-        y: height * 0.573,
-        size: 13,
-        font: helveticaBold,
-        color: rgb(0, 0, 0),
-      });
-    }
+        if (name) {
+            // To
+            firstPage.drawText(name, {
+                x: width * 0.038,
+                y: height * 0.655,
+                size: 13,
+                font: helveticaBold,
+                color: rgb(0, 0, 0),
+            });
+            // Subject
+            firstPage.drawText(name, {
+                x: width * 0.390,
+                y: height * 0.613,
+                size: 13,
+                font: helveticaBold,
+                color: rgb(0, 0, 0),
+            });
+            // Dear
+            firstPage.drawText(`${name},`, {
+                x: width * 0.095,
+                y: height * 0.5735,
+                size: 12,
+                font: helveticaBold,
+                color: rgb(0, 0, 0),
+            });
+        }
 
-    // --- DETAILS SECTION ---
-    const detailsPage = secondPage || firstPage;
-    const dx = width * 0.08;
-    let dy = secondPage ? height * 0.70 : height * 0.56;
-    const gap = 18;
-
-    const drawField = (label, value) => {
-      detailsPage.drawText(label, {
-        x: dx,
-        y: dy,
-        size: 12,
-        font: helveticaBold,
-        color: darkColor,
-      });
-      detailsPage.drawText(value || "", {
-        x: dx + width * 0.28,
-        y: dy,
-        size: 12,
-        font: helvetica,
-        color: rgb(0, 0, 0),
-      });
-      dy -= gap;
-    };
-
-    if (role) drawField("Position:", role);
-    drawField(
-      "Training Start Date:",
-      prettyDate(trainingStartDate)
-    );
-    drawField(
-      "Training End Date:",
-      prettyDate(trainingEndDate)
-    );
-    drawField(
-      "Official Internship Start Date:",
-      prettyDate(officialStartDate)
-    );
-    drawField(
-      "Internship Completion Date:",
-      prettyDate(completionDate)
-    );
-
-    // --- RESPONSIBILITIES ---
-    const respPage = thirdPage || detailsPage;
-    let rx = width * 0.08;
-    let ry = thirdPage ? height * 0.55 : dy - 40;
-    const maxWidth = width * 0.82;
-
-    respPage.drawText("Roles and Responsibilities:", {
-      x: rx,
-      y: ry,
-      size: 12,
-      font: helveticaBold,
-      color: darkColor,
-    });
-
-    ry -= 20;
-
-    let respFont = 12;
-    let lines = wrapPDFText(responsibilities, helvetica, respFont, maxWidth);
-
-    while (lines.length > 8 && respFont > 9) {
-      respFont -= 0.5;
-      lines = wrapPDFText(responsibilities, helvetica, respFont, maxWidth);
-    }
-
-    for (const ln of lines) {
-      respPage.drawText(ln, {
-        x: rx,
-        y: ry,
-        size: respFont,
-        font: helvetica,
-        color: rgb(0, 0, 0),
-      });
-      ry -= respFont + 6;
-    }
-
-    // ---- PAID ONLY ----
-    if (course === "Internship Joining Letter - Paid") {
-      ry -= 16;
-
-      drawField("Stipend Amount (INR):", amount);
-      drawField("Effective From:", prettyDate(effectiveFrom));
-    }
-
-    // --- VERIFY TEXT + TEMP ID ---
-    const vPage = fourthPage || respPage;
-
-    if (tempId) {
-      vPage.drawText(tempId, {
-        x: width * 0.22,
-        y: height * 0.40,
-        size: 12,
-        font: helveticaBold,
-        color: rgb(0, 0, 0),
-      });
-    }
-
-    vPage.drawText(verifyText, {
-      x: width * 0.22,
-      y: height * 0.135,
-      size: 12,
-      font: helvetica,
-      color: darkColor,
-    });
-
-    return pdfDoc;
-  }
-
-  /* ===========================================================
-     📄 MJ NDA
-  ============================================================ */
-  if (course === "Non-Disclosure Agreement") {
-    const page = firstPage;
-
-    page.drawText("NON-DISCLOSURE AGREEMENT (NDA)", {
-      x: width * 0.10,
-      y: height * 0.90,
-      size: 16,
-      font: helveticaBold,
-      color: rgb(0, 0, 0),
-    });
-
-    if (formattedDate) {
-      page.drawText(`Date: ${formattedDate}`, {
-        x: width * 0.08,
-        y: height * 0.83,
-        size: 12,
-        font: helveticaBold,
-        color: darkColor,
-      });
-    }
-
-    if (outwardNo) {
-      page.drawText(`Outward No.: ${outwardNo}`, {
-        x: width * 0.08,
-        y: height * 0.80,
-        size: 12,
-        font: helveticaBold,
-        color: darkColor,
-      });
-    }
-
-    const intro = `This Non-Disclosure Agreement is made on ${formattedDate}, between MarketIQ Junction (Nexcore Alliance LLP) and ${name}.`;
-
-    const ix = width * 0.08;
-    const maxW = width * 0.82;
-    let iy = height * 0.75;
-    let ifs = 12;
-
-    let introLines = wrapPDFText(intro, helvetica, ifs, maxW);
-    while (introLines.length > 6 && ifs > 9) {
-      ifs -= 0.5;
-      introLines = wrapPDFText(intro, helvetica, ifs, maxW);
-    }
-
-    introLines.forEach((line) => {
-      page.drawText(line, {
-        x: ix,
-        y: iy,
-        size: ifs,
-        font: helvetica,
-        color: rgb(0, 0, 0),
-      });
-      iy -= ifs + 6;
-    });
-
-    const clauses = [
-      "(1) Confidential information includes marketing strategies, campaign data, client lists, creative assets, analytics & tools.",
-      "(2) The recipient agrees not to disclose, misuse, or share any confidential information.",
-      "(3) The agreement remains valid both during and after engagement.",
-      "(4) Subject to Mumbai jurisdiction.",
-    ];
-
-    let cy = iy - 10;
-    for (const clause of clauses) {
-      const lines = wrapText(clause, helvetica, 11, maxW);
-      for (const ln of lines) {
-        page.drawText(ln, {
-          x: ix,
-          y: cy,
-          size: 11,
-          font: helvetica,
-          color: rgb(0, 0, 0),
+        firstPage.drawText(`${role}`, {
+            x: width * 0.580,
+            y: height * 0.497,
+            size: 13,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
         });
-        cy -= 14;
-      }
-      cy -= 8;
+
+        firstPage.drawText(`${role}`, {
+            x: width * 0.140,
+            y: height * 0.300,
+            size: 11,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        firstPage.drawText(`${trainingStartDate}`, {
+            x: width * 0.250,
+            y: height * 0.260,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        firstPage.drawText(`${trainingEndDate}`, {
+            x: width * 0.240,
+            y: height * 0.240,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        firstPage.drawText(`${officialStartDate}`, {
+            x: width * 0.350,
+            y: height * 0.221,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        firstPage.drawText(`${completionDate}`, {
+            x: width * 0.340,
+            y: height * 0.200,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        // --- DETAILS SECTION ---
+        const detailsPage = secondPage || firstPage;
+        const dx = width * 0.08;
+        let dy = secondPage ? height * 0.70 : height * 0.56;
+        const gap = 18;
+
+        // const drawField = (label, value) => {
+        //   detailsPage.drawText(label, {
+        //     x: dx,
+        //     y: dy,
+        //     size: 12,
+        //     font: helveticaBold,
+        //     color: darkColor,
+        //   });
+        //   detailsPage.drawText(value || "", {
+        //     x: dx + width * 0.28,
+        //     y: dy,
+        //     size: 12,
+        //     font: helvetica,
+        //     color: rgb(0, 0, 0),
+        //   });
+        //   dy -= gap;
+        // };
+
+        // if (role) drawField("Position:", role);
+        // drawField(
+        //   "Training Start Date:",
+        //   prettyDate(trainingStartDate)
+        // );
+        // drawField(
+        //   "Training End Date:",
+        //   prettyDate(trainingEndDate)
+        // );
+        // drawField(
+        //   "Official Internship Start Date:",
+        //   prettyDate(officialStartDate)
+        // );
+        // drawField(
+        //   "Internship Completion Date:",
+        //   prettyDate(completionDate)
+        // );
+
+        // --- RESPONSIBILITIES ---
+
+
+        const respPage = thirdPage || detailsPage;
+        let rx = width * 0.025;
+        let ry = secondPage ? height * 0.77 : dy - 40;
+        const maxWidth = width * 0.90;
+        ry -= 20;
+
+        let respFont = 12;
+        let lines = wrapPDFText(responsibilities, helvetica, respFont, maxWidth);
+
+        while (lines.length > 8 && respFont > 9) {
+            respFont -= 0.5;
+            lines = wrapPDFText(responsibilities, helvetica, respFont, maxWidth);
+        }
+
+        for (const ln of lines) {
+            respPage.drawText(ln, {
+                x: rx,
+                y: ry,
+                size: respFont,
+                font: helvetica,
+                color: rgb(0, 0, 0),
+            });
+            ry -= respFont + 6;
+        }
+
+        // --- VERIFY TEXT + TEMP ID ---
+        const vPage = fourthPage || respPage;
+
+        if (tempId) {
+            vPage.drawText(tempId, {
+                x: width * 0.21,
+                y: height * 0.226,
+                size: 12,
+                font: helveticaBold,
+                color: rgb(0, 0, 0),
+            });
+        }
+
+        vPage.drawText(verifyText, {
+            x: width * 0.13,
+            y: height * 0.135,
+            size: 20,
+            font: helvetica,
+            color: darkColor,
+        });
+
+        return pdfDoc;
     }
 
-    // Signature area
-    page.drawText("Signature (Recipient): ____________________", {
-      x: ix,
-      y: cy - 20,
-      size: 12,
-      font: helveticaBold,
-      color: darkColor,
-    });
+    if (course === "Internship Joining Letter - Paid") {
+        // --- HEADER ---
+        if (outwardNo) {
+            firstPage.drawText(outwardNo, {
+                x: width * 0.21,
+                y: height * 0.754,
+                size: 12,
+                font: helveticaBold,
+                color: darkColor,
+            });
+        }
 
-    page.drawText("For MarketIQ Junction, Nexcore Alliance LLP", {
-      x: ix + width * 0.35,
-      y: cy - 20,
-      size: 12,
-      font: helveticaBold,
-      color: darkColor,
-    });
+        if (formattedDate) {
+            firstPage.drawText(formattedDate, {
+                x: width * 0.10,
+                y: height * 0.731,
+                size: 12,
+                font: helveticaBold,
+                color: darkColor,
+            });
+        }
 
-    // TempID + Verify
-    if (tempId) {
-      page.drawText(tempId, {
-        x: ix,
-        y: cy - 60,
-        size: 12,
-        font: helveticaBold,
-        color: rgb(0, 0, 0),
-      });
+        if (name) {
+            // To
+            firstPage.drawText(name, {
+                x: width * 0.038,
+                y: height * 0.655,
+                size: 13,
+                font: helveticaBold,
+                color: rgb(0, 0, 0),
+            });
+            // Subject
+            firstPage.drawText(name, {
+                x: width * 0.390,
+                y: height * 0.613,
+                size: 13,
+                font: helveticaBold,
+                color: rgb(0, 0, 0),
+            });
+            // Dear
+            firstPage.drawText(`${name},`, {
+                x: width * 0.095,
+                y: height * 0.5735,
+                size: 12,
+                font: helveticaBold,
+                color: rgb(0, 0, 0),
+            });
+        }
+
+        firstPage.drawText(`${role}`, {
+            x: width * 0.580,
+            y: height * 0.497,
+            size: 13,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        // Internship Details
+        firstPage.drawText(`${role}`, {
+            x: width * 0.140,
+            y: height * 0.320,
+            size: 11,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        firstPage.drawText(`${trainingStartDate}`, {
+            x: width * 0.250,
+            y: height * 0.280,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        firstPage.drawText(`${trainingEndDate}`, {
+            x: width * 0.240,
+            y: height * 0.260,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        firstPage.drawText(`${officialStartDate}`, {
+            x: width * 0.350,
+            y: height * 0.241,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        firstPage.drawText(`${completionDate}`, {
+            x: width * 0.340,
+            y: height * 0.220,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        // --- DETAILS SECTION ---
+        const detailsPage = secondPage || firstPage;
+        const dx = width * 0.08;
+        let dy = secondPage ? height * 0.70 : height * 0.56;
+        const gap = 18;
+
+        // const drawField = (label, value) => {
+        //   detailsPage.drawText(label, {
+        //     x: dx,
+        //     y: dy,
+        //     size: 12,
+        //     font: helveticaBold,
+        //     color: darkColor,
+        //   });
+        //   detailsPage.drawText(value || "", {
+        //     x: dx + width * 0.28,
+        //     y: dy,
+        //     size: 12,
+        //     font: helvetica,
+        //     color: rgb(0, 0, 0),
+        //   });
+        //   dy -= gap;
+        // };
+
+        // if (role) drawField("Position:", role);
+        // drawField(
+        //   "Training Start Date:",
+        //   prettyDate(trainingStartDate)
+        // );
+        // drawField(
+        //   "Training End Date:",
+        //   prettyDate(trainingEndDate)
+        // );
+        // drawField(
+        //   "Official Internship Start Date:",
+        //   prettyDate(officialStartDate)
+        // );
+        // drawField(
+        //   "Internship Completion Date:",
+        //   prettyDate(completionDate)
+        // );
+
+        // --- RESPONSIBILITIES ---
+
+
+        const respPage = thirdPage || detailsPage;
+        let rx = width * 0.035;
+        let ry = secondPage ? height * 0.75 : dy - 40;
+        const maxWidth = width * 0.93;
+        ry -= 20;
+
+        let respFont = 12;
+        let lines = wrapPDFText(responsibilities, helvetica, respFont, maxWidth);
+
+        while (lines.length > 8 && respFont > 9) {
+            respFont -= 0.5;
+            lines = wrapPDFText(responsibilities, helvetica, respFont, maxWidth);
+        }
+
+        for (const ln of lines) {
+            respPage.drawText(ln, {
+                x: rx,
+                y: ry,
+                size: respFont,
+                font: helvetica,
+                color: rgb(0, 0, 0),
+            });
+            ry -= respFont + 6;
+        }
+
+        // --- VERIFY TEXT + TEMP ID ---
+        const vPage = fourthPage || respPage;
+
+        // ---- PAID ONLY ----
+        vPage.drawText(`${amount} /-`, {
+            x: width * 0.64,
+            y: height * 0.508,
+            size: 13,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        const formattedeffectiveFrom = formatWithOrdinal(effectiveFrom);
+
+        vPage.drawText(formattedeffectiveFrom, {
+            x: width * 0.10,
+            y: height * 0.489,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        if (tempId) {
+            vPage.drawText(tempId, {
+                x: width * 0.21,
+                y: height * 0.237,
+                size: 12,
+                font: helveticaBold,
+                color: rgb(0, 0, 0),
+            });
+        }
+
+        vPage.drawText(verifyText, {
+            x: width * 0.13,
+            y: height * 0.135,
+            size: 20,
+            font: helvetica,
+            color: darkColor,
+        });
+
+        return pdfDoc;
     }
 
-    page.drawText(verifyText, {
-      x: ix,
-      y: cy - 80,
-      size: 11,
-      font: helvetica,
-      color: darkColor,
-    });
+    /* ===========================================================
+       📄 MJ NDA
+    ============================================================ */
+    if (course === "Non-Disclosure Agreement") {
+
+        const userDetails = await People.findOne({ name });
+        const address = userDetails.address;
+        const aadhaar = userDetails.aadhaarCard;
+
+        // Format date into DD/MM/YYYY
+        const formattedDMY = new Date(formattedDate).toLocaleDateString("en-GB");
+
+        /* ===========================================================
+            PAGE 1 — OUTWARD NO + DATE
+        ============================================================ */
+
+        firstPage.drawText(`${outwardNo}`, {
+            x: width * 0.22,
+            y: height * 0.77,
+            size: 12,
+            font: helveticaBold,
+            color: darkColor,
+        });
+
+        firstPage.drawText(`${formattedDate}`, {
+            x: width * 0.13,
+            y: height * 0.745,
+            size: 12,
+            font: helveticaBold,
+            color: darkColor,
+        });
+
+        firstPage.drawText(`${formattedDMY}`, {
+            x: width * 0.70,
+            y: height * 0.709,
+            size: 12,
+            font: helveticaBold,
+            color: darkColor,
+        });
+
+        /* ===========================================================
+    SECTION: AND — DYNAMIC RECIPIENT LINE (Mixed Bold Support)
+=========================================================== */
+
+        const recipientSegments = [
+            { text: `${name}`, font: helveticaBold, size: 10 },
+            { text: `, an individual who has been employed as a `, font: helvetica, size: 10 },
+            { text: `${role}`, font: helveticaBold, size: 10 },
+            { text: ` with Marketiq Junction for a period of `, font: helvetica, size: 10 },
+            { text: `${duration}`, font: helveticaBold, size: 10 },
+            { text: ` months, residing at `, font: helvetica, size: 10 },
+            { text: `${address}`, font: helveticaBold, size: 10 },
+            { text: `, Aadhaar card no: `, font: helvetica, size: 10 },
+            { text: `${aadhaar}`, font: helveticaBold, size: 10 },
+            { text: `, hereinafter referred to as the "Recipient".`, font: helvetica, size: 10 }
+        ];
+
+        const maxWidth = width * 0.85;
+        let startY = height * 0.58;
+
+        startY = drawWrappedText(
+            firstPage,
+            recipientSegments,
+            width * 0.057,
+            startY,
+            maxWidth,
+            16 // line spacing
+        );
+
+        /* ===========================================================
+            PAGE 3 — BOTTOM DETAILS
+        ============================================================ */
+
+        thirdPage.drawText(`${name}`, {
+            x: width * 0.17,
+            y: height * 0.42,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        thirdPage.drawText(`${role}`, {
+            x: width * 0.23,
+            y: height * 0.401,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        thirdPage.drawText(`${tempId}`, {
+            x: width * 0.25,
+            y: height * 0.489,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        thirdPage.drawText(verifyText, {
+            x: width * 0.20,
+            y: height * 0.13,
+            size: 15,
+            font: helvetica,
+            color: darkColor,
+        });
+
+        return pdfDoc;
+    }
+
 
     return pdfDoc;
-  }
-
-  return pdfDoc;
 }
 
+function addWrapped(page, text, x, startY, fontSize = 11, helvetica) {
+    // const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+    const lines = wrapPDFText(text, helvetica, fontSize, x * 0.80);
+    let y = startY;
+    lines.forEach(line => {
+        page.drawText(line, {
+            x,
+            y,
+            size: fontSize,
+            font: helvetica,
+            color: rgb(0, 0, 0),
+        });
+        y -= fontSize + 5;
+    });
+}
+
+function formatWithOrdinal(dateString) {
+    const date = new Date(dateString);
+
+    const day = date.getDate();
+    const month = date.toLocaleString("en-US", { month: "long" });
+    const year = date.getFullYear();
+
+    // Get ordinal suffix
+    const suffix =
+        day % 10 === 1 && day !== 11
+            ? "st"
+            : day % 10 === 2 && day !== 12
+                ? "nd"
+                : day % 10 === 3 && day !== 13
+                    ? "rd"
+                    : "th";
+
+    return `${month} ${day}${suffix} ${year}`;
+}
+
+const drawWrappedText = (page, segments, x, startY, maxWidth, lineHeight) => {
+    let y = startY;
+    let currentX = x;
+
+    segments.forEach(seg => {
+        const words = seg.text.split(" ");
+
+        words.forEach((word, index) => {
+            const textToMeasure = index === words.length - 1 ? word : word + " ";
+            const textWidth = seg.font.widthOfTextAtSize(textToMeasure, seg.size);
+
+            // Wrap if overflow
+            if (currentX + textWidth > x + maxWidth) {
+                y -= lineHeight;
+                currentX = x;
+            }
+
+            page.drawText(textToMeasure, {
+                x: currentX,
+                y,
+                size: seg.size,
+                font: seg.font,
+                color: seg.color || rgb(0, 0, 0)
+            });
+
+            currentX += textWidth;
+        });
+    });
+
+    return y;
+};
+
+
+
 const wrapPDFText = (text, font, size, maxWidth) => {
-  if (!text) return [];
-  const words = text.split(" ");
-  const lines = [];
-  let line = "";
+    if (!text) return [];
+    const words = text.split(" ");
+    const lines = [];
+    let line = "";
 
-  for (const word of words) {
-    const testLine = line ? line + " " + word : word;
-    const width = font.widthOfTextAtSize(testLine, size);
+    for (const word of words) {
+        const testLine = line ? line + " " + word : word;
+        const width = font.widthOfTextAtSize(testLine, size);
 
-    if (width > maxWidth && line.length > 0) {
-      lines.push(line);
-      line = word;
-    } else {
-      line = testLine;
+        if (width > maxWidth && line.length > 0) {
+            lines.push(line);
+            line = word;
+        } else {
+            line = testLine;
+        }
     }
-  }
-  if (line) lines.push(line);
+    if (line) lines.push(line);
 
-  return lines;
+    return lines;
 };
 
 const prettyDate = (d) => {
-  if (!d) return "";
-  try {
-    return new Date(d).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  } catch {
-    return d;
-  }
+    if (!d) return "";
+    try {
+        return new Date(d).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+    } catch {
+        return d;
+    }
 };
 
 function splitTextIntoLines(text, maxCharsPerLine = 90) {

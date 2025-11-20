@@ -150,7 +150,7 @@ const letterSchema = new mongoose.Schema(
     },
 
     responsibilities: {
-      type: Date,
+      type: String,
       required: false,
     },
 
