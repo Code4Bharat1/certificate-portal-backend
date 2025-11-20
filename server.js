@@ -20,6 +20,7 @@ import peopleRoutes from './routes/people.routes.js';
 import batchRoutes from './routes/batch.routes.js';
 import letterRoutes from "./routes/letter.routes.js";
 import userAuthRoutes from "./routes/auth.routes.firstlogin.js";
+import onboardingRoutes from "./routes/onboardingRequest.routes.js";
 
 // New Student Routes
 import studentRoutes from './routes/student.routes.js';
@@ -132,7 +133,9 @@ app.use('/api/people', peopleRoutes);
 app.use('/api/batches', batchRoutes);
 app.use("/api/letters", letterRoutes);
 app.use("/api/auth/user", userAuthRoutes); // For student auth
+app.use("/uploads", express.static("uploads"));
 
+app.use("/api/onboarding-request", onboardingRoutes);
 
 // Student Routes (NEW)
 app.use('/api', studentRoutes);
