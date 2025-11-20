@@ -1,6 +1,7 @@
 import Certificate from '../models/certificate.models.js';
 import ActivityLog from '../models/activitylog.models.js';
 import Letter from "../models/letter.models.js";
+import User from '../models/user.models.js'; // ✅ Add User model import
 
 export const getDashboardStatistics = async (req, res) => {
   try {
@@ -216,20 +217,26 @@ export const getDashboardStatistics = async (req, res) => {
     console.error("Get stats error:", error);
     res.status(500).json({
       success: false,
-      message: "Server error"
+      message: "Server error",
+      error: error.message
     });
   }
 };
 
-
-const getActivityLog = async (req, res) => {
+// ✅ Export as named export
+export const getActivityLog = async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 5;
+    const limit = parseInt(req.query.limit) || 50;
+
+    console.log('📊 Fetching activity logs...');
 
     const activities = await ActivityLog.find()
       .sort({ timestamp: -1 })
       .limit(limit)
-      .populate('adminId', 'username');
+      .populate('adminId', 'username email name') // Added more fields
+      .lean();
+
+    console.log(`✅ Found ${activities.length} activities`);
 
     const formattedActivities = activities.map(activity => {
       let action = '';
@@ -246,23 +253,23 @@ const getActivityLog = async (req, res) => {
           break;
         case 'created':
           action = 'Certificate Created';
-          details = activity.userName;
+          details = activity.userName || 'User';
           break;
         case 'downloaded':
           action = 'Certificate Downloaded';
-          details = activity.userName;
+          details = activity.userName || 'User';
           break;
         case 'updated':
           action = 'Certificate Updated';
-          details = activity.userName;
+          details = activity.userName || 'User';
           break;
         case 'deleted':
           action = 'Certificate Deleted';
-          details = activity.userName;
+          details = activity.userName || 'User';
           break;
         default:
           action = `Certificate ${activity.action.charAt(0).toUpperCase() + activity.action.slice(1)}`;
-          details = activity.userName;
+          details = activity.userName || 'User';
       }
 
       return {
@@ -272,7 +279,7 @@ const getActivityLog = async (req, res) => {
         time: getTimeAgo(activity.timestamp),
         type: activity.action,
         count: activity.count || 1,
-        admin: activity.adminId?.username || 'System'
+        admin: activity.adminId?.name || activity.adminId?.username || 'System'
       };
     });
 
@@ -281,10 +288,11 @@ const getActivityLog = async (req, res) => {
       data: formattedActivities
     });
   } catch (error) {
-    console.error('Get activity log error:', error);
+    console.error('❌ Get activity log error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error'
+      message: 'Server error',
+      error: error.message
     });
   }
 };
@@ -311,4 +319,4 @@ function getTimeAgo(date) {
   return 'Just now';
 }
 
-export default { getDashboardStatistics, getActivityLog };
+// ✅ No default export needed if using named exports in routes

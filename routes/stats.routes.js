@@ -1,13 +1,13 @@
 import express from 'express';
-import { authenticate } from '../middleware/auth.middleware.js';
-import statsControllers from '../controllers/stats.controllers.js';
+import { getDashboardStatistics, getActivityLog } from '../controllers/stats.controllers.js';
+import { authenticate } from '../middleware/auth.middleware.js'; // If needed
 
 const router = express.Router();
 
-// Get dashboard statistics
-router.get('/dashboard', authenticate, statsControllers.getDashboardStatistics)
+// Dashboard statistics
+router.get('/dashboard', authenticate, getDashboardStatistics);
 
-// Get activity log
-router.get('/activity', authenticate, statsControllers.getActivityLog)
+// Activity log
+router.get('/activity', authenticate, getActivityLog);
 
-export default router;  
+export default router;
