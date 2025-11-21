@@ -1,8 +1,10 @@
 // File: controllers/auth.controller.js
 import jwt from 'jsonwebtoken';
+import bcryptjs from 'bcryptjs';
 import Admin from '../models/admin.models.js';
 import Student from '../models/student.models.js';
-
+import { sendOTPViaWhatsApp } from "../services/whatsappService.js";
+import { verifyOTP } from '../services/whatsappService.js';
 // ========== ADMIN LOGIN ==========
 export const adminLogin = async (req, res) => {
   try {
@@ -69,60 +71,66 @@ export const adminLogin = async (req, res) => {
 // ========== STUDENT FIRST LOGIN (Username Based) ==========
 export const studentFirstLogin = async (req, res) => {
   try {
-    const { username } = req.body; // Username is phone number without country code
+    const { username } = req.body;
 
     if (!username) {
       return res.status(400).json({
         success: false,
-        message: 'Username (phone number) is required'
+        message: "Username (phone number) is required",
       });
     }
 
-    // Format phone: add 91 prefix if not present
-    const formattedPhone = username.startsWith('91') ? username : `91${username}`;
+    const formattedPhone = username.startsWith("91") ? username : `91${username}`;
 
-    // Find student by phone
-    const student = await Student.findOne({ phone: formattedPhone }).select('+password');
+    const student = await Student.findOne({ phone: formattedPhone }).select("+password");
 
     if (!student) {
       return res.status(404).json({
         success: false,
-        message: 'Student not found. Please contact admin.'
+        message: "Student not found. Please contact admin.",
       });
     }
 
-    // Check if student is disabled
     if (student.disabled) {
       return res.status(403).json({
         success: false,
-        message: 'Your account has been disabled. Please contact admin.'
+        message: "Your account has been disabled. Please contact admin.",
       });
     }
 
-    // Check if this is first login
-    if (!student.firstLogin) {
+    if (!student.firstLogin || student.password) {
       return res.status(400).json({
         success: false,
-        message: 'Account already activated. Please use regular login with password.',
-        requiresPassword: true
+        requiresPassword: true,
+        message: "Password already set. Please login using password.",
       });
     }
 
-    // Generate temporary token for password setup
+    const otpResult = await sendOTPViaWhatsApp(formattedPhone, student.name);
+
+    if (!otpResult.success) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send OTP",
+      });
+    }
+
+    console.log("OTP sent via WhatsApp:", otpResult);
+
     const tempToken = jwt.sign(
-      { 
+      {
         phone: student.phone,
         userId: student._id,
-        userType: 'user',
-        isFirstLogin: true
+        userType: "user",
+        isFirstLogin: true,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '15m' } // 15 minutes to set password
+      { expiresIn: "15m" }
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: 'First login verified. Please set your password.',
+      message: "OTP sent to your WhatsApp! Please verify.",
       tempToken,
       firstLogin: true,
       user: {
@@ -131,21 +139,79 @@ export const studentFirstLogin = async (req, res) => {
         phone: student.phone,
         email: student.email,
         category: student.category,
-        batch: student.batch
+        batch: student.batch,
+      },
+    });
+  } catch (error) {
+    console.error("First login error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error during first login",
+      error: error.message,
+    });
+  }
+};
+// ========== VERIFY OTP ==========
+export const studentVerifyOTP = async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+
+    const formattedPhone = phone.startsWith("91") ? phone : `91${phone}`;
+
+    const result = verifyOTP(formattedPhone, otp);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.message
+      });
+    }
+
+    const student = await Student.findOne({ phone: formattedPhone });
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found"
+      });
+    }
+
+    // Generate correct tempToken
+    const tempToken = jwt.sign(
+      {
+        userId: student._id,
+        phone: student.phone,
+        isFirstLogin: true,
+        step: "password-setup"
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified",
+      tempToken,
+      user: {
+        id: student._id,
+        name: student.name,
+        phone: student.phone
       }
     });
 
-  } catch (error) {
-    console.error('First login error:', error);
-    res.status(500).json({
+  } catch (err) {
+    console.error("OTP verify error:", err);
+    return res.status(500).json({
       success: false,
-      message: 'Server error during first login',
-      error: error.message
+      message: "Server error"
     });
   }
 };
 
+
+
 // ========== STUDENT SET PASSWORD (After First Login) ==========
+// ========== SET PASSWORD ==========
 export const studentSetPassword = async (req, res) => {
   try {
     const { password, confirmPassword } = req.body;
@@ -171,26 +237,40 @@ export const studentSetPassword = async (req, res) => {
       });
     }
 
-    // Verify temp token
-    const tempToken = req.headers.authorization?.split(' ')[1];
+    const authHeader = req.headers.authorization;
     
-    if (!tempToken) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         success: false,
         message: 'No token provided'
       });
     }
 
-    const decoded = jwt.verify(tempToken, process.env.JWT_SECRET);
+    const tempToken = authHeader.split(' ')[1];
 
-    if (!decoded.isFirstLogin) {
+    let decoded;
+    try {
+      decoded = jwt.verify(tempToken, process.env.JWT_SECRET);
+    } catch (err) {
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({
+          success: false,
+          message: 'Token expired. Please start the process again.'
+        });
+      }
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token. Please start the process again.'
+      });
+    }
+
+    if (!decoded.isFirstLogin || decoded.step !== 'password-setup') {
       return res.status(403).json({
         success: false,
         message: 'Invalid token for password setup'
       });
     }
 
-    // Find student
     const student = await Student.findById(decoded.userId);
 
     if (!student) {
@@ -203,20 +283,20 @@ export const studentSetPassword = async (req, res) => {
     if (!student.firstLogin) {
       return res.status(400).json({
         success: false,
-        message: 'Password already set'
+        message: 'Password already set. Please login with your password.'
       });
     }
 
-    // Set new password
-    student.password = password;
+    const hashedPassword = await bcryptjs.hash(password, 10);
+    
+    student.password = hashedPassword;
     student.firstLogin = false;
     await student.save();
 
-    // Generate regular token
     const token = jwt.sign(
       { 
-        phone: student.phone,
         userId: student._id,
+        phone: student.phone,
         userType: 'user'
       },
       process.env.JWT_SECRET,
@@ -225,7 +305,7 @@ export const studentSetPassword = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Password set successfully. You can now login.',
+      message: 'Password set successfully',
       token,
       user: {
         id: student._id,
@@ -239,13 +319,6 @@ export const studentSetPassword = async (req, res) => {
     });
 
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Token expired. Please start first login again.'
-      });
-    }
-    
     console.error('Set password error:', error);
     res.status(500).json({
       success: false,
@@ -272,10 +345,17 @@ export const studentLogin = async (req, res) => {
       ? (loginId.startsWith('91') ? loginId : `91${loginId}`)
       : loginId;
 
+      console.log(formattedLoginId);
+      
+
     // Find student by phone or email
     const student = await Student.findOne({
       $or: [{ phone: formattedLoginId }, { email: formattedLoginId }]
     }).select('+password');
+
+    console.log(student);
+    // console.log(!student);
+    
 
     if (!student) {
       return res.status(401).json({
@@ -303,6 +383,9 @@ export const studentLogin = async (req, res) => {
 
     // Verify password
     const isPasswordValid = await student.comparePassword(password);
+
+    console.log(isPasswordValid);
+    
 
     if (!isPasswordValid) {
       return res.status(401).json({
