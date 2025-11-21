@@ -131,6 +131,11 @@ const studentSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+//     status: {
+//   type: String,
+//   enum: ["pending", "approved", "rejected","downloaded","in_review"],   // ❌ "in_review" missing
+//   default: "pending"
+// },
 
     otp: {
       type: String,

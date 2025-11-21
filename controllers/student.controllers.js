@@ -225,8 +225,6 @@ export const getRecentLetters = async (req, res) => {
       issueDate: letter.issueDate,
       status: letter.status || 'pending',
       signedUploaded: letter.signedUploaded || false,
-      verificationLink: letter.verificationLink,
-      downloadLink: letter.downloadLink
     }));
 
     console.log('📄 Formatted letters:', formattedLetters);
@@ -399,7 +397,7 @@ export const uploadSignedLetter = async (req, res) => {
       });
     }
 
-    // Validate file size (10MB max)
+    // Validate file size
     if (req.file.size > 10 * 1024 * 1024) {
       return res.status(400).json({
         success: false,
@@ -407,7 +405,7 @@ export const uploadSignedLetter = async (req, res) => {
       });
     }
 
-    // Find student by phone to get name
+    // Find student
     const student = await Student.findOne({ phone: studentPhone }).select('name');
 
     if (!student) {
@@ -417,11 +415,10 @@ export const uploadSignedLetter = async (req, res) => {
       });
     }
 
-    // Find letter and verify ownership
+    // Find letter
     const letter = await Letter.findOne({
-      _id: letterId,
+      letterId: letterId,
       name: student.name
-      // isDeleted: false
     });
 
     if (!letter) {
@@ -431,27 +428,19 @@ export const uploadSignedLetter = async (req, res) => {
       });
     }
 
-    // Check if letter requires signature
-    if (letter.letterType !== 'Warning Letter' && letter.letterType !== 'Offer Letter') {
-      return res.status(400).json({
-        success: false,
-        message: 'This letter type does not require a signed copy'
-      });
-    }
-
-    // Check if already uploaded
+    // Already uploaded?
     if (letter.signedUploaded) {
       return res.status(400).json({
         success: false,
-        message: 'Signed letter already uploaded for this document'
+        message: 'Signed letter already uploaded'
       });
     }
 
-    // Update letter with signed document info
+    // Update fields
     letter.signedUploaded = true;
-    letter.signedDocumentPath = req.file.path;
+    letter.signedDocumentPath = req.file.path; // ⭐ PATH STORED HERE
     letter.signedUploadedDate = new Date();
-    letter.status = 'in_review';
+    letter.status = 'in_review'; // your enum allows this
 
     await letter.save();
 
@@ -459,12 +448,14 @@ export const uploadSignedLetter = async (req, res) => {
       success: true,
       message: 'Signed letter uploaded successfully',
       letter: {
-        id: letter._id,
+        id: letter.credentialId,
         signedUploaded: letter.signedUploaded,
+        signedUploadedDate: letter.signedUploadedDate,
         status: letter.status,
-        signedUploadedDate: letter.signedUploadedDate
+        signedDocumentPath: letter.signedDocumentPath   // ⭐ sending to frontend
       }
     });
+
   } catch (error) {
     console.error('Upload signed letter error:', error);
     res.status(500).json({
@@ -474,6 +465,8 @@ export const uploadSignedLetter = async (req, res) => {
     });
   }
 };
+
+
 
 // Download All Certificates
 export const downloadAllCertificates = async (req, res) => {
