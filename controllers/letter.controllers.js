@@ -845,21 +845,17 @@ export const previewLetter = async (req, res) => {
           effectiveFrom,
           duration,
         });
-      } else if (category === "OD") {
-        await TemplateCode.drawODPdfTemplate(pdfDoc, course, {
+      } else if (category === "DM") {
+        await TemplateCode.drawDMPdfTemplate(pdfDoc, course, {
           name,
           outwardNo,
+          issueDate,
           formattedDate,
           tempId,
-          role,
-          trainingStartDate,
-          trainingEndDate,
-          officialStartDate,
-          completionDate,
-          responsibilities,
-          amount,
-          effectiveFrom,
-          duration,
+          description,
+          subject,
+          startDate,
+          endDate,
         });
       }
 
@@ -1395,6 +1391,26 @@ export const downloadLetterAsPdf = async (req, res) => {
           year: letter.year,
         });
 
+      } else if (letter.category === "DM") {
+        // Reuse the same unified drawPdfTemplate logic
+        await TemplateCode.drawDMPdfTemplate(pdfDoc, letter.course, {
+          name: letter.name,
+          outwardNo: letter.outwardNo,
+          issueDate: letter.issueDate,
+          formattedDate: new Date(letter.issueDate).toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          ),
+          tempId: letter.letterId,
+          description: letter.description,
+          subject: letter.subject,
+          startDate: letter.startDate,
+          endDate: letter.endDate,
+        });
       }
 
       // Save PDF and send as downloadable file

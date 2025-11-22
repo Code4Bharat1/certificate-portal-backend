@@ -4663,6 +4663,207 @@ const drawODPdfTemplate = async (pdfDoc, course, fields = {}) => {
     return pdfDoc;
 }
 
+const drawDMPdfTemplate = async (
+    pdfDoc,
+    course,
+    {
+        name,
+        outwardNo,
+        issueDate,
+        formattedDate,
+        tempId,
+        description,
+        subject,
+        startDate,
+        endDate,
+    }
+) => {
+    const pages = pdfDoc.getPages();
+    const firstPage = pages[0];
+    const secondPage = pages[1];
+    const { width, height } = firstPage.getSize();
+
+    let thirdPage;
+    let fourthPage;
+
+    if (pages[2]) {
+        thirdPage = pages[2];
+    }
+    if (pages[3]) {
+        fourthPage = pages[3];
+    }
+
+    const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const darkColor = rgb(0.067, 0.094, 0.152);
+    const verifyText = "https://portal.nexcorealliance.com/verify-certificate";
+
+    /* ============================================================
+       🎓 OFFER LETTER (2 Pages)
+    ============================================================ */
+    if (course === "Offer Letter") {
+        // first page
+        firstPage.drawText(`${outwardNo}`, {
+            x: width * 0.25,
+            y: height * 0.768,
+            size: 12,
+            font: helveticaBold,
+            color: darkColor,
+        });
+
+        firstPage.drawText(`${formattedDate}`, {
+            x: width * 0.13,
+            y: height * 0.745,
+            size: 12,
+            font: helveticaBold,
+            color: darkColor,
+        });
+
+        firstPage.drawText(`${name}`, {
+            x: width * 0.072,
+            y: height * 0.69,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        firstPage.drawText(`${name},`, {
+            x: width * 0.13,
+            y: height * 0.64,
+            size: 12,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        // Second Page
+        const startformattedDate = new Date(startDate).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+
+        const endformattedDate = new Date(endDate).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+
+        secondPage.drawText(`${startformattedDate}`, {
+            x: width * 0.20,
+            y: height * 0.673,
+            size: 12,
+            font: helvetica,
+            color: darkColor,
+        });
+
+        secondPage.drawText(`${endformattedDate}`, {
+            x: width * 0.20,
+            y: height * 0.652,
+            size: 12,
+            font: helvetica,
+            color: darkColor,
+        });
+
+        secondPage.drawText(`${tempId}`, {
+            x: width * 0.24,
+            y: height * 0.363,
+            size: 13,
+            font: helveticaBold,
+            color: rgb(0, 0, 0),
+        });
+
+        /* ==========================
+           ✅ Intern's Acceptance
+        ========================== */
+        const acceptanceY = height * 0.23;
+        const acceptanceX = width * 0.05;
+        const maxWidth = width * 0.90;
+
+        const acceptanceText = `I, ${name}, accept the terms and conditions stated in this Internship cum Training Offer Letter.`;
+
+        // Dynamic font sizing
+        let fontSize = 13;
+        let textWidth = helvetica.widthOfTextAtSize(acceptanceText, fontSize);
+        while (textWidth > maxWidth && fontSize > 9) {
+            fontSize -= 0.5;
+            textWidth = helvetica.widthOfTextAtSize(acceptanceText, fontSize);
+        }
+
+        // Word wrap helper
+        const wrapText = (text, font, size, maxWidth) => {
+            const words = text.split(" ");
+            let line = "";
+            const lines = [];
+
+            for (let i = 0; i < words.length; i++) {
+                const testLine = line + words[i] + " ";
+                const testWidth = font.widthOfTextAtSize(testLine, size);
+                if (testWidth > maxWidth && i > 0) {
+                    lines.push(line.trim());
+                    line = words[i] + " ";
+                } else {
+                    line = testLine;
+                }
+            }
+            lines.push(line.trim());
+            return lines;
+        };
+
+        // Split into wrapped lines
+        const wrappedLines = wrapText(acceptanceText, helvetica, fontSize, maxWidth);
+
+        let currentY = acceptanceY;
+        wrappedLines.forEach((line) => {
+            // Handle bold name rendering
+            const nameParts = line.split(name);
+            if (nameParts.length > 1) {
+                let xPos = acceptanceX;
+                for (let i = 0; i < nameParts.length; i++) {
+                    if (nameParts[i]) {
+                        secondPage.drawText(nameParts[i], {
+                            x: xPos,
+                            y: currentY,
+                            size: fontSize,
+                            font: helvetica,
+                            color: rgb(0, 0, 0),
+                        });
+                        xPos += helvetica.widthOfTextAtSize(nameParts[i], fontSize);
+                    }
+                    if (i < nameParts.length - 1) {
+                        secondPage.drawText(name, {
+                            x: xPos,
+                            y: currentY,
+                            size: fontSize,
+                            font: helveticaBold,
+                            color: rgb(0, 0, 0),
+                        });
+                        xPos += helveticaBold.widthOfTextAtSize(name, fontSize);
+                    }
+                }
+            } else {
+                secondPage.drawText(line, {
+                    x: acceptanceX,
+                    y: currentY,
+                    size: fontSize,
+                    font: helvetica,
+                    color: rgb(0, 0, 0),
+                });
+            }
+            currentY -= fontSize + 4;
+        });
+
+        // verify link
+        secondPage.drawText(`${verifyText}`, {
+            x: width * 0.23,
+            y: height * 0.135,
+            size: 14,
+            font: helvetica,
+            color: darkColor,
+        });
+    }
+    return pdfDoc;
+};
+
 function addWrapped(page, text, x, startY, fontSize = 11, helvetica) {
     // const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
@@ -4795,4 +4996,5 @@ export default {
     drawC4BPdfTemplate,
     drawHRPdfTemplate,
     drawODPdfTemplate,
+    drawDMPdfTemplate,
 }
