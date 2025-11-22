@@ -182,21 +182,8 @@ export const sendCertificateNotification = async (certificateData) => {
     } = certificateData;
 
     // 🔗 Determine correct base URL for verification/download
-    let baseVerificationUrl = '';
-    if (category?.toLowerCase().includes('code4bharat')) {
-      baseVerificationUrl = 'https://education.code4bharat.com/verify-certificate';
-    } else if (category?.toLowerCase().includes('marketing-junction')) {
-      baseVerificationUrl = 'https://education.marketiqjunction.com/verify-certificate';
-    } else if (
-      category?.toLowerCase().includes('fsd') ||
-      category?.toLowerCase().includes('bvoc') ||
-      category?.toLowerCase().includes('bootchamp')
-    ) {
-      baseVerificationUrl = 'https://portal.nexcorealliance.com/verify-certificate';
-    } else {
-      // Default fallback if no match found
-      baseVerificationUrl = `${process.env.FRONTEND_URL}/verify`;
-    }
+    let baseVerificationUrl = 'https://portal.nexcorealliance.com/verify-certificate';
+    
 
     // ✅ Final certificate links
     const verificationLink = `${baseVerificationUrl}`;
@@ -329,14 +316,8 @@ export const getLetterMessageTemplate = (letterType, subType, data) => {
   });
 
   // Base verification URL based on category
-  let baseUrl = '';
-  if (category?.toLowerCase().includes('code4bharat')) {
-    baseUrl = 'https://education.code4bharat.com';
-  } else if (category?.toLowerCase().includes('marketing-junction')) {
-    baseUrl = 'https://education.marketiqjunction.com';
-  } else {
-    baseUrl = 'https://portal.nexcorealliance.com';
-  }
+  let baseUrl = 'https://portal.nexcorealliance.com';
+  
 
   const verificationLink = `${baseUrl}/verify-certificate/`;
   const downloadLink = `${baseUrl}/verify-certificate/`;
@@ -1868,14 +1849,8 @@ export const getParentNotificationTemplate = (letterType, subType, data) => {
   });
 
   // Base verification URL based on category
-  let baseUrl = '';
-  if (category?.toLowerCase().includes('code4bharat')) {
-    baseUrl = 'https://education.code4bharat.com';
-  } else if (category?.toLowerCase().includes('marketing-junction')) {
-    baseUrl = 'https://education.marketiqjunction.com';
-  } else {
-    baseUrl = 'https://portal.nexcorealliance.com';
-  }
+  let baseUrl = 'https://portal.nexcorealliance.com';
+  
 
   const verificationLink = `${baseUrl}/verify-certificate`;
   const downloadLink = `${baseUrl}/verify-certificate`;
