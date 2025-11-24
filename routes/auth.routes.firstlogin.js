@@ -10,8 +10,10 @@ import {
   verifyToken,
 studentVerifyOTP
 } from '../controllers/auth.controller.firstlogin.js';
-
+import uploadDocuments from "../middleware/uploadDocuments.js";
+import { uploadStudentDocuments } from "../controllers/student.controllers.js";
 import { authenticateStudent } from '../middleware/auth.middleware.js';
+import { getStudentDocuments } from "../controllers/student.controllers.js";
 
 const router = express.Router();
 
@@ -26,5 +28,18 @@ router.post('/user-login', studentLogin);
 router.post('/change-password', authenticateStudent, studentChangePassword);
 router.post('/register', studentRegister);
 router.get('/verify', verifyToken);
+// Upload Aadhaar / PAN / Passbook
+router.post(
+  '/student/upload-documents',
+  authenticateStudent,
+  uploadDocuments,
+  uploadStudentDocuments
+);
+router.get(
+  "/student/upload-documents",
+  authenticateStudent,
+  getStudentDocuments
+);
+
 
 export default router;

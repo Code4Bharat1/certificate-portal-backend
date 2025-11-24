@@ -13,6 +13,10 @@ import {
   downloadAllCertificates,
   getLetterDetails
 } from '../controllers/student.controllers.js';
+import uploadDocuments from "../middleware/uploadDocuments.js";
+// import { authenticateStudent } from "../middleware/auth.middleware.js";
+import { uploadStudentDocuments } from "../controllers/student.controllers.js";
+
 
 const router = express.Router();
 
@@ -171,5 +175,13 @@ router.get('/student/support/tickets', authenticateStudent, async (req, res) => 
     });
   }
 });
+// Upload Aadhaar / PAN / Passbook
+router.post(
+  '/student/upload-documents',
+  authenticateStudent,
+  uploadDocuments,
+  uploadStudentDocuments
+);
+
 
 export default router;

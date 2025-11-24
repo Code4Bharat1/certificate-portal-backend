@@ -11,6 +11,9 @@ import {
   authenticateStudent, // For student routes
   authenticate         // For both
 } from '../middleware/auth.middleware.js';
+import { uploadStudentDocuments } from "../controllers/student.controllers.js";
+import uploadDocuments from "../middleware/uploadDocuments.js";
+// import { authenticateStudent } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -37,6 +40,13 @@ router.get('/verify-user', authenticateStudent, verifyToken);
 // ========== COMBINED VERIFICATION ==========
 // GET /api/auth/verify-any - Verify any token (admin or student)
 router.get('/verify-any', authenticate, verifyToken);
+
+router.post(
+  "/student/upload-documents",
+  authenticateStudent,
+  uploadDocuments,
+  uploadStudentDocuments
+);
 
 // ========== LOGOUT (Optional) ==========
 // POST /api/auth/logout - Logout (client-side token removal)

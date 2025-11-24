@@ -146,6 +146,13 @@ const studentSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
+    documents: {
+  aadhaarFront: { type: String, default: null },
+  aadhaarBack: { type: String, default: null },
+  panCard: { type: String, default: null },
+  bankPassbook: { type: String, default: null }
+},
+
   },
   {
     timestamps: true,

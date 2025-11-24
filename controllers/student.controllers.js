@@ -604,3 +604,70 @@ export const getStudentNameByPhone = async (req, res) => {
     });
   }
 };
+
+
+export const uploadStudentDocuments = async (req, res) => {
+  try {
+    const studentId = req.user._id;
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found"
+      });
+    }
+
+    const files = req.files;
+
+    student.documents = {
+      aadhaarFront: files.aadhaarFront ? `/uploads-data/student-documents/${files.aadhaarFront[0].filename}` : student.documents?.aadhaarFront,
+      aadhaarBack: files.aadhaarBack ? `/uploads-data/student-documents/${files.aadhaarBack[0].filename}` : student.documents?.aadhaarBack,
+      panCard: files.panCard ? `/uploads-data/student-documents/${files.panCard[0].filename}` : student.documents?.panCard,
+      bankPassbook: files.bankPassbook ? `/uploads-data/student-documents/${files.bankPassbook[0].filename}` : student.documents?.bankPassbook
+    };
+
+    await student.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Documents uploaded successfully",
+      documents: student.documents
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error uploading documents",
+      error: error.message
+    });
+  }
+};
+
+export const getStudentDocuments = async (req, res) => {
+  try {
+    const studentId = req.user._id;
+
+    const student = await Student.findById(studentId);
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      documents: student.documents || {},
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch documents",
+      error: error.message,
+    });
+  }
+};
+

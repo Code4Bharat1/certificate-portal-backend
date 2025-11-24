@@ -12,6 +12,7 @@ import fs from 'fs';
 
 // Existing Routes
 import authRoutes from './routes/auth.routes.js';
+import adminDocumentRoutes from "./routes/admin.routes.js";
 import certificateRoutes from './routes/certificate.routes.js';
 import statsRoutes from './routes/stats.routes.js';
 import templateRoutes from './routes/template.routes.js';
@@ -107,7 +108,8 @@ const uploadDirs = [
   'uploads-data/certificates',
   'uploads-data/letters',
   'uploads-data/signed-letters',
-  'uploads-data/profiles'
+  'uploads-data/profiles',
+  'uploads-data/student-documents'
 ];
 
 uploadDirs.forEach(dir => {
@@ -134,6 +136,8 @@ app.use('/api/batches', batchRoutes);
 app.use("/api/letters", letterRoutes);
 app.use("/api/auth/user", userAuthRoutes); // For student auth
 app.use("/uploads", express.static("uploads"));
+app.use('/uploads-data', express.static('uploads-data'));
+app.use("/api/documents", adminDocumentRoutes);
 
 app.use("/api/onboarding-request", onboardingRoutes);
 
