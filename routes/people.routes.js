@@ -4,6 +4,7 @@ import People from '../models/people.models.js';
 import multer from 'multer';
 import xlsx from 'xlsx';
 import { authenticate } from '../middleware/auth.middleware.js'; // Optional
+import Student from '../models/student.models.js';
 
 const router = express.Router();
 
@@ -154,6 +155,10 @@ router.post(
 
       const newPerson = new People(newPersonData);
       await newPerson.save();
+
+      const newStudent = new Student(newPersonData);
+      await newStudent.save();
+
 
       console.log('✅ Person added successfully:', newPerson._id);
 
@@ -391,8 +396,20 @@ router.put(
         }
       );
 
+      const student = await Student.findOneAndUpdate(
+        {
+          name: originalName,
+          phone: updateData.phone,
+        },
+        { $set: updateData },
+        {
+          new: true,  // Return updated document
+          runValidators: true  // Run schema validators
+        }
+      );
+
       // console.log("Person Data: ", person);
-      if (!person) {
+      if (!person || !student) {
         // console.error('❌ Person not found');
         return res.status(404).json({
           success: false,
@@ -400,7 +417,7 @@ router.put(
         });
       }
 
-      console.log('✅ Person updated successfully:', person._id);
+      console.log('Person updated successfully:', person._id);
 
       res.status(200).json({
         success: true,
@@ -869,8 +886,11 @@ router.delete('/:id', async (req, res) => {
     console.log('🗑️ Deleting person:', req.params.id);
 
     const deleted = await People.findByIdAndDelete(req.params.id);
-
-    if (!deleted) {
+    const studentDeleted = await Student.findOneAndDelete({ name: deleted.name });
+    // const studentDeleted = await Student.findByIdAndDelete(req.params.id);
+    // console.log(studentDeleted);
+    
+    if (!deleted || !studentDeleted) {
       console.error('❌ Person not found:', req.params.id);
       return res.status(404).json({
         success: false,
@@ -878,7 +898,8 @@ router.delete('/:id', async (req, res) => {
       });
     }
 
-    console.log('✅ Person deleted successfully:', deleted.name);
+    console.log('Person deleted successfully:', deleted.name);
+    // console.log('Person deleted successfully:', studentDeleted.name);
 
     res.status(200).json({
       success: true,
