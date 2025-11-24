@@ -48,19 +48,26 @@ router.post("/", upload.single("signature"), async (req, res) => {
   }
 });
 
-// GET only pending onboarding requests
+// GET onboarding requests with optional filter
 router.get("/", async (req, res) => {
   try {
-    const pendingRequests = await OnboardingRequest.find({ status: "pending" })
+    const { status } = req.query;
+
+    let query = {};
+    if (status && status !== "all") {
+      query.status = status;
+    }
+
+    const requests = await OnboardingRequest.find(query)
       .sort({ createdAt: -1 });
 
-    res.json({ success: true, requests: pendingRequests });
+    res.json({ success: true, requests });
   } catch (error) {
     console.error("Error fetching onboarding requests:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
-
+    
 // APPROVE onboarding request
 router.post("/approve/:id", async (req, res) => {
   try {
