@@ -19,12 +19,21 @@ const router = express.Router();
 // Configure multer for file upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/signed-letters/');
+    cb(null, 'uploads-data/signed-letters/');
   },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'signed-' + uniqueSuffix + path.extname(file.originalname));
-  }
+  // filename: (req, file, cb) => {
+  //   const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+  //   cb(null, 'signed-' + uniqueSuffix + path.extname(file.originalname));
+  // }
+  filename: function (req, file, cb) {
+    const ext = file.originalname.split(".").pop();
+    // const letterId = req.body.letterId || "unknown";
+    const letterId = req.query.letterId || req.body.letterId;
+
+    const uniqueSuffix = Date.now();
+
+    cb(null, `signed_${letterId}_${uniqueSuffix}.${ext}`);
+  },
 });
 
 const upload = multer({
@@ -74,7 +83,13 @@ router.get('/student/letters/:letterId', authenticateStudent, getLetterDetails);
 
 // ========== LETTER MANAGEMENT ROUTES ==========
 // POST /api/student/upload-signed - Upload signed letter
-router.post('/student/upload-signed', authenticateStudent, upload.single('signedLetter'), uploadSignedLetter);
+router.post('/student/upload-signed', authenticateStudent, upload.single('signedFile'), uploadSignedLetter);
+// router.post(
+//   "/student/upload-signed",
+//   upload.single("signedFile"),
+//   uploadSignedLetter
+// );
+
 
 // GET /api/student/download-all - Download all certificates
 router.get('/student/download-all', authenticateStudent, downloadAllCertificates);

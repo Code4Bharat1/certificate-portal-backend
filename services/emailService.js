@@ -16,12 +16,39 @@ export const getEmailAccountByCategory = (category) => {
       fromName: "Code4Bharat Team",
     };
   }
-
+  if (cat.includes("marketing-junction") || cat.includes("MJ")) {
+    return {
+      user: process.env.EMAIL_USER_C4B,
+      pass: process.env.EMAIL_PASSWORD_C4B,
+      fromName: "marketing-junction Team",
+    };
+  }
+  if (cat.includes("HR") || cat.includes("HR")) {
+    return {
+      user: process.env.EMAIL_USER_C4B,
+      pass: process.env.EMAIL_PASSWORD_C4B,
+      fromName: "HR Team",
+    };
+  }
+ if (cat.includes("OD") || cat.includes("OD")) {
+    return {
+      user: process.env.EMAIL_USER_C4B,
+      pass: process.env.EMAIL_PASSWORD_C4B,
+      fromName: "OD Team",
+    };
+  }
   if (cat.includes("fsd")) {
     return {
       user: process.env.EMAIL_USER_FSD,
       pass: process.env.EMAIL_PASSWORD_FSD,
       fromName: "FSD Team",
+    };
+  }
+  if (cat.includes("DM")) {
+    return {
+      user: process.env.EMAIL_USER_FSD,
+      pass: process.env.EMAIL_PASSWORD_FSD,
+      fromName: "DM Team",
     };
   }
 
@@ -468,14 +495,8 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
   });
 
   // Base verification URL
-  let baseUrl = '';
-  if (category?.toLowerCase().includes('code4bharat')) {
-    baseUrl = 'https://education.code4bharat.com';
-  } else if (category?.toLowerCase().includes('marketing-junction')) {
-    baseUrl = 'https://education.marketiqjunction.com';
-  } else {
-    baseUrl = 'https://portal.nexcorealliance.com';
-  }
+  let baseUrl = 'https://portal.nexcorealliance.com';
+  
 
   const verificationLink = `${baseUrl}/verify-certificate/`;
   const downloadLink = `${baseUrl}/verify-certificate/`;
@@ -493,163 +514,192 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
   };
 
   // Base HTML template style with enhanced styling
-  const baseStyle = `
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { 
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-        line-height: 1.6; 
-        color: #333; 
-        background: #f5f5f5;
-      }
-      .container { 
-        max-width: 650px; 
-        margin: 20px auto; 
-        background: #ffffff; 
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        border-radius: 12px;
-        overflow: hidden;
-      }
-      .header { 
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-        color: white; 
-        padding: 40px 30px; 
-        text-align: center; 
-      }
-      .header h1 {
-        margin: 0;
-        font-size: 28px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-      }
-      .content { 
-        background: white; 
-        padding: 35px 30px; 
-      }
-      .content > p {
-        margin-bottom: 15px;
-        font-size: 15px;
-      }
-      .details-box { 
-        background: linear-gradient(to right, #f8f9fa 0%, #ffffff 100%);
-        border-left: 4px solid #667eea; 
-        padding: 25px; 
-        margin: 25px 0; 
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      }
-      .details-box h3 {
-        margin: 0 0 15px 0;
-        font-size: 18px;
-      }
-      .detail-row { 
-        padding: 10px 0; 
-        border-bottom: 1px solid #e9ecef;
-        font-size: 14px;
-      }
-      .detail-row:last-child {
-        border-bottom: none;
-      }
-      .button { 
-        display: inline-block; 
-        padding: 14px 32px; 
-        margin: 10px 8px; 
-        background: #667eea; 
-        color: white !important; 
-        text-decoration: none; 
-        border-radius: 6px; 
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-      }
-      .button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-      }
-      .warning-box { 
-        background: #fff8e1; 
-        border-left: 5px solid #ffc107; 
-        padding: 20px; 
-        margin: 25px 0;
-        border-radius: 6px;
-        box-shadow: 0 2px 8px rgba(255, 193, 7, 0.1);
-      }
-      .warning-box strong {
-        color: #e65100;
-      }
-      .success-box { 
-        background: #e8f5e9; 
-        border-left: 5px solid #28a745; 
-        padding: 20px; 
-        margin: 25px 0;
-        border-radius: 6px;
-        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.1);
-      }
-      .success-box strong {
-        color: #1b5e20;
-      }
-      .important-notice {
-        background: #fff3e0;
-        border: 2px solid #ff9800;
-        border-radius: 8px;
-        padding: 15px 20px;
-        margin: 20px 0;
-        text-align: center;
-      }
-      .important-notice p {
-        margin: 5px 0;
-        color: #e65100;
-        font-weight: 600;
-        font-size: 14px;
-      }
-      .footer { 
-        text-align: center; 
-        padding: 25px 20px; 
-        color: #666; 
-        font-size: 13px; 
-        background: #f8f9fa; 
-        border-top: 1px solid #e9ecef;
-      }
-      .footer p {
-        margin: 5px 0;
-      }
-      .footer strong {
-        color: #333;
-      }
-      ul { 
-        padding-left: 25px; 
-        margin: 10px 0;
-      }
-      li { 
-        margin: 10px 0; 
-        font-size: 14px;
-      }
-      ol {
-        padding-left: 25px;
-        margin: 10px 0;
-      }
-      ol li {
-        margin: 12px 0;
-        font-size: 14px;
-      }
-      @media only screen and (max-width: 600px) {
-        .container { margin: 10px; }
-        .content { padding: 25px 20px; }
-        .button { 
-          display: block; 
-          margin: 10px 0; 
-          text-align: center;
-        }
-      }
-    </style>
-  `;
+ const baseStyle = `
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    line-height: 1.6;
+  }
+  
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  }
+  
+  .header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+  }
+  
+  .header h1 {
+    font-size: 28px;
+    margin: 0;
+    font-weight: 600;
+  }
+  
+  .content {
+    padding: 40px 30px;
+    color: #333;
+  }
+  
+  .content p {
+    margin-bottom: 15px;
+    font-size: 16px;
+  }
+  
+  .details-box {
+    background: #f8f9fa;
+    border-left: 4px solid #667eea;
+    padding: 20px;
+    margin: 25px 0;
+    border-radius: 8px;
+  }
+  
+  .details-box h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+  }
+  
+  .detail-row {
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 15px;
+  }
+  
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+  
+  .success-box {
+    background: #d4edda;
+    border-left: 4px solid #28a745;
+    padding: 20px;
+    margin: 25px 0;
+    border-radius: 8px;
+  }
+  
+  .success-box ul, .success-box ol {
+    margin-left: 20px;
+    margin-top: 10px;
+  }
+  
+  .success-box li {
+    margin: 8px 0;
+  }
+  
+  .warning-box {
+    background: #f8d7da;
+    border-left: 4px solid #dc3545;
+    padding: 20px;
+    margin: 25px 0;
+    border-radius: 8px;
+  }
+  
+  .warning-box ul {
+    margin-left: 20px;
+    margin-top: 10px;
+  }
+  
+  .warning-box li {
+    margin: 8px 0;
+  }
+  
+  .important-notice {
+    background: #fff3cd;
+    border: 2px dashed #ffc107;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+  }
+  
+  .important-notice p {
+    margin: 5px 0;
+  }
+  
+  .button {
+    display: inline-block;
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 600;
+    margin: 10px 5px;
+    transition: transform 0.3s ease;
+  }
+  
+  .button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  }
+  
+  .footer {
+    background: #f8f9fa;
+    padding: 25px;
+    text-align: center;
+    border-top: 3px solid #667eea;
+  }
+  
+  .footer p {
+    margin: 5px 0;
+    color: #666;
+  }
+  
+  .footer strong {
+    color: #333;
+  }
+  
+  @media only screen and (max-width: 600px) {
+    .container {
+      margin: 0;
+      border-radius: 0;
+    }
+    
+    .content {
+      padding: 20px 15px;
+    }
+    
+    .header h1 {
+      font-size: 24px;
+    }
+    
+    .button {
+      display: block;
+      margin: 10px 0;
+    }
+  }
+</style>
+`;
+
 
   // Letter-specific templates
   const templates = {
+    
+    // ===== APPRECIATION LETTERS =====
     'Appreciation Letter': `
       <!DOCTYPE html>
       <html>
-      <head>${baseStyle}</head>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
       <body>
         <div class="container">
           <div class="header">
@@ -696,10 +746,15 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
       </html>
     `,
 
+    // ===== WARNING LETTERS =====
     'Warning Letter': `
       <!DOCTYPE html>
       <html>
-      <head>${baseStyle}</head>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
       <body>
         <div class="container">
           <div class="header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
@@ -750,10 +805,15 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
       </html>
     `,
 
+    // ===== OFFER LETTER =====
     'Offer Letter': `
       <!DOCTYPE html>
       <html>
-      <head>${baseStyle}</head>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
       <body>
         <div class="container">
           <div class="header" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%);">
@@ -806,8 +866,744 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
       </body>
       </html>
     `,
-  };
 
+    // ===== TIMELINE LETTER =====
+    'Timeline Letter': `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
+      <body>
+        <div class="container">
+          <div class="header" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+            <h1>📅 Timeline Communication</h1>
+          </div>
+          <div class="content">
+            <p>Dear <strong>${userName}</strong>,</p>
+            <p>This letter outlines the important timeline and schedule for your program activities.</p>
+            
+            <div class="details-box">
+              <h3 style="color: #17a2b8; margin-top: 0;">Timeline Details</h3>
+              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+              <div class="detail-row"><strong>📋 Document Type:</strong> Timeline Letter</div>
+              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
+            </div>
+            
+            <div class="important-notice">
+              <p>📌 IMPORTANT INFORMATION</p>
+              <p>Please review the timeline carefully and mark important dates in your calendar.</p>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationLink}" class="button" style="background: #17a2b8;">🔍 View Timeline</a>
+              <a href="${downloadLink}" class="button" style="background: #17a2b8;">⬇️ Download Letter</a>
+            </div>
+            
+            <p>If you have any questions about the timeline, please contact your coordinator.</p>
+          </div>
+          <div class="footer">
+            <p><strong>Program Coordination Team,</strong></p>
+            <p><strong>${organizationName}</strong></p>
+            <p>📞 Support: +91 9892398976</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+
+    // ===== EXPERIENCE CERTIFICATE =====
+    'Experience Certificate': `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
+      <body>
+        <div class="container">
+          <div class="header" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);">
+            <h1>📜 Experience Certificate</h1>
+          </div>
+          <div class="content">
+            <p>Dear <strong>${userName}</strong>,</p>
+            <p>Congratulations on the successful completion of your tenure with us! Your experience certificate is now ready.</p>
+            
+            <div class="details-box">
+              <h3 style="color: #6f42c1; margin-top: 0;">Certificate Details</h3>
+              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+              <div class="detail-row"><strong>📋 Document:</strong> Experience Certificate</div>
+              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
+            </div>
+            
+            <div class="success-box">
+              <p><strong>🎯 Key Highlights:</strong></p>
+              <ul>
+                <li>Successfully completed the program</li>
+                <li>Demonstrated professional competence</li>
+                <li>Contributed positively to projects</li>
+                <li>Met all program requirements</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationLink}" class="button" style="background: #6f42c1;">🔍 View Certificate</a>
+              <a href="${downloadLink}" class="button" style="background: #6f42c1;">⬇️ Download Certificate</a>
+            </div>
+            
+            <p>We wish you all the best for your future endeavors!</p>
+          </div>
+          <div class="footer">
+            <p><strong>With Best Wishes,</strong></p>
+            <p><strong>${organizationName} Team</strong></p>
+            <p>📞 Support: +91 9892398976</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+
+    // ===== INTERNSHIP EXPERIENCE CERTIFICATE =====
+    'Internship Experience Certificate': `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
+      <body>
+        <div class="container">
+          <div class="header" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);">
+            <h1>🎓 Internship Experience Certificate</h1>
+          </div>
+          <div class="content">
+            <p>Dear <strong>${userName}</strong>,</p>
+            <p>Congratulations on successfully completing your internship! Your internship experience certificate is now ready.</p>
+            
+            <div class="details-box">
+              <h3 style="color: #6f42c1; margin-top: 0;">Certificate Details</h3>
+              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+              <div class="detail-row"><strong>📋 Document:</strong> Internship Experience Certificate</div>
+              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
+            </div>
+            
+            <div class="success-box">
+              <p><strong>🎯 Internship Achievements:</strong></p>
+              <ul>
+                <li>Successfully completed internship tenure</li>
+                <li>Gained practical industry experience</li>
+                <li>Contributed to real-world projects</li>
+                <li>Developed professional skills</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationLink}" class="button" style="background: #6f42c1;">🔍 View Certificate</a>
+              <a href="${downloadLink}" class="button" style="background: #6f42c1;">⬇️ Download Certificate</a>
+            </div>
+            
+            <p>Thank you for your dedication and we wish you success in your career!</p>
+          </div>
+          <div class="footer">
+            <p><strong>With Best Wishes,</strong></p>
+            <p><strong>${organizationName} Team</strong></p>
+            <p>📞 Support: +91 9892398976</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+
+    // ===== CONCERN LETTER =====
+    'Concern Letter-Audit Interview Performance': `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
+      <body>
+        <div class="container">
+          <div class="header" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);">
+            <h1>📋 Performance Concern Letter</h1>
+          </div>
+          <div class="content">
+            <p>Dear <strong>${userName}</strong>,</p>
+            <p>This letter is to address concerns regarding your audit interview performance.</p>
+            
+            <div class="details-box">
+              <h3 style="color: #ffc107; margin-top: 0;">Letter Details</h3>
+              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+              <div class="detail-row"><strong>📋 Subject:</strong> Concern Letter - Audit Interview Performance</div>
+              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
+            </div>
+            
+            <div class="important-notice">
+              <p>📌 ATTENTION REQUIRED</p>
+              <p>Please review the concerns mentioned and take appropriate action.</p>
+            </div>
+            
+            <div class="warning-box" style="background: #fff3cd; border-left-color: #ffc107;">
+              <p><strong>📝 Recommended Actions:</strong></p>
+              <ul>
+                <li>Review your interview performance</li>
+                <li>Identify areas for improvement</li>
+                <li>Seek guidance from mentors</li>
+                <li>Practice and prepare better</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationLink}" class="button" style="background: #ffc107; color: #000;">🔍 View Letter</a>
+              <a href="${downloadLink}" class="button" style="background: #ffc107; color: #000;">⬇️ Download Letter</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p><strong>Training & Development Team,</strong></p>
+            <p><strong>${organizationName}</strong></p>
+            <p>📞 Support: +91 9892398976</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+
+    // ===== INTERNSHIP JOINING LETTER - UNPAID =====
+    'Internship Joining Letter - Unpaid': `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
+      <body>
+        <div class="container">
+          <div class="header" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);">
+            <h1>🎯 Internship Joining Letter</h1>
+          </div>
+          <div class="content">
+            <p>Dear <strong>${userName}</strong>,</p>
+            <p>Welcome to ${organizationName}! We are pleased to confirm your joining as an intern with us.</p>
+            
+            <div class="details-box">
+              <h3 style="color: #007bff; margin-top: 0;">Joining Details</h3>
+              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+              <div class="detail-row"><strong>📋 Document:</strong> Internship Joining Letter (Unpaid)</div>
+              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
+            </div>
+            
+            <div class="important-notice">
+              <p>📌 IMPORTANT INFORMATION</p>
+              <p>Please review all terms and conditions in the joining letter carefully.</p>
+            </div>
+
+            <div class="success-box">
+              <p><strong>📋 Action Items:</strong></p>
+              <ul>
+                <li>Download and read the joining letter</li>
+                <li>Sign the letter and NDA</li>
+                <li>Submit required documents</li>
+                <li>Join on the specified date</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationLink}" class="button" style="background: #007bff;">🔍 View Letter</a>
+              <a href="${downloadLink}" class="button" style="background: #007bff;">⬇️ Download Letter</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p><strong>Welcome Aboard!</strong></p>
+            <p><strong>${organizationName} Team</strong></p>
+            <p>📞 Support: +91 9892398976</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+
+    // ===== INTERNSHIP JOINING LETTER - PAID =====
+    'Internship Joining Letter - Paid': `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
+      <body>
+        <div class="container">
+          <div class="header" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%);">
+            <h1>💰 Paid Internship Joining Letter</h1>
+          </div>
+          <div class="content">
+            <p>Dear <strong>${userName}</strong>,</p>
+            <p>Congratulations! We are pleased to confirm your joining as a paid intern with ${organizationName}!</p>
+            
+            <div class="details-box">
+              <h3 style="color: #28a745; margin-top: 0;">Joining Details</h3>
+              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+              <div class="detail-row"><strong>📋 Document:</strong> Internship Joining Letter (Paid)</div>
+              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
+            </div>
+            
+            <div class="important-notice">
+              <p>📌 IMPORTANT INFORMATION</p>
+              <p>Review stipend details and payment terms in the joining letter.</p>
+            </div>
+
+            <div class="success-box">
+              <p><strong>📋 Next Steps:</strong></p>
+              <ul>
+                <li>Download and review the joining letter</li>
+                <li>Sign and return the letter</li>
+                <li>Submit bank details for stipend</li>
+                <li>Complete joining formalities</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationLink}" class="button" style="background: #28a745;">🔍 View Letter</a>
+              <a href="${downloadLink}" class="button" style="background: #28a745;">⬇️ Download Letter</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p><strong>Welcome to the Team!</strong></p>
+            <p><strong>${organizationName}</strong></p>
+            <p>📞 Support: +91 9892398976</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+
+    // ===== NON-DISCLOSURE AGREEMENT =====
+    'Non-Disclosure Agreement': `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
+      <body>
+        <div class="container">
+          <div class="header" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">
+            <h1>🔒 Non-Disclosure Agreement</h1>
+          </div>
+          <div class="content">
+            <p>Dear <strong>${userName}</strong>,</p>
+            <p>Please find attached the Non-Disclosure Agreement (NDA) for your review and signature.</p>
+            
+            <div class="details-box">
+              <h3 style="color: #6c757d; margin-top: 0;">NDA Details</h3>
+              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+              <div class="detail-row"><strong>📋 Document:</strong> Non-Disclosure Agreement</div>
+              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
+            </div>
+            
+            <div class="important-notice">
+              <p>⚠️ MANDATORY DOCUMENT</p>
+              <p>📌 This document must be signed and returned before joining</p>
+            </div>
+
+            <div class="warning-box" style="background: #f8f9fa; border-left-color: #6c757d;">
+              <p><strong>🔐 Confidentiality Requirements:</strong></p>
+              <ul>
+                <li>Read the agreement carefully</li>
+                <li>Understand confidentiality obligations</li>
+                <li>Sign and return within 48 hours</li>
+                <li>Maintain confidentiality throughout</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationLink}" class="button" style="background: #6c757d;">🔍 View NDA</a>
+              <a href="${downloadLink}" class="button" style="background: #6c757d;">⬇️ Download NDA</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p><strong>Legal & Compliance Team,</strong></p>
+            <p><strong>${organizationName}</strong></p>
+            <p>📞 Support: +91 9892398976</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+
+    // ===== LIVE PROJECT AGREEMENT =====
+    'Live Project Agreement': `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
+      <body>
+        <div class="container">
+          <div class="header" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);">
+            <h1>🚀 Live Project Agreement</h1>
+          </div>
+          <div class="content">
+            <p>Dear <strong>${userName}</strong>,</p>
+            <p>Welcome to the live project! Please review and sign the project agreement.</p>
+            
+            <div class="details-box">
+              <h3 style="color: #ff6b6b; margin-top: 0;">Project Agreement Details</h3>
+              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+              <div class="detail-row"><strong>📋 Document:</strong> Live Project Agreement</div>
+              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
+            </div>
+            
+            <div class="important-notice">
+              <p>📌 PROJECT COMMITMENT</p>
+              <p>This agreement outlines your responsibilities for the live project.</p>
+            </div>
+
+            <div class="success-box">
+              <p><strong>🎯 Project Guidelines:</strong></p>
+              <ul>
+                <li>Review project terms and conditions</li>
+                <li>Understand deliverables and timeline</li>
+                <li>Sign and submit the agreement</li>
+                <li>Adhere to project standards</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationLink}" class="button" style="background: #ff6b6b;">🔍 View Agreement</a>
+              <a href="${downloadLink}" class="button" style="background: #ff6b6b;">⬇️ Download Agreement</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p><strong>Project Management Team,</strong></p>
+            <p><strong>${organizationName}</strong></p>
+            <p>📞 Support: +91 9892398976</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+
+    // ===== NON PAID TO PAID PROMOTION =====
+    'Non Paid to Paid': `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
+      <body>
+        <div class="container">
+          <div class="header" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%);">
+            <h1>🎉 Promotion - Paid Internship!</h1>
+          </div>
+          <div class="content">
+            <p>Dear <strong>${userName}</strong>,</p>
+            <p><strong>Congratulations!</strong> We are pleased to inform you that you have been promoted to a paid internship!</p>
+            
+            <div class="details-box">
+              <h3 style="color: #28a745; margin-top: 0;">Promotion Details</h3>
+              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+              <div class="detail-row"><strong>📋 Document:</strong> Non-Paid to Paid Promotion Letter</div>
+              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              <div class="detail-row"><strong>📅 Effective Date:</strong> ${formattedDate}</div>
+            </div>
+            
+            <div class="success-box">
+              <p><strong>🌟 Recognition of Excellence:</strong></p>
+              <ul>
+                <li>Outstanding performance recognized</li>
+                <li>Promoted to paid internship status</li>
+                <li>Stipend details in the letter</li>
+                <li>Continue your excellent work!</li>
+              </ul>
+            </div>
+            
+            <div class="important-notice">
+              <p>📌 ACTION REQUIRED</p>
+              <p>Please submit your bank details for stipend processing.</p>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationLink}" class="button" style="background: #28a745;">🔍 View Letter</a>
+              <a href="${downloadLink}" class="button" style="background: #28a745;">⬇️ Download Letter</a>
+            </div>
+            
+            <p>Thank you for your dedication and hard work!</p>
+          </div>
+          <div class="footer">
+            <p><strong>Congratulations from,</strong></p>
+            <p><strong>${organizationName} Team</strong></p>
+            <p>📞 Support: +91 9892398976</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+
+    // ===== STIPEND REVISION =====
+    'Stipend Revision': `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
+      <body>
+        <div class="container">
+          <div class="header" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%);">
+            <h1>💰 Stipend Revision - Promotion!</h1>
+          </div>
+          <div class="content">
+            <p>Dear <strong>${userName}</strong>,</p>
+            <p><strong>Excellent News!</strong> Your stipend has been revised based on your outstanding performance!</p>
+            
+            <div class="details-box">
+              <h3 style="color: #28a745; margin-top: 0;">Revision Details</h3>
+              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+              <div class="detail-row"><strong>📋 Document:</strong> Stipend Revision Promotion Letter</div>
+              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              <div class="detail-row"><strong>📅 Effective Date:</strong> ${formattedDate}</div>
+            </div>
+            
+            <div class="success-box">
+              <p><strong>🎯 Performance Recognition:</strong></p>
+              <ul>
+                <li>Exceptional work quality demonstrated</li>
+                <li>Consistent high performance</li>
+                <li>Stipend increased as per policy</li>
+                <li>Revised amount effective immediately</li>
+              </ul>
+            </div>
+            
+            <div class="important-notice">
+              <p>📌 IMPORTANT INFORMATION</p>
+              <p>Check the letter for detailed stipend breakdown and revised amount.</p>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationLink}" class="button" style="background: #28a745;">🔍 View Letter</a>
+              <a href="${downloadLink}" class="button" style="background: #28a745;">⬇️ Download Letter</a>
+            </div>
+            
+            <p>Keep up the outstanding work! We appreciate your contribution.</p>
+          </div>
+          <div class="footer">
+            <p><strong>With Appreciation,</strong></p>
+            <p><strong>${organizationName} Team</strong></p>
+            <p>📞 Support: +91 9892398976</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+
+    // ===== COMMITTEE MEMBER =====
+    'Committee Member': `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
+      <body>
+        <div class="container">
+          <div class="header" style="background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);">
+            <h1>🏅 Committee Member Appointment</h1>
+          </div>
+          <div class="content">
+            <p>Dear <strong>${userName}</strong>,</p>
+            <p>Congratulations! You have been appointed as a <strong>Committee Member</strong>.</p>
+            
+            <div class="details-box">
+              <h3 style="color: #4e54c8; margin-top: 0;">Appointment Details</h3>
+              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+              <div class="detail-row"><strong>📋 Position:</strong> Committee Member</div>
+              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              <div class="detail-row"><strong>📅 Appointment Date:</strong> ${formattedDate}</div>
+            </div>
+            
+            <div class="success-box">
+              <p><strong>🎯 Responsibilities:</strong></p>
+              <ul>
+                <li>Active participation in committee meetings</li>
+                <li>Support in organizing events</li>
+                <li>Collaborate with team members</li>
+                <li>Represent student interests</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationLink}" class="button" style="background: #4e54c8;">🔍 View Letter</a>
+              <a href="${downloadLink}" class="button" style="background: #4e54c8;">⬇️ Download Letter</a>
+            </div>
+            
+            <p>We look forward to your valuable contributions!</p>
+          </div>
+          <div class="footer">
+            <p><strong>Best Wishes,</strong></p>
+            <p><strong>${organizationName} Committee</strong></p>
+            <p>📞 Support: +91 9892398976</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+
+    // ===== COMMITTEE PRESIDENT =====
+    'Committee President': `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
+      <body>
+        <div class="container">
+          <div class="header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <h1>👑 Committee President Appointment</h1>
+          </div>
+          <div class="content">
+            <p>Dear <strong>${userName}</strong>,</p>
+            <p><strong>Congratulations!</strong> You have been appointed as the <strong>Committee President</strong>!</p>
+            
+            <div class="details-box">
+              <h3 style="color: #f5576c; margin-top: 0;">Appointment Details</h3>
+              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+              <div class="detail-row"><strong>📋 Position:</strong> Committee President</div>
+              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              <div class="detail-row"><strong>📅 Appointment Date:</strong> ${formattedDate}</div>
+            </div>
+            
+            <div class="success-box">
+              <p><strong>🎯 Leadership Responsibilities:</strong></p>
+              <ul>
+                <li>Lead and coordinate committee activities</li>
+                <li>Organize and chair meetings</li>
+                <li>Represent the committee officially</li>
+                <li>Guide and mentor committee members</li>
+                <li>Ensure smooth execution of events</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationLink}" class="button" style="background: #f5576c;">🔍 View Letter</a>
+              <a href="${downloadLink}" class="button" style="background: #f5576c;">⬇️ Download Letter</a>
+            </div>
+            
+            <p>We have full confidence in your leadership abilities!</p>
+          </div>
+          <div class="footer">
+            <p><strong>With Great Expectations,</strong></p>
+            <p><strong>${organizationName} Committee</strong></p>
+            <p>📞 Support: +91 9892398976</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+
+    // ===== COMMITTEE VICE-PRESIDENT =====
+    'Committee Vice-President': `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${baseStyle}
+      </head>
+      <body>
+        <div class="container">
+          <div class="header" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+            <h1>🎖️ Committee Vice-President Appointment</h1>
+          </div>
+          <div class="content">
+            <p>Dear <strong>${userName}</strong>,</p>
+            <p><strong>Congratulations!</strong> You have been appointed as the <strong>Committee Vice-President</strong>!</p>
+            
+            <div class="details-box">
+              <h3 style="color: #fa709a; margin-top: 0;">Appointment Details</h3>
+              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+              <div class="detail-row"><strong>📋 Position:</strong> Committee Vice-President</div>
+              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              <div class="detail-row"><strong>📅 Appointment Date:</strong> ${formattedDate}</div>
+            </div>
+            
+            <div class="success-box">
+              <p><strong>🎯 Key Responsibilities:</strong></p>
+              <ul>
+                <li>Assist the President in leadership duties</li>
+                <li>Coordinate with committee members</li>
+                <li>Act as President in their absence</li>
+                <li>Support event planning and execution</li>
+                <li>Maintain communication channels</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationLink}" class="button" style="background: #fa709a;">🔍 View Letter</a>
+              <a href="${downloadLink}" class="button" style="background: #fa709a;">⬇️ Download Letter</a>
+            </div>
+            
+            <p>We appreciate your commitment to leadership!</p>
+          </div>
+          <div class="footer">
+            <p><strong>With Best Wishes,</strong></p>
+            <p><strong>${organizationName} Committee</strong></p>
+            <p>📞 Support: +91 9892398976</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+  };
   // Return appropriate template or default
   return templates[letterType] || `
     <!DOCTYPE html>

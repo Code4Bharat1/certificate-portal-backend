@@ -51,7 +51,7 @@ router.post('/otp/send', authenticate, async (req, res) => {
 });
 
 // Verify OTP
-router.post('/otp/verify', authenticate, async (req, res) => {
+router.post('/otp/verify',  async (req, res) => {
   try {
     const { otp, phone } = req.body;
 

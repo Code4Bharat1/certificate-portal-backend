@@ -361,10 +361,13 @@ export const createLetter = async (req, res) => {
       amount,
       effectiveFrom,
 
-      // phone related
-      // parentPhone1,
-      // parentPhone2,
-      // parentName,
+      timelineStage,
+      timelineProjectName,
+      timelineDueDate,
+      timelineNewDate,
+      genderPronoun,
+      month,
+      year,
     } = req.body;
 
     // Basic validations
@@ -437,71 +440,74 @@ export const createLetter = async (req, res) => {
       amount: amount || "",
       effectiveFrom: effectiveFrom ? new Date(effectiveFrom) : null,
 
-      // parent phones
-      parentPhone1: userData.parentPhone1 || null,
-      parentPhone2: userData.parentPhone2 || null,
-      // parentName: parentName || null,
+      timelineStage: timelineStage || "",
+      timelineProjectName: timelineProjectName || "",
+      timelineDueDate: timelineDueDate || "",
+      timelineNewDate: timelineNewDate || "",
+      genderPronoun: genderPronoun || "",
+      month: month || "",
+      year: year || "",
     };
 
     // Create letter
     const letter = await Letter.create(letterData);
 
     // Send WhatsApp Message
-   try {
-  const subType = letter.subType || letterType; // safest
+    try {
+      const subType = letter.subType || letterType; // safest
 
-  const templateData = {
-    userName: name,
-    category,
-    batch,
-    issueDate: letter.issueDate,
-    credentialId: letterId,
-    letterId: letterId,
-    organizationName: "Nexcore Alliance",
-  };
+      const templateData = {
+        userName: name,
+        category,
+        batch,
+        issueDate: letter.issueDate,
+        credentialId: letterId,
+        letterId: letterId,
+        organizationName: "Nexcore Alliance",
+      };
 
-  // ----------------------- WHATSAPP TO STUDENT -----------------------
-  if (userPhone && letterId) {
-    // WhatsApp = plain text required
-    const html = getLetterMessageTemplate(letterType, subType, templateData);
-    const waText = html.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
+      // ----------------------- WHATSAPP TO STUDENT -----------------------
+      if (userPhone && letterId) {
+        // WhatsApp = plain text required
+        const html = getLetterMessageTemplate(letterType, subType, templateData);
+        const waText = html.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
 
-    await sendWhatsAppMessage(userPhone, waText);
+        await sendWhatsAppMessage(userPhone, waText);
 
-    // Parent WhatsApp only for BVOC
-    if (userData.parentPhone1 && userData.parentPhone2 && category === "BVOC") {
-      const parentHtml = getParentNotificationTemplate(letterType, subType, templateData);
-      const parentWaText = parentHtml.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
+        // Parent WhatsApp only for BVOC
+        if (userData.parentPhone1 && userData.parentPhone2 && category === "BVOC") {
+          const parentHtml = getParentNotificationTemplate(letterType, subType, templateData);
+          const parentWaText = parentHtml.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
 
-      await sendWhatsAppMessage(userData.parentPhone1, parentWaText);
-      await sendWhatsAppMessage(userData.parentPhone2, parentWaText);
+          await sendWhatsAppMessage(userData.parentPhone1, parentWaText);
+          await sendWhatsAppMessage(userData.parentPhone2, parentWaText);
+        }
+      }
+
+      // ----------------------- EMAIL TO STUDENT -----------------------
+      if (userData.email && letterId) {
+        const htmlContent = emailService.getLetterEmailTemplate(letterType, subType, templateData);
+        const emailSubject = `${letterType}${subType ? " - " + subType : ""} | ${templateData.organizationName}`;
+
+        await emailService.sendEmail(
+          userData.email,
+          emailSubject,
+          htmlContent
+        );
+
+        // Parent WhatsApp notifications
+        if (userData.parentPhone1 && userData.parentPhone2 && category === "BVOC") {
+          const parentHtml = emailService.getParentNotificationEmailTemplate(letterType, subType, templateData);
+          const parentWaText = parentHtml.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
+
+          await sendWhatsAppMessage(userData.parentPhone1, parentWaText);
+          await sendWhatsAppMessage(userData.parentPhone2, parentWaText);
+        }
+      }
+
+    } catch (err) {
+      console.error("WhatsApp/Email error:", err);
     }
-  }
-
-  // ----------------------- EMAIL TO STUDENT -----------------------
-  if (userData.email && letterId) {
-    const htmlContent = emailService.getLetterEmailTemplate(letterType, subType, templateData);
-    const emailSubject = `${letterType}${subType ? " - " + subType : ""} | ${templateData.organizationName}`;
-
-    await emailService.sendEmail(
-      userData.email,
-      emailSubject,
-      htmlContent
-    );
-
-    // Parent WhatsApp notifications
-    if (userData.parentPhone1 && userData.parentPhone2 && category === "BVOC") {
-      const parentHtml = emailService.getParentNotificationEmailTemplate(letterType, subType, templateData);
-      const parentWaText = parentHtml.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
-
-      await sendWhatsAppMessage(userData.parentPhone1, parentWaText);
-      await sendWhatsAppMessage(userData.parentPhone2, parentWaText);
-    }
-  }
-
-} catch (err) {
-  console.error("WhatsApp/Email error:", err);
-}
 
 
     // Log admin activity
@@ -546,6 +552,7 @@ export const previewLetter = async (req, res) => {
       role,
       startDate,
       endDate,
+      duration,
       committeeType,
       attendancePercent,
       assignmentName,
@@ -566,6 +573,13 @@ export const previewLetter = async (req, res) => {
       responsibilities,
       amount,
       effectiveFrom,
+      timelineStage,
+      timelineProjectName,
+      timelineDueDate,
+      timelineNewDate,
+      genderPronoun,
+      month,
+      year,
     } = req.body;
 
     if (!name || !category || !issueDate || !course) {
@@ -595,19 +609,6 @@ export const previewLetter = async (req, res) => {
       day: "numeric",
     });
 
-    // Collect dynamic frontend fields to display (only if value exists)
-    // const dynamicLines = [];
-    // if (committeeType) dynamicLines.push(`${committeeType}`);
-    // if (attendancePercent) dynamicLines.push(`${attendancePercent}`);
-    // if (assignmentName) dynamicLines.push(`${assignmentName}`);
-    // if (misconductReason) dynamicLines.push(`${misconductReason}`);
-    // if (attendanceMonth && attendanceYear)
-    //   dynamicLines.push(`${attendanceMonth} ${attendanceYear}`);
-    // if (performanceMonth && performanceYear)
-    //   dynamicLines.push(`${performanceMonth} ${performanceYear}`);
-    // if (testingPhase) dynamicLines.push(`${testingPhase}`);
-    // if (projectName) dynamicLines.push(`${projectName}`);
-
     /* ----------------------------------
        🖼 Image Template Rendering
     ---------------------------------- */
@@ -615,22 +616,6 @@ export const previewLetter = async (req, res) => {
       const templateImage = await loadImage(templatePath);
       const width = templateImage.width;
       const height = templateImage.height;
-
-      // // Convert performanceMonth to short form (e.g., "Jan", "Feb", etc.)
-      // const monthMap = {
-      //   January: "Jan",
-      //   February: "Feb",
-      //   March: "Mar",
-      //   April: "Apr",
-      //   May: "May",
-      //   June: "Jun",
-      //   July: "Jul",
-      //   August: "Aug",
-      //   September: "Sept",
-      //   October: "Oct",
-      //   November: "Nov",
-      //   December: "Dec"
-      // };
 
       const canvas = createCanvas(width, height);
       const ctx = canvas.getContext("2d");
@@ -726,8 +711,8 @@ export const previewLetter = async (req, res) => {
           projectName,
           auditDate
         );
-      } else if (category === "marketing-junction") {
-        await TemplateCode.getMJTemplateCode(
+      } else if (category === "marketing-junction" || category === "code4bharat" || category === "HR" || category === "OD") {
+        await TemplateCode.getCommonTemplateCode(
           ctx,
           width,
           height,
@@ -761,7 +746,14 @@ export const previewLetter = async (req, res) => {
           completionDate,
           responsibilities,
           amount,
-          effectiveFrom
+          effectiveFrom,
+          timelineStage,
+          timelineProjectName,
+          timelineDueDate,
+          timelineNewDate,
+          genderPronoun,
+          month,
+          year,
         );
       } else {
       }
@@ -769,11 +761,11 @@ export const previewLetter = async (req, res) => {
       const buffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
       res.setHeader("Content-Type", "image/jpeg");
       return res.send(buffer);
-    } else {
-
-    /* ----------------------------------
-   📄 PDF Template Rendering
----------------------------------- */
+    }
+    else {
+      /* ----------------------------------
+      📄 PDF Template Rendering
+      ---------------------------------- */
       const existingPdfBytes = fs.readFileSync(templatePath);
       const pdfDoc = await PDFLibDocument.load(existingPdfBytes);
 
@@ -803,6 +795,67 @@ export const previewLetter = async (req, res) => {
           responsibilities,
           amount,
           effectiveFrom,
+          duration,
+        });
+      } else if (category === "code4bharat") {
+        await TemplateCode.drawC4BPdfTemplate(pdfDoc, course, {
+          name,
+          outwardNo,
+          formattedDate,
+          tempId,
+          role,
+          trainingStartDate,
+          trainingEndDate,
+          officialStartDate,
+          completionDate,
+          responsibilities,
+          amount,
+          effectiveFrom,
+          duration,
+        });
+      } else if (category === "HR") {
+        await TemplateCode.drawHRPdfTemplate(pdfDoc, course, {
+          name,
+          outwardNo,
+          formattedDate,
+          tempId,
+          role,
+          trainingStartDate,
+          trainingEndDate,
+          officialStartDate,
+          completionDate,
+          responsibilities,
+          amount,
+          effectiveFrom,
+          duration,
+        });
+      } else if (category === "OD") {
+        await TemplateCode.drawODPdfTemplate(pdfDoc, course, {
+          name,
+          outwardNo,
+          formattedDate,
+          tempId,
+          role,
+          trainingStartDate,
+          trainingEndDate,
+          officialStartDate,
+          completionDate,
+          responsibilities,
+          amount,
+          effectiveFrom,
+          duration,
+        });
+      } else if (category === "DM") {
+        await TemplateCode.drawDMPdfTemplate(pdfDoc, course, {
+          name,
+          outwardNo,
+          issueDate,
+          formattedDate,
+          tempId,
+          description,
+          subject,
+          startDate,
+          endDate,
         });
       }
 
@@ -861,6 +914,9 @@ export const downloadLetterAsPdf = async (req, res) => {
         .json({ success: false, message: "Letter not found" });
     }
 
+    // console.log(letter);
+
+
     // Generate outward no. if missing
     if (!letter.outwardNo || !letter.outwardSerial) {
       const { outwardNo, outwardSerial } = await generateOutwardNo(
@@ -873,7 +929,7 @@ export const downloadLetterAsPdf = async (req, res) => {
       letter.outwardSerial = outwardSerial;
     }
 
-    console.log(letter.course, letter.category);
+    // console.log(letter.course, letter.category);
 
     const templateFilename = getLetterTemplateFilename(
       letter.course,
@@ -889,6 +945,51 @@ export const downloadLetterAsPdf = async (req, res) => {
 
     const templateType = getTemplateTypeByFilename(templateFilename);
     const formattedDate = new Date(letter.issueDate).toLocaleDateString(
+      "en-US",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }
+    );
+
+    const trainingStartDate = new Date(letter.trainingStartDate).toLocaleDateString(
+      "en-US",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }
+    );
+
+    const trainingEndDate = new Date(letter.trainingEndDate).toLocaleDateString(
+      "en-US",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }
+    );
+
+    const officialStartDate = new Date(letter.officialStartDate).toLocaleDateString(
+      "en-US",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }
+    );
+
+    const completionDate = new Date(letter.completionDate).toLocaleDateString(
+      "en-US",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }
+    );
+
+    const effectiveFrom = new Date(letter.effectiveFrom).toLocaleDateString(
       "en-US",
       {
         year: "numeric",
@@ -918,8 +1019,6 @@ export const downloadLetterAsPdf = async (req, res) => {
         description = "",
         subject = "",
         role,
-        startDate,
-        endDate,
         committeeType,
         attendancePercent,
         assignmentName,
@@ -933,26 +1032,42 @@ export const downloadLetterAsPdf = async (req, res) => {
         subjectName,
         projectName,
         auditDate,
+
+        // ⭐ Add new fields so image template gets them
+        trainingStartDate,
+        trainingEndDate,
+        officialStartDate,
+        completionDate,
+        responsibilities,
+        amount,
+        // effectiveFrom,
+
+        timelineStage,
+        timelineProjectName,
+        timelineDueDate,
+        timelineNewDate,
+
+        genderPronoun,
+        month,
+        year,
       } = letter;
+
 
       const tempId =
         letter.letterId || (await generateLetterId(category, course));
       const outwardNo = letter.outwardNo;
 
-      // const monthMap = {
-      //   January: "Jan",
-      //   February: "Feb",
-      //   March: "Mar",
-      //   April: "Apr",
-      //   May: "May",
-      //   June: "Jun",
-      //   July: "Jul",
-      //   August: "Aug",
-      //   September: "Sept",
-      //   October: "Oct",
-      //   November: "Nov",
-      //   December: "Dec",
-      // };
+      const formatDate = (date) => {
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${year}/${month}/${day}`;
+      };
+
+      const startDate = formatDate(letter.startDate);
+      const endDate = formatDate(letter.endDate);
+      const effectiveFrom = formatDate(letter.effectiveFrom)
 
       if (category === "FSD") {
         TemplateCode.getFSDTemplateCode(
@@ -1044,8 +1159,8 @@ export const downloadLetterAsPdf = async (req, res) => {
           projectName,
           auditDate
         );
-      } else if (category === "marketing-junction") {
-        await TemplateCode.getMJTemplateCode(
+      } else if (category === "marketing-junction" || category === "code4bharat" || category === "HR" || category === "OD") {
+        await TemplateCode.getCommonTemplateCode(
           ctx,
           width,
           height,
@@ -1072,7 +1187,23 @@ export const downloadLetterAsPdf = async (req, res) => {
           uncover,
           subjectName,
           projectName,
-          auditDate
+          auditDate,
+
+          // ⭐ Add missing fields for MJ image template
+          trainingStartDate,
+          trainingEndDate,
+          officialStartDate,
+          completionDate,
+          responsibilities,
+          amount,
+          effectiveFrom,
+          timelineStage,
+          timelineProjectName,
+          timelineDueDate,
+          timelineNewDate,
+          genderPronoun,
+          month,
+          year
         );
       } else {
       }
@@ -1106,15 +1237,163 @@ export const downloadLetterAsPdf = async (req, res) => {
       return;
     } else {
 
-    /* ----------------------------------
-   📄 PDF Template Rendering (Download)
-  ---------------------------------- */
+      /* ----------------------------------
+     📄 PDF Template Rendering (Download)
+    ---------------------------------- */
       const existingPdfBytes = fs.readFileSync(templatePath);
       const pdfDoc = await PDFLibDocument.load(existingPdfBytes);
 
       if (letter.category === "FSD") {
         // Reuse the same unified drawPdfTemplate logic
         await TemplateCode.drawFSDPdfTemplate(pdfDoc, letter.course, {
+          name: letter.name,
+          outwardNo: letter.outwardNo,
+          issueDate: letter.issueDate,
+          formattedDate: new Date(letter.issueDate).toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          ),
+          tempId: letter.letterId,
+          description: letter.description,
+          subject: letter.subject,
+          startDate: letter.startDate,
+          endDate: letter.endDate,
+        });
+      } else if (letter.category === "marketing-junction") {
+        await TemplateCode.drawMJPdfTemplate(pdfDoc, letter.course, {
+          name: letter.name,
+          outwardNo: letter.outwardNo,
+          formattedDate: new Date(letter.issueDate).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          tempId: letter.letterId,
+          role: letter.role,
+
+          trainingStartDate: trainingStartDate,
+          trainingEndDate: trainingEndDate,
+          officialStartDate: officialStartDate,
+          completionDate: completionDate,
+          responsibilities: letter.responsibilities,
+          amount: letter.amount,
+          effectiveFrom: effectiveFrom,
+          duration: letter.duration,
+
+          // Add missing fields to MJ PDF
+          timelineStage: letter.timelineStage,
+          timelineProjectName: letter.timelineProjectName,
+          timelineDueDate: letter.timelineDueDate,
+          timelineNewDate: letter.timelineNewDate,
+
+          genderPronoun: letter.genderPronoun,
+          month: letter.month,
+          year: letter.year,
+        });
+
+      } else if (letter.category === "code4bharat") {
+        await TemplateCode.drawC4BPdfTemplate(pdfDoc, letter.course, {
+          name: letter.name,
+          outwardNo: letter.outwardNo,
+          formattedDate: new Date(letter.issueDate).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          tempId: letter.letterId,
+          role: letter.role,
+
+          trainingStartDate: trainingStartDate,
+          trainingEndDate: trainingEndDate,
+          officialStartDate: officialStartDate,
+          completionDate: completionDate,
+          responsibilities: letter.responsibilities,
+          amount: letter.amount,
+          effectiveFrom: effectiveFrom,
+          duration: letter.duration,
+
+          // Add missing fields to MJ PDF
+          timelineStage: letter.timelineStage,
+          timelineProjectName: letter.timelineProjectName,
+          timelineDueDate: letter.timelineDueDate,
+          timelineNewDate: letter.timelineNewDate,
+
+          genderPronoun: letter.genderPronoun,
+          month: letter.month,
+          year: letter.year,
+        });
+
+      } else if (letter.category === "HR") {
+        await TemplateCode.drawHRPdfTemplate(pdfDoc, letter.course, {
+          name: letter.name,
+          outwardNo: letter.outwardNo,
+          formattedDate: new Date(letter.issueDate).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          tempId: letter.letterId,
+          role: letter.role,
+
+          trainingStartDate: trainingStartDate,
+          trainingEndDate: trainingEndDate,
+          officialStartDate: officialStartDate,
+          completionDate: completionDate,
+          responsibilities: letter.responsibilities,
+          amount: letter.amount,
+          effectiveFrom: effectiveFrom,
+          duration: letter.duration,
+
+          // Add missing fields to MJ PDF
+          timelineStage: letter.timelineStage,
+          timelineProjectName: letter.timelineProjectName,
+          timelineDueDate: letter.timelineDueDate,
+          timelineNewDate: letter.timelineNewDate,
+
+          genderPronoun: letter.genderPronoun,
+          month: letter.month,
+          year: letter.year,
+        });
+
+      } else if (letter.category === "OD") {
+        await TemplateCode.drawODPdfTemplate(pdfDoc, letter.course, {
+          name: letter.name,
+          outwardNo: letter.outwardNo,
+          formattedDate: new Date(letter.issueDate).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          tempId: letter.letterId,
+          role: letter.role,
+
+          trainingStartDate: trainingStartDate,
+          trainingEndDate: trainingEndDate,
+          officialStartDate: officialStartDate,
+          completionDate: completionDate,
+          responsibilities: letter.responsibilities,
+          amount: letter.amount,
+          effectiveFrom: effectiveFrom,
+          duration: letter.duration,
+
+          // Add missing fields to MJ PDF
+          timelineStage: letter.timelineStage,
+          timelineProjectName: letter.timelineProjectName,
+          timelineDueDate: letter.timelineDueDate,
+          timelineNewDate: letter.timelineNewDate,
+
+          genderPronoun: letter.genderPronoun,
+          month: letter.month,
+          year: letter.year,
+        });
+
+      } else if (letter.category === "DM") {
+        // Reuse the same unified drawPdfTemplate logic
+        await TemplateCode.drawDMPdfTemplate(pdfDoc, letter.course, {
           name: letter.name,
           outwardNo: letter.outwardNo,
           issueDate: letter.issueDate,

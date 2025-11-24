@@ -343,7 +343,7 @@ router.put(
       if (category) updateData.category = category;
       if (batch !== undefined) updateData.batch = batch;
       if (phone) updateData.phone = phone;
-      if (email) updateData.email = email;  // ✅ Added
+      if (email !== undefined) updateData.email = email;  // ✅ Added
       // if (Phone !== undefined) {
       //   updateData.Phone = Phone1 ? '91' + Phone1 : null;
       // }
@@ -391,8 +391,9 @@ router.put(
         }
       );
 
+      // console.log("Person Data: ", person);
       if (!person) {
-        console.error('❌ Person not found');
+        // console.error('❌ Person not found');
         return res.status(404).json({
           success: false,
           message: 'Person not found with the given name and phone'

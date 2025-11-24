@@ -150,18 +150,71 @@ const letterSchema = new mongoose.Schema(
     },
 
     responsibilities: {
-      type: Date,
+      type: String,
       required: false,
     },
 
     amount: {
-      type: Date,
+      type: Number,
       required: false,
     },
 
     effectiveFrom: {
       type: Date,
       required: false,
+    },
+
+    timelineStage: {
+      type: String,
+      enum: ["First", "Second", "Final", ""],
+      default: null,
+    },
+
+    timelineProjectName: {
+      type: String,
+      maxlength: 15,
+      default: null,
+    },
+
+    timelineDueDate: {
+      type: Date,
+      default: null,
+    },
+
+    timelineNewDate: {
+      type: Date,
+      default: null,
+    },
+
+    genderPronoun: {
+      type: String,
+      enum: ["his", "her", ""],
+      required: function () {
+        return (
+          this.course === "Experience Certificate"
+        );
+      },
+    },
+
+    month: {
+      type: String,
+      required: false,
+    },
+
+    year: {
+      type: Number,
+      required: false,
+    },
+
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected", "downloaded", "in_review"], // ❌ "in_review" missing
+      default: "pending",
+    },
+    signedUploaded: { type: Boolean, default: false },
+    signedDocumentPath: {
+      type: String,
+      default: null,
     },
 
     issueDate: {
