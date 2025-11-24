@@ -205,8 +205,7 @@ const getFSDTemplateCode = async (
       { text: name, bold: true },
       { text: " was associated with ", bold: false },
       { text: "Nexcore Alliance LLP", bold: true },
-      { text: " under its brand ", bold: false },
-      { text: "Code4Bharat", bold: true },
+     
       { text: " as a", bold: false },
       { text: ` ${role} from ${startDate} to ${endDate}.`, bold: true },
     ];
@@ -2353,7 +2352,7 @@ const getCommonTemplateCode = async (
     const sentence2 = `that align with ${hisHer} skills and aspirations.`;
 
     ctx.font = 'bold 25px "Poppins"';
-    ctx.fillText(sentence1, width * 0.035, height * 0.665);
+    ctx.fillText(sentence1, width * 0.035, height * 0.664);
 
     ctx.font = 'bold 25px "Poppins"';
     ctx.fillText(sentence2, width * 0.035, height * 0.682);
