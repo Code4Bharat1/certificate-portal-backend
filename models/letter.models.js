@@ -206,7 +206,7 @@ const letterSchema = new mongoose.Schema(
       required: false,
     },
 
-    status: {
+    signedstatus: {
       type: String,
       enum: ["pending", "approved", "rejected", "downloaded", "in_review"], // ❌ "in_review" missing
       default: "pending",

@@ -45,7 +45,8 @@ const getFSDTemplateCode = async (
     uncover,
     subjectName,
     projectName,
-    auditDate
+    auditDate,
+    signatureImage,
 ) => {
 
     // FSD
@@ -80,6 +81,18 @@ const getFSDTemplateCode = async (
 
         ctx.font = 'bold 25px "Poppins"';
         ctx.fillText(attendanceDate, width * 0.316, height * 0.422);
+
+        // Draw signature only if image exists
+        if (signatureImage) {
+            ctx.drawImage(
+                signatureImage,
+                width * 0.60,     // X Position → adjust if needed
+                height * 0.78,    // Y Position → adjust if needed
+                180,              // Width
+                80                // Height
+            );
+        }
+
 
         // Letter ID
         ctx.font = 'bold 35px "Poppins"';
@@ -1906,6 +1919,7 @@ const getCommonTemplateCode = async (
     genderPronoun,
     month,
     year,
+    signatureImage,
 ) => {
 
     // MJ
@@ -2211,6 +2225,18 @@ const getCommonTemplateCode = async (
 
         ctx.font = 'bold 25px "Poppins"';
         ctx.fillText(`from ${formatEffectiveDate}`, width * 0.640, height * 0.487);
+
+        // Draw signature only if image exists
+        if (signatureImage) {
+            ctx.drawImage(
+                signatureImage,
+                width * 0.60,     // X Position → adjust if needed
+                height * 0.78,    // Y Position → adjust if needed
+                180,              // Width
+                80                // Height
+            );
+        }
+
 
         // Letter ID
         ctx.font = 'bold 25px "Poppins"';

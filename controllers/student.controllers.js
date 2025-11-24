@@ -440,7 +440,7 @@ export const uploadSignedLetter = async (req, res) => {
     letter.signedUploaded = true;
     letter.signedDocumentPath = req.file.path; // ⭐ PATH STORED HERE
     letter.signedUploadedDate = new Date();
-    letter.status = 'in_review'; // your enum allows this
+    letter.signedstatus = 'in_review'; // your enum allows this
 
     await letter.save();
 

@@ -18,61 +18,51 @@ import { wrapText as letterwraptext } from "./letter.controllers.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Utility function to generate unique certificate ID
-// function generateCertificateId(category) {
-//   const prefix = category === "marketing-junction" ? "MJ" : "C4B";
-//   const numberPart = Math.floor(100 + Math.random() * 900);
-//   return `${prefix}-${numberPart}`;
-// }
-
-// function generateCertificateId(category) {
-//   const prefixMap = {
-//     FSD: 'FSD',
-//     BVOC: 'BV',
-//     BOOTCAMP: 'BC',
-//     HR: 'HR',
-//     'marketing-junction': 'MJ',
-//     code4bharat: 'C4B'
-//   };
-
-//   const prefix = prefixMap[category] || 'GEN';
-//   const numberPart = Math.floor(1000 + Math.random() * 9000);
-//   return `${prefix}-${numberPart}`;
-// }
-
-
-// Updated function to generate certificate IDs
-// Certificate of Appreciation will have "COA" prefix
-
-function generateCertificateId(category, course = null) {
-  // For Certificate of Appreciation
-  if (course && course === "Appreciation Letter") {
-    const uniquePart = uuidv4().replace(/-/g, '').substring(0, 4).toUpperCase();
-    return `AL-${uniquePart}`;
-  }
-
-  if (course && course === "Experience Certificate") {
-    const uniquePart = uuidv4().replace(/-/g, '').substring(0, 4).toUpperCase();
-    return `EXP-${uniquePart}`;
-  }
-
-  // Category-based prefixes
-  const prefixMap = {
-    FSD: 'FSD',
-    BVOC: 'BV',
-    BOOTCAMP: 'BC',
-    HR: 'HR',
-    'marketing-junction': 'MJ',
-    code4bharat: 'C4B',
+export async function generateCertificateId(category) {
+  const catMap = {
+    code4bharat: "C4B",
+    "marketing-junction": "MJ",
+    FSD: "FSD",
+    HR: "HR",
+    BVOC: "BVOC",
+    BOOTCAMP: "BC",
   };
 
-  const prefix = prefixMap[category] || 'GEN';
+  const catAbbr = catMap[category] || category.toUpperCase().slice(0, 4);
 
-  // Generate 4 alphanumeric characters
-  const uniquePart = uuidv4().replace(/-/g, '').substring(0, 4).toUpperCase();
+  // Get today's date in YYYY-MM-DD
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  const dateStr = `${yyyy}-${mm}-${dd}`;
 
-  return `${prefix}-${uniquePart}`;
+  // Regex: FSD-YYYY-MM-DD-XX
+  const regex = new RegExp(`^${catAbbr}-${dateStr}-(\\d+)$`);
+
+  // Find last certificateId generated today for this category
+  const last = await Certificate.find({
+    certificateId: { $regex: `^${catAbbr}-${dateStr}-` },
+  })
+    .select("certificateId")
+    .sort({ createdAt: -1 })
+    .limit(1)
+    .lean();
+
+  let nextNum = 1;
+
+  if (last.length) {
+    const match = last[0].certificateId.match(regex);
+    if (match && match[1]) {
+      nextNum = parseInt(match[1], 10) + 1;
+    }
+  }
+
+  const padded = String(nextNum).padStart(2, "0");
+
+  return `${catAbbr}-${dateStr}-${padded}`;
 }
+
 
 
 
@@ -250,7 +240,7 @@ const createCertificate = async (req, res) => {
     let certificateId;
     let existingId;
     do {
-      certificateId = generateCertificateId(category, course);
+      certificateId = await generateCertificateId(category);
       existingId = await Certificate.findOne({ certificateId });
     } while (existingId);
 
@@ -583,7 +573,7 @@ const downloadCertificateAsPdf = async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
-    if (isAppreciation || certificate.course === "Experience Certificate" ) {
+    if (isAppreciation || certificate.course === "Experience Certificate") {
       // =================== STYLES ===================
       ctx.fillStyle = "#111827";
       ctx.textAlign = "left";
@@ -1048,7 +1038,7 @@ const downloadCertificateAsJpg = async (req, res) => {
     const id = tempId.split("-")[0];
     const isAppreciation = isAppreciationCertificate(certificate.course);
 
-    if (isAppreciation || certificate.course === "Experience Certificate" ) {
+    if (isAppreciation || certificate.course === "Experience Certificate") {
       // =================== STYLES ===================
       ctx.fillStyle = "#111827";
       ctx.textAlign = "left";
@@ -1242,7 +1232,7 @@ const generateCertificatePreview = async (req, res) => {
     }
 
     // Generate a temporary certificate ID for preview
-    const tempCertificateId = generateCertificateId(category, course);
+    const tempCertificateId = await generateCertificateId(category);
 
     const templateFilename = getCourseTemplateFilename(course, category);
     const templatePath = path.join(__dirname, "../templates", templateFilename);

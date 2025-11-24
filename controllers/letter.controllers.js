@@ -1010,6 +1010,19 @@ export const downloadLetterAsPdf = async (req, res) => {
       const ctx = canvas.getContext("2d");
       ctx.drawImage(templateImage, 0, 0);
 
+      // Load signature only if exists
+      let signatureImage = null;
+      if (letter.signedUploaded && letter.signedDocumentPath) {
+        try {
+          signatureImage = await loadImage(
+            path.join(__dirname, "../", letter.signedDocumentPath)
+          );
+        } catch (err) {
+          console.log("Signature load failed (ignored):", err.message);
+        }
+      }
+
+
       const {
         name,
         category,
@@ -1097,7 +1110,8 @@ export const downloadLetterAsPdf = async (req, res) => {
           uncover,
           subjectName,
           projectName,
-          auditDate
+          auditDate,
+          signatureImage,
         );
       } else if (category === "BVOC") {
         TemplateCode.getBVOCTemplateCode(
@@ -1127,7 +1141,8 @@ export const downloadLetterAsPdf = async (req, res) => {
           uncover,
           subjectName,
           projectName,
-          auditDate
+          auditDate,
+          signatureImage,
         );
       } else if (category === "DM") {
         TemplateCode.getDMTemplateCode(
@@ -1157,7 +1172,8 @@ export const downloadLetterAsPdf = async (req, res) => {
           uncover,
           subjectName,
           projectName,
-          auditDate
+          auditDate,
+          signatureImage,
         );
       } else if (category === "marketing-junction" || category === "code4bharat" || category === "HR" || category === "OD") {
         await TemplateCode.getCommonTemplateCode(
@@ -1203,10 +1219,10 @@ export const downloadLetterAsPdf = async (req, res) => {
           timelineNewDate,
           genderPronoun,
           month,
-          year
+          year,
+          signatureImage,
         );
-      } else {
-      }
+      } else {}
 
       // Convert canvas to JPEG buffer
       const jpegBuffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
@@ -1235,8 +1251,9 @@ export const downloadLetterAsPdf = async (req, res) => {
       });
 
       return;
-    } else {
+    }
 
+    else {
       /* ----------------------------------
      📄 PDF Template Rendering (Download)
     ---------------------------------- */
@@ -1262,6 +1279,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           subject: letter.subject,
           startDate: letter.startDate,
           endDate: letter.endDate,
+          signatureImage,
         });
       } else if (letter.category === "marketing-junction") {
         await TemplateCode.drawMJPdfTemplate(pdfDoc, letter.course, {
@@ -1293,6 +1311,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           genderPronoun: letter.genderPronoun,
           month: letter.month,
           year: letter.year,
+          signatureImage,
         });
 
       } else if (letter.category === "code4bharat") {
@@ -1325,6 +1344,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           genderPronoun: letter.genderPronoun,
           month: letter.month,
           year: letter.year,
+          signatureImage,
         });
 
       } else if (letter.category === "HR") {
@@ -1357,6 +1377,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           genderPronoun: letter.genderPronoun,
           month: letter.month,
           year: letter.year,
+          signatureImage,
         });
 
       } else if (letter.category === "OD") {
@@ -1389,6 +1410,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           genderPronoun: letter.genderPronoun,
           month: letter.month,
           year: letter.year,
+          signatureImage,
         });
 
       } else if (letter.category === "DM") {
@@ -1410,6 +1432,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           subject: letter.subject,
           startDate: letter.startDate,
           endDate: letter.endDate,
+          signatureImage,
         });
       }
 
