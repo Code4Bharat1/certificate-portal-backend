@@ -205,7 +205,7 @@ const getFSDTemplateCode = async (
       { text: name, bold: true },
       { text: " was associated with ", bold: false },
       { text: "Nexcore Alliance LLP", bold: true },
-     
+
       { text: " as a", bold: false },
       { text: ` ${role} from ${startDate} to ${endDate}.`, bold: true },
     ];
@@ -2876,9 +2876,9 @@ const drawFSDPdfTemplate = async (
     });
   } else if (course === "Non-Disclosure Agreement") {
 
-  /* ============================================================
-       🔒 NON-DISCLOSURE AGREEMENT
-    ============================================================ */
+    /* ============================================================
+         🔒 NON-DISCLOSURE AGREEMENT
+      ============================================================ */
     const page = firstPage;
     page.drawText(`Non-Disclosure Agreement (NDA)`, {
       x: width * 0.3,
@@ -3923,7 +3923,7 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     firstPage.drawText(`${outwardNo}`, {
       x: width * 0.22,
-      y: height * 0.772,
+      y: height * 0.770,
       size: 12,
       font: helveticaBold,
       color: darkColor,
@@ -3931,7 +3931,7 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     firstPage.drawText(`${formattedDate}`, {
       x: width * 0.13,
-      y: height * 0.748,
+      y: height * 0.745,
       size: 12,
       font: helveticaBold,
       color: darkColor,
@@ -3944,6 +3944,30 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
       font: helveticaBold,
       color: darkColor,
     });
+
+    if (signatureImage) {
+      firstPage.drawImage(signatureImage, {
+        x: width * 0.6,       // same X ratio
+        y: height * 0.78,     // same Y ratio
+        width: 180,           // same width
+        height: 80            // same height
+      });
+
+      secondPage.drawImage(signatureImage, {
+        x: width * 0.6,       // same X ratio
+        y: height * 0.78,     // same Y ratio
+        width: 180,           // same width
+        height: 80            // same height
+      });
+
+      thirdPage.drawImage(signatureImage, {
+        x: width * 0.6,       // same X ratio
+        y: height * 0.78,     // same Y ratio
+        width: 180,           // same width
+        height: 80            // same height
+      });
+    }
+
 
     /* ===========================================================
     SECTION: AND — DYNAMIC RECIPIENT LINE (Mixed Bold Support)
@@ -3958,7 +3982,7 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
       },
       { text: `${role}`, font: helveticaBold, size: 10 },
       {
-        text: ` with Marketiq Junction for a period of `,
+        text: ` with Nexcore Alliance for a period of `,
         font: helvetica,
         size: 10,
       },
@@ -3992,7 +4016,7 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     thirdPage.drawText(`${name}`, {
       x: width * 0.17,
-      y: height * 0.322,
+      y: height * 0.420,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
@@ -4000,7 +4024,7 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     thirdPage.drawText(`${role}`, {
       x: width * 0.23,
-      y: height * 0.303,
+      y: height * 0.400,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
@@ -4008,7 +4032,7 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     thirdPage.drawText(`${tempId}`, {
       x: width * 0.25,
-      y: height * 0.4,
+      y: height * 0.488,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
@@ -5227,10 +5251,10 @@ function formatWithOrdinal(dateString) {
     day % 10 === 1 && day !== 11
       ? "st"
       : day % 10 === 2 && day !== 12
-      ? "nd"
-      : day % 10 === 3 && day !== 13
-      ? "rd"
-      : "th";
+        ? "nd"
+        : day % 10 === 3 && day !== 13
+          ? "rd"
+          : "th";
 
   return `${month} ${day}${suffix} ${year}`;
 }

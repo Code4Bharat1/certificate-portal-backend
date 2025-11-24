@@ -1222,7 +1222,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           year,
           signatureImage,
         );
-      } else {}
+      } else { }
 
       // Convert canvas to JPEG buffer
       const jpegBuffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
@@ -1259,6 +1259,18 @@ export const downloadLetterAsPdf = async (req, res) => {
     ---------------------------------- */
       const existingPdfBytes = fs.readFileSync(templatePath);
       const pdfDoc = await PDFLibDocument.load(existingPdfBytes);
+
+      let signatureImage = null;
+
+      if (letter.signedUploaded && letter.signedDocumentPath) {
+        const sigPath = path.join(__dirname, "../", letter.signedDocumentPath);
+
+        if (fs.existsSync(sigPath)) {
+          const signatureBytes = fs.readFileSync(sigPath);
+          signatureImage = await pdfDoc.embedPng(signatureBytes);
+        }
+      }
+
 
       if (letter.category === "FSD") {
         // Reuse the same unified drawPdfTemplate logic
