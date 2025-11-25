@@ -103,3 +103,59 @@ export const verifyStudentDocuments = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+export const approveDocument = async (req, res) => {
+  try {
+    const { studentId, docType } = req.params;
+
+    const student = await Student.findById(studentId);
+    if (!student) return res.status(404).json({ success: false, message: "Student not found" });
+
+    student.documentsStatus = student.documentsStatus || {};
+    student.documentsStatus[docType] = { status: "approved", rejectionReason: null };
+
+    await student.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Document approved"
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+export const rejectDocument = async (req, res) => {
+  try {
+    const { studentId, docType } = req.params;
+    const { reason } = req.body;
+
+    if (!reason) {
+      return res.status(400).json({
+        success: false,
+        message: "Rejection reason is required"
+      });
+    }
+
+    const student = await Student.findById(studentId);
+    if (!student) return res.status(404).json({ success: false, message: "Student not found" });
+
+    student.documentsStatus = student.documentsStatus || {};
+    student.documentsStatus[docType] = { status: "rejected", rejectionReason: reason };
+
+    await student.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Document rejected"
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};

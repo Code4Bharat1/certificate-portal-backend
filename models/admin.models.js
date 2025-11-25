@@ -11,8 +11,7 @@ const adminSchema = new mongoose.Schema({
     required: [true, 'Username is required'],
     unique: true,
     trim: true,
-    minlength: [3, 'Username must be at least 3 characters'],
-    maxlength: [50, 'Username must not exceed 50 characters']
+    
   },
   password: {
     type: String,
@@ -21,7 +20,7 @@ const adminSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['admin', 'superadmin'],
+    enum: ['admin', 'superadmin','code4bharat_admin','marketing_junction_admin','fsd_admin','hr_admin','bootcamp_admin','bvoc_admin'],
     default: 'admin'
   },
   email: {
@@ -32,36 +31,28 @@ const adminSchema = new mongoose.Schema({
     trim: true,
     match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email']
   },
-  name: {
-    type: String,
-    trim: true
-  },
-  isActive: {
-    type: Boolean,
-    default: true
-  },
-  lastLogin: {
-    type: Date
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  }
+  permissions: {
+  type: [String],
+  default: []
+}
+,
+  name: { type: String, trim: true },
+  phone: { type: String, trim: true },
+  isActive: { type: Boolean, default: true },
+  lastLogin: { type: Date },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
 }, {
   timestamps: true
 });
 
-// Hash password before saving
+// =====================================
+// 🔐 Password Hashing
+// =====================================
 adminSchema.pre('save', async function(next) {
-  // Only hash if password is modified or new
   if (!this.isModified('password')) return next();
-  
+
   try {
-    // Hash password with salt rounds of 12
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
     next();
@@ -70,72 +61,70 @@ adminSchema.pre('save', async function(next) {
   }
 });
 
-// Update timestamp on modification
+// =====================================
+// 🔄 Update timestamp
+// =====================================
 adminSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
 });
 
-// Compare password method
+// =====================================
+// 🔍 Compare passwords
+// =====================================
 adminSchema.methods.comparePassword = async function(candidatePassword) {
-  try {
-    return await bcrypt.compare(candidatePassword, this.password);
-  } catch (error) {
-    throw new Error('Password comparison failed');
-  }
+  return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Method to update last login
+// =====================================
+// 🕒 Update last login
+// =====================================
 adminSchema.methods.updateLastLogin = async function() {
   this.lastLogin = Date.now();
   return await this.save();
 };
 
-// Static method to find active admin
-adminSchema.statics.findActiveAdmin = function(username) {
-  return this.findOne({ username, isActive: true });
-};
-
-// Create default admin if none exists
+// =====================================
+// 🧑‍💼 Create Default Admin
+// =====================================
 adminSchema.statics.createDefaultAdmin = async function() {
   try {
-    const adminCount = await this.countDocuments();
-    
-    if (adminCount === 0) {
-      const defaultUsername = process.env.ADMIN_USERNAME || 'C4B';
-      const defaultPassword = process.env.ADMIN_PASSWORD || 'C4B';
-      
-      console.log('📝 No admin users found. Creating default admin...');
-      
-      const defaultAdmin = new this({
-        username: defaultUsername,
-        password: defaultPassword,
-        role: 'admin',
-        name: 'Code4Bharat Admin',
-        email: 'admin@code4bharat.com',
-        isActive: true
-      });
-      
-      await defaultAdmin.save();
-      console.log('✅ Default admin created successfully!');
-      console.log('Username:', defaultUsername);
-      console.log('Password:', defaultPassword);
-    }
+    const count = await this.countDocuments();
+    if (count > 0) return;
+
+    const username = process.env.ADMIN_USERNAME || 'C4B';
+    const password = process.env.ADMIN_PASSWORD || 'C4B';
+
+    console.log("🔐 No admin found → Creating default admin");
+
+    await this.create({
+      username,
+      password,
+      role: 'superadmin',
+      email: 'admin@code4bharat.com',
+      name: 'Code 4 Bharat Super Admin',
+      isActive: true
+    });
+
+    console.log("✅ Default Admin Created:");
+    console.log("Username:", username);
+    console.log("Password:", password);
+
   } catch (error) {
-    console.error('❌ Error creating default admin:', error.message);
+    console.error("❌ Error creating default admin:", error.message);
   }
 };
 
-// Indexes for better performance
+// Indexes
 adminSchema.index({ username: 1 });
 adminSchema.index({ email: 1 });
 adminSchema.index({ isActive: 1 });
 
 const Admin = mongoose.model('Admin', adminSchema);
 
-// Auto-create default admin on model initialization
+// Auto-create default admin
 Admin.createDefaultAdmin().catch(err => {
-  console.error('Error in auto-create admin:', err.message);
+  console.error("Default Admin Creation Error:", err.message);
 });
 
 export default Admin;
