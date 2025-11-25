@@ -2,6 +2,22 @@ import { rgb, StandardFonts } from "pdf-lib";
 import { wrapText } from "../controllers/letter.controllers.js";
 import People from "../models/people.models.js";
 
+import { createCanvas, loadImage, registerFont } from "canvas";
+import path from "path";
+
+// Load Poppins Regular
+registerFont(path.resolve(process.cwd(), "fonts/Poppins-Regular.ttf"), {
+  family: "Poppins",
+  weight: "normal",
+});
+
+// Load Poppins Bold
+registerFont(path.resolve(process.cwd(), "fonts/Poppins-Bold.ttf"), {
+  family: "Poppins",
+  weight: "bold",
+});
+
+
 // Convert performanceMonth to short form (e.g., "Jan", "Feb", etc.)
 const monthMap = {
   January: "Jan",
