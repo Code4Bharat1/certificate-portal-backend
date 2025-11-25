@@ -2368,7 +2368,7 @@ const getCommonTemplateCode = async (
     const sentence2 = `that align with ${hisHer} skills and aspirations.`;
 
     ctx.font = 'bold 25px "Poppins"';
-    ctx.fillText(sentence1, width * 0.035, height * 0.664);
+    ctx.fillText(sentence1, width * 0.035, height * 0.662);
 
     ctx.font = 'bold 25px "Poppins"';
     ctx.fillText(sentence2, width * 0.035, height * 0.682);
@@ -2387,7 +2387,7 @@ const getCommonTemplateCode = async (
       );
     }
     // Footer
-    ctx.font = '35px "Ovo", serif';
+    ctx.font = '30px "Ovo", serif';
     ctx.textAlign = "center";
     ctx.fillStyle = "#1F2937";
     ctx.fillText(
