@@ -2378,7 +2378,7 @@ const getCommonTemplateCode = async (
     const sentence2 = `that align with ${hisHer} skills and aspirations.`;
 
     ctx.font = 'bold 25px "Poppins"';
-    ctx.fillText(sentence1, width * 0.035, height * 0.662);
+    ctx.fillText(sentence1, width * 0.036, height * 0.662);
 
     ctx.font = 'bold 25px "Poppins"';
     ctx.fillText(sentence2, width * 0.035, height * 0.682);
