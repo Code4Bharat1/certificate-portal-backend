@@ -11,7 +11,9 @@ import {
   getAllStudentLetters,
   uploadSignedLetter,
   downloadAllCertificates,
-  getLetterDetails
+  getLetterDetails,
+  studentForgotPassword,
+  studentResetPassword
 } from '../controllers/student.controllers.js';
 import uploadDocuments from "../middleware/uploadDocuments.js";
 // import { authenticateStudent } from "../middleware/auth.middleware.js";
@@ -182,6 +184,13 @@ router.post(
   uploadDocuments,
   uploadStudentDocuments
 );
+// ========== AUTH: FORGOT PASSWORD (PHONE OTP) ==========
+
+// Send OTP to student's phone
+router.post("/student/forgot-password", studentForgotPassword);
+
+// Verify OTP and reset password
+router.post("/student/reset-password", studentResetPassword);
 
 
 export default router;

@@ -670,4 +670,94 @@ export const getStudentDocuments = async (req, res) => {
     });
   }
 };
+export const studentForgotPassword = async (req, res) => {
+  try {
+    const { phone } = req.body;
+
+    if (!phone) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number is required"
+      });
+    }
+
+    const student = await Student.findOne({ phone });
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found"
+      });
+    }
+
+    // random 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000);
+
+    student.resetOtp = otp;
+    student.resetOtpExpires = Date.now() + 10 * 60 * 1000;
+
+    await student.save();
+
+    console.log("Student OTP:", otp);
+
+    res.status(200).json({
+      success: true,
+      message: "OTP sent to phone",
+      otp // remove in production
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
+  }
+};
+
+
+// Reset Password
+export const studentResetPassword = async (req, res) => {
+  try {
+    const { phone, otp, newPassword } = req.body;
+
+    if (!phone || !otp || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone, OTP and new password are required"
+      });
+    }
+
+    const student = await Student.findOne({
+      phone,
+      resetOtp: otp,
+      resetOtpExpires: { $gt: Date.now() }
+    });
+
+    if (!student) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired OTP"
+      });
+    }
+
+    student.password = newPassword;
+    student.resetOtp = undefined;
+    student.resetOtpExpires = undefined;
+
+    await student.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successful"
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
+  }
+};
 

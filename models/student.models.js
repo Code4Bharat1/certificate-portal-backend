@@ -126,6 +126,11 @@ const studentSchema = new mongoose.Schema(
       select: false,
       default: null,
     },
+     resetPasswordToken: String,
+  resetPasswordExpires: Date,
+  resetOtp: Number,
+resetOtpExpires: Date,
+
 
     firstLogin: {
       type: Boolean,

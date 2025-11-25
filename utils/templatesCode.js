@@ -1,21 +1,31 @@
 import { rgb, StandardFonts } from "pdf-lib";
 import { wrapText } from "../controllers/letter.controllers.js";
 import People from "../models/people.models.js";
-
 import { createCanvas, loadImage, registerFont } from "canvas";
 import path from "path";
 
-// Load Poppins Regular
-registerFont(path.resolve(process.cwd(), "fonts/Poppins-Regular.ttf"), {
+// Register fonts
+registerFont(path.resolve("fonts/Poppins-Regular.ttf"), {
   family: "Poppins",
   weight: "normal",
+  style: "normal",
 });
 
-// Load Poppins Bold
-registerFont(path.resolve(process.cwd(), "fonts/Poppins-Bold.ttf"), {
+registerFont(path.resolve("fonts/Poppins-Bold.ttf"), {
   family: "Poppins",
   weight: "bold",
+  style: "normal",
 });
+
+
+// Create canvas
+const canvas = createCanvas(1200, 800);
+const ctx = canvas.getContext("2d");
+
+// Now it's safe to set font
+ctx.font = "bold 25px Poppins";
+ctx.fillStyle = "black";
+ctx.fillText("Hello Poppins!", 50, 50);
 
 
 // Convert performanceMonth to short form (e.g., "Jan", "Feb", etc.)

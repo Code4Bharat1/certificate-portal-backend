@@ -14,6 +14,8 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  // Forgot password fields
+ 
   role: {
     type: String,
     default: 'admin'
