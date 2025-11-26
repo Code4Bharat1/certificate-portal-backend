@@ -7,7 +7,6 @@ import { authenticate } from "../middleware/auth.middleware.js"; // Optional
 import Student from "../models/student.models.js";
 import { validateCategory } from "../middleware/validateCategory.js";
 
-
 const router = express.Router();
 
 // Configure multer for file uploads
@@ -297,18 +296,18 @@ router.put(
       .withMessage("Name cannot be empty")
       .isLength({ max: 50 })
       .withMessage("Name cannot exceed 50 characters"),
-    body("category")
-      .optional()
-      .isIn([
-        "code4bharat",
-        "marketing-junction",
-        "FSD",
-        "BVOC",
-        "HR",
-        "DM",
-        "OD",
-      ])
-      .withMessage("Invalid category"),
+    // body("category")
+    //   .optional()
+    //   .isIn([
+    //     "code4bharat",
+    //     "marketing-junction",
+    //     "FSD",
+    //     "BVOC",
+    //     "HR",
+    //     "DM",
+    //     "OD",
+    //   ])
+    //   .withMessage("Invalid category"),
     body("phone")
       .optional()
       .matches(/^[0-9]{10}$/)
@@ -442,11 +441,11 @@ router.put(
       );
 
       // console.log("Person Data: ", person);
-      if (!person || !student) {
+      if (!person) {
         // console.error('❌ Person not found');
         return res.status(404).json({
           success: false,
-          message: "Person not found with the given name and phone",
+          message: "Person not foufffnd with the given name and phone",
         });
       }
 
