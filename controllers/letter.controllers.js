@@ -609,6 +609,42 @@ export const previewLetter = async (req, res) => {
       day: "numeric",
     });
 
+    const formattedtrainingStartDate = new Date(trainingStartDate).toLocaleDateString(
+      "en-US",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }
+    );
+
+    const formattedtrainingEndDate = new Date(trainingEndDate).toLocaleDateString(
+      "en-US",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }
+    );
+
+    const formattedofficialStartDate = new Date(officialStartDate).toLocaleDateString(
+      "en-US",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }
+    );
+
+    const formattedcompletionDate = new Date(completionDate).toLocaleDateString(
+      "en-US",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }
+    );
+
     /* ----------------------------------
        🖼 Image Template Rendering
     ---------------------------------- */
@@ -804,10 +840,10 @@ export const previewLetter = async (req, res) => {
           formattedDate,
           tempId,
           role,
-          trainingStartDate,
-          trainingEndDate,
-          officialStartDate,
-          completionDate,
+          formattedtrainingStartDate,
+          formattedtrainingEndDate,
+          formattedofficialStartDate,
+          formattedcompletionDate,
           responsibilities,
           amount,
           effectiveFrom,

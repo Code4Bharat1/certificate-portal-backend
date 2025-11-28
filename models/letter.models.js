@@ -172,7 +172,7 @@ const letterSchema = new mongoose.Schema(
 
     timelineProjectName: {
       type: String,
-      maxlength: 15,
+      maxlength: 30,
       default: null,
     },
 

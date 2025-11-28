@@ -5,28 +5,31 @@ import { createCanvas, loadImage, registerFont } from "canvas";
 import path from "path";
 
 // Register fonts
-registerFont(path.resolve("fonts/Poppins-Regular.ttf"), {
-  family: "Poppins",
-  weight: "normal",
-  style: "normal",
+// registerFont(path.resolve("fonts/Poppins-Regular.ttf"), {
+//   family: "Poppins",
+//   weight: "normal",
+//   style: "normal",
+// });
+
+registerFont(path.join(process.cwd(), "fonts", "Poppins-Regular.ttf"), {
+  family: "Poppins-Regular"
 });
 
-registerFont(path.resolve("fonts/Poppins-Bold.ttf"), {
-  family: "Poppins",
-  weight: "bold",
-  style: "normal",
+registerFont(path.join(process.cwd(), "fonts", "Poppins-Bold.ttf"), {
+  family: "Poppins"
 });
+
+
+// registerFont(path.resolve("fonts/Poppins-Bold.ttf"), {
+//   family: "Poppins",
+//   weight: "bold",
+//   style: "normal",
+// });
 
 
 // Create canvas
 const canvas = createCanvas(1200, 800);
 const ctx = canvas.getContext("2d");
-
-// Now it's safe to set font
-ctx.font = "bold 25px Poppins";
-ctx.fillStyle = "black";
-ctx.fillText("Hello Poppins!", 50, 50);
-
 
 // Convert performanceMonth to short form (e.g., "Jan", "Feb", etc.)
 const monthMap = {
@@ -2409,39 +2412,39 @@ const getCommonTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 20px "Poppins"`;
-    ctx.fillText(`${outwardNo}`, width * 0.181, height * 0.231);
+    ctx.font = `bold 25px "Poppins"`;
+    ctx.fillText(`${outwardNo}`, width * 0.183, height * 0.231);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 20px "Poppins"`;
-    ctx.fillText(formattedDate, width * 0.093, height * 0.2526);
+    ctx.font = `bold 25px "Poppins"`;
+    ctx.fillText(formattedDate, width * 0.096, height * 0.2526);
 
     // to name
-    ctx.font = 'bold 23px "Poppins"';
+    ctx.font = 'bold 25px "Poppins"';
     ctx.fillText(name, width * 0.035, height * 0.31);
 
     // Dear name,
-    ctx.font = 'bold 23px "Poppins"';
+    ctx.font = 'bold 25px "Poppins"';
     ctx.fillText(name + ",", width * 0.09, height * 0.368);
 
     ctx.font = 'bold 25px "Poppins"';
-    ctx.fillText(`${timelineStage} Official `, width * 0.335, height * 0.406);
+    ctx.fillText(`${timelineStage} Official `, width * 0.335, height * 0.409);
 
     ctx.font = 'bold 25px "Poppins"';
-    ctx.fillText(timelineProjectName, width * 0.46, height * 0.425);
+    ctx.fillText(timelineProjectName, width * 0.46, height * 0.428);
 
     const formatDueDate = new Date(timelineDueDate).toLocaleDateString("en-GB");
     const formatNewDate = new Date(timelineNewDate).toLocaleDateString("en-GB");
 
-    ctx.font = 'bold 23px "Poppins"';
-    ctx.fillText(formatDueDate, width * 0.866, height * 0.426);
+    ctx.font = 'bold 25px "Poppins"';
+    ctx.fillText(formatDueDate, width * 0.225, height * 0.448);
 
     ctx.font = 'bold 25px "Poppins"';
-    ctx.fillText(formatNewDate, width * 0.55, height * 0.525);
+    ctx.fillText(formatNewDate, width * 0.55, height * 0.547);
 
-    ctx.font = 'bold 25px "Poppins"';
-    ctx.fillText(timelineStage, width * 0.16, height * 0.622);
+    ctx.font = 'bold 27px "Poppins"';
+    ctx.fillText(timelineStage, width * 0.16, height * 0.643);
 
     // Letter ID
     ctx.font = 'bold 20px "Poppins"';
@@ -3607,10 +3610,10 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
     formattedDate,
     tempId,
     role,
-    trainingStartDate,
-    trainingEndDate,
-    officialStartDate,
-    completionDate,
+    formattedtrainingStartDate,
+    formattedtrainingEndDate,
+    formattedofficialStartDate,
+    formattedcompletionDate,
     responsibilities = "",
     amount,
     effectiveFrom,
@@ -3625,8 +3628,8 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
     // --- HEADER ---
     if (outwardNo) {
       firstPage.drawText(outwardNo, {
-        x: width * 0.23,
-        y: height * 0.768,
+        x: width * 0.21,
+        y: height * 0.758,
         size: 12,
         font: helveticaBold,
         color: darkColor,
@@ -3635,8 +3638,8 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     if (formattedDate) {
       firstPage.drawText(formattedDate, {
-        x: width * 0.13,
-        y: height * 0.745,
+        x: width * 0.10,
+        y: height * 0.730,
         size: 12,
         font: helveticaBold,
         color: darkColor,
@@ -3646,66 +3649,74 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
     if (name) {
       // To
       firstPage.drawText(name, {
-        x: width * 0.07,
-        y: height * 0.69,
+        x: width * 0.035,
+        y: height * 0.655,
         size: 13,
+        font: helveticaBold,
+        color: rgb(0, 0, 0),
+      });
+      // Subject
+      firstPage.drawText(name, {
+        x: width * 0.40,
+        y: height * 0.613,
+        size: 12,
         font: helveticaBold,
         color: rgb(0, 0, 0),
       });
       // Dear
       firstPage.drawText(`${name},`, {
-        x: width * 0.13,
-        y: height * 0.64,
+        x: width * 0.09,
+        y: height * 0.573,
         size: 12,
         font: helveticaBold,
         color: rgb(0, 0, 0),
       });
     }
 
-    firstPage.drawText(`${role}`, {
-      x: width * 0.64,
-      y: height * 0.572,
-      size: 13,
+    firstPage.drawText(role, {
+      x: width * 0.56,
+      y: height * 0.496,
+      size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
     });
 
     // Internship Details
-    firstPage.drawText(`${role}`, {
-      x: width * 0.175,
-      y: height * 0.348,
+    firstPage.drawText(role, {
+      x: width * 0.140,
+      y: height * 0.320,
       size: 11,
       font: helveticaBold,
       color: rgb(0, 0, 0),
     });
 
-    firstPage.drawText(`${trainingStartDate}`, {
-      x: width * 0.29,
-      y: height * 0.305,
+    firstPage.drawText(formattedtrainingStartDate, {
+      x: width * 0.25,
+      y: height * 0.280,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
     });
 
-    firstPage.drawText(`${trainingEndDate}`, {
-      x: width * 0.285,
-      y: height * 0.281,
+    firstPage.drawText(formattedtrainingEndDate, {
+      x: width * 0.24,
+      y: height * 0.260,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
     });
 
-    firstPage.drawText(`${officialStartDate}`, {
-      x: width * 0.395,
-      y: height * 0.26,
+    firstPage.drawText(formattedofficialStartDate, {
+      x: width * 0.35,
+      y: height * 0.240,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
     });
 
-    firstPage.drawText(`${completionDate}`, {
-      x: width * 0.395,
-      y: height * 0.237,
+    firstPage.drawText(formattedcompletionDate, {
+      x: width * 0.35,
+      y: height * 0.220,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
@@ -3719,9 +3730,9 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     // --- RESPONSIBILITIES ---
     const respPage = thirdPage || detailsPage;
-    let rx = width * 0.075;
-    let ry = secondPage ? height * 0.74 : dy - 40;
-    const maxWidth = width * 0.88;
+    let rx = width * 0.025;
+    let ry = secondPage ? height * 0.77 : dy - 40;
+    const maxWidth = width * 0.89;
     ry -= 20;
 
     let respFont = 12;
@@ -3748,8 +3759,8 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     if (tempId) {
       vPage.drawText(tempId, {
-        x: width * 0.27,
-        y: height * 0.218,
+        x: width * 0.21,
+        y: height * 0.227,
         size: 12,
         font: helveticaBold,
         color: rgb(0, 0, 0),
@@ -3771,8 +3782,8 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
     // --- HEADER ---
     if (outwardNo) {
       firstPage.drawText(outwardNo, {
-        x: width * 0.23,
-        y: height * 0.768,
+        x: width * 0.21,
+        y: height * 0.758,
         size: 12,
         font: helveticaBold,
         color: darkColor,
@@ -3781,8 +3792,8 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     if (formattedDate) {
       firstPage.drawText(formattedDate, {
-        x: width * 0.13,
-        y: height * 0.745,
+        x: width * 0.10,
+        y: height * 0.730,
         size: 12,
         font: helveticaBold,
         color: darkColor,
@@ -3792,66 +3803,74 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
     if (name) {
       // To
       firstPage.drawText(name, {
-        x: width * 0.07,
-        y: height * 0.69,
+        x: width * 0.035,
+        y: height * 0.655,
         size: 13,
+        font: helveticaBold,
+        color: rgb(0, 0, 0),
+      });
+      // Subject
+      firstPage.drawText(name, {
+        x: width * 0.40,
+        y: height * 0.613,
+        size: 12,
         font: helveticaBold,
         color: rgb(0, 0, 0),
       });
       // Dear
       firstPage.drawText(`${name},`, {
-        x: width * 0.13,
-        y: height * 0.64,
+        x: width * 0.09,
+        y: height * 0.573,
         size: 12,
         font: helveticaBold,
         color: rgb(0, 0, 0),
       });
     }
 
-    firstPage.drawText(`${role}`, {
-      x: width * 0.64,
-      y: height * 0.572,
-      size: 13,
+    firstPage.drawText(role, {
+      x: width * 0.56,
+      y: height * 0.496,
+      size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
     });
 
     // Internship Details
-    firstPage.drawText(`${role}`, {
-      x: width * 0.175,
-      y: height * 0.348,
+    firstPage.drawText(role, {
+      x: width * 0.140,
+      y: height * 0.320,
       size: 11,
       font: helveticaBold,
       color: rgb(0, 0, 0),
     });
 
-    firstPage.drawText(`${trainingStartDate}`, {
-      x: width * 0.29,
-      y: height * 0.305,
+    firstPage.drawText(formattedtrainingStartDate, {
+      x: width * 0.25,
+      y: height * 0.280,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
     });
 
-    firstPage.drawText(`${trainingEndDate}`, {
-      x: width * 0.285,
-      y: height * 0.281,
+    firstPage.drawText(formattedtrainingEndDate, {
+      x: width * 0.24,
+      y: height * 0.260,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
     });
 
-    firstPage.drawText(`${officialStartDate}`, {
-      x: width * 0.395,
-      y: height * 0.26,
+    firstPage.drawText(formattedofficialStartDate, {
+      x: width * 0.35,
+      y: height * 0.240,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
     });
 
-    firstPage.drawText(`${completionDate}`, {
-      x: width * 0.395,
-      y: height * 0.237,
+    firstPage.drawText(formattedcompletionDate, {
+      x: width * 0.35,
+      y: height * 0.220,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
@@ -3865,9 +3884,9 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     // --- RESPONSIBILITIES ---
     const respPage = thirdPage || detailsPage;
-    let rx = width * 0.075;
-    let ry = secondPage ? height * 0.74 : dy - 40;
-    const maxWidth = width * 0.88;
+    let rx = width * 0.040;
+    let ry = secondPage ? height * 0.75 : dy - 40;
+    const maxWidth = width * 0.89;
     ry -= 20;
 
     let respFont = 12;
@@ -3893,9 +3912,9 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
     const vPage = fourthPage || respPage;
 
     // ---- PAID ONLY ----
-    vPage.drawText(`${amount}`, {
-      x: width * 0.68,
-      y: height * 0.552,
+    vPage.drawText(`${amount} /-`, {
+      x: width * 0.65,
+      y: height * 0.509,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
@@ -3904,8 +3923,8 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
     const formattedeffectiveFrom = formatWithOrdinal(effectiveFrom);
 
     vPage.drawText(formattedeffectiveFrom, {
-      x: width * 0.23,
-      y: height * 0.533,
+      x: width * 0.09,
+      y: height * 0.490,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
@@ -3913,8 +3932,8 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     if (tempId) {
       vPage.drawText(tempId, {
-        x: width * 0.27,
-        y: height * 0.218,
+        x: width * 0.21,
+        y: height * 0.238,
         size: 12,
         font: helveticaBold,
         color: rgb(0, 0, 0),
@@ -3933,7 +3952,7 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
   }
 
   /* ===========================================================
-       📄 MJ NDA
+       📄 C4B NDA
     ============================================================ */
   if (course === "Non-Disclosure Agreement") {
     const userDetails = await People.findOne({ name });
@@ -3949,7 +3968,7 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     firstPage.drawText(`${outwardNo}`, {
       x: width * 0.22,
-      y: height * 0.770,
+      y: height * 0.773,
       size: 12,
       font: helveticaBold,
       color: darkColor,
@@ -3957,7 +3976,7 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     firstPage.drawText(`${formattedDate}`, {
       x: width * 0.13,
-      y: height * 0.745,
+      y: height * 0.748,
       size: 12,
       font: helveticaBold,
       color: darkColor,
@@ -4042,7 +4061,7 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     thirdPage.drawText(`${name}`, {
       x: width * 0.17,
-      y: height * 0.420,
+      y: height * 0.323,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
@@ -4050,7 +4069,7 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     thirdPage.drawText(`${role}`, {
       x: width * 0.23,
-      y: height * 0.400,
+      y: height * 0.303,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),
@@ -4058,7 +4077,7 @@ const drawC4BPdfTemplate = async (pdfDoc, course, fields = {}) => {
 
     thirdPage.drawText(`${tempId}`, {
       x: width * 0.25,
-      y: height * 0.488,
+      y: height * 0.400,
       size: 12,
       font: helveticaBold,
       color: rgb(0, 0, 0),

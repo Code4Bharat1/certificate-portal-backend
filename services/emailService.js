@@ -1228,11 +1228,6 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
               ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
               <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
             </div>
-            
-            <div class="important-notice">
-              <p>⚠️ MANDATORY DOCUMENT</p>
-              <p>📌 This document must be signed and returned before joining</p>
-            </div>
 
             <div class="warning-box" style="background: #f8f9fa; border-left-color: #6c757d;">
               <p><strong>🔐 Confidentiality Requirements:</strong></p>
