@@ -88,7 +88,7 @@ Your OTP for certificate creation is:
 
 ---
 _Regards,_
-*Nexcore Alliance & Code4Bharat*
+*Nexcore Alliance *
     `.trim();
 
     // Send via WhatsApp
@@ -201,7 +201,7 @@ export const sendCertificateNotification = async (certificateData) => {
 
 Hello ${userName},
 
-Greetings from *Nexcore Alliance* & *Code4Bharat*! 🌟
+Greetings from *Nexcore Alliance*! 🌟
 
 We are pleased to inform you that your certificate has been successfully generated! 
 
@@ -233,7 +233,7 @@ ${downloadLink}
 ---
 _With Best Wishes,_
 *Nexcore Alliance Team*
-*Code4Bharat Initiative*
+
 
 💙 Keep Learning, Keep Growing!
     `.trim();
@@ -278,7 +278,7 @@ ${successful > 0 ? '🎉 Notifications have been sent to all recipients!' : ''}
 ${failed > 0 ? `⚠️ Please check the failed records and retry.` : ''}
 
 ---
-_Nexcore Alliance & Code4Bharat_
+_Nexcore Alliance_
     `.trim();
 
     const result = await sendWhatsAppMessage(adminPhone, message);
