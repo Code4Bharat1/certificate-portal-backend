@@ -102,7 +102,7 @@ app.use('/api/admin', adminRoutes);
 
 // Admin Document Management
 import adminDocumentRoutes from './routes/admin.document.routes.js';
-app.use('/api/admin', adminDocumentRoutes);
+app.use('/api/documents', adminDocumentRoutes);
 
 // Misc Admin Routes
 import certificateRoutes from './routes/certificate.routes.js';

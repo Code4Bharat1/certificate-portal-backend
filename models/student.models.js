@@ -148,11 +148,84 @@ const studentSchema = new mongoose.Schema(
       select: false,
     },
     documents: {
-      aadhaarFront: { type: String, default: null },
-      aadhaarBack: { type: String, default: null },
-      panCard: { type: String, default: null },
-      bankPassbook: { type: String, default: null },
+    aadhaarFront: { type: String },
+    aadhaarBack: { type: String },
+    panCard: { type: String },
+    bankPassbook: { type: String },
+  },
+  
+  // Document verification (overall)
+  documentsVerified: { 
+    type: Boolean, 
+    default: false 
+  },
+  documentsVerifiedAt: { 
+    type: Date 
+  },
+  documentsVerifiedBy: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "User" 
+  },
+  documentsUploadedAt: { 
+    type: Date 
+  },
+
+  // ✅ NEW: Individual document status
+  documentStatus: {
+    aadhaarFront: {
+      status: { 
+        type: String, 
+        enum: ["pending", "approved", "rejected"], 
+        default: "pending" 
+      },
+      rejectionReason: String,
+      updatedAt: Date,
+      updatedBy: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "User" 
+      },
     },
+    aadhaarBack: {
+      status: { 
+        type: String, 
+        enum: ["pending", "approved", "rejected"], 
+        default: "pending" 
+      },
+      rejectionReason: String,
+      updatedAt: Date,
+      updatedBy: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "User" 
+      },
+    },
+    panCard: {
+      status: { 
+        type: String, 
+        enum: ["pending", "approved", "rejected"], 
+        default: "pending" 
+      },
+      rejectionReason: String,
+      updatedAt: Date,
+      updatedBy: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "User" 
+      },
+    },
+    bankPassbook: {
+      status: { 
+        type: String, 
+        enum: ["pending", "approved", "rejected"], 
+        default: "pending" 
+      },
+      rejectionReason: String,
+      updatedAt: Date,
+      updatedBy: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "User" 
+      },
+    },
+  },
+
   },
   {
     timestamps: true,
