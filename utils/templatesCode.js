@@ -16,7 +16,7 @@ registerFont(path.join(process.cwd(), "fonts", "Poppins-Regular.ttf"), {
 });
 
 registerFont(path.join(process.cwd(), "fonts", "Poppins-Bold.ttf"), {
-  family: "Poppins", weight:"700"
+  family: "Poppins", weight:"800"
 });
 
 
@@ -2273,7 +2273,7 @@ const getCommonTemplateCode = async (
     ctx.fillText(formattedDate, width * 0.099, height * 0.253);
 
     // Subject / Title
-    ctx.font = 'bold 20px Poppins';
+    ctx.font = 'bold 22px Poppins';
     ctx.fillText(name, width * 0.38, height * 0.29);
 
     // Second Page
@@ -2381,10 +2381,10 @@ const getCommonTemplateCode = async (
     const sentence2 = `that align with ${hisHer} skills and aspirations.`;
 
     ctx.font = 'bold 25px "Poppins"';
-    ctx.fillText(sentence1, width * 0.036, height * 0.662);
+    ctx.fillText(sentence1, width * 0.036, height * 0.658);
 
     ctx.font = 'bold 25px "Poppins"';
-    ctx.fillText(sentence2, width * 0.035, height * 0.682);
+    ctx.fillText(sentence2, width * 0.035, height * 0.678);
 
     // Letter ID
     ctx.font = 'bold 20px Poppins';
