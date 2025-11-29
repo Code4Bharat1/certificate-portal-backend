@@ -3,7 +3,7 @@ import { body, validationResult } from "express-validator";
 import People from "../models/people.models.js";
 import multer from "multer";
 import xlsx from "xlsx";
-import { authenticate } from "../middleware/auth.middleware.js"; // Optional
+import { authenticate } from "../middleware/auth.middleware.js";
 import Student from "../models/student.models.js";
 import { validateCategory } from "../middleware/validateCategory.js";
 
@@ -58,29 +58,67 @@ router.post(
       .withMessage("Name is required")
       .isLength({ max: 50 })
       .withMessage("Name cannot exceed 50 characters"),
-    
+
     body("phone")
+      .notEmpty()
+      .withMessage("Phone is required")
       .matches(/^[0-9]{10}$/)
       .withMessage("Phone must be a 10-digit number"),
-      validateCategory, 
+
+    validateCategory,
+
     body("batch").optional().trim(),
+
+    body("email")
+      .optional({ nullable: true, checkFalsy: true })
+      .isEmail()
+      .withMessage("Email must be valid"),
+
+    body("parentEmail")
+      .optional({ nullable: true, checkFalsy: true })
+      .isEmail()
+      .withMessage("Parent Email must be valid"),
+
     body("parentPhone1")
       .optional({ nullable: true, checkFalsy: true })
       .matches(/^[0-9]{10}$/)
       .withMessage("Parent Phone 1 must be a 10-digit number"),
+
     body("parentPhone2")
       .optional({ nullable: true, checkFalsy: true })
       .matches(/^[0-9]{10}$/)
       .withMessage("Parent Phone 2 must be a 10-digit number"),
+
     body("aadhaarCard")
       .optional({ nullable: true, checkFalsy: true })
       .matches(/^[0-9]{12}$/)
       .withMessage("Aadhaar card must be exactly 12 digits"),
+
     body("address")
       .optional({ nullable: true, checkFalsy: true })
       .trim()
       .isLength({ max: 200 })
       .withMessage("Address cannot exceed 200 characters"),
+
+    body("clientEmail1")
+      .optional({ nullable: true, checkFalsy: true })
+      .isEmail()
+      .withMessage("Client Email 1 must be valid"),
+
+    body("clientEmail2")
+      .optional({ nullable: true, checkFalsy: true })
+      .isEmail()
+      .withMessage("Client Email 2 must be valid"),
+
+    body("clientPhone1")
+      .optional({ nullable: true, checkFalsy: true })
+      .matches(/^[0-9]{10}$/)
+      .withMessage("Client Phone 1 must be a 10-digit number"),
+
+    body("clientPhone2")
+      .optional({ nullable: true, checkFalsy: true })
+      .matches(/^[0-9]{10}$/)
+      .withMessage("Client Phone 2 must be a 10-digit number"),
   ],
   async (req, res) => {
     try {
@@ -105,6 +143,10 @@ router.post(
         address,
         email,
         parentEmail,
+        clientEmail1,
+        clientEmail2,
+        clientPhone1,
+        clientPhone2,
       } = req.body;
 
       console.log("📝 Adding new person:", {
@@ -118,6 +160,10 @@ router.post(
         hasAddress: !!address,
         hasEmail: !!email,
         hasParentEmail: !!parentEmail,
+        hasClientEmail1: !!clientEmail1,
+        hasClientEmail2: !!clientEmail2,
+        hasClientPhone1: !!clientPhone1,
+        hasClientPhone2: !!clientPhone2,
       });
 
       // Validate batch for FSD and BVOC
@@ -170,6 +216,18 @@ router.post(
       if (parentEmail) {
         newPersonData.parentEmail = parentEmail;
       }
+      if (clientEmail1) {
+        newPersonData.clientEmail1 = clientEmail1;
+      }
+      if (clientEmail2) {
+        newPersonData.clientEmail2 = clientEmail2;
+      }
+      if (clientPhone1) {
+        newPersonData.clientPhone1 = "91" + clientPhone1;
+      }
+      if (clientPhone2) {
+        newPersonData.clientPhone2 = "91" + clientPhone2;
+      }
 
       const newPerson = new People(newPersonData);
       await newPerson.save();
@@ -192,6 +250,12 @@ router.post(
           parentPhone2: newPerson.parentPhone2 || null,
           aadhaarCard: newPerson.aadhaarCard || null,
           address: newPerson.address || null,
+          email: newPerson.email || null,
+          parentEmail: newPerson.parentEmail || null,
+          clientEmail1: newPerson.clientEmail1 || null,
+          clientEmail2: newPerson.clientEmail2 || null,
+          clientPhone1: newPerson.clientPhone1 || null,
+          clientPhone2: newPerson.clientPhone2 || null,
           disabled: newPerson.disabled,
           createdAt: newPerson.createdAt,
           updatedAt: newPerson.updatedAt,
@@ -228,9 +292,7 @@ router.get("/", async (req, res) => {
 
     // Format data for frontend
     const names = people.map((p) => {
-      // ✅ FIXED: Changed 'person' to 'p' to match the iterator variable
       const phone = p.phone?.toString() || "";
-      // console.log("Original:", phone, " → Sliced:", phone.slice(-10));
 
       return {
         _id: p._id,
@@ -247,6 +309,15 @@ router.get("/", async (req, res) => {
         aadhaarCard: p.aadhaarCard || null,
         address: p.address || null,
         email: p.email || null,
+        parentEmail: p.parentEmail || null,
+        clientEmail1: p.clientEmail1 || null,
+        clientEmail2: p.clientEmail2 || null,
+        clientPhone1: p.clientPhone1
+          ? p.clientPhone1.toString().slice(-10)
+          : null,
+        clientPhone2: p.clientPhone2
+          ? p.clientPhone2.toString().slice(-10)
+          : null,
         disabled: p.disabled || false,
         createdAt: p.createdAt,
         updatedAt: p.updatedAt,
@@ -289,6 +360,7 @@ router.put(
   [
     body("originalName").notEmpty().withMessage("Original name is required"),
     body("originalPhone").notEmpty().withMessage("Original phone is required"),
+
     body("name")
       .optional()
       .trim()
@@ -296,39 +368,62 @@ router.put(
       .withMessage("Name cannot be empty")
       .isLength({ max: 50 })
       .withMessage("Name cannot exceed 50 characters"),
-    // body("category")
-    //   .optional()
-    //   .isIn([
-    //     "code4bharat",
-    //     "marketing-junction",
-    //     "FSD",
-    //     "BVOC",
-    //     "HR",
-    //     "DM",
-    //     "OD",
-    //   ])
-    //   .withMessage("Invalid category"),
+
     body("phone")
       .optional()
       .matches(/^[0-9]{10}$/)
       .withMessage("Phone must be of 10-digit number"),
+
+    body("email")
+      .optional({ nullable: true, checkFalsy: true })
+      .isEmail()
+      .withMessage("Email must be valid"),
+
+    body("parentEmail")
+      .optional({ nullable: true, checkFalsy: true })
+      .isEmail()
+      .withMessage("Parent Email must be valid"),
+
     body("parentPhone1")
       .optional({ nullable: true, checkFalsy: true })
       .matches(/^[0-9]{10}$/)
       .withMessage("Parent Phone 1 must be a 10-digit number"),
+
     body("parentPhone2")
       .optional({ nullable: true, checkFalsy: true })
       .matches(/^[0-9]{10}$/)
       .withMessage("Parent Phone 2 must be a 10-digit number"),
+
     body("aadhaarCard")
       .optional({ nullable: true, checkFalsy: true })
       .matches(/^[0-9]{12}$/)
       .withMessage("Aadhaar card must be exactly 12 digits"),
+
     body("address")
       .optional({ nullable: true, checkFalsy: true })
       .trim()
       .isLength({ max: 200 })
       .withMessage("Address cannot exceed 200 characters"),
+
+    body("clientEmail1")
+      .optional({ nullable: true, checkFalsy: true })
+      .isEmail()
+      .withMessage("Client Email 1 must be valid"),
+
+    body("clientEmail2")
+      .optional({ nullable: true, checkFalsy: true })
+      .isEmail()
+      .withMessage("Client Email 2 must be valid"),
+
+    body("clientPhone1")
+      .optional({ nullable: true, checkFalsy: true })
+      .matches(/^[0-9]{10}$/)
+      .withMessage("Client Phone 1 must be a 10-digit number"),
+
+    body("clientPhone2")
+      .optional({ nullable: true, checkFalsy: true })
+      .matches(/^[0-9]{10}$/)
+      .withMessage("Client Phone 2 must be a 10-digit number"),
   ],
   async (req, res) => {
     try {
@@ -355,6 +450,10 @@ router.put(
         address,
         email,
         parentEmail,
+        clientEmail1,
+        clientEmail2,
+        clientPhone1,
+        clientPhone2,
       } = req.body;
 
       console.log("📝 Updating person by name:", {
@@ -364,6 +463,10 @@ router.put(
         category,
         batch,
         email,
+        clientEmail1,
+        clientEmail2,
+        hasClientPhone1: !!clientPhone1,
+        hasClientPhone2: !!clientPhone2,
       });
 
       // Validate batch requirement for FSD and BVOC
@@ -375,17 +478,17 @@ router.put(
         });
       }
 
+      // Format the original phone for query
+      const originalPhoneFormatted = formatPhone(originalPhone);
+
       // Prepare update object
       const updateData = {};
       if (name) updateData.name = name.trim();
       if (category) updateData.category = category;
       if (batch !== undefined) updateData.batch = batch;
-      if (phone) updateData.phone = phone;
-      if (email !== undefined) updateData.email = email; // ✅ Added
-      // if (Phone !== undefined) {
-      //   updateData.Phone = Phone1 ? '91' + Phone1 : null;
-      // }
-      // Update parent email (required for BVOC)
+      if (email !== undefined) updateData.email = email || null;
+
+      // Update parent email
       if (parentEmail !== undefined) {
         updateData.parentEmail = parentEmail || null;
       }
@@ -413,43 +516,56 @@ router.put(
         updateData.address = address ? address.trim() : null;
       }
 
-      // const originalPhoneWithCountryCode = '91' + originalPhone;
+      // Update client fields
+      if (clientEmail1 !== undefined) {
+        updateData.clientEmail1 = clientEmail1 || null;
+      }
 
-      // ✅ Use findOneAndUpdate instead of save() to avoid _id validation issues
+      if (clientEmail2 !== undefined) {
+        updateData.clientEmail2 = clientEmail2 || null;
+      }
+
+      if (clientPhone1 !== undefined) {
+        updateData.clientPhone1 = formatPhone(clientPhone1);
+      }
+
+      if (clientPhone2 !== undefined) {
+        updateData.clientPhone2 = formatPhone(clientPhone2);
+      }
+
+      // Use findOneAndUpdate with ORIGINAL phone
       const person = await People.findOneAndUpdate(
         {
           name: originalName,
-          phone: updateData.phone,
+          phone: originalPhoneFormatted,
         },
         { $set: updateData },
         {
-          new: true, // Return updated document
-          runValidators: true, // Run schema validators
+          new: true,
+          runValidators: true,
         }
       );
 
       const student = await Student.findOneAndUpdate(
         {
           name: originalName,
-          phone: updateData.phone,
+          phone: originalPhoneFormatted,
         },
         { $set: updateData },
         {
-          new: true, // Return updated document
-          runValidators: true, // Run schema validators
+          new: true,
+          runValidators: true,
         }
       );
 
-      // console.log("Person Data: ", person);
       if (!person) {
-        // console.error('❌ Person not found');
         return res.status(404).json({
           success: false,
-          message: "Person not foufffnd with the given name and phone",
+          message: "Person not found with the given name and phone",
         });
       }
 
-      console.log("Person updated successfully:", person._id);
+      console.log("✅ Person updated successfully:", person._id);
 
       res.status(200).json({
         success: true,
@@ -458,13 +574,17 @@ router.put(
           name: person.name,
           category: person.category,
           batch: person.batch || "",
-          email: person.email || null, // ✅ Added
-          parentEmail: person.parentEmail || null, // ✅ Added
+          email: person.email || null,
+          parentEmail: person.parentEmail || null,
           phone: person.phone,
           parentPhone1: person.parentPhone1 || null,
           parentPhone2: person.parentPhone2 || null,
           aadhaarCard: person.aadhaarCard || null,
           address: person.address || null,
+          clientEmail1: person.clientEmail1 || null,
+          clientEmail2: person.clientEmail2 || null,
+          clientPhone1: person.clientPhone1 || null,
+          clientPhone2: person.clientPhone2 || null,
           disabled: person.disabled,
           createdAt: person.createdAt,
           updatedAt: person.updatedAt,
@@ -486,7 +606,6 @@ router.put(
  * @desc    Bulk upload people from Excel file
  * @access  Public
  */
-
 router.post("/bulk-upload", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
@@ -580,6 +699,14 @@ router.post("/bulk-upload", upload.single("file"), async (req, res) => {
         };
 
         // Add optional fields
+        if (row.email) {
+          personData.email = String(row.email).trim();
+        }
+
+        if (row.parentEmail) {
+          personData.parentEmail = String(row.parentEmail).trim();
+        }
+
         if (row.parentPhone1) {
           const pp1 = String(row.parentPhone1).replace(/\D/g, "");
           if (pp1.length === 10) {
@@ -603,6 +730,29 @@ router.post("/bulk-upload", upload.single("file"), async (req, res) => {
 
         if (row.address) {
           personData.address = String(row.address).trim().substring(0, 200);
+        }
+
+        // Add client fields from bulk upload
+        if (row.clientEmail1) {
+          personData.clientEmail1 = String(row.clientEmail1).trim();
+        }
+
+        if (row.clientEmail2) {
+          personData.clientEmail2 = String(row.clientEmail2).trim();
+        }
+
+        if (row.clientPhone1) {
+          const cp1 = String(row.clientPhone1).replace(/\D/g, "");
+          if (cp1.length === 10) {
+            personData.clientPhone1 = "91" + cp1;
+          }
+        }
+
+        if (row.clientPhone2) {
+          const cp2 = String(row.clientPhone2).replace(/\D/g, "");
+          if (cp2.length === 10) {
+            personData.clientPhone2 = "91" + cp2;
+          }
         }
 
         // Create person
@@ -658,20 +808,32 @@ router.get("/template", (req, res) => {
         category: "FSD",
         batch: "B-1 (June-2025)",
         phone: "9876543210",
+        email: "john@example.com",
+        parentEmail: "parent@example.com",
         parentPhone1: "9876543211",
         parentPhone2: "9876543212",
         aadhaarCard: "123456789012",
         address: "123 Main Street, City",
+        clientEmail1: "client1@example.com",
+        clientEmail2: "client2@example.com",
+        clientPhone1: "9876543213",
+        clientPhone2: "9876543214",
       },
       {
         name: "Jane Smith",
         category: "BVOC",
         batch: "B-1 2025",
-        phone: "9876543213",
+        phone: "9876543215",
+        email: "",
+        parentEmail: "",
         parentPhone1: "",
         parentPhone2: "",
         aadhaarCard: "",
         address: "",
+        clientEmail1: "",
+        clientEmail2: "",
+        clientPhone1: "",
+        clientPhone2: "",
       },
     ];
 
@@ -684,10 +846,16 @@ router.get("/template", (req, res) => {
       { wch: 20 }, // category
       { wch: 20 }, // batch
       { wch: 15 }, // phone
+      { wch: 25 }, // email
+      { wch: 25 }, // parentEmail
       { wch: 15 }, // parentPhone1
       { wch: 15 }, // parentPhone2
       { wch: 15 }, // aadhaarCard
       { wch: 30 }, // address
+      { wch: 25 }, // clientEmail1
+      { wch: 25 }, // clientEmail2
+      { wch: 15 }, // clientPhone1
+      { wch: 15 }, // clientPhone2
     ];
 
     // Create workbook
@@ -836,7 +1004,6 @@ router.get("/:id", async (req, res) => {
         category: person.category,
         batch: person.batch || "",
         phone: person.phone ? person.phone.toString().slice(-10) : null,
-        // ✅ FIXED: Changed 'p' to 'person' to match the variable
         parentPhone1: person.parentPhone1
           ? person.parentPhone1.toString().slice(-10)
           : null,
@@ -845,6 +1012,16 @@ router.get("/:id", async (req, res) => {
           : null,
         aadhaarCard: person.aadhaarCard || null,
         address: person.address || null,
+        email: person.email || null,
+        parentEmail: person.parentEmail || null,
+        clientEmail1: person.clientEmail1 || null,
+        clientEmail2: person.clientEmail2 || null,
+        clientPhone1: person.clientPhone1
+          ? person.clientPhone1.toString().slice(-10)
+          : null,
+        clientPhone2: person.clientPhone2
+          ? person.clientPhone2.toString().slice(-10)
+          : null,
         disabled: person.disabled || false,
         createdAt: person.createdAt,
         updatedAt: person.updatedAt,
@@ -905,7 +1082,6 @@ router.patch("/:id", async (req, res) => {
       success: true,
       message: `Person ${action} successfully`,
       person: {
-        // _id: person._id,
         name: person.name,
         category: person.category,
         batch: person.batch || "",
@@ -914,6 +1090,12 @@ router.patch("/:id", async (req, res) => {
         parentPhone2: person.parentPhone2 || null,
         aadhaarCard: person.aadhaarCard || null,
         address: person.address || null,
+        email: person.email || null,
+        parentEmail: person.parentEmail || null,
+        clientEmail1: person.clientEmail1 || null,
+        clientEmail2: person.clientEmail2 || null,
+        clientPhone1: person.clientPhone1 || null,
+        clientPhone2: person.clientPhone2 || null,
         disabled: person.disabled,
         createdAt: person.createdAt,
         updatedAt: person.updatedAt,
@@ -939,13 +1121,8 @@ router.delete("/:id", async (req, res) => {
     console.log("🗑️ Deleting person:", req.params.id);
 
     const deleted = await People.findByIdAndDelete(req.params.id);
-    const studentDeleted = await Student.findOneAndDelete({
-      name: deleted.name,
-    });
-    // const studentDeleted = await Student.findByIdAndDelete(req.params.id);
-    // console.log(studentDeleted);
 
-    if (!deleted || !studentDeleted) {
+    if (!deleted) {
       console.error("❌ Person not found:", req.params.id);
       return res.status(404).json({
         success: false,
@@ -953,8 +1130,11 @@ router.delete("/:id", async (req, res) => {
       });
     }
 
-    console.log("Person deleted successfully:", deleted.name);
-    // console.log('Person deleted successfully:', studentDeleted.name);
+    const studentDeleted = await Student.findOneAndDelete({
+      name: deleted.name,
+    });
+
+    console.log("✅ Person deleted successfully:", deleted.name);
 
     res.status(200).json({
       success: true,

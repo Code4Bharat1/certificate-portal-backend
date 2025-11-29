@@ -27,6 +27,7 @@ const studentSchema = new mongoose.Schema(
           "HR",
           "DM",
           "OD",
+          "Client",
         ],
         message: "{VALUE} is not a valid category",
       },

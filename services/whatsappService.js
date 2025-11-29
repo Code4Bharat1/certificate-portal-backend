@@ -89,6 +89,19 @@ Your OTP for certificate creation is:
 ---
 _Regards,_
 *Nexcore Alliance *
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
     `.trim();
 
     // Send via WhatsApp
@@ -211,12 +224,12 @@ We are pleased to inform you that your certificate has been successfully generat
 🆔 Certificate ID: *${certificateId}*
 📚 Course: ${course}
 🏷️ Category: ${categoryDisplay}
-📅 Issue Date: ${new Date(issueDate).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+📅 Issue Date: ${new Date(issueDate).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     })}
-${batch ? `🎓 Batch: ${batch}` : ''}
+${batch ? `🎓 Batch: ${batch}` : ""}
 
 ━━━━━━━━━━━━━━━━━━
 
@@ -236,6 +249,19 @@ _With Best Wishes,_
 
 
 💙 Keep Learning, Keep Growing!
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
     `.trim();
 
     // Send WhatsApp notification
@@ -274,11 +300,24 @@ Your bulk certificate generation process has been completed!
 📈 Success Rate: ${((successful / total) * 100).toFixed(1)}%
 ━━━━━━━━━━━━━━━━━━
 
-${successful > 0 ? '🎉 Notifications have been sent to all recipients!' : ''}
-${failed > 0 ? `⚠️ Please check the failed records and retry.` : ''}
+${successful > 0 ? "🎉 Notifications have been sent to all recipients!" : ""}
+${failed > 0 ? `⚠️ Please check the failed records and retry.` : ""}
 
 ---
 _Nexcore Alliance_
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
     `.trim();
 
     const result = await sendWhatsAppMessage(adminPhone, message);
@@ -326,8 +365,8 @@ export const getLetterMessageTemplate = (letterType, subType, data) => {
 }
   // Letter type specific messages
   const templates = {
-    'Appreciation Letter': {
-      'Appreciation for Best Performance': `
+    "Appreciation Letter": {
+      "Appreciation for Best Performance": `
 ╔════════════════════════════════╗
    🏆 *EXCELLENCE RECOGNIZED* 🏆
 ╚════════════════════════════════╝
@@ -343,7 +382,7 @@ We are delighted to recognize your *exceptional performance* that has set new be
 👤 *Recipient:* ${userName}
 🎖️ *Achievement:* Best Performance Excellence
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -382,9 +421,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Appreciation for Consistent Performance': `
+      "Appreciation for Consistent Performance": `
 ╔════════════════════════════════╗
    ⭐ *CONSISTENCY HONORED* ⭐
 ╚════════════════════════════════╝
@@ -400,7 +452,7 @@ We are pleased to recognize your *exemplary consistency and reliability* through
 👤 *Recipient:* ${userName}
 🎯 *Achievement:* Consistent Performance Excellence
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -439,9 +491,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Appreciation for Detecting Errors and Debugging': `
+      "Appreciation for Detecting Errors and Debugging": `
 ╔════════════════════════════════╗
    🔍 *TECHNICAL EXCELLENCE* 🔍
 ╚════════════════════════════════╝
@@ -457,7 +522,7 @@ We are impressed to recognize your *exceptional technical acumen* in error detec
 👤 *Recipient:* ${userName}
 💻 *Achievement:* Error Detection & Debugging Excellence
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -499,9 +564,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Appreciation for Outstanding Performance': `
+      "Appreciation for Outstanding Performance": `
 ╔════════════════════════════════╗
    🏆 *EXCELLENCE ACHIEVED* 🏆
 ╚════════════════════════════════╝
@@ -517,7 +595,7 @@ We are thrilled to recognize your *outstanding performance* that has exceeded al
 👤 *Recipient:* ${userName}
 ⭐ *Achievement:* Outstanding Performance
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -559,9 +637,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Appreciation for Best Attendance': `
+      "Appreciation for Best Attendance": `
 ╔════════════════════════════════╗
    🎯 *COMMITMENT HONORED* 🎯
 ╚════════════════════════════════╝
@@ -577,7 +668,7 @@ We are pleased to recognize your *exemplary attendance record* and unwavering co
 👤 *Recipient:* ${userName}
 📅 *Achievement:* Best Attendance Record
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -619,10 +710,23 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
     },
 
-    'Experience Certificate': {
+    "Experience Certificate": {
       default: `
 ╔════════════════════════════════╗
    📄 *EXPERIENCE CERTIFICATE* 📄
@@ -639,7 +743,7 @@ We are pleased to provide you with your *Experience Certificate*, officially val
 👤 *Name:* ${userName}
 📜 *Document:* Experience Certificate
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -680,11 +784,24 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
     },
 
-    'Internship Joining Letter': {
-      'Internship Joining Letter - Paid': `
+    "Internship Joining Letter": {
+      "Internship Joining Letter - Paid": `
 ╔════════════════════════════════╗
    🎉 *WELCOME ABOARD!* 🎉
 ╚════════════════════════════════╝
@@ -702,7 +819,7 @@ We are delighted to welcome you as a *Paid Intern* at ${organizationName}! This 
 👤 *Name:* ${userName}
 💼 *Position:* Paid Intern
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -757,9 +874,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Internship Joining Letter - Unpaid': `
+      "Internship Joining Letter - Unpaid": `
 ╔════════════════════════════════╗
    🎉 *WELCOME TO LEARNING!* 🎉
 ╚════════════════════════════════╝
@@ -777,7 +907,7 @@ We are pleased to welcome you as an *Intern* at ${organizationName}! Embark on t
 👤 *Name:* ${userName}
 📚 *Position:* Intern
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -832,11 +962,24 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
     },
 
-    'Warning Letter': {
-      'Warning for Incomplete Assignment/Project Submissions': `
+    "Warning Letter": {
+      "Warning for Incomplete Assignment/Project Submissions": `
 ╔════════════════════════════════╗
    ⚠️ *OFFICIAL WARNING NOTICE* ⚠️
 ╚════════════════════════════════╝
@@ -852,7 +995,7 @@ This is an *official warning* regarding incomplete assignment and project submis
 👤 *Name:* ${userName}
 ⚠️ *Subject:* Incomplete Submissions
 🆔 *Reference ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -911,9 +1054,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Warning for Low Attendance': `
+      "Warning for Low Attendance": `
 ╔════════════════════════════════╗
    ⚠️ *ATTENDANCE WARNING* ⚠️
 ╚════════════════════════════════╝
@@ -929,7 +1085,7 @@ This is an *official warning* regarding your below-standard attendance record th
 👤 *Name:* ${userName}
 ⚠️ *Subject:* Low Attendance Record
 🆔 *Reference ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -989,9 +1145,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Warning for Misconduct or Disrespectful Behavior': `
+      "Warning for Misconduct or Disrespectful Behavior": `
 ╔════════════════════════════════╗
    ⚠️ *BEHAVIORAL WARNING* ⚠️
 ╚════════════════════════════════╝
@@ -1007,7 +1176,7 @@ This is an *official warning* regarding recent incidents of misconduct and disre
 👤 *Name:* ${userName}
 ⚠️ *Subject:* Misconduct/Disrespectful Behavior
 🆔 *Reference ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -1067,9 +1236,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Warning for Unauthorized Absence from Training Sessions': `
+      "Warning for Unauthorized Absence from Training Sessions": `
 ╔════════════════════════════════╗
    ⚠️ *ABSENCE WARNING NOTICE* ⚠️
 ╚════════════════════════════════╝
@@ -1085,7 +1267,7 @@ This is an *official warning* regarding unauthorized absence from mandatory trai
 👤 *Name:* ${userName}
 ⚠️ *Subject:* Unauthorized Training Absence
 🆔 *Reference ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -1145,9 +1327,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Warning Regarding Punctuality and Professional Discipline': `
+      "Warning Regarding Punctuality and Professional Discipline": `
 ╔════════════════════════════════╗
    ⚠️ *PUNCTUALITY WARNING* ⚠️
 ╚════════════════════════════════╝
@@ -1163,7 +1358,7 @@ This is an *official warning* regarding repeated punctuality issues and lack of 
 👤 *Name:* ${userName}
 ⚠️ *Subject:* Punctuality & Discipline Issues
 🆔 *Reference ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -1223,9 +1418,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Warning for Unauthorized Absence from Sessions': `
+      "Warning for Unauthorized Absence from Sessions": `
 ╔════════════════════════════════╗
    ⚠️ *ABSENCE WARNING NOTICE* ⚠️
 ╚════════════════════════════════╝
@@ -1241,7 +1449,7 @@ This is an *official warning* regarding unauthorized absence from mandatory sess
 👤 *Name:* ${userName}
 ⚠️ *Subject:* Unauthorized Session Absence
 🆔 *Reference ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -1301,9 +1509,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Warning for Punctuality and Discipline': `
+      "Warning for Punctuality and Discipline": `
 ╔════════════════════════════════╗
    ⚠️ *DISCIPLINE WARNING* ⚠️
 ╚════════════════════════════════╝
@@ -1319,7 +1540,7 @@ This is an *official warning* regarding persistent punctuality and discipline co
 👤 *Name:* ${userName}
 ⚠️ *Subject:* Punctuality & Discipline Concerns
 🆔 *Reference ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -1379,9 +1600,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Concern Letter-Audit Interview Performance': `
+      "Concern Letter-Audit Interview Performance": `
 ╔════════════════════════════════╗
    ⚠️ *PERFORMANCE CONCERN* ⚠️
 ╚════════════════════════════════╝
@@ -1397,7 +1631,7 @@ This letter addresses concerns regarding your performance in the recent audit in
 👤 *Name:* ${userName}
 ⚠️ *Subject:* Audit Interview Performance Concern
 🆔 *Reference ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -1451,11 +1685,24 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
     },
 
-    'Committee Letter': {
-      'Committee Member': `
+    "Committee Letter": {
+      "Committee Member": `
 ╔════════════════════════════════╗
    🎖️ *LEADERSHIP APPOINTMENT* 🎖️
 ╚════════════════════════════════╝
@@ -1473,7 +1720,7 @@ You have been appointed as a *Committee Member*! Your leadership qualities and d
 👤 *Name:* ${userName}
 🏅 *Position:* Committee Member
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Appointment Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -1513,9 +1760,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Committee President': `
+      "Committee President": `
 ╔════════════════════════════════╗
    👑 *PRESIDENTIAL APPOINTMENT* 👑
 ╚════════════════════════════════╝
@@ -1533,7 +1793,7 @@ We are honored to appoint you as the *Committee President*! Your exceptional lea
 👤 *Name:* ${userName}
 🏆 *Position:* Committee President
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Appointment Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -1574,9 +1834,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Committee Vice-President': `
+      "Committee Vice-President": `
 ╔════════════════════════════════╗
    🏅 *VICE-PRESIDENTIAL APPOINTMENT* 🏅
 ╚════════════════════════════════╝
@@ -1594,7 +1867,7 @@ You have been appointed as the *Committee Vice-President*! Your proven leadershi
 👤 *Name:* ${userName}
 ⭐ *Position:* Committee Vice-President
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Appointment Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -1635,10 +1908,23 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
     },
 
-    'Non-Disclosure Agreement': {
+    "Non-Disclosure Agreement": {
       default: `
 ╔════════════════════════════════╗
    🔒 *CONFIDENTIALITY AGREEMENT* 🔒
@@ -1655,7 +1941,7 @@ We are sending you an important *Non-Disclosure Agreement (NDA)* that requires y
 👤 *Name:* ${userName}
 📜 *Document:* Non-Disclosure Agreement
 🆔 *Document ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -1711,10 +1997,23 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
     },
 
-    'Offer Letter': {
+    "Offer Letter": {
       default: `
 ╔════════════════════════════════╗
    🎊 *JOB OFFER - CONGRATULATIONS!* 🎊
@@ -1733,7 +2032,7 @@ We are absolutely thrilled to extend you an official job offer to join ${organiz
 👤 *Name:* ${userName}
 💼 *Document:* Job Offer Letter
 🆔 *Offer ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Offer Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -1796,10 +2095,23 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
     },
 
-    'Promotion Letter': {
+    "Promotion Letter": {
       default: `
 ╔════════════════════════════════╗
    🎉 *PROMOTION - CONGRATULATIONS!* 🎉
@@ -1818,7 +2130,7 @@ We are absolutely delighted to inform you about your well-deserved *promotion*! 
 👤 *Name:* ${userName}
 🚀 *Document:* Promotion Letter
 🆔 *Reference ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Effective Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -1860,9 +2172,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Non Paid to Paid': `
+      "Non Paid to Paid": `
 ╔════════════════════════════════╗
    🎉 *PROMOTION - PAID POSITION!* 🎉
 ╚════════════════════════════════╝
@@ -1880,7 +2205,7 @@ We are thrilled to announce your *promotion from Non-Paid to Paid Intern*! Your 
 👤 *Name:* ${userName}
 🚀 *Promotion:* Non-Paid to Paid Intern
 🆔 *Reference ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Effective Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -1920,9 +2245,22 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
 
-      'Stipend Revision': `
+      "Stipend Revision": `
 ╔════════════════════════════════╗
    📈 *STIPEND REVISION - PROMOTION!* 📈
 ╚════════════════════════════════╝
@@ -1940,7 +2278,7 @@ We are pleased to announce a *stipend revision and promotion* in recognition of 
 👤 *Name:* ${userName}
 💰 *Promotion:* Stipend Revision
 🆔 *Reference ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Effective Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -1980,10 +2318,23 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
     },
 
-    'Timeline Letter': {
+    "Timeline Letter": {
       default: `
 ╔════════════════════════════════╗
    📅 *IMPORTANT TIMELINE INFORMATION* 📅
@@ -2000,7 +2351,7 @@ We are sharing important *timeline information* regarding your program activitie
 👤 *Name:* ${userName}
 ⏰ *Document:* Timeline Letter
 🆔 *Reference ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -2040,10 +2391,23 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
     },
 
-    'Live Project Agreement': {
+    "Live Project Agreement": {
       default: `
 ╔════════════════════════════════╗
    🚀 *LIVE PROJECT OPPORTUNITY* 🚀
@@ -2060,7 +2424,7 @@ We are excited to present you with the *Live Project Agreement* for an immersive
 👤 *Name:* ${userName}
 💼 *Document:* Live Project Agreement
 🆔 *Agreement ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -2113,10 +2477,23 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
     },
 
-    'Memo': {
+    Memo: {
       default: `
 ╔════════════════════════════════╗
    📋 *OFFICIAL MEMORANDUM* 📋
@@ -2133,7 +2510,7 @@ This is an *official memorandum* regarding important organizational matters that
 👤 *Recipient:* ${userName}
 📄 *Document:* Official Memorandum
 🆔 *Reference ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -2166,10 +2543,23 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
     },
 
-    'Other': {
+    Other: {
       default: `
 ╔════════════════════════════════╗
    📄 *OFFICIAL DOCUMENT* 📄
@@ -2186,7 +2576,7 @@ An official document has been generated and is now ready for your review and nec
 👤 *Name:* ${userName}
 📋 *Document Type:* Official Letter
 🆔 *Reference ID:* ${finalId}
-🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 🏢 *Organization:* ${organizationName}
 
@@ -2211,6 +2601,19 @@ _${organizationName}_
 📧 *Email:* hr@nexcorealliance.com
 
 📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
 `.trim(),
     },
   };
@@ -2270,10 +2673,12 @@ This is an important notification regarding your ward's academic/professional co
 ┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 👤 *Student Name:* ${userName}
-⚠️ *Subject:* ${subType?.replace('Warning for ', '') || 'Academic/Behavioral Warning'}
+⚠️ *Subject:* ${
+      subType?.replace("Warning for ", "") || "Academic/Behavioral Warning"
+    }
 🆔 *Credential ID:* ${finalId}
 🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+${batch ? `📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -2310,6 +2715,19 @@ _${organizationName} Team_
 📞 *Support:* +91 9892398976
 📌 Please send the signed copy to us via email.  
 📌 If the link does not open, please save this WhatsApp number and try again for further updates.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
     `.trim();
   }
 
@@ -2327,10 +2745,12 @@ We are delighted to share wonderful news about your ward's achievement!
 ┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 👤 *Student Name:* ${userName}
-🏆 *Recognition:* ${subType?.replace('Appreciation for ', '') || 'Outstanding Achievement'}
+🏆 *Recognition:* ${
+      subType?.replace("Appreciation for ", "") || "Outstanding Achievement"
+    }
 🆔 *Credential ID:* ${finalId}
 🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+${batch ? `📚 *Batch:* ${batch}` : ""}
 📅 *Recognition Date:* ${formattedDate}
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -2365,6 +2785,19 @@ _${organizationName} Team_
 📞 *Support:* +91 9892398976
 📌 Please send the signed copy to us via email.  
 📌 If the link does not open, please save this WhatsApp number and try again for further updates.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
     `.trim();
   }
 
@@ -2382,10 +2815,10 @@ We are pleased to inform you about your ward's leadership appointment!
 ┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 👤 *Student Name:* ${userName}
-🏅 *Position:* ${subType || 'Committee Member'}
+🏅 *Position:* ${subType || "Committee Member"}
 🆔 *Credential ID:* ${finalId}
 🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+${batch ? `📚 *Batch:* ${batch}` : ""}
 📅 *Appointment Date:* ${formattedDate}
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -2420,6 +2853,19 @@ _${organizationName} Team_
 📞 *Support:* +91 9892398976
 📌 Please send the signed copy to us via email.  
 📌 If the link does not open, please save this WhatsApp number and try again for further updates.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
     `.trim();
   }
 
@@ -2436,10 +2882,10 @@ We are writing to inform you about an official document issued to your ward.
 ┗━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 👤 *Student Name:* ${userName}
-📄 *Document Type:* ${letterType}${subType ? ` - ${subType}` : ''}
+📄 *Document Type:* ${letterType}${subType ? ` - ${subType}` : ""}
 🆔 *Credential ID:* ${finalId}
 🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+${batch ? `📚 *Batch:* ${batch}` : ""}
 📅 *Issue Date:* ${formattedDate}
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -2474,6 +2920,19 @@ _${organizationName} Team_
 📞 *Support:* +91 9892398976
 📌 Please send the signed copy to us via email.  
 📌 If the link does not open, please save this WhatsApp number and try again for further updates.
+🌐 Nexcore Alliance
+Empowering global business solutions.
+Head Office:
+• IN - India
+
+Branch Offices:
+• QA - Qatar
+• OM - Oman
+• KW - Kuwait
+• AE - UAE
+• SA - Saudi Arabia
+
+🔗 Website: www.nexcorealliance.com
   `.trim();
 };
 

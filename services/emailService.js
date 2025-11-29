@@ -306,72 +306,89 @@ export const sendCertificateNotification = async (certificateData) => {
 
     // Create HTML email
     const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; text-align: center; border-radius: 10px 10px 0 0; }
-        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-        .details-box { background: white; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 5px; }
-        .detail-row { padding: 8px 0; border-bottom: 1px solid #eee; }
-        .detail-label { font-weight: bold; color: #667eea; }
-        .button { display: inline-block; padding: 12px 30px; margin: 10px 5px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
-        .button:hover { background: #5568d3; }
-        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
-        .celebration { font-size: 48px; text-align: center; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <div class="celebration">🎉</div>
-          <h1>Congratulations!</h1>
-          <p>Your Certificate Has Been Generated Successfully</p>
-        </div>
-        <div class="content">
-          <p>Hello <strong>${userName}</strong>,</p>
-          <p>Greetings from <strong>Nexcore Alliance</strong> & <strong>Code4Bharat</strong>! 🌟</p>
-          <p>We are pleased to inform you that your certificate has been successfully generated!</p>
-          
-          <div class="details-box">
-            <h3 style="color: #667eea; margin-top: 0;">📜 Certificate Details</h3>
-            <div class="detail-row">
-              <span class="detail-label">👤 Name:</span> ${userName}
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">🆔 Certificate ID:</span> ${certificateId}
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">📚 Course:</span> ${course}
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">🏷️ Category:</span> ${categoryDisplay}
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">📅 Issue Date:</span> ${formattedDate}
-            </div>
-            ${batch ? `<div class="detail-row"><span class="detail-label">🎓 Batch:</span> ${batch}</div>` : ''}
-          </div>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${verificationLink}" class="button">🔍 Verify Certificate</a>
-            <a href="${downloadLink}" class="button">⬇️ Download Certificate</a>
-          </div>
-          
-          <p>✨ Keep this certificate safe as proof of your achievement!</p>
-          <p>📱 For any queries, feel free to reach out to us at <strong>+91 9892398976</strong></p>
-        </div>
-        <div class="footer">
-          <p><strong>With Best Wishes,</strong></p>
-          <p><strong>Nexcore Alliance Team</strong></p>
-          <p><strong>Code4Bharat Initiative</strong></p>
-          <p>💙 Keep Learning, Keep Growing!</p>
-        </div>
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; text-align: center; border-radius: 10px 10px 0 0; }
+    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+    .details-box { background: white; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 5px; }
+    .detail-row { padding: 8px 0; border-bottom: 1px solid #eee; }
+    .detail-label { font-weight: bold; color: #667eea; }
+    .button { display: inline-block; padding: 12px 30px; margin: 10px 5px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+    .button:hover { background: #5568d3; }
+    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    .celebration { font-size: 48px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <div class="celebration">🎉</div>
+      <h1>Congratulations!</h1>
+      <p>Your Certificate Has Been Generated Successfully</p>
+    </div>
+
+    <div class="content">
+      <p>Hello <strong>${userName}</strong>,</p>
+      <p>Greetings from <strong>Nexcore Alliance</strong> & <strong>Code4Bharat</strong>! 🌟</p>
+      <p>We are pleased to inform you that your certificate has been successfully generated!</p>
+
+      <div class="details-box">
+        <h3 style="color: #667eea; margin-top: 0;">📜 Certificate Details</h3>
+
+        <div class="detail-row"><span class="detail-label">👤 Name:</span> ${userName}</div>
+        <div class="detail-row"><span class="detail-label">🆔 Certificate ID:</span> ${certificateId}</div>
+        <div class="detail-row"><span class="detail-label">📚 Course:</span> ${course}</div>
+        <div class="detail-row"><span class="detail-label">🏷️ Category:</span> ${categoryDisplay}</div>
+        <div class="detail-row"><span class="detail-label">📅 Issue Date:</span> ${formattedDate}</div>
+        ${
+          batch
+            ? `<div class="detail-row"><span class="detail-label">🎓 Batch:</span> ${batch}</div>`
+            : ""
+        }
       </div>
-    </body>
-    </html>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${verificationLink}" class="button">🔍 Verify Certificate</a>
+        <a href="${downloadLink}" class="button">⬇️ Download Certificate</a>
+      </div>
+
+      <p>✨ Keep this certificate safe as proof of your achievement!</p>
+      <p>📱 For any queries, feel free to reach out to us at <strong>+91 9892398976</strong></p>
+    </div>
+
+    <!-- Updated Footer WITH branches + website -->
+    <div class="footer">
+      <p><strong>With Best Wishes,</strong></p>
+      <p><strong>Nexcore Alliance Team</strong></p>
+      <p><strong>Code4Bharat Initiative</strong></p>
+      <p>💙 Keep Learning, Keep Growing!</p>
+
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+
+      <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
+    </div>
+
+  </div>
+</body>
+</html>
+
     `;
 
     // Send email notification
@@ -683,185 +700,286 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
 
   // Letter-specific templates
   const templates = {
-    
     // ===== APPRECIATION LETTERS =====
-    'Appreciation Letter': `
+    "Appreciation Letter": `
       <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        ${baseStyle}
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>🏆 Excellence Recognized</h1>
-          </div>
-          <div class="content">
-            <p>Dear <strong>${userName}</strong>,</p>
-            <p>We are delighted to recognize your <strong>${subType?.replace('Appreciation for ', '') || 'outstanding achievement'}</strong>!</p>
-            
-            <div class="details-box">
-              <h3 style="color: #667eea; margin-top: 0;">Recognition Details</h3>
-              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
-              <div class="detail-row"><strong>🎖️ Recognition:</strong> ${subType || 'Outstanding Performance'}</div>
-              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
-              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
-              <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
-            </div>
-            
-            <div class="success-box">
-              <p><strong>Your exceptional contributions include:</strong></p>
-              <ul>
-                <li>Outstanding dedication and effort</li>
-                <li>Excellence in your field</li>
-                <li>Commitment to quality</li>
-                <li>Professional growth</li>
-              </ul>
-            </div>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${verificationLink}" class="button">🔍 Verify Letter</a>
-              <a href="${downloadLink}" class="button">⬇️ Download Letter</a>
-            </div>
-            
-            <p>Keep up the exceptional work!</p>
-          </div>
-          <div class="footer">
-            <p><strong>With Pride & Highest Regards,</strong></p>
-            <p><strong>${organizationName} Team</strong></p>
-            <p>📞 Support: +91 9892398976</p>
-          </div>
-        </div>
-      </body>
-      </html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  ${baseStyle}
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <h1>🏆 Excellence Recognized</h1>
+    </div>
+
+    <div class="content">
+      <p>Dear <strong>${userName}</strong>,</p>
+      <p>We are delighted to recognize your <strong>${
+        subType?.replace("Appreciation for ", "") || "outstanding achievement"
+      }</strong>!</p>
+      
+      <div class="details-box">
+        <h3 style="color: #667eea; margin-top: 0;">Recognition Details</h3>
+
+        <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+        <div class="detail-row"><strong>🎖️ Recognition:</strong> ${
+          subType || "Outstanding Performance"
+        }</div>
+        <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+        <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+        ${
+          batch
+            ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+            : ""
+        }
+        <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
+      </div>
+
+      <div class="success-box">
+        <p><strong>Your exceptional contributions include:</strong></p>
+        <ul>
+          <li>Outstanding dedication and effort</li>
+          <li>Excellence in your field</li>
+          <li>Commitment to quality</li>
+          <li>Professional growth</li>
+        </ul>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${verificationLink}" class="button">🔍 Verify Letter</a>
+        <a href="${downloadLink}" class="button">⬇️ Download Letter</a>
+      </div>
+
+      <p>Keep up the exceptional work!</p>
+    </div>
+
+    <!-- Updated footer with branches + website -->
+    <div class="footer">
+      <p><strong>With Pride & Highest Regards,</strong></p>
+      <p><strong>${organizationName} Team</strong></p>
+      <p>📞 Support: +91 9892398976</p>
+
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+
+      <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
+    </div>
+
+  </div>
+</body>
+</html>
+
     `,
 
     // ===== WARNING LETTERS =====
-    'Warning Letter': `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        ${baseStyle}
-      </head>
-      <body>
-        <div class="container">
-          <div class="header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
-            <h1>⚠️ Official Warning</h1>
-          </div>
-          <div class="content">
-            <p>Dear <strong>${userName}</strong>,</p>
-            <p>This is an <strong>official warning</strong> regarding ${subType?.replace('Warning for ', '').toLowerCase() || 'performance concerns'}.</p>
-            
-            <div class="details-box">
-              <h3 style="color: #dc3545; margin-top: 0;">Warning Details</h3>
-              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
-              <div class="detail-row"><strong>⚠️ Subject:</strong> ${subType || 'Performance Warning'}</div>
-              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
-              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
-              <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
-            </div>
-            
-            <div class="important-notice">
-              <p>⚠️ IMPORTANT NOTICE</p>
-              <p>📌 Please send the signed copy to us via email</p>
-            </div>
-            
-            <div class="warning-box">
-              <p><strong>🔴 Immediate Action Required:</strong></p>
-              <ul>
-                <li>Review this warning carefully</li>
-                <li>Take immediate corrective action</li>
-                <li>Maintain required standards</li>
-                <li>Contact your coordinator if needed</li>
-              </ul>
-              <p><strong>Consequences of Non-Compliance:</strong> Continued non-compliance may result in further disciplinary action.</p>
-            </div>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${verificationLink}" class="button" style="background: #dc3545;">🔍 View Warning Letter</a>
-              <a href="${downloadLink}" class="button" style="background: #dc3545;">⬇️ Download Letter</a>
-            </div>
-          </div>
-          <div class="footer">
-            <p><strong>Academic Standards Office,</strong></p>
-            <p><strong>${organizationName} Team</strong></p>
-            <p>📞 Support: +91 9892398976</p>
-          </div>
-        </div>
-      </body>
-      </html>
+    "Warning Letter": `
+     <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  ${baseStyle}
+</head>
+<body>
+  <div class="container">
+
+    <div class="header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+      <h1>⚠️ Official Warning</h1>
+    </div>
+
+    <div class="content">
+      <p>Dear <strong>${userName}</strong>,</p>
+      <p>
+        This is an <strong>official warning</strong> regarding 
+        ${
+          subType?.replace("Warning for ", "").toLowerCase() ||
+          "performance concerns"
+        }.
+      </p>
+
+      <div class="details-box">
+        <h3 style="color: #dc3545; margin-top: 0;">Warning Details</h3>
+
+        <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+        <div class="detail-row"><strong>⚠️ Subject:</strong> ${
+          subType || "Performance Warning"
+        }</div>
+        <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+        <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+        ${
+          batch
+            ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+            : ""
+        }
+        <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
+      </div>
+
+      <div class="important-notice">
+        <p>⚠️ IMPORTANT NOTICE</p>
+        <p>📌 Please send the signed copy to us via email</p>
+      </div>
+
+      <div class="warning-box">
+        <p><strong>🔴 Immediate Action Required:</strong></p>
+        <ul>
+          <li>Review this warning carefully</li>
+          <li>Take immediate corrective action</li>
+          <li>Maintain required standards</li>
+          <li>Contact your coordinator if needed</li>
+        </ul>
+        <p>
+          <strong>Consequences of Non-Compliance:</strong>  
+          Continued non-compliance may result in further disciplinary action.
+        </p>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${verificationLink}" class="button" style="background: #dc3545;">🔍 View Warning Letter</a>
+        <a href="${downloadLink}" class="button" style="background: #dc3545;">⬇️ Download Letter</a>
+      </div>
+    </div>
+
+    <!-- Nexcore Footer Added -->
+    <div class="footer">
+      <p><strong>Academic Standards Office</strong></p>
+      <p><strong>${organizationName} Team</strong></p>
+      <p>📞 Support: +91 9892398976</p>
+
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+
+      <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
+    </div>
+
+  </div>
+</body>
+</html>
+
     `,
 
     // ===== OFFER LETTER =====
-    'Offer Letter': `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        ${baseStyle}
-      </head>
-      <body>
-        <div class="container">
-          <div class="header" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%);">
-            <h1>🎊 Job Offer - Congratulations!</h1>
-          </div>
-          <div class="content">
-            <p>Dear <strong>${userName}</strong>,</p>
-            <p><strong>Congratulations!</strong> We are thrilled to extend you an official job offer to join ${organizationName}!</p>
-            
-            <div class="details-box">
-              <h3 style="color: #28a745; margin-top: 0;">Offer Letter Details</h3>
-              <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
-              <div class="detail-row"><strong>💼 Document:</strong> Job Offer Letter</div>
-              <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
-              <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
-              <div class="detail-row"><strong>📅 Offer Date:</strong> ${formattedDate}</div>
-            </div>
-            
-            <div class="important-notice">
-              <p>⚠️ IMPORTANT NOTICE</p>
-              <p>📌 Please send the signed copy to us via email</p>
-            </div>
+    "Offer Letter": `
+    <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  ${baseStyle}
+</head>
+<body>
+  <div class="container">
 
-            <div class="success-box">
-              <p><strong>📋 Next Steps:</strong></p>
-              <ol>
-                <li>Download and review your offer letter</li>
-                <li>Fill the Terms & Conditions form: <a href="${getTermsLink()}" style="color: #667eea; font-weight: 600;">Click Here</a></li>
-                <li>Sign the offer letter</li>
-                <li>Send back the signed copy via email</li>
-                <li>Complete pre-joining formalities</li>
-              </ol>
-            </div>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${verificationLink}" class="button" style="background: #28a745;">🔍 View Offer Letter</a>
-              <a href="${downloadLink}" class="button" style="background: #28a745;">⬇️ Download Letter</a>
-            </div>
-            
-            <p style="text-align: center; color: #dc3545; font-weight: 600;"><strong>🔴 Important:</strong> Please send your signed copy to confirm acceptance!</p>
-          </div>
-          <div class="footer">
-            <p><strong>With Excitement & Best Wishes,</strong></p>
-            <p><strong>${organizationName} Team</strong></p>
-            <p>🎯 Your Career, Our Commitment</p>
-            <p>📞 Support: +91 9892398976</p>
-          </div>
-        </div>
-      </body>
-      </html>
+    <div class="header" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%);">
+      <h1>🎊 Job Offer - Congratulations!</h1>
+    </div>
+
+    <div class="content">
+      <p>Dear <strong>${userName}</strong>,</p>
+      <p><strong>Congratulations!</strong> We are thrilled to extend you an official job offer to join ${organizationName}!</p>
+
+      <div class="details-box">
+        <h3 style="color: #28a745; margin-top: 0;">Offer Letter Details</h3>
+
+        <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
+        <div class="detail-row"><strong>💼 Document:</strong> Job Offer Letter</div>
+        <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
+        <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
+
+        ${
+          batch
+            ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+            : ""
+        }
+
+        <div class="detail-row"><strong>📅 Offer Date:</strong> ${formattedDate}</div>
+      </div>
+
+      <div class="important-notice">
+        <p>⚠️ IMPORTANT NOTICE</p>
+        <p>📌 Please send the signed copy to us via email</p>
+      </div>
+
+      <div class="success-box">
+        <p><strong>📋 Next Steps:</strong></p>
+        <ol>
+          <li>Download and review your offer letter</li>
+          <li>Fill the Terms & Conditions form: 
+            <a href="${getTermsLink()}" style="color: #667eea; font-weight: 600;">Click Here</a>
+          </li>
+          <li>Sign the offer letter</li>
+          <li>Send back the signed copy via email</li>
+          <li>Complete pre-joining formalities</li>
+        </ol>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${verificationLink}" class="button" style="background: #28a745;">🔍 View Offer Letter</a>
+        <a href="${downloadLink}" class="button" style="background: #28a745;">⬇️ Download Letter</a>
+      </div>
+
+      <p style="text-align: center; color: #dc3545; font-weight: 600;">
+        <strong>🔴 Important:</strong> Please send your signed copy to confirm acceptance!
+      </p>
+    </div>
+
+    <!-- Nexcore Footer (Added Here) -->
+    <div class="footer">
+      <p><strong>With Excitement & Best Wishes,</strong></p>
+      <p><strong>${organizationName} Team</strong></p>
+      <p>🎯 Your Career, Our Commitment</p>
+      <p>📞 Support: +91 9892398976</p>
+
+      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+
+      <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
+    </div>
+
+  </div>
+</body>
+</html>
+
     `,
 
     // ===== TIMELINE LETTER =====
-    'Timeline Letter': `
+    "Timeline Letter": `
       <!DOCTYPE html>
       <html>
       <head>
@@ -884,7 +1002,11 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
               <div class="detail-row"><strong>📋 Document Type:</strong> Timeline Letter</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
             </div>
             
@@ -911,7 +1033,7 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
     `,
 
     // ===== EXPERIENCE CERTIFICATE =====
-    'Experience Certificate': `
+    "Experience Certificate": `
       <!DOCTYPE html>
       <html>
       <head>
@@ -934,7 +1056,11 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
               <div class="detail-row"><strong>📋 Document:</strong> Experience Certificate</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
             </div>
             
@@ -959,6 +1085,19 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
             <p><strong>With Best Wishes,</strong></p>
             <p><strong>${organizationName} Team</strong></p>
             <p>📞 Support: +91 9892398976</p>
+             <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
           </div>
         </div>
       </body>
@@ -966,7 +1105,7 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
     `,
 
     // ===== INTERNSHIP EXPERIENCE CERTIFICATE =====
-    'Internship Experience Certificate': `
+    "Internship Experience Certificate": `
       <!DOCTYPE html>
       <html>
       <head>
@@ -989,7 +1128,11 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
               <div class="detail-row"><strong>📋 Document:</strong> Internship Experience Certificate</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
             </div>
             
@@ -1014,6 +1157,19 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
             <p><strong>With Best Wishes,</strong></p>
             <p><strong>${organizationName} Team</strong></p>
             <p>📞 Support: +91 9892398976</p>
+             <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
           </div>
         </div>
       </body>
@@ -1021,7 +1177,7 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
     `,
 
     // ===== CONCERN LETTER =====
-    'Concern Letter-Audit Interview Performance': `
+    "Concern Letter-Audit Interview Performance": `
       <!DOCTYPE html>
       <html>
       <head>
@@ -1044,7 +1200,11 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
               <div class="detail-row"><strong>📋 Subject:</strong> Concern Letter - Audit Interview Performance</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
             </div>
             
@@ -1072,6 +1232,19 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
             <p><strong>Training & Development Team,</strong></p>
             <p><strong>${organizationName}</strong></p>
             <p>📞 Support: +91 9892398976</p>
+             <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
           </div>
         </div>
       </body>
@@ -1079,7 +1252,7 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
     `,
 
     // ===== INTERNSHIP JOINING LETTER - UNPAID =====
-    'Internship Joining Letter - Unpaid': `
+    "Internship Joining Letter - Unpaid": `
       <!DOCTYPE html>
       <html>
       <head>
@@ -1102,7 +1275,11 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
               <div class="detail-row"><strong>📋 Document:</strong> Internship Joining Letter (Unpaid)</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
             </div>
             
@@ -1130,6 +1307,19 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
             <p><strong>Welcome Aboard!</strong></p>
             <p><strong>${organizationName} Team</strong></p>
             <p>📞 Support: +91 9892398976</p>
+             <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
           </div>
         </div>
       </body>
@@ -1137,7 +1327,7 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
     `,
 
     // ===== INTERNSHIP JOINING LETTER - PAID =====
-    'Internship Joining Letter - Paid': `
+    "Internship Joining Letter - Paid": `
       <!DOCTYPE html>
       <html>
       <head>
@@ -1160,7 +1350,11 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
               <div class="detail-row"><strong>📋 Document:</strong> Internship Joining Letter (Paid)</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
             </div>
             
@@ -1188,6 +1382,19 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
             <p><strong>Welcome to the Team!</strong></p>
             <p><strong>${organizationName}</strong></p>
             <p>📞 Support: +91 9892398976</p>
+             <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
           </div>
         </div>
       </body>
@@ -1195,7 +1402,7 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
     `,
 
     // ===== NON-DISCLOSURE AGREEMENT =====
-    'Non-Disclosure Agreement': `
+    "Non-Disclosure Agreement": `
       <!DOCTYPE html>
       <html>
       <head>
@@ -1218,7 +1425,11 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
               <div class="detail-row"><strong>📋 Document:</strong> Non-Disclosure Agreement</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
             </div>
 
@@ -1241,6 +1452,19 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
             <p><strong>Legal & Compliance Team,</strong></p>
             <p><strong>${organizationName}</strong></p>
             <p>📞 Support: +91 9892398976</p>
+             <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
           </div>
         </div>
       </body>
@@ -1248,7 +1472,7 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
     `,
 
     // ===== LIVE PROJECT AGREEMENT =====
-    'Live Project Agreement': `
+    "Live Project Agreement": `
       <!DOCTYPE html>
       <html>
       <head>
@@ -1271,7 +1495,11 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
               <div class="detail-row"><strong>📋 Document:</strong> Live Project Agreement</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
             </div>
             
@@ -1299,6 +1527,19 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
             <p><strong>Project Management Team,</strong></p>
             <p><strong>${organizationName}</strong></p>
             <p>📞 Support: +91 9892398976</p>
+             <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
           </div>
         </div>
       </body>
@@ -1306,7 +1547,7 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
     `,
 
     // ===== NON PAID TO PAID PROMOTION =====
-    'Non Paid to Paid': `
+    "Non Paid to Paid": `
       <!DOCTYPE html>
       <html>
       <head>
@@ -1329,7 +1570,11 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
               <div class="detail-row"><strong>📋 Document:</strong> Non-Paid to Paid Promotion Letter</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Effective Date:</strong> ${formattedDate}</div>
             </div>
             
@@ -1359,6 +1604,19 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
             <p><strong>Congratulations from,</strong></p>
             <p><strong>${organizationName} Team</strong></p>
             <p>📞 Support: +91 9892398976</p>
+             <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
           </div>
         </div>
       </body>
@@ -1366,7 +1624,7 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
     `,
 
     // ===== STIPEND REVISION =====
-    'Stipend Revision': `
+    "Stipend Revision": `
       <!DOCTYPE html>
       <html>
       <head>
@@ -1389,7 +1647,11 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
               <div class="detail-row"><strong>📋 Document:</strong> Stipend Revision Promotion Letter</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Effective Date:</strong> ${formattedDate}</div>
             </div>
             
@@ -1419,6 +1681,19 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
             <p><strong>With Appreciation,</strong></p>
             <p><strong>${organizationName} Team</strong></p>
             <p>📞 Support: +91 9892398976</p>
+             <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
           </div>
         </div>
       </body>
@@ -1426,7 +1701,7 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
     `,
 
     // ===== COMMITTEE MEMBER =====
-    'Committee Member': `
+    "Committee Member": `
       <!DOCTYPE html>
       <html>
       <head>
@@ -1449,7 +1724,11 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
               <div class="detail-row"><strong>📋 Position:</strong> Committee Member</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Appointment Date:</strong> ${formattedDate}</div>
             </div>
             
@@ -1474,6 +1753,19 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
             <p><strong>Best Wishes,</strong></p>
             <p><strong>${organizationName} Committee</strong></p>
             <p>📞 Support: +91 9892398976</p>
+             <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
           </div>
         </div>
       </body>
@@ -1481,7 +1773,7 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
     `,
 
     // ===== COMMITTEE PRESIDENT =====
-    'Committee President': `
+    "Committee President": `
       <!DOCTYPE html>
       <html>
       <head>
@@ -1504,7 +1796,11 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
               <div class="detail-row"><strong>📋 Position:</strong> Committee President</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Appointment Date:</strong> ${formattedDate}</div>
             </div>
             
@@ -1530,6 +1826,19 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
             <p><strong>With Great Expectations,</strong></p>
             <p><strong>${organizationName} Committee</strong></p>
             <p>📞 Support: +91 9892398976</p>
+             <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
           </div>
         </div>
       </body>
@@ -1537,7 +1846,7 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
     `,
 
     // ===== COMMITTEE VICE-PRESIDENT =====
-    'Committee Vice-President': `
+    "Committee Vice-President": `
       <!DOCTYPE html>
       <html>
       <head>
@@ -1560,7 +1869,11 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
               <div class="detail-row"><strong>📋 Position:</strong> Committee Vice-President</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Appointment Date:</strong> ${formattedDate}</div>
             </div>
             
@@ -1586,6 +1899,19 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
             <p><strong>With Best Wishes,</strong></p>
             <p><strong>${organizationName} Committee</strong></p>
             <p>📞 Support: +91 9892398976</p>
+             <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
           </div>
         </div>
       </body>
@@ -1593,7 +1919,9 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
     `,
   };
   // Return appropriate template or default
-  return templates[letterType] || `
+  return (
+    templates[letterType] ||
+    `
     <!DOCTYPE html>
     <html>
     <head>${baseStyle}</head>
@@ -1609,10 +1937,16 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
           <div class="details-box">
             <h3 style="color: #667eea; margin-top: 0;">Document Details</h3>
             <div class="detail-row"><strong>👤 Name:</strong> ${userName}</div>
-            <div class="detail-row"><strong>📋 Document:</strong> ${letterType}${subType ? ` - ${subType}` : ''}</div>
+            <div class="detail-row"><strong>📋 Document:</strong> ${letterType}${
+      subType ? ` - ${subType}` : ""
+    }</div>
             <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
             <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-            ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+            ${
+              batch
+                ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                : ""
+            }
             <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
           </div>
           
@@ -1625,11 +1959,25 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
           <p><strong>Official Communication,</strong></p>
           <p><strong>${organizationName} Team</strong></p>
           <p>📞 Support: +91 9892398976</p>
+           <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
         </div>
       </div>
     </body>
     </html>
-  `;
+  `
+  );
 };
 
 /**
@@ -1729,10 +2077,17 @@ export const getParentNotificationEmailTemplate = (letterType, subType, data) =>
             <div class="details-box">
               <h3 style="color: #dc3545; margin-top: 0;">Notification Details</h3>
               <div class="detail-row"><strong>👤 Student Name:</strong> ${userName}</div>
-              <div class="detail-row"><strong>⚠️ Subject:</strong> ${subType?.replace('Warning for ', '') || 'Academic/Behavioral Warning'}</div>
+              <div class="detail-row"><strong>⚠️ Subject:</strong> ${
+                subType?.replace("Warning for ", "") ||
+                "Academic/Behavioral Warning"
+              }</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
             </div>
             
@@ -1761,6 +2116,19 @@ export const getParentNotificationEmailTemplate = (letterType, subType, data) =>
             <p><strong>${organizationName} Team</strong></p>
             <p>👨‍👩‍👧‍👦 Parents & Institution: Partners in Student Success</p>
             <p>📞 Support: +91 9892398976</p>
+             <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
           </div>
         </div>
       </body>
@@ -1786,10 +2154,17 @@ export const getParentNotificationEmailTemplate = (letterType, subType, data) =>
             <div class="details-box">
               <h3 style="color: #28a745; margin-top: 0;">Recognition Details</h3>
               <div class="detail-row"><strong>👤 Student Name:</strong> ${userName}</div>
-              <div class="detail-row"><strong>🏆 Recognition:</strong> ${subType?.replace('Appreciation for ', '') || 'Outstanding Achievement'}</div>
+              <div class="detail-row"><strong>🏆 Recognition:</strong> ${
+                subType?.replace("Appreciation for ", "") ||
+                "Outstanding Achievement"
+              }</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Recognition Date:</strong> ${formattedDate}</div>
             </div>
             
@@ -1818,6 +2193,19 @@ export const getParentNotificationEmailTemplate = (letterType, subType, data) =>
             <p><strong>${organizationName} Team</strong></p>
             <p>👨‍👩‍👧‍👦 Celebrating Student Excellence Together</p>
             <p>📞 Support: +91 9892398976</p>
+             <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
           </div>
         </div>
       </body>
@@ -1843,10 +2231,16 @@ export const getParentNotificationEmailTemplate = (letterType, subType, data) =>
             <div class="details-box">
               <h3 style="color: #fd7e14; margin-top: 0;">Appointment Details</h3>
               <div class="detail-row"><strong>👤 Student Name:</strong> ${userName}</div>
-              <div class="detail-row"><strong>🏅 Position:</strong> ${subType || 'Committee Member'}</div>
+              <div class="detail-row"><strong>🏅 Position:</strong> ${
+                subType || "Committee Member"
+              }</div>
               <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
               <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-              ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+              ${
+                batch
+                  ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                  : ""
+              }
               <div class="detail-row"><strong>📅 Appointment Date:</strong> ${formattedDate}</div>
             </div>
             
@@ -1875,6 +2269,19 @@ export const getParentNotificationEmailTemplate = (letterType, subType, data) =>
             <p><strong>${organizationName} Team</strong></p>
             <p>👨‍👩‍👧‍👦 Nurturing Future Leaders Together</p>
             <p>📞 Support: +91 9892398976</p>
+             <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
           </div>
         </div>
       </body>
@@ -1899,10 +2306,16 @@ export const getParentNotificationEmailTemplate = (letterType, subType, data) =>
           <div class="details-box">
             <h3 style="color: #667eea; margin-top: 0;">Document Details</h3>
             <div class="detail-row"><strong>👤 Student Name:</strong> ${userName}</div>
-            <div class="detail-row"><strong>📄 Document Type:</strong> ${letterType}${subType ? ` - ${subType}` : ''}</div>
+            <div class="detail-row"><strong>📄 Document Type:</strong> ${letterType}${
+    subType ? ` - ${subType}` : ""
+  }</div>
             <div class="detail-row"><strong>🆔 Credential ID:</strong> ${finalId}</div>
             <div class="detail-row"><strong>🏷️ Program:</strong> ${category}</div>
-            ${batch ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>` : ''}
+            ${
+              batch
+                ? `<div class="detail-row"><strong>📚 Batch:</strong> ${batch}</div>`
+                : ""
+            }
             <div class="detail-row"><strong>📅 Issue Date:</strong> ${formattedDate}</div>
           </div>
           
@@ -1931,6 +2344,19 @@ export const getParentNotificationEmailTemplate = (letterType, subType, data) =>
           <p><strong>${organizationName} Team</strong></p>
           <p>👨‍👩‍👧‍👦 Partners in Education & Development</p>
           <p>📞 Support: +91 9892398976</p>
+           <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
+
+      <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
+
+      <p><strong>Branch Offices:</strong><br>
+        • QA – Qatar<br>
+        • OM – Oman<br>
+        • KW – Kuwait<br>
+        • AE – UAE<br>
+        • SA – Saudi Arabia
+      </p>
+
+      <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
         </div>
       </div>
     </body>

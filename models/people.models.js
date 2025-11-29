@@ -66,10 +66,7 @@ const peopleSchema = new mongoose.Schema(
       required: [true, "Phone number is required"],
       unique: true,
       trim: true,
-      match: [
-        /^91[0-9]{10}$/,
-        "Phone must be in 10 digits",
-      ],
+      match: [/^91[0-9]{10}$/, "Phone must be in 10 digits"],
       index: true,
     },
 
@@ -105,6 +102,46 @@ const peopleSchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxlength: [200, "Address cannot exceed 200 characters"],
+      default: null,
+    },
+
+    // ⭐ NEW: Client Email 1 (optional, only for Client category)
+    clientEmail1: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      match: [/^\S+@\S+\.\S+$/, "Please enter a valid client email address"],
+      default: null,
+    },
+
+    // ⭐ NEW: Client Email 2 (optional, only for Client category)
+    clientEmail2: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      match: [/^\S+@\S+\.\S+$/, "Please enter a valid client email address"],
+      default: null,
+    },
+
+    // ⭐ NEW: Client Phone 1 (optional, only for Client category)
+    clientPhone1: {
+      type: String,
+      trim: true,
+      match: [
+        /^91[0-9]{10}$/,
+        "Client Phone 1 must be in format 91XXXXXXXXXX (12 digits with country code)",
+      ],
+      default: null,
+    },
+
+    // ⭐ NEW: Client Phone 2 (optional, only for Client category)
+    clientPhone2: {
+      type: String,
+      trim: true,
+      match: [
+        /^91[0-9]{10}$/,
+        "Client Phone 2 must be in format 91XXXXXXXXXX (12 digits with country code)",
+      ],
       default: null,
     },
 
@@ -149,6 +186,22 @@ peopleSchema.virtual("formattedParentPhone2").get(function () {
     return `+91 ${this.parentPhone2.substring(2)}`;
   }
   return this.parentPhone2;
+});
+
+// ⭐ NEW: Virtual for formatted client phone 1
+peopleSchema.virtual("formattedClientPhone1").get(function () {
+  if (this.clientPhone1 && this.clientPhone1.startsWith("91")) {
+    return `+91 ${this.clientPhone1.substring(2)}`;
+  }
+  return this.clientPhone1;
+});
+
+// ⭐ NEW: Virtual for formatted client phone 2
+peopleSchema.virtual("formattedClientPhone2").get(function () {
+  if (this.clientPhone2 && this.clientPhone2.startsWith("91")) {
+    return `+91 ${this.clientPhone2.substring(2)}`;
+  }
+  return this.clientPhone2;
 });
 
 // Virtual for status display
@@ -401,8 +454,14 @@ peopleSchema.methods.getFullDetails = function () {
     phoneRaw: this.phone,
     parentPhone1: this.formattedParentPhone1,
     parentPhone2: this.formattedParentPhone2,
+    clientPhone1: this.formattedClientPhone1, // ⭐ NEW
+    clientPhone2: this.formattedClientPhone2, // ⭐ NEW
     aadhaarCard: this.aadhaarCard || "Not provided",
     address: this.address || "Not provided",
+    email: this.email || "Not provided", // ⭐ NEW
+    parentEmail: this.parentEmail || "Not provided", // ⭐ NEW
+    clientEmail1: this.clientEmail1 || "Not provided", // ⭐ NEW
+    clientEmail2: this.clientEmail2 || "Not provided", // ⭐ NEW
     disabled: this.disabled,
     status: this.statusDisplay,
     isActive: this.isActive(),
