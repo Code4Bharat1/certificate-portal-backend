@@ -2274,7 +2274,7 @@ const getCommonTemplateCode = async (
 
     // Subject / Title
     ctx.font = 'bold 22px Poppins';
-    ctx.fillText(name, width * 0.38, height * 0.29);
+    ctx.fillText(name, width * 0.49, height * 0.29);
 
     // Second Page
     const startformattedDate = new Date(startDate).toLocaleDateString("en-US", {
