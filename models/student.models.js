@@ -20,7 +20,7 @@ const studentSchema = new mongoose.Schema(
       type: String,
       enum: {
         values: [
-          "code4bharat",
+          "IT-Nexcore",
           "marketing-junction",
           "FSD",
           "BVOC",
@@ -68,10 +68,7 @@ const studentSchema = new mongoose.Schema(
       required: [true, "Phone number is required"],
       unique: true,
       trim: true,
-      match: [
-        /^91[0-9]{10}$/,
-        "Phone must be in 10 digits",
-      ],
+      match: [/^91[0-9]{10}$/, "Phone must be in 10 digits"],
       index: true,
     },
 
@@ -126,21 +123,20 @@ const studentSchema = new mongoose.Schema(
       select: false,
       default: null,
     },
-     resetPasswordToken: String,
-  resetPasswordExpires: Date,
-  resetOtp: Number,
-resetOtpExpires: Date,
-
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+    resetOtp: Number,
+    resetOtpExpires: Date,
 
     firstLogin: {
       type: Boolean,
       default: true,
     },
-//     status: {
-//   type: String,
-//   enum: ["pending", "approved", "rejected","downloaded","in_review"],   // ❌ "in_review" missing
-//   default: "pending"
-// },
+    //     status: {
+    //   type: String,
+    //   enum: ["pending", "approved", "rejected","downloaded","in_review"],   // ❌ "in_review" missing
+    //   default: "pending"
+    // },
 
     otp: {
       type: String,
@@ -152,12 +148,11 @@ resetOtpExpires: Date,
       select: false,
     },
     documents: {
-  aadhaarFront: { type: String, default: null },
-  aadhaarBack: { type: String, default: null },
-  panCard: { type: String, default: null },
-  bankPassbook: { type: String, default: null }
-},
-
+      aadhaarFront: { type: String, default: null },
+      aadhaarBack: { type: String, default: null },
+      panCard: { type: String, default: null },
+      bankPassbook: { type: String, default: null },
+    },
   },
   {
     timestamps: true,

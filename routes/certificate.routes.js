@@ -199,37 +199,37 @@ router.get('/available-courses', authenticate, async (req, res) => {
     const { category, name } = req.query;
 
     const coursesByCategory = {
-      'marketing-junction': [
-        'Digital Marketing Specialist Certificate',
-        'Advanced SEO Specialist Certificate',
-        'Social Media Marketing Expert Certificate',
-        'Full Stack Digital Marketer Certificate',
-        'AI-Powered Digital Marketing Specialist Certificate',
-        'Videography Course'
+      "marketing-junction": [
+        "Digital Marketing Specialist Certificate",
+        "Advanced SEO Specialist Certificate",
+        "Social Media Marketing Expert Certificate",
+        "Full Stack Digital Marketer Certificate",
+        "AI-Powered Digital Marketing Specialist Certificate",
+        "Videography Course",
       ],
-      'code4bharat': [
-        'Full Stack Certificate (MERN Stack)',
-        'JavaScript Developer Certificate',
-        'Advanced React Developer Certificate',
-        'Node.js and Express.js Specialist Certificate',
-        'MongoDB Professional Certificate',
-        'Git & Version Control Expert Certificate',
-        'Frontend Development Pro Certificate',
-        'Backend Development Specialist Certificate',
-        'Web Development Project Certificate',
-        'Advanced Web Development Capstone Certificate'
+      "IT-Nexcore": [
+        "Full Stack Certificate (MERN Stack)",
+        "JavaScript Developer Certificate",
+        "Advanced React Developer Certificate",
+        "Node.js and Express.js Specialist Certificate",
+        "MongoDB Professional Certificate",
+        "Git & Version Control Expert Certificate",
+        "Frontend Development Pro Certificate",
+        "Backend Development Specialist Certificate",
+        "Web Development Project Certificate",
+        "Advanced Web Development Capstone Certificate",
       ],
-      'FSD': [
-        'Full Stack Certificate (MERN Stack)',
-        'JavaScript Developer Certificate',
-        'Advanced React Developer Certificate',
-        'Node.js and Express.js Specialist Certificate',
-        'MongoDB Professional Certificate',
-        'Git & Version Control Expert Certificate',
-        'Frontend Development Pro Certificate',
-        'Backend Development Specialist Certificate',
-        'Web Development Project Certificate',
-        'Advanced Web Development Capstone Certificate'
+      FSD: [
+        "Full Stack Certificate (MERN Stack)",
+        "JavaScript Developer Certificate",
+        "Advanced React Developer Certificate",
+        "Node.js and Express.js Specialist Certificate",
+        "MongoDB Professional Certificate",
+        "Git & Version Control Expert Certificate",
+        "Frontend Development Pro Certificate",
+        "Backend Development Specialist Certificate",
+        "Web Development Project Certificate",
+        "Advanced Web Development Capstone Certificate",
       ],
       // 'BVOC': [
       //   "Bachelor's in Artificial Intelligence and Machine Learning",
@@ -246,8 +246,8 @@ router.get('/available-courses', authenticate, async (req, res) => {
       //   'UI/UX Design Bootcamp',
       //   'Full Stack JavaScript Bootcamp'
       // ],
-      'HR': [
-        'Experience Certificate',
+      HR: [
+        "Experience Certificate",
         // 'Growth Head',
         // 'Operation and Sales',
         // 'Human Resource Management',
@@ -256,7 +256,7 @@ router.get('/available-courses', authenticate, async (req, res) => {
         // 'Employee Relations',
         // 'Organizational Behavior',
         // 'HR Analytics'
-      ]
+      ],
     };
 
     const allCourses = coursesByCategory[category] || [];
@@ -359,13 +359,19 @@ router.get('/available-courses', authenticate, async (req, res) => {
 router.get('/:id', authenticate, certificateControllers.getCertificateById);
 
 // Create certificate (UPDATED with WhatsApp notification)
-router.post('/', [
-  authenticate,
-  body('name').trim().notEmpty().withMessage('Name is required'),
-  body('category').isIn(['FSD', 'BVOC', 'BOOTCAMP', 'marketing-junction', 'code4bharat']).withMessage('Invalid category'),
-  body('course').trim().notEmpty().withMessage('Course is required'),
-  body('issueDate').notEmpty().withMessage('Issue date is required')
-], certificateControllers.createCertificate);
+router.post(
+  "/",
+  [
+    authenticate,
+    body("name").trim().notEmpty().withMessage("Name is required"),
+    body("category")
+      .isIn(["FSD", "BVOC", "BOOTCAMP", "marketing-junction", "IT-Nexcore"])
+      .withMessage("Invalid category"),
+    body("course").trim().notEmpty().withMessage("Course is required"),
+    body("issueDate").notEmpty().withMessage("Issue date is required"),
+  ],
+  certificateControllers.createCertificate
+);
 
 // Bulk certificate creation (NEW)
 router.post('/bulk', authenticate, async (req, res) => {
@@ -611,52 +617,52 @@ router.get('/courses/:category', authenticate, async (req, res) => {
 
     // TODO: Replace with database query or use existing controller
     const coursesByCategory = {
-      'internship': [
-        'Full Stack Web Development',
-        'Python Programming',
-        'Data Structures & Algorithms',
-        'React.js Development',
-        'Node.js Backend Development',
-        'Digital Marketing Fundamentals',
-        'Social Media Marketing',
-        'Content Marketing'
+      internship: [
+        "Full Stack Web Development",
+        "Python Programming",
+        "Data Structures & Algorithms",
+        "React.js Development",
+        "Node.js Backend Development",
+        "Digital Marketing Fundamentals",
+        "Social Media Marketing",
+        "Content Marketing",
       ],
-      'marketing-junction': [
-        'Digital Marketing Fundamentals',
-        'Social Media Marketing',
-        'SEO & Content Marketing',
-        'Email Marketing',
-        'Marketing Analytics'
+      "marketing-junction": [
+        "Digital Marketing Fundamentals",
+        "Social Media Marketing",
+        "SEO & Content Marketing",
+        "Email Marketing",
+        "Marketing Analytics",
       ],
-      'code4bharat': [
-        'Full Stack Web Development',
-        'Python Programming',
-        'Data Structures & Algorithms',
-        'React.js Development',
-        'Node.js Backend Development'
+      "IT-Nexcore": [
+        "Full Stack Web Development",
+        "Python Programming",
+        "Data Structures & Algorithms",
+        "React.js Development",
+        "Node.js Backend Development",
       ],
-      'fsd': [
-        'MERN Stack Development',
-        'Advanced JavaScript',
-        'Database Design & Management',
-        'API Development & Integration',
-        'DevOps Basics',
-        'Cloud Computing Fundamentals'
+      fsd: [
+        "MERN Stack Development",
+        "Advanced JavaScript",
+        "Database Design & Management",
+        "API Development & Integration",
+        "DevOps Basics",
+        "Cloud Computing Fundamentals",
       ],
-      'bvoc': [
-        'Software Development Fundamentals',
-        'Web Technologies',
-        'Database Management Systems',
-        'Project Management',
-        'Entrepreneurship Development'
+      bvoc: [
+        "Software Development Fundamentals",
+        "Web Technologies",
+        "Database Management Systems",
+        "Project Management",
+        "Entrepreneurship Development",
       ],
-      'bootcamp': [
-        'Web Development Bootcamp',
-        'Data Science Bootcamp',
-        'Mobile App Development',
-        'UI/UX Design Bootcamp',
-        'Full Stack JavaScript Bootcamp'
-      ]
+      bootcamp: [
+        "Web Development Bootcamp",
+        "Data Science Bootcamp",
+        "Mobile App Development",
+        "UI/UX Design Bootcamp",
+        "Full Stack JavaScript Bootcamp",
+      ],
     };
 
     const courses = coursesByCategory[category] || [];

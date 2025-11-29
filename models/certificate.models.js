@@ -4,63 +4,63 @@ const certificateSchema = new mongoose.Schema({
   certificateId: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   name: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   category: {
     type: String,
     required: true,
-    enum: ['FSD', 'BVOC', 'BOOTCAMP', 'HR', 'marketing-junction', 'code4bharat']
+    enum: ["FSD", "BVOC", "BOOTCAMP", "HR", "marketing-junction", "IT-Nexcore"],
   },
   batch: {
     type: String,
-    trim: true
+    trim: true,
   },
   course: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   description: {
     type: String,
     trim: true,
     // ✅ Only required if the course is "Certificate of Appreciation"
     required: function () {
-      return this.course === 'Certificate of Appreciation';
-    }
+      return this.course === "Certificate of Appreciation";
+    },
   },
   issueDate: {
     type: Date,
-    required: true
+    required: true,
   },
   status: {
     type: String,
-    enum: ['pending', 'downloaded'],
-    default: 'pending'
+    enum: ["pending", "downloaded"],
+    default: "pending",
   },
   downloadCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   lastDownloaded: {
-    type: Date
+    type: Date,
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: "User",
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 // Indexes

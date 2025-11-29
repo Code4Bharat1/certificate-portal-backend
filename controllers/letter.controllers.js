@@ -40,7 +40,7 @@ const TOP_ROW_FONT_SIZE = 15;
 // (Paste the same generateLetterId implementation here)
 export async function generateLetterId(category) {
   const catMap = {
-    code4bharat: "C4B",
+    "IT-Nexcore": "NEX",
     "marketing-junction": "MJ",
     FSD: "FSD",
     HR: "HR",
@@ -134,7 +134,7 @@ export async function generateOutwardNo(category, course, issueDate) {
    ------------------------- */
 export function getLetterTemplateFilename(course, category) {
   const templateMap = {
-    code4bharat: {
+    "IT-Nexcore": {
       "Internship Joining Letter - Unpaid": "C4B/C4B-internship-unpaid.pdf",
       "Internship Joining Letter - Paid": "C4B/C4B-internship-paid.pdf",
       "Non-Disclosure Agreement": "C4B/C4B-NDA.pdf",
@@ -747,7 +747,7 @@ export const previewLetter = async (req, res) => {
           projectName,
           auditDate
         );
-      } else if (category === "marketing-junction" || category === "code4bharat" || category === "HR" || category === "OD") {
+      } else if (category === "marketing-junction" || category === "IT-Nexcore" || category === "HR" || category === "OD") {
         await TemplateCode.getCommonTemplateCode(
           ctx,
           width,
@@ -833,7 +833,7 @@ export const previewLetter = async (req, res) => {
           effectiveFrom,
           duration,
         });
-      } else if (category === "code4bharat") {
+      } else if (category === "IT-Nexcore") {
         await TemplateCode.drawC4BPdfTemplate(pdfDoc, course, {
           name,
           outwardNo,
@@ -1211,7 +1211,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           auditDate,
           signatureImage,
         );
-      } else if (category === "marketing-junction" || category === "code4bharat" || category === "HR" || category === "OD") {
+      } else if (category === "marketing-junction" || category === "IT-Nexcore" || category === "HR" || category === "OD") {
         await TemplateCode.getCommonTemplateCode(
           ctx,
           width,
@@ -1362,7 +1362,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           signatureImage,
         });
 
-      } else if (letter.category === "code4bharat") {
+      } else if (letter.category === "IT-Nexcore") {
         await TemplateCode.drawC4BPdfTemplate(pdfDoc, letter.course, {
           name: letter.name,
           outwardNo: letter.outwardNo,

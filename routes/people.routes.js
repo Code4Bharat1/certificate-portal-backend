@@ -533,7 +533,7 @@ router.post("/bulk-upload", upload.single("file"), async (req, res) => {
         // Validate category
         if (
           ![
-            "code4bharat",
+            "IT-Nexcore",
             "marketing-junction",
             "FSD",
             "BVOC",

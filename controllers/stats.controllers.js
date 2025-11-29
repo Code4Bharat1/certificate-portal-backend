@@ -137,15 +137,16 @@ export const getDashboardStatistics = async (req, res) => {
     
     // Define all possible categories with their mappings
     const categoryMapping = {
-      'marketing-junction': 'marketingJunction',
-      'code4bharat': 'code4bharat',
-      'FSD': 'FSD',
-      'HR': 'HR',
-      'BOOTCAMP': 'BOOTCAMP',
-      'BVOC': 'BVOC',
-      'DM': 'DM',
-      'OD': 'OD',  // Operations Department
-      'MonthlyReport': 'MonthlyReport'
+      "marketing-junction": "marketingJunction",
+      "IT-Nexcore": "ITNexcore",
+      FSD: "FSD",
+      HR: "HR",
+      BOOTCAMP: "BOOTCAMP",
+      BVOC: "BVOC",
+      DM: "DM",
+      OD: "OD", // Operations Department
+      MonthlyReport: "MonthlyReport",
+      Client: "Client"
     };
 
     const formatStats = (data) => {
@@ -153,14 +154,15 @@ export const getDashboardStatistics = async (req, res) => {
       const result = {
         total: 0,
         marketingJunction: 0,
-        code4bharat: 0,
+        ITNexcore: 0,
         FSD: 0,
         HR: 0,
         BOOTCAMP: 0,
         BVOC: 0,
         DM: 0,
         OD: 0,
-        MonthlyReport: 0
+        MonthlyReport: 0,
+        Client: 0
       };
 
       // Calculate total and populate categories
