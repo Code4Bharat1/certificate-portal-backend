@@ -12,7 +12,7 @@ import path from "path";
 // });
 
 registerFont(path.join(process.cwd(), "fonts", "Poppins-Regular.ttf"), {
-  family: "Poppins-Regular"
+  family: "Poppins"
 });
 
 registerFont(path.join(process.cwd(), "fonts", "Poppins-Bold.ttf"), {
@@ -2304,7 +2304,7 @@ const getCommonTemplateCode = async (
       },
     ];
 
-    const descY = height * 0.35;
+    const descY = height * 0.36;
     const startX = width * 0.036;
     const maxWidth = width * 0.9;
     let currentX = startX;
@@ -2381,10 +2381,10 @@ const getCommonTemplateCode = async (
     const sentence2 = `that align with ${hisHer} skills and aspirations.`;
 
     ctx.font = 'bold 25px "Poppins"';
-    ctx.fillText(sentence1, width * 0.036, height * 0.662);
+    ctx.fillText(sentence1, width * 0.036, height * 0.660);
 
     ctx.font = 'bold 25px "Poppins"';
-    ctx.fillText(sentence2, width * 0.035, height * 0.682);
+    ctx.fillText(sentence2, width * 0.035, height * 0.680);
 
     // Letter ID
     ctx.font = 'bold 20px "Poppins"';
