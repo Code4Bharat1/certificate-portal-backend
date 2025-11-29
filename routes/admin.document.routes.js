@@ -5,8 +5,7 @@ import {
   getStudentsWithDocuments,
   viewStudentDocument,
   verifyStudentDocuments,
-  approveDocument,
-  rejectDocument
+  updateDocumentStatus
 } from "../controllers/admin.document.controller.js";
 
 const router = express.Router();
@@ -21,14 +20,18 @@ router.get(
   viewStudentDocument
 );
 
-// Verify documents
+// Verify all documents for a student
 router.put(
   "/students/:studentId/documents/verify",
   authenticateAdmin,
   verifyStudentDocuments
 );
 
-router.put("/students/:studentId/documents/:docType/approve", approveDocument);
-router.put("/students/:studentId/documents/:docType/reject", rejectDocument);
+// Update individual document status (approve/reject)
+router.put(
+  "/students/:studentId/documents/:docType/status",
+  authenticateAdmin,
+  updateDocumentStatus
+);
 
 export default router;
