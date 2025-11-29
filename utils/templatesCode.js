@@ -6,7 +6,7 @@ import path from "path";
 
 // Register fonts
 // registerFont(path.resolve("fonts/Poppins-Regular.ttf"), {
-//   family: "Poppins",
+//   family: Poppins,
 //   weight: "normal",
 //   style: "normal",
 // });
@@ -16,12 +16,12 @@ registerFont(path.join(process.cwd(), "fonts", "Poppins-Regular.ttf"), {
 });
 
 registerFont(path.join(process.cwd(), "fonts", "Poppins-Bold.ttf"), {
-  family: "Poppins"
+  family: "Poppins", weight:"700"
 });
 
 
 // registerFont(path.resolve("fonts/Poppins-Bold.ttf"), {
-//   family: "Poppins",
+//   family: Poppins,
 //   weight: "bold",
 //   style: "normal",
 // });
@@ -82,32 +82,32 @@ const getFSDTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.195, height * 0.223);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.099, height * 0.236);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.045, height * 0.3);
 
     const attendanceDate = attendanceMonth + " " + attendanceYear;
 
     // Subject / Title
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(attendanceDate, width * 0.45, height * 0.338);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.095, height * 0.372);
 
     // const shortMonth = monthMap[performanceMonth] || performanceMonth; // fallback if custom
     // const attendanceDate = attendanceMonth + " " + attendanceYear;
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(attendanceDate, width * 0.316, height * 0.422);
 
     // Draw signature only if image exists
@@ -122,7 +122,7 @@ const getFSDTemplateCode = async (
     }
 
     // Letter ID
-    ctx.font = 'bold 35px "Poppins"';
+    ctx.font = 'bold 35px Poppins';
     ctx.fillText(`${tempId}`, width * 0.26, height * 0.732);
 
     // Footer
@@ -138,24 +138,24 @@ const getFSDTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.178, height * 0.23);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.09, height * 0.2526);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.033, height * 0.325);
 
     // Subject / Title
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.59, height * 0.37);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.087, height * 0.409);
 
     const shortMonth = monthMap[performanceMonth] || performanceMonth; // fallback if custom
@@ -163,11 +163,11 @@ const getFSDTemplateCode = async (
 
     // console.log(performanceDate);
 
-    ctx.font = 'bold 28px "Poppins"';
+    ctx.font = 'bold 28px Poppins';
     ctx.fillText(performanceDate, width * 0.566, height * 0.465);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.18, height * 0.787);
 
     // Footer
@@ -183,24 +183,24 @@ const getFSDTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.229);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.08, height * 0.245);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.023, height * 0.3);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.08, height * 0.383);
 
     // Letter ID
-    ctx.font = 'bold 35px "Poppins"';
+    ctx.font = 'bold 35px Poppins';
     ctx.fillText(`${tempId}`, width * 0.19, height * 0.732);
 
     // Footer
@@ -216,16 +216,16 @@ const getFSDTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.185, height * 0.222);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.099, height * 0.24);
 
     // Subject / Title
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.49, height * 0.28);
 
     // === MAIN DESCRIPTION ===
@@ -252,7 +252,7 @@ const getFSDTemplateCode = async (
       const words = part.text.split(" ");
       for (let i = 0; i < words.length; i++) {
         const word = words[i] + " ";
-        ctx.font = `${part.bold ? "bold" : "normal"} 25px "Poppins"`;
+        ctx.font = `${part.bold ? "bold" : "normal"} 25px Poppins`;
         const wordWidth = ctx.measureText(word).width;
 
         if (currentX + wordWidth > startX + maxWidth) {
@@ -268,7 +268,7 @@ const getFSDTemplateCode = async (
 
     // === DESCRIPTION PARAGRAPHS ===
     ctx.fillStyle = "#1a1a1a";
-    ctx.font = '25px "Poppins"';
+    ctx.font = '25px Poppins';
 
     const paragraphs = (description || "")
       .split(/\n\s*\n/)
@@ -308,7 +308,7 @@ const getFSDTemplateCode = async (
     });
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.2, height * 0.78);
 
     // Footer
@@ -325,20 +325,20 @@ const getFSDTemplateCode = async (
   //     // Top row
   //     ctx.fillStyle = "#111827";
   //     ctx.textBaseline = "top";
-  //     ctx.font = `bold 25px "Poppins"`;
+  //     ctx.font = `700 25px Poppins`;
   //     ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
 
   //     ctx.fillStyle = "#111827";
   //     ctx.textBaseline = "top";
-  //     ctx.font = `bold 25px "Poppins"`;
+  //     ctx.font = `700 25px Poppins`;
   //     ctx.fillText(formattedDate, width * 0.080, height * 0.236);
 
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillText(name, width * 0.023, height * 0.290);
 
   //     // Subject / Title
   //     // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillText(name, width * 0.43, height * 0.338);
 
   //     // Description (from frontend)
@@ -348,7 +348,7 @@ const getFSDTemplateCode = async (
 
   //     // ✅ Add dynamic frontend field values (below description)
   //     let yDynamic = height * 0.423;
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillStyle = "#222";
   //     dynamicLines.forEach((line) => {
   //         wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
@@ -356,7 +356,7 @@ const getFSDTemplateCode = async (
   //     });
 
   //     // Letter ID
-  //     ctx.font = 'bold 35px "Poppins"';
+  //     ctx.font = 'bold 35px Poppins';
   //     ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
 
   //     // Footer
@@ -373,20 +373,20 @@ const getFSDTemplateCode = async (
   //     // Top row
   //     ctx.fillStyle = "#111827";
   //     ctx.textBaseline = "top";
-  //     ctx.font = `bold 25px "Poppins"`;
+  //     ctx.font = `700 25px Poppins`;
   //     ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
 
   //     ctx.fillStyle = "#111827";
   //     ctx.textBaseline = "top";
-  //     ctx.font = `bold 25px "Poppins"`;
+  //     ctx.font = `700 25px Poppins`;
   //     ctx.fillText(formattedDate, width * 0.080, height * 0.236);
 
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillText(name, width * 0.023, height * 0.290);
 
   //     // Subject / Title
   //     // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillText(name, width * 0.43, height * 0.338);
 
   //     // Description (from frontend)
@@ -396,7 +396,7 @@ const getFSDTemplateCode = async (
 
   //     // ✅ Add dynamic frontend field values (below description)
   //     let yDynamic = height * 0.423;
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillStyle = "#222";
   //     dynamicLines.forEach((line) => {
   //         wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
@@ -404,7 +404,7 @@ const getFSDTemplateCode = async (
   //     });
 
   //     // Letter ID
-  //     ctx.font = 'bold 35px "Poppins"';
+  //     ctx.font = 'bold 35px Poppins';
   //     ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
 
   //     // Footer
@@ -421,20 +421,20 @@ const getFSDTemplateCode = async (
   //     // Top row
   //     ctx.fillStyle = "#111827";
   //     ctx.textBaseline = "top";
-  //     ctx.font = `bold 25px "Poppins"`;
+  //     ctx.font = `700 25px Poppins`;
   //     ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
 
   //     ctx.fillStyle = "#111827";
   //     ctx.textBaseline = "top";
-  //     ctx.font = `bold 25px "Poppins"`;
+  //     ctx.font = `700 25px Poppins`;
   //     ctx.fillText(formattedDate, width * 0.080, height * 0.236);
 
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillText(name, width * 0.023, height * 0.290);
 
   //     // Subject / Title
   //     // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillText(name, width * 0.43, height * 0.338);
 
   //     // Description (from frontend)
@@ -444,7 +444,7 @@ const getFSDTemplateCode = async (
 
   //     // ✅ Add dynamic frontend field values (below description)
   //     let yDynamic = height * 0.423;
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillStyle = "#222";
   //     dynamicLines.forEach((line) => {
   //         wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
@@ -452,7 +452,7 @@ const getFSDTemplateCode = async (
   //     });
 
   //     // Letter ID
-  //     ctx.font = 'bold 35px "Poppins"';
+  //     ctx.font = 'bold 35px Poppins';
   //     ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
 
   //     // Footer
@@ -469,30 +469,30 @@ const getFSDTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 22px "Poppins"`;
+    ctx.font = `bold 22px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.202, height * 0.221);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 22px "Poppins"`;
+    ctx.font = `bold 22px Poppins`;
     ctx.fillText(formattedDate, width * 0.113, height * 0.238);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.06, height * 0.302);
 
     // Dear name,
-    ctx.font = 'bold 22px "Poppins"';
+    ctx.font = 'bold 22px Poppins';
     ctx.fillText(name + ",", width * 0.11, height * 0.38);
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(subjectName, width * 0.11, height * 0.433);
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(projectName, width * 0.31, height * 0.433);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.23, height * 0.708);
 
     // Footer
@@ -508,28 +508,28 @@ const getFSDTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.186, height * 0.225);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.099, height * 0.242);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.04, height * 0.31);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.099, height * 0.383);
 
     // Desc percentage
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(attendancePercent, width * 0.532, height * 0.42);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.18, height * 0.706);
 
     // Footer
@@ -545,27 +545,27 @@ const getFSDTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.209, height * 0.223);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.115, height * 0.236);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.06, height * 0.299);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.11, height * 0.362);
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(misconductReason, width * 0.06, height * 0.45);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.23, height * 0.678);
 
     // Footer
@@ -583,24 +583,24 @@ const getFSDTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.195, height * 0.22);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.099, height * 0.234);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.047, height * 0.295);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.099, height * 0.358);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.22, height * 0.702);
 
     // Footer
@@ -618,24 +618,24 @@ const getFSDTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.169, height * 0.223);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.08, height * 0.24);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.023, height * 0.3);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.08, height * 0.372);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.16, height * 0.73);
 
     // Footer
@@ -651,20 +651,20 @@ const getFSDTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.201, height * 0.223);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.105, height * 0.24);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.053, height * 0.3);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.099, height * 0.375);
 
     // console.log(auditDate);
@@ -679,11 +679,11 @@ const getFSDTemplateCode = async (
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(auditFormattedDate, width * 0.743, height * 0.408);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.19, height * 0.707);
 
     // Footer
@@ -733,32 +733,32 @@ const getBVOCTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.21, height * 0.237);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.099, height * 0.257);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.048, height * 0.308);
 
     const attendanceDate = attendanceMonth + " " + attendanceYear;
 
     // Subject / Title
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(attendanceDate, width * 0.45, height * 0.393);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.099, height * 0.426);
 
     // const shortMonth = monthMap[performanceMonth] || performanceMonth; // fallback if custom
     // const attendanceDate = attendanceMonth + " " + attendanceYear;
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(attendanceDate, width * 0.313, height * 0.477);
 
     if (signatureImage) {
@@ -771,7 +771,7 @@ const getBVOCTemplateCode = async (
       );
     }
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.21, height * 0.76);
 
     // Footer
@@ -787,32 +787,32 @@ const getBVOCTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.205, height * 0.228);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.12, height * 0.246);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.059, height * 0.32);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.115, height * 0.403);
 
     // testing phase
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(testingPhase, width * 0.57, height * 0.462);
 
     // uncover
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(uncover, width * 0.655, height * 0.482);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.21, height * 0.743);
 
     if (signatureImage) {
@@ -838,26 +838,26 @@ const getBVOCTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.19, height * 0.237);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.099, height * 0.257);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.04, height * 0.309);
 
     const fullPerformanceDate = `${performanceMonth} ${performanceYear}`;
 
     // Subject / Title
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(fullPerformanceDate, width * 0.53, height * 0.375);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.09, height * 0.408);
 
     const shortMonth = monthMap[performanceMonth] || performanceMonth; // fallback if custom
@@ -865,11 +865,11 @@ const getBVOCTemplateCode = async (
 
     // console.log(performanceDate);
 
-    ctx.font = 'bold 28px "Poppins"';
+    ctx.font = 'bold 28px Poppins';
     ctx.fillText(performanceDate, width * 0.33, height * 0.458);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.19, height * 0.762);
 
     if (signatureImage) {
@@ -895,28 +895,28 @@ const getBVOCTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.21, height * 0.225);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.13, height * 0.243);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.07, height * 0.3);
 
     // Subject name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.57, height * 0.38);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.125, height * 0.419);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.22, height * 0.786);
 
     if (signatureImage) {
@@ -942,28 +942,28 @@ const getBVOCTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.18, height * 0.227);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.1, height * 0.245);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.035, height * 0.3);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.097, height * 0.424);
 
     // Desc Committe type
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(committeeType, width * 0.81, height * 0.483);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.2, height * 0.772);
 
     if (signatureImage) {
@@ -989,28 +989,28 @@ const getBVOCTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.175, height * 0.227);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.085, height * 0.24);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.02, height * 0.295);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.08, height * 0.415);
 
     // Desc Committe type
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(committeeType, width * 0.82, height * 0.473);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.19, height * 0.783);
 
     if (signatureImage) {
@@ -1036,28 +1036,28 @@ const getBVOCTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.18, height * 0.223);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.1, height * 0.243);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.035, height * 0.3);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.097, height * 0.421);
 
     // Desc Committe type
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(committeeType, width * 0.88, height * 0.48);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.17, height * 0.805);
 
 
@@ -1084,20 +1084,20 @@ const getBVOCTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.214, height * 0.217);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.115, height * 0.232);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.065, height * 0.28);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.113, height * 0.376);
 
     // console.log(auditDate);
@@ -1112,11 +1112,11 @@ const getBVOCTemplateCode = async (
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 20px "Poppins"`;
+    ctx.font = `bold 20px Poppins`;
     ctx.fillText(auditFormattedDate, width * 0.735, height * 0.41);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.21, height * 0.729);
 
     if (signatureImage) {
@@ -1144,30 +1144,30 @@ const getBVOCTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 22px "Poppins"`;
+    ctx.font = `bold 22px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.17, height * 0.224);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 22px "Poppins"`;
+    ctx.font = `bold 22px Poppins`;
     ctx.fillText(formattedDate, width * 0.105, height * 0.238);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.05, height * 0.288);
 
     // Dear name,
-    ctx.font = 'bold 22px "Poppins"';
+    ctx.font = 'bold 22px Poppins';
     ctx.fillText(name + ",", width * 0.1, height * 0.39);
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(subjectName, width * 0.05, height * 0.44);
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(projectName, width * 0.3, height * 0.44);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.2, height * 0.71);
 
 
@@ -1194,28 +1194,28 @@ const getBVOCTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.18, height * 0.223);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.09, height * 0.24);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.028, height * 0.315);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.085, height * 0.398);
 
     // Desc percentage
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(attendancePercent, width * 0.57, height * 0.436);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.18, height * 0.683);
 
     if (signatureImage) {
@@ -1241,27 +1241,27 @@ const getBVOCTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.212, height * 0.223);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.12, height * 0.238);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.068, height * 0.287);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.125, height * 0.389);
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(misconductReason, width * 0.065, height * 0.475);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.23, height * 0.717);
 
 
@@ -1289,24 +1289,24 @@ const getBVOCTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.169, height * 0.223);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.08, height * 0.24);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.023, height * 0.31);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.08, height * 0.384);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.18, height * 0.675);
 
     if (signatureImage) {
@@ -1332,24 +1332,24 @@ const getBVOCTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.198, height * 0.223);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.103, height * 0.237);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.047, height * 0.288);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.099, height * 0.389);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.2, height * 0.709);
 
     if (signatureImage) {
@@ -1409,36 +1409,36 @@ const getDMTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.188, height * 0.231);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.099, height * 0.252);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.037, height * 0.318);
 
     const attendanceDate = attendanceMonth + " " + attendanceYear;
 
     // Subject / Title
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(attendanceDate, width * 0.5, height * 0.35);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.095, height * 0.39);
 
     // const shortMonth = monthMap[performanceMonth] || performanceMonth; // fallback if custom
     // const attendanceDate = attendanceMonth + " " + attendanceYear;
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(attendanceDate, width * 0.375, height * 0.448);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.18, height * 0.787);
 
     if (signatureImage) {
@@ -1464,24 +1464,24 @@ const getDMTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.178, height * 0.23);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.09, height * 0.2526);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.033, height * 0.325);
 
     // Subject / Title
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.59, height * 0.37);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.087, height * 0.409);
 
     const shortMonth = monthMap[performanceMonth] || performanceMonth; // fallback if custom
@@ -1489,11 +1489,11 @@ const getDMTemplateCode = async (
 
     // console.log(performanceDate);
 
-    ctx.font = 'bold 28px "Poppins"';
+    ctx.font = 'bold 28px Poppins';
     ctx.fillText(performanceDate, width * 0.566, height * 0.465);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.18, height * 0.787);
 
     if (signatureImage) {
@@ -1519,24 +1519,24 @@ const getDMTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.18, height * 0.231);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.099, height * 0.253);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.035, height * 0.32);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.09, height * 0.39);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.18, height * 0.794);
 
     if (signatureImage) {
@@ -1562,20 +1562,20 @@ const getDMTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.19, height * 0.23);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.105, height * 0.252);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.038, height * 0.318);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.099, height * 0.39);
 
     // console.log(auditDate);
@@ -1590,11 +1590,11 @@ const getDMTemplateCode = async (
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(auditFormattedDate, width * 0.838, height * 0.428);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.18, height * 0.801);
 
 
@@ -1621,16 +1621,16 @@ const getDMTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 23px "Poppins"`;
+    ctx.font = `bold 23px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.185, height * 0.228);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 23px "Poppins"`;
+    ctx.font = `bold 23px Poppins`;
     ctx.fillText(formattedDate, width * 0.099, height * 0.25);
 
     // Subject / Title
-    ctx.font = 'bold 23px "Poppins"';
+    ctx.font = 'bold 23px Poppins';
     ctx.fillText(name, width * 0.49, height * 0.29);
 
     // === MAIN DESCRIPTION ===
@@ -1658,7 +1658,7 @@ const getDMTemplateCode = async (
       const words = part.text.split(" ");
       for (let i = 0; i < words.length; i++) {
         const word = words[i] + " ";
-        ctx.font = `${part.bold ? "bold" : "normal"} 25px "Poppins"`;
+        ctx.font = `${part.bold ? "bold" : "normal"} 25px Poppins`;
         const wordWidth = ctx.measureText(word).width;
 
         if (currentX + wordWidth > startX + maxWidth) {
@@ -1674,7 +1674,7 @@ const getDMTemplateCode = async (
 
     // === DESCRIPTION PARAGRAPHS ===
     ctx.fillStyle = "#1a1a1a";
-    ctx.font = '25px "Poppins"';
+    ctx.font = '25px Poppins';
 
     const paragraphs = (description || "")
       .split(/\n\s*\n/)
@@ -1714,7 +1714,7 @@ const getDMTemplateCode = async (
     });
 
     // Letter ID
-    ctx.font = 'bold 23px "Poppins"';
+    ctx.font = 'bold 23px Poppins';
     ctx.fillText(`${tempId}`, width * 0.18, height * 0.788);
 
     if (signatureImage) {
@@ -1741,20 +1741,20 @@ const getDMTemplateCode = async (
   //     // Top row
   //     ctx.fillStyle = "#111827";
   //     ctx.textBaseline = "top";
-  //     ctx.font = `bold 25px "Poppins"`;
+  //     ctx.font = `700 25px Poppins`;
   //     ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
 
   //     ctx.fillStyle = "#111827";
   //     ctx.textBaseline = "top";
-  //     ctx.font = `bold 25px "Poppins"`;
+  //     ctx.font = `700 25px Poppins`;
   //     ctx.fillText(formattedDate, width * 0.080, height * 0.236);
 
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillText(name, width * 0.023, height * 0.290);
 
   //     // Subject / Title
   //     // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillText(name, width * 0.43, height * 0.338);
 
   //     // Description (from frontend)
@@ -1764,7 +1764,7 @@ const getDMTemplateCode = async (
 
   //     // ✅ Add dynamic frontend field values (below description)
   //     let yDynamic = height * 0.423;
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillStyle = "#222";
   //     dynamicLines.forEach((line) => {
   //         wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
@@ -1772,7 +1772,7 @@ const getDMTemplateCode = async (
   //     });
 
   //     // Letter ID
-  //     ctx.font = 'bold 35px "Poppins"';
+  //     ctx.font = 'bold 35px Poppins';
   //     ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
 
   //     // Footer
@@ -1789,20 +1789,20 @@ const getDMTemplateCode = async (
   //     // Top row
   //     ctx.fillStyle = "#111827";
   //     ctx.textBaseline = "top";
-  //     ctx.font = `bold 25px "Poppins"`;
+  //     ctx.font = `700 25px Poppins`;
   //     ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
 
   //     ctx.fillStyle = "#111827";
   //     ctx.textBaseline = "top";
-  //     ctx.font = `bold 25px "Poppins"`;
+  //     ctx.font = `700 25px Poppins`;
   //     ctx.fillText(formattedDate, width * 0.080, height * 0.236);
 
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillText(name, width * 0.023, height * 0.290);
 
   //     // Subject / Title
   //     // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillText(name, width * 0.43, height * 0.338);
 
   //     // Description (from frontend)
@@ -1812,7 +1812,7 @@ const getDMTemplateCode = async (
 
   //     // ✅ Add dynamic frontend field values (below description)
   //     let yDynamic = height * 0.423;
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillStyle = "#222";
   //     dynamicLines.forEach((line) => {
   //         wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
@@ -1820,7 +1820,7 @@ const getDMTemplateCode = async (
   //     });
 
   //     // Letter ID
-  //     ctx.font = 'bold 35px "Poppins"';
+  //     ctx.font = 'bold 35px Poppins';
   //     ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
 
   //     // Footer
@@ -1837,20 +1837,20 @@ const getDMTemplateCode = async (
   //     // Top row
   //     ctx.fillStyle = "#111827";
   //     ctx.textBaseline = "top";
-  //     ctx.font = `bold 25px "Poppins"`;
+  //     ctx.font = `700 25px Poppins`;
   //     ctx.fillText(`${outwardNo}`, width * 0.165, height * 0.223);
 
   //     ctx.fillStyle = "#111827";
   //     ctx.textBaseline = "top";
-  //     ctx.font = `bold 25px "Poppins"`;
+  //     ctx.font = `700 25px Poppins`;
   //     ctx.fillText(formattedDate, width * 0.080, height * 0.236);
 
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillText(name, width * 0.023, height * 0.290);
 
   //     // Subject / Title
   //     // const subjectText = subject ? `${subject} – ${name}` : `${course} – ${name}`;
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillText(name, width * 0.43, height * 0.338);
 
   //     // Description (from frontend)
@@ -1860,7 +1860,7 @@ const getDMTemplateCode = async (
 
   //     // ✅ Add dynamic frontend field values (below description)
   //     let yDynamic = height * 0.423;
-  //     ctx.font = 'bold 25px "Poppins"';
+  //     ctx.font = '700 25px Poppins';
   //     ctx.fillStyle = "#222";
   //     dynamicLines.forEach((line) => {
   //         wrapText(ctx, line, width * 0.30, yDynamic, width * 0.8, 55);
@@ -1868,7 +1868,7 @@ const getDMTemplateCode = async (
   //     });
 
   //     // Letter ID
-  //     ctx.font = 'bold 35px "Poppins"';
+  //     ctx.font = 'bold 35px Poppins';
   //     ctx.fillText(`${tempId}`, width * 0.25, height * 0.732);
 
   //     // Footer
@@ -1885,30 +1885,30 @@ const getDMTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 22px "Poppins"`;
+    ctx.font = `bold 22px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.202, height * 0.221);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 22px "Poppins"`;
+    ctx.font = `bold 22px Poppins`;
     ctx.fillText(formattedDate, width * 0.113, height * 0.238);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.06, height * 0.302);
 
     // Dear name,
-    ctx.font = 'bold 22px "Poppins"';
+    ctx.font = 'bold 22px Poppins';
     ctx.fillText(name + ",", width * 0.112, height * 0.38);
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(subjectName, width * 0.09, height * 0.433);
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(projectName, width * 0.31, height * 0.433);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.23, height * 0.708);
 
     if (signatureImage) {
@@ -1934,28 +1934,28 @@ const getDMTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.186, height * 0.225);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.099, height * 0.242);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.04, height * 0.31);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.099, height * 0.383);
 
     // Desc percentage
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(attendancePercent, width * 0.532, height * 0.42);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.18, height * 0.706);
 
     if (signatureImage) {
@@ -1981,27 +1981,27 @@ const getDMTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 20px "Poppins"`;
+    ctx.font = `bold 20px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.209, height * 0.223);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 20px "Poppins"`;
+    ctx.font = `bold 20px Poppins`;
     ctx.fillText(formattedDate, width * 0.115, height * 0.236);
 
     // to name
-    ctx.font = 'bold 20px "Poppins"';
+    ctx.font = 'bold 20px Poppins';
     ctx.fillText(name, width * 0.06, height * 0.299);
 
     // Dear name,
-    ctx.font = 'bold 20px "Poppins"';
+    ctx.font = 'bold 20px Poppins';
     ctx.fillText(name + ",", width * 0.11, height * 0.362);
 
-    ctx.font = 'bold 20px "Poppins"';
+    ctx.font = 'bold 20px Poppins';
     ctx.fillText(misconductReason, width * 0.06, height * 0.45);
 
     // Letter ID
-    ctx.font = 'bold 20px "Poppins"';
+    ctx.font = 'bold 20px Poppins';
     ctx.fillText(`${tempId}`, width * 0.23, height * 0.678);
 
 
@@ -2030,24 +2030,24 @@ const getDMTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.195, height * 0.22);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.099, height * 0.234);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.047, height * 0.295);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.099, height * 0.358);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.22, height * 0.702);
 
     if (signatureImage) {
@@ -2075,24 +2075,24 @@ const getDMTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.169, height * 0.223);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.08, height * 0.24);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.023, height * 0.3);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.08, height * 0.372);
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.16, height * 0.73);
 
 
@@ -2168,24 +2168,24 @@ const getCommonTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 20px "Poppins"`;
+    ctx.font = `bold 20px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.185, height * 0.23);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 20px "Poppins"`;
+    ctx.font = `bold 20px Poppins`;
     ctx.fillText(formattedDate, width * 0.099, height * 0.253);
 
     // to name
-    ctx.font = 'bold 23px "Poppins"';
+    ctx.font = 'bold 23px Poppins';
     ctx.fillText(name, width * 0.035, height * 0.325);
 
     // Subject / Title
-    ctx.font = 'bold 23px "Poppins"';
+    ctx.font = 'bold 23px Poppins';
     ctx.fillText(`${subject} - ${month} ${year}`, width * 0.13, height * 0.368);
 
     // Dear name,
-    ctx.font = 'bold 23px "Poppins"';
+    ctx.font = 'bold 23px Poppins';
     ctx.fillText(name + ",", width * 0.09, height * 0.408);
 
     const descY = height * 0.41;
@@ -2198,7 +2198,7 @@ const getCommonTemplateCode = async (
 
     // === DESCRIPTION PARAGRAPHS ===
     ctx.fillStyle = "#1a1a1a";
-    ctx.font = '25px "Poppins"';
+    ctx.font = '25px Poppins';
 
     const paragraphs = (description || "")
       .split(/\n\s*\n/)
@@ -2238,7 +2238,7 @@ const getCommonTemplateCode = async (
     });
 
     // Letter ID
-    ctx.font = 'bold 20px "Poppins"';
+    ctx.font = 'bold 20px Poppins';
     ctx.fillText(`${tempId}`, width * 0.18, height * 0.813);
 
     if (signatureImage) {
@@ -2264,16 +2264,16 @@ const getCommonTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 20px "Poppins"`;
+    ctx.font = `bold 20px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.185, height * 0.23);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 20px "Poppins"`;
+    ctx.font = `bold 20px Poppins`;
     ctx.fillText(formattedDate, width * 0.099, height * 0.253);
 
     // Subject / Title
-    ctx.font = 'bold 20px "Poppins"';
+    ctx.font = 'bold 20px Poppins';
     ctx.fillText(name, width * 0.38, height * 0.29);
 
     // Second Page
@@ -2317,7 +2317,7 @@ const getCommonTemplateCode = async (
       const words = part.text.split(" ");
       for (let i = 0; i < words.length; i++) {
         const word = words[i] + " ";
-        ctx.font = `${part.bold ? "bold" : "normal"} 25px "Poppins"`;
+        ctx.font = `${part.bold ? "bold" : "normal"} 25px Poppins`;
         const wordWidth = ctx.measureText(word).width;
 
         if (currentX + wordWidth > startX + maxWidth) {
@@ -2333,7 +2333,7 @@ const getCommonTemplateCode = async (
 
     // === DESCRIPTION PARAGRAPHS ===
     ctx.fillStyle = "#1a1a1a";
-    ctx.font = '25px "Poppins"';
+    ctx.font = '25px Poppins';
 
     const paragraphs = (description || "")
       .split(/\n\s*\n/)
@@ -2381,13 +2381,13 @@ const getCommonTemplateCode = async (
     const sentence2 = `that align with ${hisHer} skills and aspirations.`;
 
     ctx.font = 'bold 25px "Poppins"';
-    ctx.fillText(sentence1, width * 0.036, height * 0.660);
+    ctx.fillText(sentence1, width * 0.036, height * 0.662);
 
     ctx.font = 'bold 25px "Poppins"';
-    ctx.fillText(sentence2, width * 0.035, height * 0.680);
+    ctx.fillText(sentence2, width * 0.035, height * 0.682);
 
     // Letter ID
-    ctx.font = 'bold 20px "Poppins"';
+    ctx.font = 'bold 20px Poppins';
     ctx.fillText(`${tempId}`, width * 0.18, height * 0.789);
 
     if (signatureImage) {
@@ -2412,42 +2412,42 @@ const getCommonTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.183, height * 0.231);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.096, height * 0.2526);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.035, height * 0.31);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.09, height * 0.368);
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${timelineStage} Official `, width * 0.335, height * 0.409);
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(timelineProjectName, width * 0.46, height * 0.428);
 
     const formatDueDate = new Date(timelineDueDate).toLocaleDateString("en-GB");
     const formatNewDate = new Date(timelineNewDate).toLocaleDateString("en-GB");
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(formatDueDate, width * 0.225, height * 0.448);
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(formatNewDate, width * 0.55, height * 0.547);
 
-    ctx.font = 'bold 27px "Poppins"';
+    ctx.font = 'bold 27px Poppins';
     ctx.fillText(timelineStage, width * 0.16, height * 0.643);
 
     // Letter ID
-    ctx.font = 'bold 20px "Poppins"';
+    ctx.font = 'bold 20px Poppins';
     ctx.fillText(`${tempId}`, width * 0.18, height * 0.801);
 
     if (signatureImage) {
@@ -2473,27 +2473,27 @@ const getCommonTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.181, height * 0.231);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.093, height * 0.2526);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.035, height * 0.31);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.09, height * 0.37);
 
     const formatEffectiveDate = new Date(effectiveFrom).toLocaleDateString(
       "en-GB"
     );
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`from ${formatEffectiveDate}`, width * 0.64, height * 0.487);
 
     // Draw signature only if image exists
@@ -2508,7 +2508,7 @@ const getCommonTemplateCode = async (
     }
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.18, height * 0.801);
 
     // Footer
@@ -2524,30 +2524,30 @@ const getCommonTemplateCode = async (
     // Top row
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(`${outwardNo}`, width * 0.181, height * 0.231);
 
     ctx.fillStyle = "#111827";
     ctx.textBaseline = "top";
-    ctx.font = `bold 25px "Poppins"`;
+    ctx.font = `700 25px Poppins`;
     ctx.fillText(formattedDate, width * 0.093, height * 0.2526);
 
     // to name
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name, width * 0.035, height * 0.31);
 
     // Dear name,
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(name + ",", width * 0.09, height * 0.37);
 
     const formatEffectiveDate = new Date(effectiveFrom).toLocaleDateString(
       "en-GB"
     );
 
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`from ${formatEffectiveDate}`, width * 0.23, height * 0.487);
 
-    ctx.font = 'bold 28px "Poppins"';
+    ctx.font = 'bold 28px Poppins';
     ctx.fillText(`${amount} /-`, width * 0.39, height * 0.526);
 
     if (signatureImage) {
@@ -2561,7 +2561,7 @@ const getCommonTemplateCode = async (
     }
 
     // Letter ID
-    ctx.font = 'bold 25px "Poppins"';
+    ctx.font = '700 25px Poppins';
     ctx.fillText(`${tempId}`, width * 0.18, height * 0.793);
 
     // Footer

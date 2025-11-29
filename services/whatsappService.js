@@ -88,7 +88,7 @@ Your OTP for certificate creation is:
 
 ---
 _Regards,_
-*Nexcore Alliance & Code4Bharat*
+*Nexcore Alliance *
     `.trim();
 
     // Send via WhatsApp
@@ -182,7 +182,7 @@ export const sendCertificateNotification = async (certificateData) => {
     } = certificateData;
 
     // 🔗 Determine correct base URL for verification/download
-    let baseVerificationUrl = 'https://portal.nexcorealliance.com/verify-certificate';
+    let baseVerificationUrl = 'https://portal.nexcorealliance.com/';
     
 
     // ✅ Final certificate links
@@ -201,7 +201,7 @@ export const sendCertificateNotification = async (certificateData) => {
 
 Hello ${userName},
 
-Greetings from *Nexcore Alliance* & *Code4Bharat*! 🌟
+Greetings from *Nexcore Alliance*! 🌟
 
 We are pleased to inform you that your certificate has been successfully generated! 
 
@@ -233,7 +233,7 @@ ${downloadLink}
 ---
 _With Best Wishes,_
 *Nexcore Alliance Team*
-*Code4Bharat Initiative*
+
 
 💙 Keep Learning, Keep Growing!
     `.trim();
@@ -278,7 +278,7 @@ ${successful > 0 ? '🎉 Notifications have been sent to all recipients!' : ''}
 ${failed > 0 ? `⚠️ Please check the failed records and retry.` : ''}
 
 ---
-_Nexcore Alliance & Code4Bharat_
+_Nexcore Alliance_
     `.trim();
 
     const result = await sendWhatsAppMessage(adminPhone, message);
@@ -303,1514 +303,1915 @@ export const getLetterMessageTemplate = (letterType, subType, data) => {
     issueDate,
     credentialId,
     letterId,
-    organizationName = 'Nexcore Alliance',
+    organizationName = 'Nexcore Alliance LLP',
   } = data;
-  
+
   // Use credentialId if available, otherwise fallback to letterId
   const finalId = credentialId || letterId;
 
   const formattedDate = new Date(issueDate).toLocaleDateString('en-IN', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   });
 
   // Base verification URL based on category
-  let baseUrl = 'https://portal.nexcorealliance.com';
-  
-
-  const verificationLink = `${baseUrl}/verify-certificate/`;
-  const downloadLink = `${baseUrl}/verify-certificate/`;
+  const baseUrl = 'https://portal.nexcorealliance.com';
+  const verificationLink = `${baseUrl}`;
+  const downloadLink = `${baseUrl}`;
 
   // Get Terms & Conditions link based on category
   const getTermsLink = () => {
-    if (category?.toLowerCase().includes('fsd') || 
-        // category?.toLowerCase().includes('bvoc') || 
-        category?.toLowerCase().includes('dm')) {
-      return 'https://forms.gle/FSD_DM_FORM_LINK'; // Replace with actual FSD/DM form link
-    } else if (category?.toLowerCase().includes('marketing') || 
-               category?.toLowerCase().includes('mj') || 
-               category?.toLowerCase().includes('code4bharat') || 
-               category?.toLowerCase().includes('c4b')) {
-      return '${baseUrl}/termsandconditions/C4B'; // Replace with actual MJ/C4B form link
-    } else {
-      return 'https://forms.gle/HR_OPS_FORM_LINK'; // Replace with actual HR/Operations form link
-    }
-  };
-
+  return baseUrl;
+}
   // Letter type specific messages
   const templates = {
     'Appreciation Letter': {
       'Appreciation for Best Performance': `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    🏆 *EXCELLENCE RECOGNIZED* 🏆
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-We are delighted to recognize your *exceptional performance* that has set new benchmarks of excellence!
+We are delighted to recognize your *exceptional performance* that has set new benchmarks of excellence in our organization!
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 *RECOGNITION DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Recipient:* ${userName}
-🎖️ *Achievement:* Best Performance
+🎖️ *Achievement:* Best Performance Excellence
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-💡 *YOUR ACHIEVEMENT*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 *YOUR OUTSTANDING ACHIEVEMENT*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Your unwavering dedication, consistent excellence, and outstanding contributions have distinguished you among your peers. This recognition reflects your commitment to quality, innovation, and professional growth.
 
-You have not only met expectations but exceeded them remarkably, setting a gold standard for others to aspire to.
+You have not only met expectations but exceeded them remarkably, setting a gold standard for others to aspire to. Your work demonstrates:
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🔗 *ACCESS YOUR LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+✓ Exceptional quality and attention to detail
+✓ Innovative problem-solving approach
+✓ Consistent delivery of results
+✓ Leadership through example
+✓ Dedication to continuous improvement
 
-🔍 *Verify:* ${verificationLink}
-⬇️ *Download:* ${downloadLink}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR APPRECIATION LETTER*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+🔍 *Verify Authenticity:* ${verificationLink}
+⬇️ *Download Certificate:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Keep up the exceptional work! Your journey of excellence continues to inspire us all.
 
 *With Pride & Highest Regards,*
-_${organizationName} Team_
+_${organizationName}_
+
 🌟 *Celebrating Excellence, Inspiring Greatness*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
 
       'Appreciation for Consistent Performance': `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    ⭐ *CONSISTENCY HONORED* ⭐
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
 We are pleased to recognize your *exemplary consistency and reliability* throughout your journey with us!
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 *RECOGNITION DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Recipient:* ${userName}
-🎯 *Achievement:* Consistent Performance
+🎯 *Achievement:* Consistent Performance Excellence
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-💡 *YOUR ACHIEVEMENT*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 *YOUR REMARKABLE CONSISTENCY*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Consistency is the hallmark of true professionals, and you have demonstrated this quality admirably. Your steady commitment, reliable work ethic, and unwavering dedication have been instrumental in maintaining high standards.
 
-While many shine momentarily, you have proven that sustained excellence is the true measure of capability. Your consistent contributions create a foundation of trust and reliability.
+While many shine momentarily, you have proven that sustained excellence is the true measure of capability. Your consistent contributions have:
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🔗 *ACCESS YOUR LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+✓ Created a foundation of trust and reliability
+✓ Maintained high-quality standards throughout
+✓ Inspired peers through steady performance
+✓ Demonstrated professional maturity
+✓ Built a reputation for dependability
 
-🔍 *Verify:* ${verificationLink}
-⬇️ *Download:* ${downloadLink}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR APPRECIATION LETTER*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+🔍 *Verify Authenticity:* ${verificationLink}
+⬇️ *Download Certificate:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Thank you for being a dependable pillar of excellence!
 
 *With Sincere Appreciation,*
-_${organizationName} Team_
+_${organizationName}_
+
 🌟 *Excellence Through Consistency*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
 
       'Appreciation for Detecting Errors and Debugging': `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    🔍 *TECHNICAL EXCELLENCE* 🔍
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-We are impressed to recognize your *exceptional technical acumen* in error detection and debugging!
+We are impressed to recognize your *exceptional technical acumen* in error detection and debugging excellence!
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 *RECOGNITION DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Recipient:* ${userName}
 💻 *Achievement:* Error Detection & Debugging Excellence
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-💡 *YOUR ACHIEVEMENT*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 *YOUR TECHNICAL MASTERY*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Your sharp analytical skills, meticulous attention to detail, and systematic problem-solving approach have proven invaluable. You possess the rare ability to identify complex issues quickly and resolve them efficiently.
+Your sharp analytical skills, meticulous attention to detail, and systematic problem-solving approach have proven invaluable to our development processes.
 
-Your contributions have:
-• Prevented potential system failures
-• Saved countless development hours
-• Enhanced code quality standards
-• Mentored peers in best practices
+You possess the rare ability to identify complex issues quickly and resolve them efficiently. Your technical contributions have:
 
-This technical excellence and dedication to quality make you an asset to any development team.
+✓ Prevented potential system failures
+✓ Saved countless development hours
+✓ Enhanced overall code quality standards
+✓ Mentored peers in debugging best practices
+✓ Improved system stability and reliability
+✓ Demonstrated exceptional problem-solving skills
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🔗 *ACCESS YOUR LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+This technical excellence and dedication to quality make you an invaluable asset to any development team.
 
-🔍 *Verify:* ${verificationLink}
-⬇️ *Download:* ${downloadLink}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR APPRECIATION LETTER*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+🔍 *Verify Authenticity:* ${verificationLink}
+⬇️ *Download Certificate:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Continue leveraging your problem-solving expertise to create robust solutions!
 
 *With Technical Admiration,*
-_${organizationName} Team_
+_${organizationName}_
+
 🐛 *Making Code Better, One Solution at a Time*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
 
       'Appreciation for Outstanding Performance': `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    🏆 *EXCELLENCE ACHIEVED* 🏆
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
 We are thrilled to recognize your *outstanding performance* that has exceeded all expectations!
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 *RECOGNITION DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Recipient:* ${userName}
 ⭐ *Achievement:* Outstanding Performance
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-💡 *YOUR ACHIEVEMENT*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 *YOUR EXCEPTIONAL ACHIEVEMENT*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Your exceptional contributions, innovative thinking, and unwavering dedication have made a significant and lasting impact. You have consistently demonstrated:
+Your exceptional contributions, innovative thinking, and unwavering dedication have made a significant and lasting impact on our organization.
 
-✓ Exceptional work quality
-✓ Innovative problem-solving
+You have consistently demonstrated:
+
+✓ Exceptional work quality and precision
+✓ Innovative problem-solving abilities
 ✓ Leadership by example
-✓ Commitment to excellence
+✓ Commitment to excellence in all tasks
+✓ Professional integrity and dedication
+✓ Positive influence on team dynamics
 
 You don't just meet standards—you set them. Your performance serves as an inspiration and benchmark for professional excellence.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🔗 *ACCESS YOUR LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR APPRECIATION LETTER*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *Verify:* ${verificationLink}
-⬇️ *Download:* ${downloadLink}
+🔍 *Verify Authenticity:* ${verificationLink}
+⬇️ *Download Certificate:* ${downloadLink}
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 We are proud to have you as part of our community. Continue to soar!
 
 *With Highest Regards,*
-_${organizationName} Team_
+_${organizationName}_
+
 🌟 *Celebrating Outstanding Achievement*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
 
       'Appreciation for Best Attendance': `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    🎯 *COMMITMENT HONORED* 🎯
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-We are pleased to recognize your *exemplary attendance record* and unwavering commitment!
+We are pleased to recognize your *exemplary attendance record* and unwavering commitment to the program!
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 *RECOGNITION DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Recipient:* ${userName}
-📅 *Achievement:* Best Attendance
+📅 *Achievement:* Best Attendance Record
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-💡 *YOUR ACHIEVEMENT*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 *YOUR EXEMPLARY DEDICATION*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Your punctuality and consistent presence demonstrate exceptional professionalism and commitment. Attendance is more than just being present—it reflects:
+Your punctuality and consistent presence demonstrate exceptional professionalism and commitment to your learning journey.
 
-✓ Dedication to learning
+Attendance is more than just being present—it reflects:
+
+✓ Dedication to continuous learning
 ✓ Respect for time and commitments
-✓ Professional work ethic
+✓ Strong professional work ethic
 ✓ Reliability and accountability
+✓ Commitment to personal growth
+✓ Setting an example for peers
 
-You have set a wonderful example for your peers, proving that success begins with showing up consistently.
+You have set a wonderful example, proving that success begins with showing up consistently and being fully present.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🔗 *ACCESS YOUR LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR APPRECIATION LETTER*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *Verify:* ${verificationLink}
-⬇️ *Download:* ${downloadLink}
+🔍 *Verify Authenticity:* ${verificationLink}
+⬇️ *Download Certificate:* ${downloadLink}
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Thank you for your reliability and exemplary dedication!
 
 *With Appreciation,*
-_${organizationName} Team_
-⏰ *Punctuality: The Soul of Professional Excellence*
+_${organizationName}_
 
+⏰ *Punctuality: The Foundation of Professional Excellence*
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
     },
 
     'Experience Certificate': {
       default: `
-╔═══════════════════════════╗
-   📄 *EXPERIENCE VALIDATED* 📄
-╚═══════════════════════════╝
+╔════════════════════════════════╗
+   📄 *EXPERIENCE CERTIFICATE* 📄
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-We are pleased to provide you with your *Experience Certificate*, validating your professional journey and contributions.
+We are pleased to provide you with your *Experience Certificate*, officially validating your professional journey and valuable contributions to our organization.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 *CERTIFICATE DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 📜 *Document:* Experience Certificate
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-💼 *ABOUT THIS CERTIFICATE*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💼 *CERTIFICATE SIGNIFICANCE*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 This certificate officially validates your professional experience and acknowledges the valuable contributions you made during your tenure with ${organizationName}.
 
-Your dedication, skills, and professional conduct have been exemplary. We wish you continued success in all your future endeavors.
+Your dedication, skills, and professional conduct have been exemplary. This document serves as formal recognition of:
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+✓ Your professional competencies
+✓ Skills developed and demonstrated
+✓ Contributions to projects and initiatives
+✓ Professional conduct and work ethics
+✓ Successful completion of responsibilities
+
+We wish you continued success in all your future professional endeavors.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔗 *ACCESS YOUR CERTIFICATE*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *Verify:* ${verificationLink}
-⬇️ *Download:* ${downloadLink}
+🔍 *Verify Authenticity:* ${verificationLink}
+⬇️ *Download Certificate:* ${downloadLink}
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Best wishes for a bright and successful career ahead!
 
 *With Best Regards,*
-_${organizationName} Team_
+_${organizationName}_
+
 💼 *Your Success is Our Pride*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
     },
 
     'Internship Joining Letter': {
       'Internship Joining Letter - Paid': `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    🎉 *WELCOME ABOARD!* 🎉
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-*Congratulations!* We are delighted to welcome you as a *Paid Intern* at ${organizationName}!
+*Congratulations!* 🎊
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+We are delighted to welcome you as a *Paid Intern* at ${organizationName}! This is the beginning of an exciting professional journey.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 *JOINING LETTER DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 💼 *Position:* Paid Intern
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🚀 *WHAT AWAITS YOU*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-This internship offers you:
+This internship offers you valuable opportunities to grow professionally:
+
 ✓ Real-world industry experience
-✓ Expert mentorship & guidance
-✓ Skill development opportunities
+✓ Expert mentorship and guidance
+✓ Comprehensive skill development
 ✓ Professional growth pathways
-✓ Stipend for your contributions
+✓ Competitive stipend for your contributions
+✓ Hands-on project involvement
+✓ Networking with industry professionals
 
 We believe in nurturing talent and providing meaningful learning experiences that shape successful careers.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🔗 *ACCESS YOUR LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR JOINING LETTER*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *Verify:* ${verificationLink}
-⬇️ *Download:* ${downloadLink}
+🔍 *Verify Authenticity:* ${verificationLink}
+⬇️ *Download Letter:* ${downloadLink}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📌 *NEXT STEPS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 *NEXT STEPS - ACTION REQUIRED*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. Review all terms and conditions
-2. Confirm your acceptance
-3. Complete onboarding formalities
-4. Prepare to embark on your learning journey
+1. ✅ Download and review your joining letter carefully
+2. ✅ Read all terms and conditions thoroughly
+3. ✅ Sign the letter and scan it
+4. ✅ Send the signed copy to: hr@nexcorealliance.com
+5. ✅ Complete all onboarding formalities
+6. ✅ Prepare necessary documents for joining
+7. ✅ Reach out to HR for any clarifications
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+*Important:* Please submit your signed joining letter within 48 hours to confirm your acceptance.
 
-We look forward to working with you and supporting your professional development!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+We look forward to working with you and supporting your professional development journey!
 
 *Welcome to the Team!*
-_${organizationName} Team_
+_${organizationName}_
+
 🚀 *Begin Your Journey to Excellence*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
 
       'Internship Joining Letter - Unpaid': `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    🎉 *WELCOME TO LEARNING!* 🎉
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-*Congratulations!* We are pleased to welcome you as an *Intern* at ${organizationName}!
+*Congratulations!* 🎊
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+We are pleased to welcome you as an *Intern* at ${organizationName}! Embark on this valuable learning journey with us.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 *JOINING LETTER DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 📚 *Position:* Intern
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🌟 *YOUR LEARNING JOURNEY*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-This internship provides:
+This internship provides invaluable learning opportunities:
+
 ✓ Hands-on practical experience
 ✓ Industry-standard skill development
-✓ Professional mentorship
+✓ Professional mentorship and guidance
 ✓ Real-world project exposure
 ✓ Career foundation building
+✓ Portfolio development
+✓ Professional networking opportunities
 
-While this is an unpaid internship, the knowledge, experience, and skills you'll gain are invaluable investments in your future career.
+While this is an unpaid internship, the knowledge, experience, and skills you'll gain are invaluable investments in your future career success.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🔗 *ACCESS YOUR LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR JOINING LETTER*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *Verify:* ${verificationLink}
-⬇️ *Download:* ${downloadLink}
+🔍 *Verify Authenticity:* ${verificationLink}
+⬇️ *Download Letter:* ${downloadLink}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📌 *NEXT STEPS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 *NEXT STEPS - ACTION REQUIRED*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. Review internship terms carefully
-2. Confirm your acceptance
-3. Complete joining formalities
-4. Get ready to learn and grow
+1. ✅ Download and review your joining letter carefully
+2. ✅ Read all internship terms and conditions
+3. ✅ Sign the letter and scan it
+4. ✅ Send the signed copy to: hr@nexcorealliance.com
+5. ✅ Complete all joining formalities
+6. ✅ Prepare for your first day
+7. ✅ Contact HR for any questions
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+*Important:* Please submit your signed joining letter within 48 hours to confirm your participation.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 We're excited to support your learning and professional development!
 
 *Welcome to the Team!*
-_${organizationName} Team_
+_${organizationName}_
+
 📖 *Learn. Grow. Succeed.*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
     },
 
     'Warning Letter': {
       'Warning for Incomplete Assignment/Project Submissions': `
-╔═══════════════════════════╗
-   ⚠️ *OFFICIAL WARNING* ⚠️
-╚═══════════════════════════╝
+╔════════════════════════════════╗
+   ⚠️ *OFFICIAL WARNING NOTICE* ⚠️
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-This is an *official warning* regarding incomplete assignment/project submissions.
+This is an *official warning* regarding incomplete assignment and project submissions that require your immediate attention.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📋 *WARNING DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 *WARNING LETTER DETAILS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 ⚠️ *Subject:* Incomplete Submissions
-🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🆔 *Reference ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📌 *CONCERN RAISED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 *CONCERN IDENTIFIED*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Multiple instances of incomplete or missing assignment/project submissions have been recorded. Timely completion and submission are crucial for:
+Multiple instances of incomplete or missing assignment/project submissions have been recorded. This pattern is concerning as timely completion is crucial for:
 
-• Your learning progress evaluation
-• Skill development assessment  
-• Academic/professional records
-• Overall program completion
+❌ Your learning progress evaluation
+❌ Skill development assessment
+❌ Academic/professional records
+❌ Overall program completion eligibility
+❌ Performance tracking and improvement
 
-This pattern affects not only your grades but also your learning outcomes and professional development.
+This pattern affects not only your grades but also your learning outcomes and professional development trajectory.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔗 *VIEW WARNING LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *Verify:* ${verificationLink}
+🔍 *View Letter:* ${verificationLink}
 ⬇️ *Download:* ${downloadLink}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔴 *IMMEDIATE ACTION REQUIRED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. Complete all pending submissions immediately
-2. Adhere to all future deadlines strictly
-3. Seek help if facing difficulties
-4. Maintain consistent work quality
+You must take the following actions immediately:
 
-*Consequences of Non-Compliance:*
-Continued non-compliance may result in academic penalties, reduced grades, or removal from the program.
+1. ✅ Complete all pending submissions within 48 hours
+2. ✅ Adhere to all future deadlines strictly
+3. ✅ Seek help from mentors if facing difficulties
+4. ✅ Maintain consistent work quality standards
+5. ✅ Schedule a meeting with your coordinator
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ *CONSEQUENCES OF NON-COMPLIANCE:*
 
-We believe in your potential and expect immediate improvement. Our team is available to support you.
+Continued non-compliance will result in:
+• Academic penalties and grade reduction
+• Possible removal from the program
+• Impact on final certification eligibility
+• Negative performance records
 
-*Academic Standards Office,*
-_${organizationName} Team_
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+We believe in your potential and expect immediate improvement. Our support team is available to assist you.
+
+*Academic Standards Office*
+_${organizationName}_
+
 📝 *Discipline & Dedication Lead to Excellence*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
 
       'Warning for Low Attendance': `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    ⚠️ *ATTENDANCE WARNING* ⚠️
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-This is an *official warning* regarding your below-standard attendance record.
+This is an *official warning* regarding your below-standard attendance record that requires immediate corrective action.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📋 *WARNING DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 *WARNING LETTER DETAILS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
-⚠️ *Subject:* Low Attendance
-🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+⚠️ *Subject:* Low Attendance Record
+🆔 *Reference ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📌 *CONCERN RAISED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 *CONCERN IDENTIFIED*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Your attendance has fallen significantly below the required standards. Regular attendance is mandatory for:
+Your attendance has fallen significantly below the required minimum standards. Regular attendance is mandatory for:
 
-• Comprehensive skill acquisition
-• Effective learning outcomes
-• Program completion eligibility
-• Professional development
-• Academic standing maintenance
+❌ Comprehensive skill acquisition
+❌ Effective learning outcomes
+❌ Program completion eligibility
+❌ Professional development opportunities
+❌ Academic standing maintenance
+❌ Certification requirements
 
-Absence from sessions results in knowledge gaps that directly impact your overall performance and future opportunities.
+Absence from sessions results in critical knowledge gaps that directly impact your overall performance, future opportunities, and career growth.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔗 *VIEW WARNING LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *Verify:* ${verificationLink}
+🔍 *View Letter:* ${verificationLink}
 ⬇️ *Download:* ${downloadLink}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔴 *IMMEDIATE ACTION REQUIRED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. Attend all future sessions without fail
-2. Inform in advance for any unavoidable absences
-3. Provide valid documentation for medical/emergency leaves
-4. Meet with your coordinator to discuss attendance recovery
+You must take the following actions immediately:
 
-*Consequences of Non-Compliance:*
-Failure to improve attendance may result in ineligibility for certification, program termination, or academic penalties.
+1. ✅ Attend all future sessions without exception
+2. ✅ Inform in advance for any unavoidable absences
+3. ✅ Provide valid documentation for medical/emergency leaves
+4. ✅ Meet with your coordinator to discuss attendance recovery plan
+5. ✅ Schedule makeup sessions for missed content
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ *CONSEQUENCES OF NON-COMPLIANCE:*
 
-Your presence is essential for your own success. We expect immediate improvement.
+Failure to improve attendance will result in:
+• Ineligibility for certification
+• Program termination
+• Academic penalties
+• Loss of program benefits
 
-*Academic Affairs Office,*
-_${organizationName} Team_
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your presence is essential for your own success. We expect immediate and sustained improvement.
+
+*Academic Affairs Office*
+_${organizationName}_
+
 ⏰ *Presence Builds Excellence*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
 
       'Warning for Misconduct or Disrespectful Behavior': `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    ⚠️ *BEHAVIORAL WARNING* ⚠️
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-This is an *official warning* regarding misconduct and disrespectful behavior.
+This is an *official warning* regarding recent incidents of misconduct and disrespectful behavior that violate our organizational standards.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📋 *WARNING DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 *WARNING LETTER DETAILS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 ⚠️ *Subject:* Misconduct/Disrespectful Behavior
-🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🆔 *Reference ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📌 *CONCERN RAISED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 *CONCERN IDENTIFIED*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Recent incidents of misconduct and disrespectful behavior have been brought to our attention. We maintain strict standards of conduct that include:
+Recent incidents of misconduct and disrespectful behavior have been brought to our attention. We maintain strict standards of professional conduct that include:
 
-• Respectful interaction with peers and faculty
-• Professional communication at all times
-• Adherence to organizational policies
-• Maintaining a positive learning environment
-• Upholding ethical standards
+❌ Respectful interaction with peers, faculty, and staff
+❌ Professional communication at all times
+❌ Adherence to organizational policies and guidelines
+❌ Maintaining a positive learning environment
+❌ Upholding ethical and professional standards
+❌ Respectful disagreement and constructive dialogue
 
-Such behavior disrupts the learning environment and is unacceptable under any circumstances.
+Such behavior disrupts the learning environment, affects team morale, and is unacceptable under any circumstances.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔗 *VIEW WARNING LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *Verify:* ${verificationLink}
+🔍 *View Letter:* ${verificationLink}
 ⬇️ *Download:* ${downloadLink}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔴 *IMMEDIATE ACTION REQUIRED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. Demonstrate immediate behavioral improvement
-2. Maintain professional conduct at all times
-3. Issue formal apologies if applicable
-4. Attend mandatory counseling session if required
+You must take the following actions immediately:
 
-*Consequences of Non-Compliance:*
-Any further instances of misconduct or disrespectful behavior will result in immediate disciplinary action, including possible termination/dismissal from the program.
+1. ✅ Demonstrate immediate behavioral improvement
+2. ✅ Maintain professional conduct at all times
+3. ✅ Issue formal apologies to affected parties if applicable
+4. ✅ Attend mandatory counseling session if required
+5. ✅ Review and acknowledge organizational code of conduct
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ *CONSEQUENCES OF NON-COMPLIANCE:*
 
-Professional conduct is non-negotiable. We expect strict adherence to behavioral standards.
+Any further instances will result in:
+• Immediate disciplinary action
+• Possible suspension from the program
+• Termination/dismissal from the program
+• Permanent record notation
 
-*Disciplinary Committee,*
-_${organizationName} Team_
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Professional conduct is non-negotiable. We expect strict adherence to behavioral standards and immediate improvement.
+
+*Disciplinary Committee*
+_${organizationName}_
+
 🤝 *Respect is Mandatory, Not Optional*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
 
       'Warning for Unauthorized Absence from Training Sessions': `
-╔═══════════════════════════╗
-   ⚠️ *ABSENCE WARNING* ⚠️
-╚═══════════════════════════╝
+╔════════════════════════════════╗
+   ⚠️ *ABSENCE WARNING NOTICE* ⚠️
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-This is an *official warning* regarding unauthorized absence from mandatory training sessions.
+This is an *official warning* regarding unauthorized absence from mandatory training sessions without prior approval.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📋 *WARNING DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 *WARNING LETTER DETAILS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 ⚠️ *Subject:* Unauthorized Training Absence
-🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🆔 *Reference ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📌 *CONCERN RAISED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 *CONCERN IDENTIFIED*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-You have been absent from mandatory training sessions without prior authorization or valid justification. Attendance at training sessions is compulsory because:
+You have been absent from mandatory training sessions without prior authorization or valid justification. Attendance is compulsory because:
 
-• Training builds essential skills
-• Sessions are structured for progressive learning
-• Missed sessions create knowledge gaps
-• It reflects commitment to the program
-• Unauthorized absence disrupts group dynamics
+❌ Training builds essential professional skills
+❌ Sessions are structured for progressive learning
+❌ Missed sessions create critical knowledge gaps
+❌ It reflects commitment to the program
+❌ Unauthorized absence disrupts group dynamics
+❌ Affects overall learning outcomes
 
-Your absence without permission demonstrates lack of seriousness toward the program.
+Your absence without permission demonstrates a lack of seriousness toward your professional development.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔗 *VIEW WARNING LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *Verify:* ${verificationLink}
+🔍 *View Letter:* ${verificationLink}
 ⬇️ *Download:* ${downloadLink}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔴 *IMMEDIATE ACTION REQUIRED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. Ensure 100% attendance at all future training sessions
-2. Request prior permission for any planned absence with valid reasons
-3. Provide proper documentation for emergency absences
-4. Schedule make-up sessions for missed content
+You must take the following actions immediately:
 
-*Consequences of Non-Compliance:*
-Continued unauthorized absences will result in program termination and ineligibility for certification.
+1. ✅ Ensure 100% attendance at all future training sessions
+2. ✅ Request prior permission for any planned absence with valid reasons
+3. ✅ Provide proper documentation for emergency absences
+4. ✅ Schedule make-up sessions for missed content
+5. ✅ Submit a written explanation for past unauthorized absences
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ *CONSEQUENCES OF NON-COMPLIANCE:*
 
-Your commitment to training is essential for your skill development and career success.
+Continued unauthorized absences will result in:
+• Program termination
+• Ineligibility for certification
+• Loss of all program benefits
+• Negative academic record
 
-*Training & Development Office,*
-_${organizationName} Team_
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your commitment to training is essential for your skill development and career success. Immediate compliance is expected.
+
+*Training & Development Office*
+_${organizationName}_
+
 📚 *Learning Requires Presence & Commitment*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
 
       'Warning Regarding Punctuality and Professional Discipline': `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    ⚠️ *PUNCTUALITY WARNING* ⚠️
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-This is an *official warning* regarding punctuality issues and lack of professional discipline.
+This is an *official warning* regarding repeated punctuality issues and lack of professional discipline that must be addressed immediately.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📋 *WARNING DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 *WARNING LETTER DETAILS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 ⚠️ *Subject:* Punctuality & Discipline Issues
-🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🆔 *Reference ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📌 *CONCERN RAISED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 *CONCERN IDENTIFIED*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Repeated instances of late arrivals and lack of professional discipline have been documented. Punctuality and discipline are fundamental to:
 
-• Professional credibility
-• Team coordination
-• Respect for others' time
-• Organizational efficiency
-• Personal character development
+❌ Professional credibility and reputation
+❌ Effective team coordination
+❌ Respect for others' time and effort
+❌ Organizational efficiency and productivity
+❌ Personal character and integrity development
+❌ Career success and advancement
 
-Chronic tardiness reflects poorly on your commitment and professionalism.
+Chronic tardiness reflects poorly on your commitment, professionalism, and respect for the learning environment.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔗 *VIEW WARNING LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *Verify:* ${verificationLink}
+🔍 *View Letter:* ${verificationLink}
 ⬇️ *Download:* ${downloadLink}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔴 *IMMEDIATE ACTION REQUIRED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. Arrive on time for all sessions and activities
-2. Demonstrate professional discipline
-3. Plan your schedule to ensure punctuality
-4. Show respect for institutional timings
+You must take the following actions immediately:
 
-*Consequences of Non-Compliance:*
-Continued tardiness and lack of discipline will result in further disciplinary action, including program removal.
+1. ✅ Arrive on time (or early) for all sessions and activities
+2. ✅ Demonstrate professional discipline consistently
+3. ✅ Plan your schedule to ensure punctuality
+4. ✅ Show respect for institutional timings and schedules
+5. ✅ Set multiple alarms and prepare in advance
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ *CONSEQUENCES OF NON-COMPLIANCE:*
 
-Punctuality is a reflection of professionalism. Discipline is the bridge to success.
+Continued tardiness and lack of discipline will result in:
+• Further escalated disciplinary action
+• Academic penalties
+• Program removal consideration
+• Negative professional record
 
-*Disciplinary Office,*
-_${organizationName} Team_
-⏱️ *Time Waits for No One*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+Punctuality is a reflection of professionalism. Discipline is the bridge between goals and accomplishment.
+
+*Disciplinary Office*
+_${organizationName}_
+
+⏱️ *Time Waits for No One - Be Punctual*
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
 
       'Warning for Unauthorized Absence from Sessions': `
-╔═══════════════════════════╗
-   ⚠️ *ABSENCE WARNING* ⚠️
-╚═══════════════════════════╝
+╔════════════════════════════════╗
+   ⚠️ *ABSENCE WARNING NOTICE* ⚠️
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-This is an *official warning* regarding unauthorized absence from mandatory sessions.
+This is an *official warning* regarding unauthorized absence from mandatory sessions without proper authorization or documentation.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📋 *WARNING DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 *WARNING LETTER DETAILS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 ⚠️ *Subject:* Unauthorized Session Absence
-🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🆔 *Reference ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📌 *CONCERN RAISED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 *CONCERN IDENTIFIED*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 You have been absent from mandatory sessions without authorization or valid documentation. Regular attendance is essential for:
 
-• Complete curriculum coverage
-• Skill mastery and competency
-• Peer collaboration opportunities
-• Assessment eligibility
-• Program completion requirements
+❌ Complete curriculum coverage and understanding
+❌ Skill mastery and competency development
+❌ Peer collaboration opportunities
+❌ Assessment and evaluation eligibility
+❌ Program completion requirements
+❌ Professional development tracking
 
-Unauthorized absences severely impact your learning trajectory and overall performance.
+Unauthorized absences severely impact your learning trajectory, overall performance, and program standing.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔗 *VIEW WARNING LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *Verify:* ${verificationLink}
+🔍 *View Letter:* ${verificationLink}
 ⬇️ *Download:* ${downloadLink}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔴 *IMMEDIATE ACTION REQUIRED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. Attend all future sessions without exception
-2. Seek prior permission for any unavoidable absence
-3. Submit valid documentation for medical/emergency leaves
-4. Make up for missed content immediately
+You must take the following actions immediately:
 
-*Consequences of Non-Compliance:*
-Continued unauthorized absences will lead to serious consequences including certification ineligibility and program termination.
+1. ✅ Attend all future sessions without exception
+2. ✅ Seek prior permission for any unavoidable absence
+3. ✅ Submit valid documentation for medical/emergency leaves
+4. ✅ Make up for all missed content immediately
+5. ✅ Meet with your coordinator to discuss attendance plan
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ *CONSEQUENCES OF NON-COMPLIANCE:*
 
-Your presence is critical to your success. We expect full attendance compliance.
+Continued unauthorized absences will lead to:
+• Certification ineligibility
+• Program termination
+• Academic penalties
+• Loss of program standing
 
-*Academic Operations,*
-_${organizationName} Team_
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your presence is critical to your success and program completion. We expect full attendance compliance going forward.
+
+*Academic Operations*
+_${organizationName}_
+
 📖 *Commitment Starts with Presence*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
 
       'Warning for Punctuality and Discipline': `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    ⚠️ *DISCIPLINE WARNING* ⚠️
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-This is an *official warning* regarding punctuality and discipline concerns.
+This is an *official warning* regarding persistent punctuality and discipline concerns that require immediate corrective action.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📋 *WARNING DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 *WARNING LETTER DETAILS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
-⚠️ *Subject:* Punctuality & Discipline
-🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+⚠️ *Subject:* Punctuality & Discipline Concerns
+🆔 *Reference ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📌 *CONCERN RAISED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 *CONCERN IDENTIFIED*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Your behavior has consistently fallen short of expected standards in terms of punctuality and discipline. These qualities are non-negotiable for:
+Your behavior has consistently fallen short of expected standards in terms of punctuality and professional discipline. These qualities are non-negotiable for:
 
-• Professional success
-• Effective learning
-• Team collaboration
-• Career advancement
-• Personal integrity
+❌ Professional success and career growth
+❌ Effective learning and skill development
+❌ Successful team collaboration
+❌ Career advancement opportunities
+❌ Personal integrity and character building
+❌ Organizational respect and standing
 
-Lack of discipline creates barriers to your own growth and affects the learning environment.
+Lack of discipline creates significant barriers to your own growth and negatively affects the entire learning environment.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔗 *VIEW WARNING LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *Verify:* ${verificationLink}
+🔍 *View Letter:* ${verificationLink}
 ⬇️ *Download:* ${downloadLink}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔴 *IMMEDIATE ACTION REQUIRED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. Strictly adhere to all schedules and timings
-2. Demonstrate professional discipline consistently
-3. Follow all institutional rules and regulations
-4. Show immediate and sustained improvement
+You must take the following actions immediately:
 
-*Consequences of Non-Compliance:*
-Failure to improve will result in escalated disciplinary action and potential program removal.
+1. ✅ Strictly adhere to all schedules and timings
+2. ✅ Demonstrate professional discipline consistently
+3. ✅ Follow all institutional rules and regulations
+4. ✅ Show immediate and sustained improvement
+5. ✅ Attend counseling session if recommended
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ *CONSEQUENCES OF NON-COMPLIANCE:*
 
-Discipline is the foundation of all achievement. Excellence begins with self-control.
+Failure to improve will result in:
+• Escalated disciplinary action
+• Academic penalties
+• Potential program removal
+• Permanent disciplinary record
 
-*Student Affairs Office,*
-_${organizationName} Team_
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Discipline is the foundation of all achievement. Excellence begins with self-control and punctuality.
+
+*Student Affairs Office*
+_${organizationName}_
+
 🎯 *Discipline: The Bridge to Your Goals*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
+
+      'Concern Letter-Audit Interview Performance': `
+╔════════════════════════════════╗
+   ⚠️ *PERFORMANCE CONCERN* ⚠️
+╚════════════════════════════════╝
+
+Dear *${userName}*,
+
+This letter addresses concerns regarding your performance in the recent audit interview. We believe in supporting your improvement and growth.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 *CONCERN LETTER DETAILS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👤 *Name:* ${userName}
+⚠️ *Subject:* Audit Interview Performance Concern
+🆔 *Reference ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 *PERFORMANCE CONCERN*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your recent audit interview performance fell below expected standards. Areas needing improvement include:
+
+❌ Technical knowledge and understanding
+❌ Communication and articulation skills
+❌ Problem-solving and analytical abilities
+❌ Confidence and presentation
+❌ Practical application of concepts
+❌ Professional demeanor and preparedness
+
+This feedback is provided constructively to help you identify areas for focused improvement and professional development.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *VIEW CONCERN LETTER*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 *View Letter:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📈 *IMPROVEMENT PLAN*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+We recommend the following steps for improvement:
+
+1. ✅ Schedule one-on-one mentoring sessions
+2. ✅ Focus on strengthening technical foundations
+3. ✅ Practice communication and presentation skills
+4. ✅ Participate in mock interview sessions
+5. ✅ Seek regular feedback from instructors
+6. ✅ Dedicate additional time to self-study
+7. ✅ Prepare for re-audit interview
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+We are committed to your success and our team is here to support your improvement journey. Please take this feedback constructively.
+
+*Academic Development Office*
+_${organizationName}_
+
+📈 *Growth Through Constructive Feedback*
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📞 *Support:* +91 9892398976
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
     },
 
     'Committee Letter': {
       'Committee Member': `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    🎖️ *LEADERSHIP APPOINTMENT* 🎖️
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-*Congratulations!* You have been appointed as a *Committee Member*!
+*Congratulations!* 🎉
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+You have been appointed as a *Committee Member*! Your leadership qualities and dedication have earned you this prestigious position.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 *APPOINTMENT DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 🏅 *Position:* Committee Member
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Appointment Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🌟 *YOUR ROLE & RESPONSIBILITIES*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Your leadership qualities, dedication, and proven capabilities have earned you this position. As a Committee Member, you will:
+Your leadership qualities, dedication, and proven capabilities have earned you this important position. As a Committee Member, you will:
 
-✓ Contribute to organizational decisions
-✓ Represent student/team interests
-✓ Facilitate communication and initiatives
-✓ Support organizational activities
-✓ Mentor and guide peers
+✓ Contribute to organizational decisions and initiatives
+✓ Represent student/team interests effectively
+✓ Facilitate communication between leadership and members
+✓ Support and organize organizational activities
+✓ Mentor and guide fellow peers
+✓ Uphold organizational values and standards
 
-This is an opportunity to develop leadership skills and make meaningful contributions to the organization.
+This is an excellent opportunity to develop leadership skills, gain valuable experience, and make meaningful contributions to the organization's growth and success.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🔗 *ACCESS YOUR LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR APPOINTMENT LETTER*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *Verify:* ${verificationLink}
-⬇️ *Download:* ${downloadLink}
+🔍 *Verify Authenticity:* ${verificationLink}
+⬇️ *Download Letter:* ${downloadLink}
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-We look forward to your valuable contributions and leadership!
+We look forward to your valuable contributions, leadership, and positive impact on the organization!
 
 *With Confidence & Best Wishes,*
-_${organizationName} Team_
+_${organizationName}_
+
 👥 *Together We Lead, Together We Succeed*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
 
       'Committee President': `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    👑 *PRESIDENTIAL APPOINTMENT* 👑
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-*Congratulations!* We are honored to appoint you as the *Committee President*!
+*Congratulations!* 🎊
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+We are honored to appoint you as the *Committee President*! Your exceptional leadership has distinguished you as the ideal leader for this prestigious position.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 *APPOINTMENT DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 🏆 *Position:* Committee President
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Appointment Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🌟 *YOUR LEADERSHIP ROLE*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🌟 *YOUR PRESIDENTIAL LEADERSHIP ROLE*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Your exceptional leadership skills, vision, and unwavering commitment have distinguished you as the ideal leader for this prestigious position. As President, you will:
+Your exceptional leadership skills, strategic vision, and unwavering commitment have distinguished you as the ideal leader for this prestigious position. As President, you will:
 
-✓ Lead and guide the entire committee
-✓ Represent the organization in key initiatives
-✓ Drive strategic decisions and planning
+✓ Lead and guide the entire committee with vision
+✓ Represent the organization in key initiatives and events
+✓ Drive strategic decisions and long-term planning
 ✓ Mentor committee members and peers
-✓ Champion organizational values and goals
-✓ Serve as the primary liaison
+✓ Champion organizational values, mission, and goals
+✓ Serve as the primary liaison with administration
+✓ Inspire excellence and foster team collaboration
 
-This position carries significant responsibility and offers tremendous opportunities for leadership development and organizational impact.
+This position carries significant responsibility and offers tremendous opportunities for leadership development, strategic thinking, and creating lasting organizational impact.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🔗 *ACCESS YOUR LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR APPOINTMENT LETTER*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *Verify:* ${verificationLink}
-⬇️ *Download:* ${downloadLink}
+🔍 *Verify Authenticity:* ${verificationLink}
+⬇️ *Download Letter:* ${downloadLink}
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-We have complete confidence in your leadership and vision. Lead with purpose, inspire with action!
+We have complete confidence in your leadership abilities and vision. Lead with purpose, inspire through action, and create positive change!
 
 *With Pride & Highest Confidence,*
-_${organizationName} Team_
+_${organizationName}_
+
 👑 *Leading with Vision, Inspiring with Purpose*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
 
       'Committee Vice-President': `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    🏅 *VICE-PRESIDENTIAL APPOINTMENT* 🏅
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-*Congratulations!* You have been appointed as the *Committee Vice-President*!
+*Congratulations!* 🎉
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+You have been appointed as the *Committee Vice-President*! Your proven leadership abilities make you the perfect choice for this senior position.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 *APPOINTMENT DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 ⭐ *Position:* Committee Vice-President
 🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Appointment Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🌟 *YOUR LEADERSHIP ROLE*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🌟 *YOUR VICE-PRESIDENTIAL LEADERSHIP ROLE*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Your proven leadership abilities, reliability, and dedication make you the perfect choice for this senior position. As Vice-President, you will:
+Your proven leadership abilities, reliability, and dedication make you the perfect choice for this senior leadership position. As Vice-President, you will:
 
-✓ Support and collaborate with the President
-✓ Lead key organizational initiatives
-✓ Oversee committee operations
+✓ Support and collaborate closely with the President
+✓ Lead key organizational initiatives and projects
+✓ Oversee committee operations and coordination
 ✓ Represent the organization when needed
-✓ Mentor committee members
-✓ Drive strategic implementation
+✓ Mentor and guide committee members
+✓ Drive strategic implementation and execution
+✓ Ensure continuity of leadership and vision
 
-This role positions you as a core leader in shaping organizational direction and success.
+This role positions you as a core leader in shaping organizational direction, driving success, and creating meaningful impact.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🔗 *ACCESS YOUR LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR APPOINTMENT LETTER*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *Verify:* ${verificationLink}
-⬇️ *Download:* ${downloadLink}
+🔍 *Verify Authenticity:* ${verificationLink}
+⬇️ *Download Letter:* ${downloadLink}
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-We look forward to your strategic leadership and impactful contributions!
+We look forward to your strategic leadership, impactful contributions, and collaborative approach to organizational success!
 
 *With Confidence & Best Wishes,*
-_${organizationName} Team_
+_${organizationName}_
+
 🌟 *Leading by Example, Inspiring Excellence*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
-    },
+📧 *Email:* hr@nexcorealliance.com
 
-    'Memo': {
-      default: `
-╔═══════════════════════════╗
-   📋 *OFFICIAL MEMORANDUM* 📋
-╚═══════════════════════════╝
-
-Dear *${userName}*,
-
-This is an *official memorandum* regarding important organizational matters that require your attention.
-
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📋 *MEMORANDUM DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-👤 *Recipient:* ${userName}
-📄 *Document:* Official Memo
-🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
-📅 *Issue Date:* ${formattedDate}
-
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📌 *ACTION REQUIRED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-Please review the complete memorandum carefully and take all necessary actions as specified within the stipulated timeframe.
-
-This memo contains important information, instructions, or updates that may impact your program participation or responsibilities.
-
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🔗 *ACCESS YOUR MEMO*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-🔍 *View:* ${verificationLink}
-⬇️ *Download:* ${downloadLink}
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-For any queries or clarifications, please contact the administration office.
-
-*Official Communication,*
-_${organizationName} Team_
-📬 *Your Documents, Our Priority*
-
-📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
     },
 
     'Non-Disclosure Agreement': {
       default: `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    🔒 *CONFIDENTIALITY AGREEMENT* 🔒
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-We are sending you an important *Non-Disclosure Agreement (NDA)* that requires your immediate attention and acknowledgment.
+We are sending you an important *Non-Disclosure Agreement (NDA)* that requires your immediate attention, review, and acknowledgment.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📋 *NDA DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 *NDA DOCUMENT DETAILS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 📜 *Document:* Non-Disclosure Agreement
-🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🆔 *Document ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔐 *ABOUT THIS AGREEMENT*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-This NDA ensures the protection of:
-• Confidential organizational information
-• Proprietary data and processes
-• Intellectual property rights
-• Sensitive business information
-• Trade secrets and methodologies
+This Non-Disclosure Agreement ensures the protection of:
 
-By signing this agreement, you commit to maintaining strict confidentiality regarding all sensitive information you may encounter.
+🔒 Confidential organizational information and data
+🔒 Proprietary processes and methodologies
+🔒 Intellectual property rights and innovations
+🔒 Sensitive business information and strategies
+🔒 Trade secrets and competitive advantages
+🔒 Client and stakeholder information
+🔒 Internal communications and documents
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🔗 *ACCESS YOUR NDA*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+By signing this agreement, you commit to maintaining strict confidentiality regarding all sensitive information you may encounter during your association with ${organizationName}.
 
-🔍 *View:* ${verificationLink}
-⬇️ *Download:* ${downloadLink}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR NDA DOCUMENT*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-⚠️ *URGENT ACTION REQUIRED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+🔍 *View Document:* ${verificationLink}
+⬇️ *Download NDA:* ${downloadLink}
 
-1. Read the NDA thoroughly and carefully
-2. Understand all terms and obligations
-3. Sign and return the acknowledgment copy
-4. Comply with all confidentiality requirements
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ *URGENT - ACTION REQUIRED*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+Please complete the following steps immediately:
 
-Confidentiality is paramount. This agreement is legally binding and must be treated with utmost seriousness.
+1. ✅ Read the NDA thoroughly and carefully
+2. ✅ Understand all terms, obligations, and legal implications
+3. ✅ Review confidentiality scope and duration
+4. ✅ Comply with all confidentiality requirements strictly
+5. ✅ Contact legal team for any clarifications
 
-*Legal & Compliance Office,*
-_${organizationName} Team_
+*Important Legal Notice:*
+This agreement is legally binding and must be treated with utmost seriousness. Breach of confidentiality may result in legal action and severe consequences.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Confidentiality is paramount to our operations. Your adherence to this agreement protects both you and the organization.
+
+*Legal & Compliance Office*
+_${organizationName}_
+
 🔐 *Protecting What Matters - Trust Through Confidentiality*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
     },
 
     'Offer Letter': {
       default: `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    🎊 *JOB OFFER - CONGRATULATIONS!* 🎊
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-*Congratulations!* We are thrilled to extend you an official job offer to join ${organizationName}!
+*Congratulations!* 🎉
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+We are absolutely thrilled to extend you an official job offer to join ${organizationName}! This is the beginning of an exciting professional journey together.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 *OFFER LETTER DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 💼 *Document:* Job Offer Letter
-🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🆔 *Offer ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Offer Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🌟 *WHY YOU WERE CHOSEN*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Your skills, experience, and demonstrated capabilities make you an excellent fit for this role. We believe you will be a valuable addition to our team and contribute significantly to our organizational success.
+Your exceptional skills, proven experience, and demonstrated capabilities make you an excellent fit for this role and our organization.
 
-This offer reflects our confidence in your abilities and our excitement about having you join our professional family.
+We believe you will be a valuable addition to our professional family and will contribute significantly to our organizational success and growth. This offer reflects our confidence in your abilities and our excitement about having you join our team.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔗 *ACCESS YOUR OFFER LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *View:* ${verificationLink}
+🔍 *View Letter:* ${verificationLink}
 ⬇️ *Download:* ${downloadLink}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 *TERMS & CONDITIONS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Please review and fill the Terms & Conditions form:
+Please review and complete the Terms & Conditions form:
 
-📄 *T&C Form Link:*
-${getTermsLink()}
+📄 *T&C Form:* ${getTermsLink()}
 
-⚠️ *IMPORTANT NOTE:*
-If the link is not opening, please:
+⚠️ *IMPORTANT:* If the link doesn't open:
 1. Save this WhatsApp number first
 2. Reply to this message requesting resend
 3. We will assist you immediately
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📌 *NEXT STEPS - ACTION REQUIRED*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Please complete the following within 48 hours:
 
 1. ✅ Download your offer letter
-2. ✅ Read all terms carefully
-3. ✅ Fill the T&C form (link above)
-4. ✅ Sign the offer letter
-5. ✅ Send back the signed copy via WhatsApp or email
-6. ✅ Clarify any questions with HR
-7. ✅ Complete pre-joining formalities
+2. ✅ Read all terms and conditions carefully
+3. ✅ Fill and submit the T&C form (link above)
+4. ✅ Sign the offer letter (digital/physical signature)
+5. ✅ Send signed copy to: hr@nexcorealliance.com
+6. ✅ Clarify any questions with our HR team
+7. ✅ Complete all pre-joining formalities
+8. ✅ Prepare required documents for joining
 
-*🔴 Important:* Please send your signed copy to confirm acceptance!
+🔴 *CRITICAL:* Please send your signed copy within 48 hours to confirm your acceptance of this offer!
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-We are excited to welcome you aboard and look forward to a successful professional journey together!
+We are genuinely excited to welcome you aboard and look forward to a long, successful, and mutually rewarding professional journey together!
 
 *With Excitement & Best Wishes,*
-_${organizationName} Team_
+_${organizationName}_
+
 🎯 *Your Career, Our Commitment*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
     },
 
     'Promotion Letter': {
       default: `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    🎉 *PROMOTION - CONGRATULATIONS!* 🎉
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-*Congratulations!* We are delighted to inform you about your well-deserved *promotion*!
+*Congratulations!* 🎊
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📋 *PROMOTION DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+We are absolutely delighted to inform you about your well-deserved *promotion*! Your hard work and dedication have earned you this advancement.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 *PROMOTION LETTER DETAILS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 🚀 *Document:* Promotion Letter
-🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🆔 *Reference ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Effective Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🏆 *YOUR ACHIEVEMENT*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏆 *YOUR OUTSTANDING ACHIEVEMENT*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-This promotion is a recognition of your:
-✓ Outstanding contributions
-✓ Exceptional work quality
-✓ Leadership capabilities
-✓ Dedication and commitment
-✓ Professional growth
+This promotion is formal recognition of your exceptional contributions and professional growth. It acknowledges your:
 
-Your hard work, innovation, and consistent excellence have earned you this advancement. We are confident that you will excel in your new role and continue to inspire those around you.
+✓ Outstanding contributions and consistent results
+✓ Exceptional work quality and attention to detail
+✓ Leadership capabilities and team collaboration
+✓ Dedication, commitment, and work ethic
+✓ Professional growth and skill development
+✓ Positive impact on team and organizational success
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🔗 *ACCESS YOUR LETTER*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+Your hard work, innovation, consistent excellence, and unwavering commitment have earned you this well-deserved advancement.
 
-🔍 *Verify:* ${verificationLink}
-⬇️ *Download:* ${downloadLink}
+We are confident that you will excel in your new role, take on greater responsibilities with enthusiasm, and continue to inspire those around you with your dedication and professionalism.
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR PROMOTION LETTER*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Your success is our success. Congratulations once again on this well-earned promotion!
+🔍 *Verify Authenticity:* ${verificationLink}
+⬇️ *Download Letter:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your success is our success. Congratulations once again on this well-earned promotion! We look forward to your continued contributions in your new role.
 
 *With Pride & Congratulations,*
-_${organizationName} Team_
+_${organizationName}_
+
 📈 *Growing Together, Succeeding Together*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
+
+      'Non Paid to Paid': `
+╔════════════════════════════════╗
+   🎉 *PROMOTION - PAID POSITION!* 🎉
+╚════════════════════════════════╝
+
+Dear *${userName}*,
+
+*Congratulations!* 🎊
+
+We are thrilled to announce your *promotion from Non-Paid to Paid Intern*! Your exceptional performance has earned you this advancement.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 *PROMOTION LETTER DETAILS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👤 *Name:* ${userName}
+🚀 *Promotion:* Non-Paid to Paid Intern
+🆔 *Reference ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+📅 *Effective Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏆 *YOUR EARNED RECOGNITION*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This promotion from non-paid to paid internship recognizes your:
+
+✓ Outstanding performance and dedication
+✓ Exceptional work quality and reliability
+✓ Professional growth and skill development
+✓ Consistent contributions to projects
+✓ Positive attitude and team collaboration
+✓ Commitment to learning and excellence
+
+Your hard work, dedication, and professional conduct have demonstrated that you deserve this recognition and reward for your valuable contributions.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR PROMOTION LETTER*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 *Verify Authenticity:* ${verificationLink}
+⬇️ *Download Letter:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Congratulations on this well-deserved recognition! We look forward to your continued growth and contributions as a paid member of our team.
+
+*With Pride & Best Wishes,*
+_${organizationName}_
+
+📈 *Recognizing Excellence, Rewarding Dedication*
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📞 *Support:* +91 9892398976
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
+
+      'Stipend Revision': `
+╔════════════════════════════════╗
+   📈 *STIPEND REVISION - PROMOTION!* 📈
+╚════════════════════════════════╝
+
+Dear *${userName}*,
+
+*Congratulations!* 🎉
+
+We are pleased to announce a *stipend revision and promotion* in recognition of your outstanding performance and contributions!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 *PROMOTION LETTER DETAILS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👤 *Name:* ${userName}
+💰 *Promotion:* Stipend Revision
+🆔 *Reference ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+📅 *Effective Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏆 *RECOGNITION OF YOUR EXCELLENCE*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This stipend revision recognizes and rewards your:
+
+✓ Exceptional performance and consistent results
+✓ Outstanding work quality and professionalism
+✓ Significant contributions to projects and initiatives
+✓ Professional growth and skill advancement
+✓ Dedication, reliability, and positive attitude
+✓ Value added to the team and organization
+
+Your performance has exceeded expectations, and this revision reflects our appreciation for your hard work and the value you bring to our organization.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR PROMOTION LETTER*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 *Verify Authenticity:* ${verificationLink}
+⬇️ *Download Letter:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Congratulations on this well-deserved recognition! Keep up the excellent work and continue to grow with us.
+
+*With Appreciation & Best Wishes,*
+_${organizationName}_
+
+💰 *Rewarding Excellence, Inspiring Growth*
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📞 *Support:* +91 9892398976
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
     },
 
     'Timeline Letter': {
       default: `
-╔═══════════════════════════╗
-   📅 *IMPORTANT TIMELINE* 📅
-╚═══════════════════════════╝
+╔════════════════════════════════╗
+   📅 *IMPORTANT TIMELINE INFORMATION* 📅
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-We are sharing important *timeline information* regarding your program/project activities and deadlines.
+We are sharing important *timeline information* regarding your program activities, milestones, and critical deadlines that you must adhere to.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📋 *TIMELINE DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 *TIMELINE DOCUMENT DETAILS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 ⏰ *Document:* Timeline Letter
-🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🆔 *Reference ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📌 *IMPORTANCE OF TIMELINES*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 *IMPORTANCE OF TIMELINE ADHERENCE*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Adhering to timelines is critical for:
-• Structured learning progression
-• Timely completion of deliverables
-• Meeting program requirements
-• Maintaining quality standards
-• Professional development
+Adhering to timelines is absolutely critical for:
 
-Please review all dates and deadlines carefully and plan your activities accordingly to ensure successful and timely completion.
+✓ Structured learning progression and curriculum completion
+✓ Timely completion of projects and deliverables
+✓ Meeting program and certification requirements
+✓ Maintaining quality standards and performance
+✓ Professional development and skill mastery
+✓ Successful program completion and outcomes
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🔗 *ACCESS YOUR TIMELINE*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+Please review all dates, deadlines, and milestones carefully. Plan your activities, assignments, and projects accordingly to ensure successful and timely completion of all requirements.
 
-🔍 *View:* ${verificationLink}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR TIMELINE DOCUMENT*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 *View Timeline:* ${verificationLink}
 ⬇️ *Download:* ${downloadLink}
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Time management is key to success. Plan, prioritize, and execute effectively!
+Effective time management is key to success. Plan strategically, prioritize wisely, and execute efficiently!
 
 *With Best Wishes,*
-_${organizationName} Team_
+_${organizationName}_
+
 📊 *Plan. Execute. Succeed.*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
     },
 
     'Live Project Agreement': {
       default: `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    🚀 *LIVE PROJECT OPPORTUNITY* 🚀
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-We are excited to present you with the *Live Project Agreement* for an immersive practical learning experience!
+We are excited to present you with the *Live Project Agreement* for an immersive, hands-on practical learning experience!
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 *AGREEMENT DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
 💼 *Document:* Live Project Agreement
-🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+🆔 *Agreement ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-🌟 *ABOUT LIVE PROJECTS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🌟 *LIVE PROJECT BENEFITS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-This agreement outlines your participation in real-world projects that will provide:
-✓ Hands-on industry experience
-✓ Application of theoretical knowledge
-✓ Practical skill development
-✓ Professional work exposure
-✓ Portfolio-worthy deliverables
-✓ Industry-standard practices
+This agreement outlines your participation in real-world projects that will provide invaluable experience:
 
-Live projects bridge the gap between learning and professional practice, giving you invaluable real-world experience.
+✓ Hands-on industry experience with real clients
+✓ Practical application of theoretical knowledge
+✓ Comprehensive skill development and mastery
+✓ Professional work environment exposure
+✓ Portfolio-worthy deliverables and projects
+✓ Industry-standard practices and workflows
+✓ Mentorship from experienced professionals
+✓ Real-world problem-solving opportunities
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+Live projects bridge the critical gap between academic learning and professional practice, giving you invaluable real-world experience that sets you apart in the job market.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔗 *ACCESS YOUR AGREEMENT*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *View:* ${verificationLink}
+🔍 *View Agreement:* ${verificationLink}
 ⬇️ *Download:* ${downloadLink}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
-📌 *NEXT STEPS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 *NEXT STEPS - ACTION REQUIRED*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. Review all terms and conditions carefully
-2. Understand your responsibilities and deliverables
-3. Acknowledge and accept the agreement
-4. Prepare to apply your skills in real scenarios
+1. ✅ Review all terms and conditions carefully
+2. ✅ Understand your responsibilities and deliverables
+3. ✅ Review project timelines and milestones
+4. ✅ Acknowledge and accept the agreement formally
+5. ✅ Prepare to apply your skills in real scenarios
+6. ✅ Contact project coordinator for any clarifications
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-This is your opportunity to transform theory into practice. Embrace this learning journey!
+This is your opportunity to transform theory into practice and gain industry-ready experience. Embrace this learning journey with enthusiasm!
 
-*With Excitement,*
-_${organizationName} Team_
+*With Excitement & Best Wishes,*
+_${organizationName}_
+
 💡 *Where Theory Meets Practice*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
+    },
+
+    'Memo': {
+      default: `
+╔════════════════════════════════╗
+   📋 *OFFICIAL MEMORANDUM* 📋
+╚════════════════════════════════╝
+
+Dear *${userName}*,
+
+This is an *official memorandum* regarding important organizational matters that require your immediate attention and action.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 *MEMORANDUM DETAILS*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👤 *Recipient:* ${userName}
+📄 *Document:* Official Memorandum
+🆔 *Reference ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
+📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 *ACTION REQUIRED*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Please review the complete memorandum carefully and take all necessary actions as specified within the stipulated timeframe.
+
+This memo contains important information, instructions, policy updates, or procedural changes that may directly impact your program participation, responsibilities, or organizational standing.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔗 *ACCESS YOUR MEMORANDUM*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 *View Memo:* ${verificationLink}
+⬇️ *Download:* ${downloadLink}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For any queries, clarifications, or additional information, please contact the administration office immediately.
+
+*Official Communication*
+_${organizationName}_
+
+📬 *Important Communication - Please Review*
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📞 *Support:* +91 9892398976
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
     },
 
     'Other': {
       default: `
-╔═══════════════════════════╗
+╔════════════════════════════════╗
    📄 *OFFICIAL DOCUMENT* 📄
-╚═══════════════════════════╝
+╚════════════════════════════════╝
 
 Dear *${userName}*,
 
-An official document has been generated and is ready for your review.
+An official document has been generated and is now ready for your review and necessary action.
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📋 *DOCUMENT DETAILS*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👤 *Name:* ${userName}
-📋 *Document:* Official Letter
-🆔 *Credential ID:* ${finalId}
-🏷️ *Program:* ${category}
-${batch ? `📚 *Batch:* ${batch}` : ''}
+📋 *Document Type:* Official Letter
+🆔 *Reference ID:* ${finalId}
+🏷️ *Program:* ${category}${batch ? `\n📚 *Batch:* ${batch}` : ''}
 📅 *Issue Date:* ${formattedDate}
+🏢 *Organization:* ${organizationName}
 
-┏━━━━━━━━━━━━━━━━━━━━━━━━┓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔗 *ACCESS YOUR DOCUMENT*
-┗━━━━━━━━━━━━━━━━━━━━━━━━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔍 *View:* ${verificationLink}
+🔍 *View Document:* ${verificationLink}
 ⬇️ *Download:* ${downloadLink}
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Please review the document carefully. For any queries, contact our administration office.
+Please review the document carefully. For any queries or clarifications, please contact our administration office.
 
-*Official Communication,*
-_${organizationName} Team_
+*Official Communication*
+_${organizationName}_
+
 📢 *Stay Informed, Stay Connected*
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📞 *Support:* +91 9892398976
-📌 Please send the signed copy to us via email.  
-📌 If the link does not open, please save this WhatsApp number and try again for further updates.
-      `.trim(),
+📧 *Email:* hr@nexcorealliance.com
+
+📌 *Note:* If the link doesn't open, please save this WhatsApp number and try again.
+`.trim(),
     },
   };
 

@@ -498,20 +498,13 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
   let baseUrl = 'https://portal.nexcorealliance.com';
   
 
-  const verificationLink = `${baseUrl}/verify-certificate/`;
-  const downloadLink = `${baseUrl}/verify-certificate/`;
+  const verificationLink = `${baseUrl}`;
+  const downloadLink = `${baseUrl}`;
 
   // Get Terms & Conditions link
   const getTermsLink = () => {
-    if (category?.toLowerCase().includes('fsd') || category?.toLowerCase().includes('dm')) {
-      return 'https://forms.gle/FSD_DM_FORM_LINK';
-    } else if (category?.toLowerCase().includes('marketing') || category?.toLowerCase().includes('mj') || 
-               category?.toLowerCase().includes('code4bharat') || category?.toLowerCase().includes('c4b')) {
-      return `${baseUrl}/termsandconditions/C4B`;
-    } else {
-      return 'https://forms.gle/HR_OPS_FORM_LINK';
-    }
-  };
+  return baseUrl;
+}
 
   // Base HTML template style with enhanced styling
  const baseStyle = `
