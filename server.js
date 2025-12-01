@@ -116,6 +116,7 @@ import onboardingRoutes from './routes/onboardingRequest.routes.js';
 import categoryRoutes from './routes/category.routes.js';
 import userRoutes from './routes/user.routes.js';
 
+
 // Attach Routes
 app.use('/api/certificates', certificateRoutes);
 app.use('/api/stats', statsRoutes);
@@ -126,6 +127,7 @@ app.use('/api/letters', letterRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/auth/user', userAuthRoutes);
 app.use('/api/onboarding-request', onboardingRoutes);
+
 
 // Student
 import studentRoutes from './routes/student.routes.js';
