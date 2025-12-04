@@ -2,6 +2,13 @@ import mongoose from "mongoose";
 
 const clientLetterSchema = new mongoose.Schema(
   {
+    letterId: {
+      type: String,
+      required: true,
+      unique: true,
+      // Format: CLA-YYYY-MM-DD-XX, CLM-YYYY-MM-DD-XX, or CLP-YYYY-MM-DD-XX
+    },
+
     name: {
       type: String,
       required: true,
@@ -11,7 +18,8 @@ const clientLetterSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: ["Client"], // expandable later
+      enum: ["Client"],
+      default: "Client",
     },
 
     issueDate: {
@@ -22,11 +30,7 @@ const clientLetterSchema = new mongoose.Schema(
     letterType: {
       type: String,
       required: true,
-      enum: [
-        "Agenda",
-        "MOM (Minutes of Meeting)",
-        "Project Progress",
-      ],
+      enum: ["Agenda", "MOM (Minutes of Meeting)", "Project Progress"],
     },
 
     projectName: {
@@ -46,10 +50,24 @@ const clientLetterSchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
-      trim: true, // keeps formatting clean
+      trim: true,
     },
 
-    // Optional but useful: Link to stored/generated PDF
+    // Outward number tracking (same as letter system)
+    outwardNo: {
+      type: String,
+      required: true,
+      unique: true,
+      // Format: NEX/YYYY/MM/DD/SerialNumber
+    },
+
+    outwardSerial: {
+      type: Number,
+      required: true,
+      // Continuous serial number across all client letters
+    },
+
+    // Optional: Link to stored/generated PDF
     pdfUrl: {
       type: String,
       default: null,
@@ -60,6 +78,22 @@ const clientLetterSchema = new mongoose.Schema(
       type: String,
       enum: ["Generated", "Pending Approval", "Sent to Client"],
       default: "Generated",
+    },
+
+    // Download tracking (optional, similar to letter system)
+    downloadCount: {
+      type: Number,
+      default: 0,
+    },
+
+    lastDownloaded: {
+      type: Date,
+    },
+
+    // Created by user reference (optional)
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
   {

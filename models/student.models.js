@@ -18,19 +18,19 @@ const studentSchema = new mongoose.Schema(
 
     category: {
       type: String,
-      enum: {
-        values: [
-          "IT-Nexcore",
-          "marketing-junction",
-          "FSD",
-          "BVOC",
-          "HR",
-          "DM",
-          "OD",
-          "Client",
-        ],
-        message: "{VALUE} is not a valid category",
-      },
+      // enum: {
+      //   values: [
+      //     "IT-Nexcore",
+      //     "marketing-junction",
+      //     "FSD",
+      //     "BVOC",
+      //     "HR",
+      //     "DM",
+      //     "OD",
+      //     "Client",
+      //   ],
+      //   message: "{VALUE} is not a valid category",
+      // },
       required: [true, "Category is required"],
     },
 
