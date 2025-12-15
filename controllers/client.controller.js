@@ -8,8 +8,8 @@ import ClientLetter from "../models/clientdata.models.js";
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
+    user: process.env.EMAIL_USER_C4B,
+    pass: process.env.EMAIL_PASSWORD_C4B,
   },
 });
 
@@ -233,7 +233,7 @@ function buildDocDefinition({
 ------------------------- */
 async function sendEmailWithPDF(clientEmail, clientName, pdfBuffer, letterId) {
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: process.env.EMAIL_USER_C4B,
     to: clientEmail,
     subject: `Client Letter - ${letterId}`,
     html: `
