@@ -1,6 +1,6 @@
 // File: controllers/admin.document.controller.js
 // Version 1: Student.js (capital S)
-import Student from "../models/student.models.js";
+import Student from "../models/users.models.js";
 import path from "path";
 import fs from "fs";
 
@@ -100,7 +100,7 @@ export const viewStudentDocument = async (req, res) => {
     // Resolve absolute file path
     // Handle both "uploads/..." and "uploads-data/..." paths
     let filePath;
-    
+
     if (documentPath.startsWith("uploads-data/")) {
       // If path already includes uploads-data, use it directly
       filePath = path.join(path.resolve("uploads"), documentPath);
@@ -115,33 +115,35 @@ export const viewStudentDocument = async (req, res) => {
     console.log("📂 Document path from DB:", originalPath);
     console.log("📂 Cleaned path:", documentPath);
     console.log("📂 Resolved file path:", filePath);
-    
+
     const fileExists = fs.existsSync(filePath);
     console.log("📂 File exists?", fileExists);
 
     // Check if file exists
     if (!fileExists) {
       console.error("❌ File not found at:", filePath);
-      
+
       // Additional debugging
       const uploadsDir = path.resolve("uploads");
       console.log("📁 Uploads directory:", uploadsDir);
       console.log("📁 Uploads dir exists?", fs.existsSync(uploadsDir));
-      
+
       try {
-        const files = fs.readdirSync(path.join(uploadsDir, "uploads-data", "student-documents"));
+        const files = fs.readdirSync(
+          path.join(uploadsDir, "uploads-data", "student-documents")
+        );
         console.log("📁 Files in directory:", files.slice(0, 5)); // Show first 5 files
       } catch (err) {
         console.error("❌ Cannot read directory:", err.message);
       }
-      
+
       return res.status(404).json({
         success: false,
         message: "File not found on server",
         debug: {
           expectedPath: filePath,
           uploadsDir: uploadsDir,
-        }
+        },
       });
     }
 
@@ -160,7 +162,10 @@ export const viewStudentDocument = async (req, res) => {
 
     // Set headers
     res.setHeader("Content-Type", contentType);
-    res.setHeader("Content-Disposition", `inline; filename="${path.basename(filePath)}"`);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${path.basename(filePath)}"`
+    );
 
     // Stream the file
     const fileStream = fs.createReadStream(filePath);
@@ -211,7 +216,9 @@ export const verifyStudentDocuments = async (req, res) => {
 
     res.json({
       success: true,
-      message: verified ? "Documents verified successfully" : "Documents marked as unverified",
+      message: verified
+        ? "Documents verified successfully"
+        : "Documents marked as unverified",
       student,
     });
   } catch (error) {

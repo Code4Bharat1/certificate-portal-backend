@@ -80,6 +80,25 @@ const clientLetterSchema = new mongoose.Schema(
       default: "Generated",
     },
 
+    // Email & WhatsApp tracking
+    emailSent: {
+      type: Boolean,
+      default: false,
+    },
+
+    emailSentAt: {
+      type: Date,
+    },
+
+    whatsappSent: {
+      type: Boolean,
+      default: false,
+    },
+
+    whatsappSentAt: {
+      type: Date,
+    },
+
     // Download tracking (optional, similar to letter system)
     downloadCount: {
       type: Number,

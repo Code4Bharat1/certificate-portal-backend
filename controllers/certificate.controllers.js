@@ -247,8 +247,7 @@ const getCertificateById = async (req, res) => {
     });
   }
 };
-
-const createCertificate = async (req, res) => {
+export const createCertificate = async (req, res) => {
   try {
     // ✅ Validate inputs
     const errors = validationResult(req);
@@ -259,7 +258,8 @@ const createCertificate = async (req, res) => {
       });
     }
 
-    const { name, category, batch, course, issueDate } = req.body;
+    // ✅ Extract ALL fields including description
+    const { name, category, batch, course, issueDate, description } = req.body;
 
     // ✅ Auto-generate unique certificateId
     let certificateId;
@@ -269,11 +269,12 @@ const createCertificate = async (req, res) => {
       existingId = await Certificate.findOne({ certificateId });
     } while (existingId);
 
-    // ✅ Optional: find user data (for WhatsApp notification)
+    // ✅ Find user data (for notifications)
     const userData = await People.findOne({ name });
-    let userPhone = userData?.phone || null;
+    const userPhone = userData?.phone || null;
+    const userEmail = userData?.email || null;
 
-    // ✅ Prepare base data
+    // ✅ Prepare certificate data
     const certificateData = {
       certificateId,
       name,
@@ -281,29 +282,195 @@ const createCertificate = async (req, res) => {
       batch: batch || null,
       course,
       issueDate,
-      userPhone,
-      // createdBy: req.user.id,
+      description: description || "",
+      createdBy: req.user?._id || null,
     };
 
-    // ✅ Create new certificate document
+    // ✅ Create certificate document FIRST
     const certificate = await Certificate.create(certificateData);
 
-    // ✅ Optional: send WhatsApp notification
+    // ✅ Send notifications (Email + WhatsApp)
     try {
-      if (userPhone && certificateId) {
-        await sendCertificateNotification({
-          userName: name,
-          userPhone,
-          certificateId,
-          course,
-          category,
-          batch: batch || null,
-          issueDate,
-        });
-        console.log(`✅ WhatsApp notification sent to ${userPhone}`);
+      const emailService = await import("../services/emailService.js");
+
+      if (certificateId) {
+        // ✅✅✅ GENERATE ACTUAL CERTIFICATE PDF (NOT GENERIC) ✅✅✅
+        // ✅✅✅ GENERATE ACTUAL CERTIFICATE PDF (NOT GENERIC) ✅✅✅
+        // ✅ Generate PDF attachment using the same logic as download
+        let pdfBuffer = null;
+        try {
+          const templateFilename = getCourseTemplateFilename(course, category);
+          const templatePath = path.join(
+            __dirname,
+            "../templates",
+            templateFilename
+          );
+
+          if (!fs.existsSync(templatePath)) {
+            throw new Error(`Template not found: ${course}`);
+          }
+
+          const templateImage = await loadImage(templatePath);
+          const width = templateImage.width;
+          const height = templateImage.height;
+          const canvas = createCanvas(width, height);
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(templateImage, 0, 0);
+
+          const formattedDate = new Date(issueDate).toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          );
+
+          const id = certificateId.split("-")[0];
+          const isAppreciation = isAppreciationCertificate(course);
+
+          // Apply the same rendering logic as downloadCertificateAsPdf
+          if (isAppreciation || course === "Experience Certificate") {
+            ctx.fillStyle = "#111827";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+            ctx.font = 'bold 40px "Times New Roman", serif';
+            ctx.fillText(formattedDate, width * 0.78, height * 0.253);
+
+            const subject = `${course} – ${certificate.name}`;
+            ctx.font = '50px "Times New Roman", serif';
+            ctx.fillText(subject, width * 0.32, height * 0.313);
+
+            ctx.fillStyle = "#1a1a1a";
+            ctx.font =
+              '45px "Georgia", "Garamond", "Merriweather", "Times New Roman", serif';
+            const topY = height * 0.4;
+            const bottomY = height * 0.7;
+            const availableHeight = bottomY - topY;
+            const descMaxWidth = width * 0.8;
+
+            const paragraphs = (description || "")
+              .split(/\n\s*\n/)
+              .map((p) => p.replace(/\n/g, " ").trim())
+              .filter((p) => p.length > 0)
+              .slice(0, 3);
+
+            const lineHeight = 66;
+            const paraSpacing =
+              paragraphs.length > 1
+                ? availableHeight / (paragraphs.length + 1)
+                : availableHeight / 2;
+
+            paragraphs.forEach((p, i) => {
+              const y = topY + i * paraSpacing;
+              wrapText(ctx, p, width * 0.13, y, descMaxWidth, lineHeight);
+            });
+
+            ctx.textAlign = "left";
+            ctx.font = 'bold 60px "Poppins"';
+            ctx.fillText(`${certificateId}`, width * 0.33, height * 0.761);
+
+            ctx.font = '60px "Ovo", serif';
+            ctx.fillStyle = "#1F2937";
+            ctx.textAlign = "center";
+            ctx.fillText(
+              "https://portal.nexcorealliance.com/verify-certificate",
+              width / 2,
+              height * 0.83
+            );
+          } else if (id === "NEX" || id === "FSD") {
+            ctx.fillStyle = "#1F2937";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            const nameFontSize = getAdjustedFontSize(
+              ctx,
+              name.toUpperCase(),
+              width * 0.65,
+              50
+            );
+            ctx.font = `bold ${nameFontSize}px Arial`;
+            ctx.fillText(name.toUpperCase(), width / 2, height * 0.46);
+
+            ctx.fillStyle = "#1F2937";
+            ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
+            ctx.textAlign = "left";
+            ctx.fillText(formattedDate, width * 0.595, height * 0.66);
+
+            ctx.font = '40px "Times New Roman", "Ovo", serif';
+            ctx.fillText(certificateId, width * 0.42, height * 0.8);
+          } else {
+            ctx.fillStyle = "#1F2937";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            const nameFontSize = getAdjustedFontSize(
+              ctx,
+              name.toUpperCase(),
+              width * 0.65,
+              50
+            );
+            ctx.font = `bold ${nameFontSize}px Arial`;
+            ctx.fillText(name.toUpperCase(), width / 2, height * 0.44);
+
+            ctx.fillStyle = "#1F2937";
+            ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
+            ctx.textAlign = "left";
+            ctx.fillText(formattedDate, width * 0.48, height * 0.669);
+
+            ctx.font = '42px "Times New Roman", "Ovo", serif';
+            ctx.fillText(certificateId, width * 0.42, height * 0.815);
+          }
+
+          // Convert canvas to PDF
+          const imageBuffer = canvas.toBuffer("image/png");
+          const doc = new PDFDocument({ size: [width, height], margin: 0 });
+
+          const chunks = [];
+          doc.on("data", (chunk) => chunks.push(chunk));
+          doc.on("end", () => {
+            pdfBuffer = Buffer.concat(chunks);
+          });
+
+          doc.image(imageBuffer, 0, 0, { width, height });
+          doc.end();
+
+          await new Promise((resolve) => doc.on("end", resolve));
+
+          console.log("✅ Certificate PDF generated successfully");
+        } catch (pdfError) {
+          console.error("⚠️ Certificate PDF generation failed:", pdfError);
+        }
+        // Send email WITH actual certificate PDF
+        if (userEmail) {
+          await emailService.default.sendCertificateNotification({
+            userName: name,
+            userEmail: userEmail,
+            certificateId,
+            course,
+            category,
+            batch: batch || null,
+            issueDate,
+            description: description || "",
+            pdfBuffer, // ✅ Pass the actual PDF buffer
+          });
+          console.log(`✅ Email notification sent to ${userEmail}`);
+        }
+
+        // Send WhatsApp notification
+        if (userPhone) {
+          await sendCertificateNotification({
+            userName: name,
+            userPhone,
+            certificateId,
+            course,
+            category,
+            batch: batch || null,
+            issueDate,
+          });
+          console.log(`✅ WhatsApp notification sent to ${userPhone}`);
+        }
       }
-    } catch (error) {
-      console.error("⚠️ WhatsApp notification error:", error);
+    } catch (notificationError) {
+      console.error("⚠️ Notification error (non-critical):", notificationError);
     }
 
     // ✅ Log action
@@ -320,6 +487,10 @@ const createCertificate = async (req, res) => {
       success: true,
       message: "Certificate created successfully",
       certificate,
+      notifications: {
+        email: userEmail ? "sent" : "no email available",
+        whatsapp: userPhone ? "sent" : "no phone available",
+      },
     });
   } catch (error) {
     console.error("❌ Create certificate error:", error);

@@ -452,9 +452,9 @@ export const createLetter = async (req, res) => {
     // Create letter
     const letter = await Letter.create(letterData);
 
-    // Send WhatsApp Message
+    // Send WhatsApp and Email notifications
     try {
-      const subType = letter.subType || letterType; // safest
+      const subType = letter.subType || letterType;
 
       const templateData = {
         userName: name,
@@ -468,47 +468,421 @@ export const createLetter = async (req, res) => {
 
       // ----------------------- WHATSAPP TO STUDENT -----------------------
       if (userPhone && letterId) {
-        // WhatsApp = plain text required
-        const html = getLetterMessageTemplate(letterType, subType, templateData);
+        const html = getLetterMessageTemplate(
+          letterType,
+          subType,
+          templateData
+        );
         const waText = html.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
-
         await sendWhatsAppMessage(userPhone, waText);
-
-        // Parent WhatsApp only for BVOC
-        if (userData.parentPhone1 && userData.parentPhone2 && category === "BVOC") {
-          const parentHtml = getParentNotificationTemplate(letterType, subType, templateData);
-          const parentWaText = parentHtml.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
-
-          await sendWhatsAppMessage(userData.parentPhone1, parentWaText);
-          await sendWhatsAppMessage(userData.parentPhone2, parentWaText);
-        }
       }
 
       // ----------------------- EMAIL TO STUDENT -----------------------
       if (userData.email && letterId) {
-        const htmlContent = emailService.getLetterEmailTemplate(letterType, subType, templateData);
-        const emailSubject = `${letterType}${subType ? " - " + subType : ""} | ${templateData.organizationName}`;
+        try {
+          // ✅ Generate PDF attachment for letter
+    
+          let pdfBuffer = null;
+          try {
+            const templateFilename = getLetterTemplateFilename(
+              course,
+              category
+            );
+            const templatePath = path.join(
+              __dirname,
+              "../templates",
+              templateFilename
+            );
+            const templateType = getTemplateTypeByFilename(templateFilename);
 
-        await emailService.sendEmail(
-          userData.email,
-          emailSubject,
-          htmlContent
-        );
+            if (templateType === "image") {
+              // Image-based template
+              const templateImage = await loadImage(templatePath);
+              const width = templateImage.width;
+              const height = templateImage.height;
+              const canvas = createCanvas(width, height);
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(templateImage, 0, 0);
 
-        // Parent WhatsApp notifications
-        if (userData.parentPhone1 && userData.parentPhone2 && category === "BVOC") {
-          const parentHtml = emailService.getParentNotificationEmailTemplate(letterType, subType, templateData);
-          const parentWaText = parentHtml.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
+              const formattedDate = new Date(
+                letter.issueDate
+              ).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              });
 
-          await sendWhatsAppMessage(userData.parentPhone1, parentWaText);
-          await sendWhatsAppMessage(userData.parentPhone2, parentWaText);
+              // Apply template code (same as preview/download)
+              if (category === "FSD") {
+                await TemplateCode.getFSDTemplateCode(
+                  ctx,
+                  width,
+                  height,
+                  letter.issueDate,
+                  course,
+                  name,
+                  letter.outwardNo,
+                  formattedDate,
+                  letterId,
+                  description,
+                  subject,
+                  role,
+                  startDate,
+                  endDate,
+                  committeeType,
+                  attendancePercent,
+                  assignmentName,
+                  misconductReason,
+                  attendanceMonth,
+                  attendanceYear,
+                  performanceMonth,
+                  performanceYear,
+                  testingPhase,
+                  uncover,
+                  subjectName,
+                  projectName,
+                  auditDate
+                );
+              } else if (category === "BVOC") {
+                await TemplateCode.getBVOCTemplateCode(
+                  ctx,
+                  width,
+                  height,
+                  letter.issueDate,
+                  course,
+                  name,
+                  letter.outwardNo,
+                  formattedDate,
+                  letterId,
+                  description,
+                  subject,
+                  role,
+                  startDate,
+                  endDate,
+                  committeeType,
+                  attendancePercent,
+                  assignmentName,
+                  misconductReason,
+                  attendanceMonth,
+                  attendanceYear,
+                  performanceMonth,
+                  performanceYear,
+                  testingPhase,
+                  uncover,
+                  subjectName,
+                  projectName,
+                  auditDate
+                );
+              } else if (category === "DM") {
+                await TemplateCode.getDMTemplateCode(
+                  ctx,
+                  width,
+                  height,
+                  letter.issueDate,
+                  course,
+                  name,
+                  letter.outwardNo,
+                  formattedDate,
+                  letterId,
+                  description,
+                  subject,
+                  role,
+                  startDate,
+                  endDate,
+                  committeeType,
+                  attendancePercent,
+                  assignmentName,
+                  misconductReason,
+                  attendanceMonth,
+                  attendanceYear,
+                  performanceMonth,
+                  performanceYear,
+                  testingPhase,
+                  uncover,
+                  subjectName,
+                  projectName,
+                  auditDate
+                );
+              } else if (
+                ["marketing-junction", "IT-Nexcore", "HR", "OD"].includes(
+                  category
+                )
+              ) {
+                await TemplateCode.getCommonTemplateCode(
+                  ctx,
+                  width,
+                  height,
+                  letter.issueDate,
+                  course,
+                  name,
+                  letter.outwardNo,
+                  formattedDate,
+                  letterId,
+                  description,
+                  subject,
+                  role,
+                  startDate,
+                  endDate,
+                  committeeType,
+                  attendancePercent,
+                  assignmentName,
+                  misconductReason,
+                  attendanceMonth,
+                  attendanceYear,
+                  performanceMonth,
+                  performanceYear,
+                  testingPhase,
+                  uncover,
+                  subjectName,
+                  projectName,
+                  auditDate,
+                  trainingStartDate,
+                  trainingEndDate,
+                  officialStartDate,
+                  completionDate,
+                  responsibilities,
+                  amount,
+                  effectiveFrom,
+                  timelineStage,
+                  timelineProjectName,
+                  timelineDueDate,
+                  timelineNewDate,
+                  genderPronoun,
+                  month,
+                  year
+                );
+              }
+
+              const jpegBuffer = canvas.toBuffer("image/jpeg", {
+                quality: 0.95,
+              });
+              const doc = new PDFDocument({ size: [width, height], margin: 0 });
+
+              const chunks = [];
+              doc.on("data", (chunk) => chunks.push(chunk));
+              doc.on("end", () => {
+                pdfBuffer = Buffer.concat(chunks);
+              });
+
+              doc.image(jpegBuffer, 0, 0, { width, height });
+              doc.end();
+
+              await new Promise((resolve) => doc.on("end", resolve));
+            } else {
+              // PDF-based template
+              const PDFLibDocument = (await import("pdf-lib")).PDFDocument;
+              const existingPdfBytes = fs.readFileSync(templatePath);
+              const pdfDoc = await PDFLibDocument.load(existingPdfBytes);
+
+              const formattedDate = new Date(
+                letter.issueDate
+              ).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              });
+
+              if (category === "FSD") {
+                await TemplateCode.drawFSDPdfTemplate(pdfDoc, course, {
+                  name,
+                  outwardNo: letter.outwardNo,
+                  issueDate: letter.issueDate,
+                  formattedDate,
+                  tempId: letterId,
+                  description,
+                  subject,
+                  startDate,
+                  endDate,
+                });
+              } else if (category === "marketing-junction") {
+                await TemplateCode.drawMJPdfTemplate(pdfDoc, course, {
+                  name,
+                  outwardNo: letter.outwardNo,
+                  formattedDate,
+                  tempId: letterId,
+                  role,
+                  trainingStartDate,
+                  trainingEndDate,
+                  officialStartDate,
+                  completionDate,
+                  responsibilities,
+                  amount,
+                  effectiveFrom,
+                  duration,
+                });
+              } else if (category === "IT-Nexcore") {
+                await TemplateCode.drawC4BPdfTemplate(pdfDoc, course, {
+                  name,
+                  outwardNo: letter.outwardNo,
+                  formattedDate,
+                  tempId: letterId,
+                  role,
+                  trainingStartDate,
+                  trainingEndDate,
+                  officialStartDate,
+                  completionDate,
+                  responsibilities,
+                  amount,
+                  effectiveFrom,
+                  duration,
+                });
+              } else if (category === "HR") {
+                await TemplateCode.drawHRPdfTemplate(pdfDoc, course, {
+                  name,
+                  outwardNo: letter.outwardNo,
+                  formattedDate,
+                  tempId: letterId,
+                  role,
+                  trainingStartDate,
+                  trainingEndDate,
+                  officialStartDate,
+                  completionDate,
+                  responsibilities,
+                  amount,
+                  effectiveFrom,
+                  duration,
+                });
+              } else if (category === "OD") {
+                await TemplateCode.drawODPdfTemplate(pdfDoc, course, {
+                  name,
+                  outwardNo: letter.outwardNo,
+                  formattedDate,
+                  tempId: letterId,
+                  role,
+                  trainingStartDate,
+                  trainingEndDate,
+                  officialStartDate,
+                  completionDate,
+                  responsibilities,
+                  amount,
+                  effectiveFrom,
+                  duration,
+                });
+              } else if (category === "DM") {
+                await TemplateCode.drawDMPdfTemplate(pdfDoc, course, {
+                  name,
+                  outwardNo: letter.outwardNo,
+                  issueDate: letter.issueDate,
+                  formattedDate,
+                  tempId: letterId,
+                  description,
+                  subject,
+                  startDate,
+                  endDate,
+                });
+              }
+
+              pdfBuffer = Buffer.from(await pdfDoc.save());
+            }
+
+            console.log("✅ Letter PDF generated successfully");
+          } catch (pdfError) {
+            console.error("⚠️ Letter PDF generation failed:", pdfError);
+          }
+
+          // ✅ Get email template
+          const htmlContent = emailService.getLetterEmailTemplate(
+            letterType,
+            subType,
+            templateData
+          );
+
+          const emailSubject = `${letterType}${
+            subType ? " - " + subType : ""
+          } | ${templateData.organizationName}`;
+
+          // ✅ Send email WITH PDF attachment
+          await emailService.sendEmail(
+            userData.email,
+            emailSubject,
+            htmlContent,
+            "",
+            category,
+            pdfBuffer
+              ? [
+                  {
+                    filename: `${letterId}_${name.replace(/\s+/g, "_")}.pdf`,
+                    content: pdfBuffer,
+                    contentType: "application/pdf",
+                  },
+                ]
+              : []
+          );
+
+          console.log(`✅ Email sent to ${userData.email} with PDF attachment`);
+
+          // ✅ Parent Email notifications (BVOC only)
+          if (userData.parentEmail && category === "BVOC") {
+            try {
+              const parentHtml =
+                emailService.getParentNotificationEmailTemplate(
+                  letterType,
+                  subType,
+                  templateData
+                );
+
+              const parentSubject = `📢 Parent Notification: ${letterType} for ${name}`;
+
+              await emailService.sendEmail(
+                userData.parentEmail,
+                parentSubject,
+                parentHtml,
+                "",
+                category,
+                pdfBuffer
+                  ? [
+                      {
+                        filename: `${letterId}_${name.replace(
+                          /\s+/g,
+                          "_"
+                        )}.pdf`,
+                        content: pdfBuffer,
+                        contentType: "application/pdf",
+                      },
+                    ]
+                  : []
+              );
+
+              console.log(`✅ Parent email sent to ${userData.parentEmail}`);
+            } catch (parentEmailError) {
+              console.error("⚠️ Parent email failed:", parentEmailError);
+            }
+          }
+        } catch (emailError) {
+          console.error("❌ Email notification error:", emailError);
         }
       }
 
-    } catch (err) {
-      console.error("WhatsApp/Email error:", err);
-    }
+      // ✅ Parent WhatsApp notifications (BVOC only)
+      if (
+        userData.parentPhone1 &&
+        userData.parentPhone2 &&
+        category === "BVOC"
+      ) {
+        try {
+          const parentHtml = getParentNotificationTemplate(
+            letterType,
+            subType,
+            templateData
+          );
 
+          const parentWaText = parentHtml
+            .replace(/<[^>]+>/g, "")
+            .replace(/\s{2,}/g, "\n");
+
+          await sendWhatsAppMessage(userData.parentPhone1, parentWaText);
+          await sendWhatsAppMessage(userData.parentPhone2, parentWaText);
+
+          console.log(
+            `✅ Parent WhatsApp sent to ${userData.parentPhone1} & ${userData.parentPhone2}`
+          );
+        } catch (waError) {
+          console.error("⚠️ Parent WhatsApp failed:", waError);
+        }
+      }
+    } catch (notificationError) {
+      console.error("⚠️ Notification error (non-critical):", notificationError);
+    }
 
     // Log admin activity
     await ActivityLog.create({

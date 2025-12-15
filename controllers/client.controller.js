@@ -1,7 +1,17 @@
+import nodemailer from "nodemailer";
+import axios from "axios";
 import PdfPrinter from "pdfmake";
 import fs from "fs";
 import path from "path";
 import ClientLetter from "../models/clientdata.models.js";
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
 
 const fonts = {
   Helvetica: {
@@ -16,10 +26,7 @@ const printer = new PdfPrinter(fonts);
 
 /* -------------------------
    Helper: generateClientLetterId
-   Format: CLA-YYYY-MM-DD-XX (Agenda)
-           CLM-YYYY-MM-DD-XX (MOM)
-           CLP-YYYY-MM-DD-XX (Project Progress)
-   ------------------------- */
+------------------------- */
 async function generateClientLetterId(letterType) {
   const typeMap = {
     Agenda: "CLA",
@@ -29,17 +36,14 @@ async function generateClientLetterId(letterType) {
 
   const typeAbbr = typeMap[letterType] || "CL";
 
-  // Get today's date in YYYY-MM-DD
   const today = new Date();
   const yyyy = today.getFullYear();
   const mm = String(today.getMonth() + 1).padStart(2, "0");
   const dd = String(today.getDate()).padStart(2, "0");
   const dateStr = `${yyyy}-${mm}-${dd}`;
 
-  // Regex to match: CLA-YYYY-MM-DD-XX
   const regex = new RegExp(`^${typeAbbr}-${dateStr}-(\\d+)$`);
 
-  // Find last ID for today's date
   const last = await ClientLetter.find({
     letterId: { $regex: `^${typeAbbr}-${dateStr}-` },
   })
@@ -52,21 +56,16 @@ async function generateClientLetterId(letterType) {
 
   if (last.length) {
     const match = last[0].letterId.match(regex);
-    if (match && match[1]) {
-      nextNum = parseInt(match[1], 10) + 1;
-    }
+    if (match && match[1]) nextNum = parseInt(match[1], 10) + 1;
   }
 
   const padded = String(nextNum).padStart(2, "0");
-
   return `${typeAbbr}-${dateStr}-${padded}`;
 }
 
 /* -------------------------
    Helper: generateClientOutwardNo
-   Format: NEX/YYYY/MM/DD/SerialNumber
-   Continuous serial across all client letters
-   ------------------------- */
+------------------------- */
 async function generateClientOutwardNo(issueDate) {
   const issue = issueDate ? new Date(issueDate) : new Date();
 
@@ -75,7 +74,6 @@ async function generateClientOutwardNo(issueDate) {
   const dd = String(issue.getDate()).padStart(2, "0");
   const datePart = `${yyyy}/${mm}/${dd}`;
 
-  // Get the last client letter globally
   let lastLetter = await ClientLetter.findOne({})
     .sort({ outwardSerial: -1, createdAt: -1 })
     .lean();
@@ -90,19 +88,12 @@ async function generateClientOutwardNo(issueDate) {
       maxSerial = lastLetter.outwardSerial;
     } else if (lastLetter.outwardNo) {
       const match = String(lastLetter.outwardNo).match(/(\d+)\s*$/);
-      if (match && match[1]) {
-        maxSerial = parseInt(match[1], 10);
-      }
+      if (match && match[1]) maxSerial = parseInt(match[1], 10);
     }
   }
 
-  // Continuous outward serial for all client letters
   let nextSerial = maxSerial + 1;
-
-  // Ensure numbering starts from 5 if no previous letters
-  if (nextSerial < 5) {
-    nextSerial = 5;
-  }
+  if (nextSerial < 5) nextSerial = 5;
 
   const outwardNo = `NEX/${datePart}/${nextSerial}`;
 
@@ -110,8 +101,262 @@ async function generateClientOutwardNo(issueDate) {
 }
 
 /* -------------------------
-   clientLetter - Saves to DB and generates PDF
-   ------------------------- */
+   Utility: load template
+------------------------- */
+function loadTemplateBase64(filePath) {
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Template not found: ${filePath}`);
+  }
+  return fs.readFileSync(filePath).toString("base64");
+}
+
+/* -------------------------
+   UPDATED buildDocDefinition - Footer on LAST PAGE ONLY
+------------------------- */
+function buildDocDefinition({
+  templateABase64,
+  outwardNo,
+  letterType,
+  issueDate,
+  name,
+  subject,
+  description,
+  letterIdOrEmpty,
+}) {
+  return {
+    pageSize: "A4",
+
+    // FIX 1: More bottom margin to avoid stamp/sign overlap
+    pageMargins: [50, 242, 50, 200],
+
+    background: (currentPage, pageSize) => ({
+      image: `data:image/jpeg;base64,${templateABase64}`,
+      width: pageSize.width,
+      height: pageSize.height,
+    }),
+
+    content: [
+      {
+        text: letterType || "",
+        bold: true,
+        fontSize: 14,
+        alignment: "center",
+        margin: [0, -50, 0, 40],
+      },
+
+      {
+        text: `Outward No: ${outwardNo}`,
+        fontSize: 11,
+        bold: true,
+        alignment: "left",
+        margin: [0, -8, 0, 3],
+      },
+
+      {
+        text: `Date: ${new Date(issueDate).toLocaleDateString("en-IN")}`,
+        fontSize: 11,
+        alignment: "left",
+        margin: [0, 0, 0, 20],
+      },
+
+      {
+        text: `To,\n${name}`,
+        fontSize: 11,
+        bold: true,
+        alignment: "left",
+        margin: [0, 0, 0, 15],
+      },
+
+      {
+        text: `Subject: ${subject}`,
+        fontSize: 11,
+        bold: true,
+        alignment: "left",
+        margin: [0, 0, 0, 20],
+      },
+
+      // FIX 2: Safe area to avoid overlapping stamps
+      {
+        stack: [
+          {
+            text:
+              description ||
+              "This is to inform you regarding the above-mentioned subject.",
+            fontSize: 11,
+            lineHeight: 1.5,
+            alignment: "justify",
+          },
+
+          // reserving 120px space above stamp area
+          { text: "", margin: [0, -80, 0, 120] },
+        ],
+      },
+
+      {
+        alignment: "left",
+        margin: [0, 0, 0, 0],
+        stack: [
+          { text: "Regards,", fontSize: 11, margin: [0, 0, 0, 3] },
+          { text: "Nexcore Alliance", bold: true, fontSize: 11 },
+        ],
+      },
+    ],
+
+    // FIX 3: Footer ONLY on last page
+    footer: (currentPage, pageCount) => {
+      if (currentPage === pageCount) {
+        return {
+          margin: [16, 81, 50, 30],
+          columns: [
+            {
+              text: `Credential ID: ${letterIdOrEmpty}`,
+              fontSize: 14,
+              bold: true,
+              alignment: "left",
+            },
+          ],
+        };
+      }
+      return null;
+    },
+
+    defaultStyle: {
+      font: "Helvetica",
+      fontSize: 11,
+    },
+  };
+}
+
+
+/* -------------------------
+   Helper: Send PDF via Email
+------------------------- */
+async function sendEmailWithPDF(clientEmail, clientName, pdfBuffer, letterId) {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: clientEmail,
+    subject: `Client Letter - ${letterId}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2>Dear ${clientName},</h2>
+        <p>Please find attached your client letter.</p>
+        <p>Letter ID: <strong>${letterId}</strong></p>
+        <br/>
+        <p>Best Regards,<br/>Nexcore Alliance</p>
+      </div>
+    `,
+    attachments: [
+      {
+        filename: `${clientName.replace(/\s+/g, "_")}_${letterId}.pdf`,
+        content: pdfBuffer,
+      },
+    ],
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
+/* -------------------------
+   Helper: Send PDF via WhatsApp
+------------------------- */
+async function sendWhatsAppWithPDF(
+  phoneNumber,
+  clientName,
+  pdfBase64,
+  letterId
+) {
+  try {
+    const whatsappApiUrl = process.env.WHATSAPP_API_URL;
+    const whatsappAccessToken = process.env.WHATSAPP_ACCESS_TOKEN;
+    const instanceId = process.env.WHATSAPP_INSTANCE_ID;
+
+    // Ensure phone has 91 prefix
+    let cleanPhone = phoneNumber.replace(/^\+/, "");
+    if (!cleanPhone.startsWith("91")) {
+      cleanPhone = "91" + cleanPhone;
+    }
+
+    const message = `Dear ${clientName},
+
+Your client letter has been created successfully! 📄
+
+Letter ID: ${letterId}
+
+The PDF has been sent to your email.
+
+Best Regards,
+Nexcore Alliance`;
+
+    console.log("📱 Sending WhatsApp to:", cleanPhone);
+
+    const payload = {
+      number: cleanPhone,
+      type: "text",
+      message: message,
+      instance_id: instanceId,
+    };
+
+    console.log("📦 Payload:", JSON.stringify(payload, null, 2));
+
+    const response = await axios.post(
+      `${whatsappApiUrl}?access_token=${whatsappAccessToken}`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log(
+      "✅ WhatsApp API Response:",
+      JSON.stringify(response.data, null, 2)
+    );
+    return response.data;
+  } catch (error) {
+    console.error("❌ WhatsApp Error Response:", error.response?.data);
+    throw error;
+  }
+}
+
+/* -------------------------
+   Helper: Get Client Details (Phone & Email)
+------------------------- */
+async function getClientDetails(clientName) {
+  try {
+    const People = (await import("../models/people.models.js")).default;
+
+    const client = await People.findOne({
+      name: clientName,
+      category: "Client",
+    });
+
+    if (!client) {
+      console.error("❌ Client not found:", clientName);
+      throw new Error("Client not found");
+    }
+
+    console.log("📋 Client found:", clientName);
+    console.log("📧 Client Email 1:", client.clientEmail1);
+    console.log("📧 Client Email 2:", client.clientEmail2);
+    console.log("📧 Regular Email:", client.email);
+    console.log("📱 Client Phone 1:", client.clientPhone1);
+    console.log("📱 Client Phone 2:", client.clientPhone2);
+    console.log("📱 Regular Phone:", client.phone);
+
+    return {
+      phone: client.clientPhone1 || client.clientPhone2 || client.phone || null,
+      email: client.clientEmail1 || client.clientEmail2 || client.email || null,
+    };
+  } catch (error) {
+    console.error("❌ Get client details error:", error);
+    return { phone: null, email: null };
+  }
+}
+
+/* -------------------------
+   clientLetter (SAVE + GENERATE PDF)
+------------------------- */
 const clientLetter = async (req, res) => {
   try {
     const {
@@ -124,9 +369,6 @@ const clientLetter = async (req, res) => {
       category,
     } = req.body;
 
-    console.log("Received Data:", req.body);
-
-    // Validation
     if (
       !name ||
       !issueDate ||
@@ -141,269 +383,194 @@ const clientLetter = async (req, res) => {
       });
     }
 
-    // Generate Letter ID
     let letterId;
     let exists;
+
     do {
       letterId = await generateClientLetterId(letterType);
       exists = await ClientLetter.findOne({ letterId });
     } while (exists);
 
-    // Generate outward number
     const { outwardNo, outwardSerial } = await generateClientOutwardNo(
       issueDate
     );
 
-    // Save to database
-    const clientLetterData = {
-      letterId,
-      name,
-      category: category || "Client",
-      issueDate: new Date(issueDate),
-      letterType,
-      projectName,
-      subject,
-      description,
-      outwardNo,
-      outwardSerial,
-      status: "Generated",
-    };
-
-    const savedLetter = await ClientLetter.create(clientLetterData);
-
-    // Generate PDF
-    const templatePath = path.join(
+    const templateAPath = path.join(
       process.cwd(),
-      "templates/client/TemplateB.jpg"
+      "templates",
+      "client",
+      "TemplateA.jpg"
     );
 
-    if (!fs.existsSync(templatePath)) {
-      return res.status(404).json({
-        success: false,
-        message: "TemplateB image not found",
-      });
-    }
+    const templateABase64 = loadTemplateBase64(templateAPath);
 
-    const templateBase64 = fs.readFileSync(templatePath).toString("base64");
-
-    const docDefinition = {
-      pageSize: "A4",
-      background: {
-        image: `data:image/jpeg;base64,${templateBase64}`,
-        width: 595,
-        height: 842,
-      },
-      pageMargins: [50, 240, 50, 150],
-      content: [
-        // Outward No at top left
-        {
-          text: `Outward No.:- ${outwardNo}`,
-          fontSize: 10,
-          bold: true,
-          alignment: "left",
-          absolutePosition: { x: 50, y: 205 },
-        },
-
-        {
-          text: letterType,
-          alignment: "center",
-          fontSize: 16,
-          bold: true,
-          margin: [0, 0, 0, 15],
-        },
-
-        {
-          text: `Date: ${new Date(issueDate).toLocaleDateString("en-IN")}`,
-          margin: [0, 0, 0, 15],
-          bold: true,
-        },
-
-        { text: "To,", bold: true, margin: [0, 0, 0, 3] },
-        { text: name, bold: true, margin: [0, 0, 0, 15] },
-
-        { text: `Subject: ${subject}`, bold: true, margin: [0, 0, 0, 10] },
-
-        {
-          text: `Project Name: ${projectName}`,
-          bold: true,
-          margin: [0, 0, 0, 15],
-        },
-
-        { text: "Dear Sir/Madam,", margin: [0, 0, 0, 15] },
-
-        {
-          text: description,
-          alignment: "justify",
-          lineHeight: 1.4,
-          margin: [0, 0, 0, 30],
-        },
-
-        {
-          alignment: "right",
-          stack: [
-            { text: "Regards,", margin: [0, 0, 0, 5] },
-            { text: "Nexcore Alliance", bold: true },
-          ],
-        },
-
-        // Letter ID at bottom left
-        {
-          text: `CREDENTIAL ID: ${letterId}`,
-          fontSize: 10,
-          bold: true,
-          alignment: "left",
-          absolutePosition: { x: 50, y: 760 },
-        },
-      ],
-      defaultStyle: {
-        font: "Helvetica",
-        fontSize: 12,
-      },
-    };
+    const docDefinition = buildDocDefinition({
+      templateABase64,
+      outwardNo,
+      letterType,
+      issueDate,
+      name,
+      subject,
+      projectName,
+      description,
+      letterIdOrEmpty: letterId,
+    });
 
     const pdfDoc = printer.createPdfKitDocument(docDefinition);
-    let chunks = [];
+    const chunks = [];
 
-    pdfDoc.on("data", (chunk) => chunks.push(chunk));
-    pdfDoc.on("end", () => {
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename=${name.replace(/\s+/g, "_")}_${letterId}.pdf"`
-      );
-      res.send(Buffer.concat(chunks));
+    pdfDoc.on("data", (c) => chunks.push(c));
+
+    pdfDoc.on("end", async () => {
+      try {
+        const pdfBuffer = Buffer.concat(chunks);
+
+        // Save PDF to uploads folder
+        const uploadsDir = path.join(
+          process.cwd(),
+          "uploads",
+          "client-letters"
+        );
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+
+        const filename = `${name.replace(/\s+/g, "_")}_${letterId}.pdf`;
+        const filePath = path.join(uploadsDir, filename);
+        fs.writeFileSync(filePath, pdfBuffer);
+
+        const pdfUrl = `/uploads/client-letters/${filename}`;
+
+        // Save to database
+        const clientLetterData = {
+          letterId,
+          name,
+          category: category || "Client",
+          issueDate: new Date(issueDate),
+          letterType,
+          projectName,
+          subject,
+          description,
+          outwardNo,
+          outwardSerial,
+          pdfUrl,
+          status: "Generated",
+        };
+
+        const savedLetter = await ClientLetter.create(clientLetterData);
+
+        // Get client contact details
+        const { phone, email } = await getClientDetails(name);
+
+        // Send via Email
+        if (email) {
+          try {
+            await sendEmailWithPDF(email, name, pdfBuffer, letterId);
+            savedLetter.emailSent = true;
+            savedLetter.emailSentAt = new Date();
+            console.log(`✅ Email sent to ${email}`);
+          } catch (emailError) {
+            console.error("Email send failed:", emailError);
+          }
+        }
+
+        // Send via WhatsApp
+        if (phone) {
+          try {
+            const pdfBase64 = pdfBuffer.toString("base64");
+            await sendWhatsAppWithPDF(phone, name, pdfBase64, letterId);
+            savedLetter.whatsappSent = true;
+            savedLetter.whatsappSentAt = new Date();
+            console.log(`✅ WhatsApp sent to ${phone}`);
+          } catch (whatsappError) {
+            console.error("WhatsApp send failed:", whatsappError);
+          }
+        }
+
+        // Update status
+        savedLetter.status = "Sent to Client";
+        await savedLetter.save();
+
+        // Send letterId in response header
+        res.setHeader("X-Letter-Id", letterId);
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename="${filename}"`
+        );
+        res.send(pdfBuffer);
+      } catch (error) {
+        console.error("PDF save/send error:", error);
+        return res.status(500).json({ success: false, message: error.message });
+      }
     });
 
     pdfDoc.end();
-
-    console.log("Client letter created successfully:", savedLetter);
   } catch (error) {
-    console.error("PDF Creation Error:", error);
+    console.error("clientLetter error:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
 
 /* -------------------------
-   clientPreview - Preview without saving to DB
-   ------------------------- */
+   clientPreview
+------------------------- */
 const clientPreview = async (req, res) => {
   try {
-    const {
-      name,
-      issueDate,
-      letterType,
-      projectName,
-      subject,
-      description,
-      category,
-    } = req.body;
+    const { name, issueDate, letterType, projectName, subject, description } =
+      req.body;
 
-    console.log("Preview Data:", req.body);
+    if (!name || !issueDate || !letterType || !projectName || !subject) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing preview fields",
+      });
+    }
 
-    // Generate temporary IDs for preview
     const tempLetterId = await generateClientLetterId(letterType);
     const { outwardNo } = await generateClientOutwardNo(issueDate);
 
-    const templatePath = path.join(
+    const templateAPath = path.join(
       process.cwd(),
-      "templates/client/TemplateB.jpg"
+      "templates",
+      "client",
+      "TemplateA.jpg"
     );
 
-    if (!fs.existsSync(templatePath)) {
-      return res.status(404).json({
-        success: false,
-        message: "TemplateB image not found",
-      });
-    }
+    const templateABase64 = loadTemplateBase64(templateAPath);
 
-    const templateBase64 = fs.readFileSync(templatePath).toString("base64");
-
-    const docDefinition = {
-      pageSize: "A4",
-      background: {
-        image: `data:image/jpeg;base64,${templateBase64}`,
-        width: 595,
-        height: 842,
-      },
-      pageMargins: [50, 240, 50, 150],
-      content: [
-        // Outward No at top left
-        {
-          text: `Outward No.:- ${outwardNo}`,
-          fontSize: 10,
-          bold: true,
-          alignment: "left",
-          absolutePosition: { x: 50, y: 205 },
-        },
-
-        {
-          text: letterType,
-          alignment: "center",
-          fontSize: 16,
-          bold: true,
-          margin: [0, 0, 0, 15],
-        },
-        {
-          text: `Date: ${new Date(issueDate).toLocaleDateString("en-IN")}`,
-          margin: [0, 0, 0, 15],
-          bold: true,
-        },
-        { text: "To,", bold: true, margin: [0, 0, 0, 3] },
-        { text: name, bold: true, margin: [0, 0, 0, 15] },
-        { text: `Subject: ${subject}`, bold: true, margin: [0, 0, 0, 10] },
-        {
-          text: `Project Name: ${projectName}`,
-          bold: true,
-          margin: [0, 0, 0, 15],
-        },
-        { text: "Dear Sir/Madam,", margin: [0, 0, 0, 15] },
-        {
-          text: description,
-          alignment: "justify",
-          lineHeight: 1.4,
-          margin: [0, 0, 0, 30],
-        },
-        {
-          alignment: "right",
-          stack: [
-            { text: "Regards,", margin: [0, 0, 0, 5] },
-            { text: "Nexcore Alliance", bold: true },
-          ],
-        },
-
-        // Letter ID at bottom left
-        {
-          text: `CREDENTIAL ID: ${tempLetterId}`,
-          fontSize: 10,
-          bold: true,
-          alignment: "left",
-          absolutePosition: { x: 50, y: 760 },
-        },
-      ],
-      defaultStyle: { font: "Helvetica", fontSize: 12 },
-    };
+    const docDefinition = buildDocDefinition({
+      templateABase64,
+      outwardNo,
+      letterType,
+      issueDate,
+      name,
+      subject,
+      projectName,
+      description,
+      letterIdOrEmpty: tempLetterId,
+    });
 
     const pdfDoc = printer.createPdfKitDocument(docDefinition);
-    let chunks = [];
+    const chunks = [];
 
-    pdfDoc.on("data", (chunk) => chunks.push(chunk));
+    pdfDoc.on("data", (c) => chunks.push(c));
     pdfDoc.on("end", () => {
+      const result = Buffer.concat(chunks);
       res.setHeader("Content-Type", "application/pdf");
-      res.send(Buffer.concat(chunks));
+      res.send(result);
     });
 
     pdfDoc.end();
   } catch (error) {
-    console.error("PDF Preview Error:", error);
+    console.error("clientPreview error:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
 
 /* -------------------------
-   Additional utility functions
-   ------------------------- */
-
-// Get all client letters
+   GET ALL LETTERS
+------------------------- */
 const getClientLetters = async (req, res) => {
   try {
     const letters = await ClientLetter.find().sort({ createdAt: -1 });
@@ -416,18 +583,17 @@ const getClientLetters = async (req, res) => {
   }
 };
 
-// Get single client letter by ID
+/* -------------------------
+   GET SINGLE LETTER
+------------------------- */
 const getClientLetterById = async (req, res) => {
   try {
     const identifier = req.params.id;
     const isObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
-    let letter;
 
-    if (isObjectId) {
-      letter = await ClientLetter.findById(identifier);
-    } else {
-      letter = await ClientLetter.findOne({ letterId: identifier });
-    }
+    let letter = isObjectId
+      ? await ClientLetter.findById(identifier)
+      : await ClientLetter.findOne({ letterId: identifier });
 
     if (!letter) {
       return res
@@ -444,4 +610,55 @@ const getClientLetterById = async (req, res) => {
   }
 };
 
-export { clientLetter, clientPreview, getClientLetters, getClientLetterById };
+/* -------------------------
+   DOWNLOAD PDF
+------------------------- */
+const downloadClientLetter = async (req, res) => {
+  try {
+    const identifier = req.params.id;
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
+
+    let letter = isObjectId
+      ? await ClientLetter.findById(identifier)
+      : await ClientLetter.findOne({ letterId: identifier });
+
+    if (!letter) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Client letter not found" });
+    }
+
+    if (!letter.pdfUrl) {
+      return res.status(404).json({ success: false, message: "PDF not found" });
+    }
+
+    const filePath = path.join(process.cwd(), letter.pdfUrl);
+
+    if (!fs.existsSync(filePath)) {
+      return res
+        .status(404)
+        .json({ success: false, message: "PDF file not found on server" });
+    }
+
+    // Update download tracking
+    letter.downloadCount = (letter.downloadCount || 0) + 1;
+    letter.lastDownloaded = new Date();
+    await letter.save();
+
+    res.download(
+      filePath,
+      `${letter.name.replace(/\s+/g, "_")}_${letter.letterId}.pdf`
+    );
+  } catch (error) {
+    console.error("Download error:", error);
+    res.status(500).json({ success: false, message: "Failed to download PDF" });
+  }
+};
+
+export {
+  clientLetter,
+  clientPreview,
+  getClientLetters,
+  getClientLetterById,
+  downloadClientLetter,
+};

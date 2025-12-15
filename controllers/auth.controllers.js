@@ -1,7 +1,9 @@
 // File: controllers/auth.controller.js
-import jwt from 'jsonwebtoken';
-import Admin from '../models/admin.models.js';
-import Student from '../models/student.models.js';
+import jwt from "jsonwebtoken";
+import bcryptjs from "bcryptjs";
+import Admin from "../models/admin.models.js";
+import Student from "../models/users.models.js";
+import { sendOTPViaWhatsApp, verifyOTP } from "../services/whatsappService.js";
 
 // ========== ADMIN LOGIN ==========
 export const adminLogin = async (req, res) => {
@@ -11,7 +13,7 @@ export const adminLogin = async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Username and password are required'
+        message: "Username and password are required",
       });
     }
 
@@ -20,7 +22,7 @@ export const adminLogin = async (req, res) => {
     if (!admin) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid username or password'
+        message: "Invalid username or password",
       });
     }
 
@@ -29,100 +31,110 @@ export const adminLogin = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid username or password'
+        message: "Invalid username or password",
       });
     }
 
     const token = jwt.sign(
-      { 
+      {
         username: admin.username,
         userId: admin._id,
-        role: admin.role
+        role: admin.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: "7d" }
     );
 
     res.status(200).json({
       success: true,
-      message: 'Admin login successful',
+      message: "Admin login successful",
       token,
       user: {
         id: admin._id,
         username: admin.username,
         role: admin.role,
         name: admin.name,
-        email: admin.email
-      }
+        email: admin.email,
+      },
     });
-
   } catch (error) {
-    console.error('Admin login error:', error);
+    console.error("Admin login error:", error);
     res.status(500).json({
       success: false,
-      message: 'Server error during login',
-      error: error.message
+      message: "Server error during login",
+      error: error.message,
     });
   }
 };
 
-// ========== STUDENT FIRST LOGIN (Username Based) ==========
+// ========== STUDENT FIRST LOGIN (Username Based - WITH OTP) ==========
 export const studentFirstLogin = async (req, res) => {
   try {
-    const { username } = req.body; // Username is phone number without country code
+    const { username } = req.body;
 
     if (!username) {
       return res.status(400).json({
         success: false,
-        message: 'Username (phone number) is required'
+        message: "Username (phone number) is required",
       });
     }
 
-    // Format phone: add 91 prefix if not present
-    const formattedPhone = username.startsWith('91') ? username : `91${username}`;
+    const formattedPhone = username.startsWith("91")
+      ? username
+      : `91${username}`;
 
-    // Find student by phone
-    const student = await Student.findOne({ phone: formattedPhone }).select('+password');
+    const student = await Student.findOne({ phone: formattedPhone }).select(
+      "+password"
+    );
 
     if (!student) {
       return res.status(404).json({
         success: false,
-        message: 'Student not found. Please contact admin.'
+        message: "Student not found. Please contact admin.",
       });
     }
 
-    // Check if student is disabled
     if (student.disabled) {
       return res.status(403).json({
         success: false,
-        message: 'Your account has been disabled. Please contact admin.'
+        message: "Your account has been disabled. Please contact admin.",
       });
     }
 
-    // Check if this is first login
-    if (!student.firstLogin) {
+    if (!student.firstLogin || student.password) {
       return res.status(400).json({
         success: false,
-        message: 'Account already activated. Please use regular login with password.',
-        requiresPassword: true
+        requiresPassword: true,
+        message: "Password already set. Please login using password.",
       });
     }
 
-    // Generate temporary token for password setup
+    // Send OTP via WhatsApp
+    const otpResult = await sendOTPViaWhatsApp(formattedPhone, student.name);
+
+    if (!otpResult.success) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send OTP",
+      });
+    }
+
+    console.log("OTP sent via WhatsApp:", otpResult);
+
     const tempToken = jwt.sign(
-      { 
+      {
         phone: student.phone,
         userId: student._id,
-        userType: 'user',
-        isFirstLogin: true
+        userType: "user",
+        isFirstLogin: true,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '15m' } // 15 minutes to set password
+      { expiresIn: "15m" }
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: 'First login verified. Please set your password.',
+      message: "OTP sent to your WhatsApp! Please verify.",
       tempToken,
       firstLogin: true,
       user: {
@@ -131,21 +143,76 @@ export const studentFirstLogin = async (req, res) => {
         phone: student.phone,
         email: student.email,
         category: student.category,
-        batch: student.batch
-      }
+        batch: student.batch,
+      },
     });
-
   } catch (error) {
-    console.error('First login error:', error);
-    res.status(500).json({
+    console.error("First login error:", error);
+    return res.status(500).json({
       success: false,
-      message: 'Server error during first login',
-      error: error.message
+      message: "Server error during first login",
+      error: error.message,
     });
   }
 };
 
-// ========== STUDENT SET PASSWORD (After First Login) ==========
+// ========== VERIFY OTP (After First Login) ==========
+export const studentVerifyOTP = async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+
+    const formattedPhone = phone.startsWith("91") ? phone : `91${phone}`;
+
+    const result = verifyOTP(formattedPhone, otp);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.message,
+      });
+    }
+
+    const student = await Student.findOne({ phone: formattedPhone });
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    // Generate tempToken for password setup step
+    const tempToken = jwt.sign(
+      {
+        userId: student._id,
+        phone: student.phone,
+        isFirstLogin: true,
+        step: "password-setup",
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified",
+      tempToken,
+      user: {
+        id: student._id,
+        name: student.name,
+        phone: student.phone,
+      },
+    });
+  } catch (err) {
+    console.error("OTP verify error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+// ========== STUDENT SET PASSWORD (After OTP Verification) ==========
 export const studentSetPassword = async (req, res) => {
   try {
     const { password, confirmPassword } = req.body;
@@ -153,79 +220,93 @@ export const studentSetPassword = async (req, res) => {
     if (!password || !confirmPassword) {
       return res.status(400).json({
         success: false,
-        message: 'Password and confirm password are required'
+        message: "Password and confirm password are required",
       });
     }
 
     if (password !== confirmPassword) {
       return res.status(400).json({
         success: false,
-        message: 'Passwords do not match'
+        message: "Passwords do not match",
       });
     }
 
     if (password.length < 6) {
       return res.status(400).json({
         success: false,
-        message: 'Password must be at least 6 characters long'
+        message: "Password must be at least 6 characters long",
       });
     }
 
-    // Verify temp token
-    const tempToken = req.headers.authorization?.split(' ')[1];
-    
-    if (!tempToken) {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
-        message: 'No token provided'
+        message: "No token provided",
       });
     }
 
-    const decoded = jwt.verify(tempToken, process.env.JWT_SECRET);
+    const tempToken = authHeader.split(" ")[1];
 
-    if (!decoded.isFirstLogin) {
+    let decoded;
+    try {
+      decoded = jwt.verify(tempToken, process.env.JWT_SECRET);
+    } catch (err) {
+      if (err.name === "TokenExpiredError") {
+        return res.status(401).json({
+          success: false,
+          message: "Token expired. Please start the process again.",
+        });
+      }
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token. Please start the process again.",
+      });
+    }
+
+    if (!decoded.isFirstLogin || decoded.step !== "password-setup") {
       return res.status(403).json({
         success: false,
-        message: 'Invalid token for password setup'
+        message: "Invalid token for password setup",
       });
     }
 
-    // Find student
     const student = await Student.findById(decoded.userId);
 
     if (!student) {
       return res.status(404).json({
         success: false,
-        message: 'Student not found'
+        message: "Student not found",
       });
     }
 
     if (!student.firstLogin) {
       return res.status(400).json({
         success: false,
-        message: 'Password already set'
+        message: "Password already set. Please login with your password.",
       });
     }
 
-    // Set new password
-    student.password = password;
+    const hashedPassword = await bcryptjs.hash(password, 10);
+
+    student.password = hashedPassword;
     student.firstLogin = false;
     await student.save();
 
-    // Generate regular token
     const token = jwt.sign(
-      { 
-        phone: student.phone,
+      {
         userId: student._id,
-        userType: 'user'
+        phone: student.phone,
+        userType: "user",
       },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: "7d" }
     );
 
     res.status(200).json({
       success: true,
-      message: 'Password set successfully. You can now login.',
+      message: "Password set successfully",
       token,
       user: {
         id: student._id,
@@ -234,23 +315,15 @@ export const studentSetPassword = async (req, res) => {
         phone: student.phone,
         category: student.category,
         batch: student.batch,
-        joinedDate: student.createdAt
-      }
+        joinedDate: student.createdAt,
+      },
     });
-
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Token expired. Please start first login again.'
-      });
-    }
-    
-    console.error('Set password error:', error);
+    console.error("Set password error:", error);
     res.status(500).json({
       success: false,
-      message: 'Server error during password setup',
-      error: error.message
+      message: "Server error during password setup",
+      error: error.message,
     });
   }
 };
@@ -263,24 +336,30 @@ export const studentLogin = async (req, res) => {
     if (!loginId || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Phone/Email and password are required'
+        message: "Phone/Email and password are required",
       });
     }
 
     // Format phone if it's a number
-    const formattedLoginId = /^\d+$/.test(loginId) 
-      ? (loginId.startsWith('91') ? loginId : `91${loginId}`)
+    const formattedLoginId = /^\d+$/.test(loginId)
+      ? loginId.startsWith("91")
+        ? loginId
+        : `91${loginId}`
       : loginId;
+
+    console.log(formattedLoginId);
 
     // Find student by phone or email
     const student = await Student.findOne({
-      $or: [{ phone: formattedLoginId }, { email: formattedLoginId }]
-    }).select('+password');
+      $or: [{ phone: formattedLoginId }, { email: formattedLoginId }],
+    }).select("+password");
+
+    console.log(student);
 
     if (!student) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "Invalid credentials",
       });
     }
 
@@ -288,7 +367,7 @@ export const studentLogin = async (req, res) => {
     if (student.disabled) {
       return res.status(403).json({
         success: false,
-        message: 'Your account has been disabled. Please contact admin.'
+        message: "Your account has been disabled. Please contact admin.",
       });
     }
 
@@ -296,35 +375,37 @@ export const studentLogin = async (req, res) => {
     if (student.firstLogin) {
       return res.status(403).json({
         success: false,
-        message: 'Please complete first login and set your password',
-        requiresFirstLogin: true
+        message: "Please complete first login and set your password",
+        requiresFirstLogin: true,
       });
     }
 
     // Verify password
     const isPasswordValid = await student.comparePassword(password);
 
+    console.log(isPasswordValid);
+
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "Invalid credentials",
       });
     }
 
     // Generate token
     const token = jwt.sign(
-      { 
+      {
         phone: student.phone,
         userId: student._id,
-        userType: 'user'
+        userType: "user",
       },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: "7d" }
     );
 
     res.status(200).json({
       success: true,
-      message: 'Login successful',
+      message: "Login successful",
       token,
       user: {
         id: student._id,
@@ -333,16 +414,15 @@ export const studentLogin = async (req, res) => {
         phone: student.phone,
         category: student.category,
         batch: student.batch,
-        joinedDate: student.createdAt
-      }
+        joinedDate: student.createdAt,
+      },
     });
-
   } catch (error) {
-    console.error('Student login error:', error);
+    console.error("Student login error:", error);
     res.status(500).json({
       success: false,
-      message: 'Server error during login',
-      error: error.message
+      message: "Server error during login",
+      error: error.message,
     });
   }
 };
@@ -355,41 +435,43 @@ export const studentChangePassword = async (req, res) => {
     if (!currentPassword || !newPassword || !confirmNewPassword) {
       return res.status(400).json({
         success: false,
-        message: 'All fields are required'
+        message: "All fields are required",
       });
     }
 
     if (newPassword !== confirmNewPassword) {
       return res.status(400).json({
         success: false,
-        message: 'New passwords do not match'
+        message: "New passwords do not match",
       });
     }
 
     if (newPassword.length < 6) {
       return res.status(400).json({
         success: false,
-        message: 'Password must be at least 6 characters long'
+        message: "Password must be at least 6 characters long",
       });
     }
 
     // Get student with password
-    const student = await Student.findById(req.user._id).select('+password');
+    const student = await Student.findById(req.user._id).select("+password");
 
     if (!student) {
       return res.status(404).json({
         success: false,
-        message: 'Student not found'
+        message: "Student not found",
       });
     }
 
     // Verify current password
-    const isCurrentPasswordValid = await student.comparePassword(currentPassword);
+    const isCurrentPasswordValid = await student.comparePassword(
+      currentPassword
+    );
 
     if (!isCurrentPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: 'Current password is incorrect'
+        message: "Current password is incorrect",
       });
     }
 
@@ -399,15 +481,14 @@ export const studentChangePassword = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Password changed successfully'
+      message: "Password changed successfully",
     });
-
   } catch (error) {
-    console.error('Change password error:', error);
+    console.error("Change password error:", error);
     res.status(500).json({
       success: false,
-      message: 'Server error during password change',
-      error: error.message
+      message: "Server error during password change",
+      error: error.message,
     });
   }
 };
@@ -420,22 +501,22 @@ export const studentRegister = async (req, res) => {
     if (!name || !phone || !category) {
       return res.status(400).json({
         success: false,
-        message: 'Name, phone, and category are required'
+        message: "Name, phone, and category are required",
       });
     }
 
     // Format phone
-    const formattedPhone = phone.startsWith('91') ? phone : `91${phone}`;
+    const formattedPhone = phone.startsWith("91") ? phone : `91${phone}`;
 
     // Check if student already exists
     const existingStudent = await Student.findOne({
-      $or: [{ email }, { phone: formattedPhone }]
+      $or: [{ email }, { phone: formattedPhone }],
     });
 
     if (existingStudent) {
       return res.status(409).json({
         success: false,
-        message: 'Student with this email or phone already exists'
+        message: "Student with this email or phone already exists",
       });
     }
 
@@ -445,16 +526,17 @@ export const studentRegister = async (req, res) => {
       email: email || null,
       phone: formattedPhone,
       category,
-      batch: batch || '',
+      batch: batch || "",
       firstLogin: true,
-      password: undefined // No password initially
+      password: undefined, // No password initially
     });
 
     await newStudent.save();
 
     res.status(201).json({
       success: true,
-      message: 'Student created successfully. They can now complete first login.',
+      message:
+        "Student created successfully. They can now complete first login.",
       student: {
         id: newStudent._id,
         name: newStudent.name,
@@ -463,16 +545,15 @@ export const studentRegister = async (req, res) => {
         phoneWithoutCode: newStudent.phoneWithoutCode,
         category: newStudent.category,
         batch: newStudent.batch,
-        firstLogin: newStudent.firstLogin
-      }
+        firstLogin: newStudent.firstLogin,
+      },
     });
-
   } catch (error) {
-    console.error('Student registration error:', error);
+    console.error("Student registration error:", error);
     res.status(500).json({
       success: false,
-      message: 'Server error during registration',
-      error: error.message
+      message: "Server error during registration",
+      error: error.message,
     });
   }
 };
@@ -482,14 +563,14 @@ export const verifyToken = async (req, res) => {
   try {
     res.status(200).json({
       success: true,
-      message: 'Token is valid',
+      message: "Token is valid",
       userType: req.userType,
-      user: req.user
+      user: req.user,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error verifying token'
+      message: "Error verifying token",
     });
   }
 };

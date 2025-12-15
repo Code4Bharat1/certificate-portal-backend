@@ -369,6 +369,7 @@ router.post(
       .withMessage("Invalid category"),
     body("course").trim().notEmpty().withMessage("Course is required"),
     body("issueDate").notEmpty().withMessage("Issue date is required"),
+    body("description").optional().trim(),
   ],
   certificateControllers.createCertificate
 );
