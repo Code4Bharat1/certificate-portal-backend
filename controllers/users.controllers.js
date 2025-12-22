@@ -1,18 +1,18 @@
 // File: controllers/student.controller.js
-import Student from '../models/student.models.js';
-import Letter from '../models/letter.models.js';
+import Student from "../models/users.models.js";
+import Letter from "../models/letter.models.js";
 
 // ========== PROFILE MANAGEMENT ==========
 
 // Get Student Profile
 export const getStudentProfile = async (req, res) => {
   try {
-    const student = await Student.findById(req.user._id).select('-password');
+    const student = await Student.findById(req.user._id).select("-password");
 
     if (!student) {
       return res.status(404).json({
         success: false,
-        message: 'Student not found'
+        message: "Student not found",
       });
     }
 
@@ -35,15 +35,15 @@ export const getStudentProfile = async (req, res) => {
         parentPhone1: student.parentPhone1,
         parentPhone2: student.parentPhone2,
         disabled: student.disabled,
-        firstLogin: student.firstLogin
-      }
+        firstLogin: student.firstLogin,
+      },
     });
   } catch (error) {
-    console.error('Get profile error:', error);
+    console.error("Get profile error:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching profile',
-      error: error.message
+      message: "Error fetching profile",
+      error: error.message,
     });
   }
 };
@@ -51,58 +51,58 @@ export const getStudentProfile = async (req, res) => {
 // Update Student Profile
 export const updateStudentProfile = async (req, res) => {
   try {
-    const { 
-      name, 
-      email, 
-      address, 
-      city, 
-      state, 
-      pincode, 
-      category, 
+    const {
+      name,
+      email,
+      address,
+      city,
+      state,
+      pincode,
+      category,
       batch,
       parentEmail,
       parentPhone1,
       parentPhone2,
-      aadhaarCard
+      aadhaarCard,
     } = req.body;
 
     const updatedStudent = await Student.findByIdAndUpdate(
       req.user._id,
-      { 
-        name, 
-        email, 
-        address, 
-        city, 
-        state, 
+      {
+        name,
+        email,
+        address,
+        city,
+        state,
         pincode,
         category,
         batch,
         parentEmail,
         parentPhone1,
         parentPhone2,
-        aadhaarCard
+        aadhaarCard,
       },
       { new: true, runValidators: true }
-    ).select('-password');
+    ).select("-password");
 
     if (!updatedStudent) {
       return res.status(404).json({
         success: false,
-        message: 'Student not found'
+        message: "Student not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Profile updated successfully',
-      user: updatedStudent
+      message: "Profile updated successfully",
+      user: updatedStudent,
     });
   } catch (error) {
-    console.error('Update profile error:', error);
+    console.error("Update profile error:", error);
     res.status(500).json({
       success: false,
-      message: 'Error updating profile',
-      error: error.message
+      message: "Error updating profile",
+      error: error.message,
     });
   }
 };
@@ -114,7 +114,9 @@ export const getStudentStatistics = async (req, res) => {
   try {
     const studentPhone = req.user.phone;
 
-    const student = await Student.findOne({ phone: studentPhone }).select("name");
+    const student = await Student.findOne({ phone: studentPhone }).select(
+      "name"
+    );
 
     if (!student) {
       return res.status(404).json({
@@ -135,17 +137,14 @@ export const getStudentStatistics = async (req, res) => {
     const statistics = {
       totalLetters: allLetters.length,
 
-      signedUploaded: allLetters.filter(
-        (letter) => Boolean(letter.signedUploaded)
+      signedUploaded: allLetters.filter((letter) =>
+        Boolean(letter.signedUploaded)
       ).length,
 
       pendingSignature: allLetters.filter((letter) => {
         const type = normalize(letter.letterType);
         const signed = Boolean(letter.signedUploaded);
-        return (
-          !signed &&
-          (type.includes("warning") || type.includes("offer"))
-        );
+        return !signed && (type.includes("warning") || type.includes("offer"));
       }).length,
 
       approved: allLetters.filter(
@@ -187,60 +186,69 @@ export const getRecentLetters = async (req, res) => {
     if (!studentPhone) {
       return res.status(400).json({
         success: false,
-        message: 'Phone number not found in request'
+        message: "Phone number not found in request",
       });
     }
 
     // Find student by phone to get name
-    const student = await Student.findOne({ phone: studentPhone }).select('name');
+    const student = await Student.findOne({ phone: studentPhone }).select(
+      "name"
+    );
 
     if (!student) {
       return res.status(404).json({
         success: false,
-        message: 'Student not found with this phone number'
+        message: "Student not found with this phone number",
       });
     }
 
-    console.log('📋 Fetching letters for student:', student.name, '(Phone:', studentPhone, ')');
+    console.log(
+      "📋 Fetching letters for student:",
+      student.name,
+      "(Phone:",
+      studentPhone,
+      ")"
+    );
 
     // Get recent letters using student name
     const recentLetters = await Letter.find({
-      name: student.name
+      name: student.name,
       // isDeleted: false
     })
       .sort({ createdAt: -1 })
       // .limit(limit)
-      .select('_id letterType course letterId issueDate status signedUploaded verificationLink downloadLink');
+      .select(
+        "_id letterType course letterId issueDate status signedUploaded verificationLink downloadLink"
+      );
 
-    console.log('✅ Found', recentLetters.length, 'letters');
-    
-    console.log('🔍 Recent letters raw data:', recentLetters);
+    console.log("✅ Found", recentLetters.length, "letters");
+
+    console.log("🔍 Recent letters raw data:", recentLetters);
 
     // Format output
-    const formattedLetters = recentLetters.map(letter => ({
+    const formattedLetters = recentLetters.map((letter) => ({
       id: letter._id,
       letterType: letter.letterType,
       subType: letter.course,
       credentialId: letter.letterId,
       issueDate: letter.issueDate,
-      status: letter.status || 'pending',
+      status: letter.status || "pending",
       signedUploaded: letter.signedUploaded || false,
     }));
 
-    console.log('📄 Formatted letters:', formattedLetters);
+    console.log("📄 Formatted letters:", formattedLetters);
 
     return res.status(200).json({
       success: true,
       letters: formattedLetters,
-      count: formattedLetters.length
+      count: formattedLetters.length,
     });
-
   } catch (error) {
-    console.error('Get recent letters error:', error);
+    console.error("Get recent letters error:", error);
     return res.status(500).json({
       success: false,
-      message: 'Error fetching recent letters',
-      error: error.message
+      message: "Error fetching recent letters",
+      error: error.message,
     });
   }
 };
@@ -251,42 +259,44 @@ export const getAllStudentLetters = async (req, res) => {
     const studentPhone = req.user.phone;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
-    const search = req.query.search || '';
-    const status = req.query.status || 'all';
-    const letterType = req.query.letterType || 'all';
+    const search = req.query.search || "";
+    const status = req.query.status || "all";
+    const letterType = req.query.letterType || "all";
 
     // Find student by phone to get name
-    const student = await Student.findOne({ phone: studentPhone }).select('name');
+    const student = await Student.findOne({ phone: studentPhone }).select(
+      "name"
+    );
 
     if (!student) {
       return res.status(404).json({
         success: false,
-        message: 'Student not found with this phone number'
+        message: "Student not found with this phone number",
       });
     }
 
     // Build query using student name
     let query = {
-      name: student.name
+      name: student.name,
       // isDeleted: false
     };
 
     // Add search filter
     if (search) {
       query.$or = [
-        { letterType: { $regex: search, $options: 'i' } },
-        { credentialId: { $regex: search, $options: 'i' } },
-        { subType: { $regex: search, $options: 'i' } }
+        { letterType: { $regex: search, $options: "i" } },
+        { credentialId: { $regex: search, $options: "i" } },
+        { subType: { $regex: search, $options: "i" } },
       ];
     }
 
     // Add status filter
-    if (status !== 'all') {
+    if (status !== "all") {
       query.status = status;
     }
 
     // Add letter type filter
-    if (letterType !== 'all') {
+    if (letterType !== "all") {
       query.letterType = letterType;
     }
 
@@ -304,15 +314,15 @@ export const getAllStudentLetters = async (req, res) => {
         totalPages: Math.ceil(totalLetters / limit),
         totalLetters,
         hasMore: page < Math.ceil(totalLetters / limit),
-        limit
-      }
+        limit,
+      },
     });
   } catch (error) {
-    console.error('Get all letters error:', error);
+    console.error("Get all letters error:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching letters',
-      error: error.message
+      message: "Error fetching letters",
+      error: error.message,
     });
   }
 };
@@ -324,26 +334,28 @@ export const getLetterDetails = async (req, res) => {
     const studentPhone = req.user.phone;
 
     // Find student by phone to get name
-    const student = await Student.findOne({ phone: studentPhone }).select('name');
+    const student = await Student.findOne({ phone: studentPhone }).select(
+      "name"
+    );
 
     if (!student) {
       return res.status(404).json({
         success: false,
-        message: 'Student not found with this phone number'
+        message: "Student not found with this phone number",
       });
     }
 
     // Find letter by ID and student name
     const letter = await Letter.findOne({
       _id: letterId,
-      name: student.name
+      name: student.name,
       // isDeleted: false
     });
 
     if (!letter) {
       return res.status(404).json({
         success: false,
-        message: 'Letter not found or access denied'
+        message: "Letter not found or access denied",
       });
     }
 
@@ -369,15 +381,15 @@ export const getLetterDetails = async (req, res) => {
         remarks: letter.remarks,
         approvalNotes: letter.approvalNotes,
         rejectionReason: letter.rejectionReason,
-        createdAt: letter.createdAt
-      }
+        createdAt: letter.createdAt,
+      },
     });
   } catch (error) {
-    console.error('Get letter details error:', error);
+    console.error("Get letter details error:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching letter details',
-      error: error.message
+      message: "Error fetching letter details",
+      error: error.message,
     });
   }
 };
@@ -393,7 +405,7 @@ export const uploadSignedLetter = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: 'No file uploaded'
+        message: "No file uploaded",
       });
     }
 
@@ -401,30 +413,32 @@ export const uploadSignedLetter = async (req, res) => {
     if (req.file.size > 10 * 1024 * 1024) {
       return res.status(400).json({
         success: false,
-        message: 'File size exceeds 10MB limit'
+        message: "File size exceeds 10MB limit",
       });
     }
 
     // Find student
-    const student = await Student.findOne({ phone: studentPhone }).select('name');
+    const student = await Student.findOne({ phone: studentPhone }).select(
+      "name"
+    );
 
     if (!student) {
       return res.status(404).json({
         success: false,
-        message: 'Student not found with this phone number'
+        message: "Student not found with this phone number",
       });
     }
 
     // Find letter
     const letter = await Letter.findOne({
       letterId: letterId,
-      name: student.name
+      name: student.name,
     });
 
     if (!letter) {
       return res.status(404).json({
         success: false,
-        message: 'Letter not found or access denied'
+        message: "Letter not found or access denied",
       });
     }
 
@@ -432,7 +446,7 @@ export const uploadSignedLetter = async (req, res) => {
     if (letter.signedUploaded) {
       return res.status(400).json({
         success: false,
-        message: 'Signed letter already uploaded'
+        message: "Signed letter already uploaded",
       });
     }
 
@@ -440,33 +454,30 @@ export const uploadSignedLetter = async (req, res) => {
     letter.signedUploaded = true;
     letter.signedDocumentPath = req.file.path; // ⭐ PATH STORED HERE
     letter.signedUploadedDate = new Date();
-    letter.signedstatus = 'in_review'; // your enum allows this
+    letter.signedstatus = "in_review"; // your enum allows this
 
     await letter.save();
 
     res.status(200).json({
       success: true,
-      message: 'Signed letter uploaded successfully',
+      message: "Signed letter uploaded successfully",
       letter: {
         id: letter.credentialId,
         signedUploaded: letter.signedUploaded,
         signedUploadedDate: letter.signedUploadedDate,
         status: letter.status,
-        signedDocumentPath: letter.signedDocumentPath   // ⭐ sending to frontend
-      }
+        signedDocumentPath: letter.signedDocumentPath, // ⭐ sending to frontend
+      },
     });
-
   } catch (error) {
-    console.error('Upload signed letter error:', error);
+    console.error("Upload signed letter error:", error);
     res.status(500).json({
       success: false,
-      message: 'Error uploading signed letter',
-      error: error.message
+      message: "Error uploading signed letter",
+      error: error.message,
     });
   }
 };
-
-
 
 // Download All Certificates
 export const downloadAllCertificates = async (req, res) => {
@@ -474,50 +485,51 @@ export const downloadAllCertificates = async (req, res) => {
     const studentPhone = req.user.phone;
 
     // Find student by phone to get name
-    const student = await Student.findOne({ phone: studentPhone }).select('name');
+    const student = await Student.findOne({ phone: studentPhone }).select(
+      "name"
+    );
 
     if (!student) {
       return res.status(404).json({
         success: false,
-        message: 'Student not found with this phone number'
+        message: "Student not found with this phone number",
       });
     }
 
     // Get all letters for this student by name
-    const letters = await Letter.find({ 
-      name: student.name
+    const letters = await Letter.find({
+      name: student.name,
       // isDeleted: false
-    }).select('letterType credentialId downloadLink issueDate');
+    }).select("letterType credentialId downloadLink issueDate");
 
     if (letters.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'No letters found'
+        message: "No letters found",
       });
     }
 
     // Return list of download links
-    const downloadLinks = letters.map(letter => ({
+    const downloadLinks = letters.map((letter) => ({
       id: letter._id,
       letterType: letter.letterType,
       credentialId: letter.credentialId,
       issueDate: letter.issueDate,
-      downloadLink: letter.downloadLink
+      downloadLink: letter.downloadLink,
     }));
 
     res.status(200).json({
       success: true,
-      message: 'Certificate links retrieved successfully',
+      message: "Certificate links retrieved successfully",
       certificates: downloadLinks,
-      totalCount: letters.length
+      totalCount: letters.length,
     });
-
   } catch (error) {
-    console.error('Download all certificates error:', error);
+    console.error("Download all certificates error:", error);
     res.status(500).json({
       success: false,
-      message: 'Error downloading certificates',
-      error: error.message
+      message: "Error downloading certificates",
+      error: error.message,
     });
   }
 };
@@ -530,18 +542,20 @@ export const getLetterStatisticsByType = async (req, res) => {
     const studentPhone = req.user.phone;
 
     // Find student by phone to get name
-    const student = await Student.findOne({ phone: studentPhone }).select('name');
+    const student = await Student.findOne({ phone: studentPhone }).select(
+      "name"
+    );
 
     if (!student) {
       return res.status(404).json({
         success: false,
-        message: 'Student not found with this phone number'
+        message: "Student not found with this phone number",
       });
     }
 
     // Get all letters by student name
     const letters = await Letter.find({
-      name: student.name
+      name: student.name,
       // isDeleted: false
     });
 
@@ -557,14 +571,14 @@ export const getLetterStatisticsByType = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      statistics: lettersByType
+      statistics: lettersByType,
     });
   } catch (error) {
-    console.error('Get statistics by type error:', error);
+    console.error("Get statistics by type error:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching statistics',
-      error: error.message
+      message: "Error fetching statistics",
+      error: error.message,
     });
   }
 };
@@ -576,12 +590,14 @@ export const getStudentNameByPhone = async (req, res) => {
   try {
     const studentPhone = req.user.phone;
 
-    const student = await Student.findOne({ phone: studentPhone }).select('name phone email category batch');
+    const student = await Student.findOne({ phone: studentPhone }).select(
+      "name phone email category batch"
+    );
 
     if (!student) {
       return res.status(404).json({
         success: false,
-        message: 'Student not found'
+        message: "Student not found",
       });
     }
 
@@ -592,19 +608,18 @@ export const getStudentNameByPhone = async (req, res) => {
         phone: student.phone,
         email: student.email,
         category: student.category,
-        batch: student.batch
-      }
+        batch: student.batch,
+      },
     });
   } catch (error) {
-    console.error('Get student name error:', error);
+    console.error("Get student name error:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching student name',
-      error: error.message
+      message: "Error fetching student name",
+      error: error.message,
     });
   }
 };
-
 
 export const uploadStudentDocuments = async (req, res) => {
   try {
@@ -614,17 +629,25 @@ export const uploadStudentDocuments = async (req, res) => {
     if (!student) {
       return res.status(404).json({
         success: false,
-        message: "Student not found"
+        message: "Student not found",
       });
     }
 
     const files = req.files;
 
     student.documents = {
-      aadhaarFront: files.aadhaarFront ? `/uploads-data/student-documents/${files.aadhaarFront[0].filename}` : student.documents?.aadhaarFront,
-      aadhaarBack: files.aadhaarBack ? `/uploads-data/student-documents/${files.aadhaarBack[0].filename}` : student.documents?.aadhaarBack,
-      panCard: files.panCard ? `/uploads-data/student-documents/${files.panCard[0].filename}` : student.documents?.panCard,
-      bankPassbook: files.bankPassbook ? `/uploads-data/student-documents/${files.bankPassbook[0].filename}` : student.documents?.bankPassbook
+      aadhaarFront: files.aadhaarFront
+        ? `/uploads-data/student-documents/${files.aadhaarFront[0].filename}`
+        : student.documents?.aadhaarFront,
+      aadhaarBack: files.aadhaarBack
+        ? `/uploads-data/student-documents/${files.aadhaarBack[0].filename}`
+        : student.documents?.aadhaarBack,
+      panCard: files.panCard
+        ? `/uploads-data/student-documents/${files.panCard[0].filename}`
+        : student.documents?.panCard,
+      bankPassbook: files.bankPassbook
+        ? `/uploads-data/student-documents/${files.bankPassbook[0].filename}`
+        : student.documents?.bankPassbook,
     };
 
     await student.save();
@@ -632,14 +655,13 @@ export const uploadStudentDocuments = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Documents uploaded successfully",
-      documents: student.documents
+      documents: student.documents,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
       message: "Error uploading documents",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -661,7 +683,6 @@ export const getStudentDocuments = async (req, res) => {
       success: true,
       documents: student.documents || {},
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -677,7 +698,7 @@ export const studentForgotPassword = async (req, res) => {
     if (!phone) {
       return res.status(400).json({
         success: false,
-        message: "Phone number is required"
+        message: "Phone number is required",
       });
     }
 
@@ -686,7 +707,7 @@ export const studentForgotPassword = async (req, res) => {
     if (!student) {
       return res.status(404).json({
         success: false,
-        message: "Student not found"
+        message: "Student not found",
       });
     }
 
@@ -703,18 +724,16 @@ export const studentForgotPassword = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "OTP sent to phone",
-      otp // remove in production
+      otp, // remove in production
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
       message: "Server error",
-      error: error.message
+      error: error.message,
     });
   }
 };
-
 
 // Reset Password
 export const studentResetPassword = async (req, res) => {
@@ -724,20 +743,20 @@ export const studentResetPassword = async (req, res) => {
     if (!phone || !otp || !newPassword) {
       return res.status(400).json({
         success: false,
-        message: "Phone, OTP and new password are required"
+        message: "Phone, OTP and new password are required",
       });
     }
 
     const student = await Student.findOne({
       phone,
       resetOtp: otp,
-      resetOtpExpires: { $gt: Date.now() }
+      resetOtpExpires: { $gt: Date.now() },
     });
 
     if (!student) {
       return res.status(400).json({
         success: false,
-        message: "Invalid or expired OTP"
+        message: "Invalid or expired OTP",
       });
     }
 
@@ -749,15 +768,13 @@ export const studentResetPassword = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Password reset successful"
+      message: "Password reset successful",
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
       message: "Server error",
-      error: error.message
+      error: error.message,
     });
   }
 };
-

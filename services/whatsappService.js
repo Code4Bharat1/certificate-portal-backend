@@ -58,8 +58,6 @@ export const sendWhatsAppMessage = async (phoneNumber, message) => {
     return { success: false, error: error.message, details: error.response?.data || null };
   }
 };
-
-
 /**
  * Send OTP via WhatsApp
  */

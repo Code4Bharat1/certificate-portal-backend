@@ -94,7 +94,10 @@ const createTransporter = (user, pass) => {
 /**
  * Send Email using Nodemailer
  */
-export const sendEmail = async (to, subject, html, text = "", category = "") => {
+/**
+ * Send Email using Nodemailer WITH ATTACHMENTS SUPPORT
+ */
+export const sendEmail = async (to, subject, html, text = "", category = "", attachments = []) => {
   try {
     console.log("📧 Preparing email...");
 
@@ -116,11 +119,15 @@ export const sendEmail = async (to, subject, html, text = "", category = "") => 
       subject,
       html,
       text: text || html.replace(/<[^>]*>/g, ""),
+      attachments: attachments || [] // ✅ Add attachments support
     };
 
     const info = await transporter.sendMail(mailOptions);
 
     console.log("✅ Email sent:", info.messageId);
+    if (attachments && attachments.length > 0) {
+      console.log(`📎 ${attachments.length} attachment(s) sent`);
+    }
 
     return { success: true, messageId: info.messageId };
   } catch (err) {
@@ -265,6 +272,11 @@ export const sendEmail = async (to, subject, html, text = "", category = "") => 
 /**
  * Send Certificate Generation Success Email
  */
+
+
+/**
+ * Send Certificate Generation Success Email WITH PDF ATTACHMENT
+ */
 export const sendCertificateNotification = async (certificateData) => {
   try {
     const {
@@ -275,20 +287,42 @@ export const sendCertificateNotification = async (certificateData) => {
       category,
       batch,
       issueDate,
+      description,
+      pdfBuffer, // ✅ This comes from certificate.controllers.js now
     } = certificateData;
 
+    // ❌ REMOVE THIS ENTIRE SECTION - We're getting pdfBuffer from controller
+    // let pdfBuffer = null;
+    // try {
+    //   pdfBuffer = await generatePdfBuffer(
+    //     {
+    //       name: userName,
+    //       certificateId,
+    //       course,
+    //       category,
+    //       batch,
+    //       issueDate,
+    //       description,
+    //     },
+    //     "certificate"
+    //   );
+    //   console.log("✅ PDF generated successfully");
+    // } catch (pdfError) {
+    //   console.error("⚠️ PDF generation failed:", pdfError);
+    // }
+
     // Determine correct base URL for verification/download
-    let baseVerificationUrl = '';
-    if (category?.toLowerCase().includes('code4bharat')) {
-      baseVerificationUrl = 'https://education.code4bharat.com/verify-certificate';
-    } else if (category?.toLowerCase().includes('marketing-junction')) {
-      baseVerificationUrl = 'https://education.marketiqjunction.com/verify-certificate';
+    let baseVerificationUrl = "";
+    if (category?.toLowerCase().includes("code4bharat")) {
+      baseVerificationUrl = "https://education.code4bharat.com/verify-certificate";
+    } else if (category?.toLowerCase().includes("marketing-junction")) {
+      baseVerificationUrl = "https://education.marketiqjunction.com/verify-certificate";
     } else if (
-      category?.toLowerCase().includes('fsd') ||
-      category?.toLowerCase().includes('bvoc') ||
-      category?.toLowerCase().includes('bootchamp')
+      category?.toLowerCase().includes("fsd") ||
+      category?.toLowerCase().includes("bvoc") ||
+      category?.toLowerCase().includes("bootchamp")
     ) {
-      baseVerificationUrl = 'https://portal.nexcorealliance.com/verify-certificate';
+      baseVerificationUrl = "https://portal.nexcorealliance.com/verify-certificate";
     } else {
       baseVerificationUrl = `${process.env.FRONTEND_URL}/verify`;
     }
@@ -296,15 +330,15 @@ export const sendCertificateNotification = async (certificateData) => {
     const verificationLink = baseVerificationUrl;
     const downloadLink = baseVerificationUrl;
 
-    let categoryDisplay = category?.toUpperCase() || 'N/A';
+    let categoryDisplay = category?.toUpperCase() || "N/A";
 
-    const formattedDate = new Date(issueDate).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    const formattedDate = new Date(issueDate).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
 
-    // Create HTML email
+    // Create HTML email (keep the rest of your HTML template)
     const html = `
 <!DOCTYPE html>
 <html>
@@ -321,11 +355,11 @@ export const sendCertificateNotification = async (certificateData) => {
     .button:hover { background: #5568d3; }
     .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
     .celebration { font-size: 48px; text-align: center; }
+    .attachment-notice { background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 5px; }
   </style>
 </head>
 <body>
   <div class="container">
-
     <div class="header">
       <div class="celebration">🎉</div>
       <h1>Congratulations!</h1>
@@ -337,9 +371,19 @@ export const sendCertificateNotification = async (certificateData) => {
       <p>Greetings from <strong>Nexcore Alliance</strong> & <strong>Code4Bharat</strong>! 🌟</p>
       <p>We are pleased to inform you that your certificate has been successfully generated!</p>
 
+      ${
+        pdfBuffer
+          ? `
+      <div class="attachment-notice">
+        <strong>📎 PDF Certificate Attached!</strong><br>
+        Your certificate is attached to this email as a PDF file. You can download it directly from this email or use the links below.
+      </div>
+      `
+          : ""
+      }
+
       <div class="details-box">
         <h3 style="color: #667eea; margin-top: 0;">📜 Certificate Details</h3>
-
         <div class="detail-row"><span class="detail-label">👤 Name:</span> ${userName}</div>
         <div class="detail-row"><span class="detail-label">🆔 Certificate ID:</span> ${certificateId}</div>
         <div class="detail-row"><span class="detail-label">📚 Course:</span> ${course}</div>
@@ -361,49 +405,46 @@ export const sendCertificateNotification = async (certificateData) => {
       <p>📱 For any queries, feel free to reach out to us at <strong>+91 9892398976</strong></p>
     </div>
 
-    <!-- Updated Footer WITH branches + website -->
     <div class="footer">
       <p><strong>With Best Wishes,</strong></p>
       <p><strong>Nexcore Alliance Team</strong></p>
       <p><strong>Code4Bharat Initiative</strong></p>
       <p>💙 Keep Learning, Keep Growing!</p>
-
       <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
-
       <p><strong>🌐 Nexcore Alliance</strong><br>Empowering global business solutions.</p>
-
       <p><strong>Head Office:</strong><br>🇮🇳 IN – India</p>
-
-      <p><strong>Branch Offices:</strong><br>
-        • QA – Qatar<br>
-        • OM – Oman<br>
-        • KW – Kuwait<br>
-        • AE – UAE<br>
-        • SA – Saudi Arabia
-      </p>
-
+      <p><strong>Branch Offices:</strong><br>• QA – Qatar<br>• OM – Oman<br>• KW – Kuwait<br>• AE – UAE<br>• SA – Saudi Arabia</p>
       <p>🔗 <strong>Website:</strong> www.nexcorealliance.com</p>
     </div>
-
   </div>
 </body>
 </html>
-
     `;
 
-    // Send email notification
+    // ✅ Send email with PDF attachment (pdfBuffer comes from controller)
     const result = await sendEmail(
       userEmail,
       `🎉 Your Certificate is Ready - ${certificateId}`,
-      html
+      html,
+      "",
+      category,
+      pdfBuffer
+        ? [
+            {
+              filename: `${certificateId}_${userName.replace(/\s+/g, "_")}.pdf`,
+              content: pdfBuffer,
+              contentType: "application/pdf",
+            },
+          ]
+        : []
     );
 
     return result;
   } catch (error) {
-    console.error('Certificate Notification Error:', error);
+    console.error("Certificate Notification Error:", error);
     return {
       success: false,
-      error: 'Failed to send certificate notification'
+      error: "Failed to send certificate notification",
     };
   }
 };
@@ -1980,8 +2021,9 @@ export const getLetterEmailTemplate = (letterType, subType, data) => {
   );
 };
 
+
 /**
- * Send Letter Notification via Email
+ * Send Letter Notification via Email WITH PDF ATTACHMENT
  */
 export const sendLetterNotification = async (letterData) => {
   try {
@@ -1990,12 +2032,43 @@ export const sendLetterNotification = async (letterData) => {
       userEmail,
       letterType,
       subType,
+      letterId,
     } = letterData;
+
+    // ✅ Generate PDF attachment
+    let pdfBuffer = null;
+    try {
+      pdfBuffer = await generatePdfBuffer({
+        name: userName,
+        letterId,
+        course: letterType,
+        category: letterData.category,
+        batch: letterData.batch,
+        issueDate: letterData.issueDate,
+        description: letterData.description,
+      }, 'letter');
+      console.log('✅ Letter PDF generated successfully');
+    } catch (pdfError) {
+      console.error('⚠️ Letter PDF generation failed:', pdfError);
+    }
 
     const emailHtml = getLetterEmailTemplate(letterType, subType, letterData);
     const subject = `📄 ${letterType}${subType ? ` - ${subType}` : ''} | ${letterData.organizationName || 'Nexcore Alliance'}`;
 
-    const result = await sendEmail(userEmail, subject, emailHtml);
+    // ✅ Send email with PDF attachment
+    const result = await sendEmail(
+      userEmail, 
+      subject, 
+      emailHtml,
+      '',
+      letterData.category,
+      pdfBuffer ? [{
+        filename: `${letterId}_${userName.replace(/\s+/g, '_')}.pdf`,
+        content: pdfBuffer,
+        contentType: 'application/pdf'
+      }] : []
+    );
+
     return result;
   } catch (error) {
     console.error('Letter Notification Error:', error);

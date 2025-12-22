@@ -1,47 +1,49 @@
 // File: middlewares/auth.middleware.js
-import jwt from 'jsonwebtoken';
-import Admin from '../models/admin.models.js';
-import Student from '../models/student.models.js';
+import jwt from "jsonwebtoken";
+import Admin from "../models/admin.models.js";
+import Student from "../models/users.models.js";
 
 // Admin Authentication Middleware
 export const authenticateAdmin = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    
+    const token = req.headers.authorization?.split(" ")[1];
+
     if (!token) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'No token provided' 
+      return res.status(401).json({
+        success: false,
+        message: "No token provided",
       });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
+
     // Check if it's admin token (has username)
     if (!decoded.username) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Admin access required' 
+      return res.status(403).json({
+        success: false,
+        message: "Admin access required",
       });
     }
 
-    const admin = await Admin.findOne({ username: decoded.username }).select('-password');
-    
+    const admin = await Admin.findOne({ username: decoded.username }).select(
+      "-password"
+    );
+
     if (!admin) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Invalid admin token' 
+      return res.status(401).json({
+        success: false,
+        message: "Invalid admin token",
       });
     }
 
     req.user = admin;
-    req.userType = 'admin';
+    req.userType = "admin";
     next();
   } catch (error) {
-    console.error('Admin authentication error:', error);
-    return res.status(401).json({ 
-      success: false, 
-      message: 'Authentication failed' 
+    console.error("Admin authentication error:", error);
+    return res.status(401).json({
+      success: false,
+      message: "Authentication failed",
     });
   }
 };
@@ -49,52 +51,54 @@ export const authenticateAdmin = async (req, res, next) => {
 // Student/User Authentication Middleware (Phone Number based)
 export const authenticateStudent = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    
+    const token = req.headers.authorization?.split(" ")[1];
+
     if (!token) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'No token provided' 
+      return res.status(401).json({
+        success: false,
+        message: "No token provided",
       });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
+
     // Check if it's student token (has phone)
     if (!decoded.phone) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Student access required' 
+      return res.status(403).json({
+        success: false,
+        message: "Student access required",
       });
     }
-    
+
     // Fetch student by phone number
-    const student = await Student.findOne({ phone: decoded.phone }).select('-password');
-    
+    const student = await Student.findOne({ phone: decoded.phone }).select(
+      "-password"
+    );
+
     if (!student) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Invalid token or user not found' 
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token or user not found",
       });
     }
 
     // Check if student is active
     if (!student.isActive) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Your account has been deactivated' 
+      return res.status(403).json({
+        success: false,
+        message: "Your account has been deactivated",
       });
     }
 
     req.user = student;
-    req.userType = 'student';
+    req.userType = "student";
     next();
   } catch (error) {
-    console.error('Student authentication error:', error);
-    return res.status(401).json({ 
-      success: false, 
-      message: 'Authentication failed',
-      error: error.message 
+    console.error("Student authentication error:", error);
+    return res.status(401).json({
+      success: false,
+      message: "Authentication failed",
+      error: error.message,
     });
   }
 };
@@ -102,12 +106,12 @@ export const authenticateStudent = async (req, res, next) => {
 // Combined Authentication (Admin or Student)
 export const authenticate = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    
+    const token = req.headers.authorization?.split(" ")[1];
+
     if (!token) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'No token provided' 
+      return res.status(401).json({
+        success: false,
+        message: "No token provided",
       });
     }
 
@@ -117,27 +121,31 @@ export const authenticate = async (req, res, next) => {
 
     // Check if it's admin
     if (decoded.username) {
-      user = await Admin.findOne({ username: decoded.username }).select('-password');
-      userType = 'admin';
-    } 
+      user = await Admin.findOne({ username: decoded.username }).select(
+        "-password"
+      );
+      userType = "admin";
+    }
     // Check if it's student
     else if (decoded.phone) {
-      user = await Student.findOne({ phone: decoded.phone }).select('-password');
-      userType = 'student';
-      
+      user = await Student.findOne({ phone: decoded.phone }).select(
+        "-password"
+      );
+      userType = "student";
+
       // Check if student is active
       if (user && !user.isActive) {
-        return res.status(403).json({ 
-          success: false, 
-          message: 'Your account has been deactivated' 
+        return res.status(403).json({
+          success: false,
+          message: "Your account has been deactivated",
         });
       }
     }
-    
+
     if (!user) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Invalid token' 
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token",
       });
     }
 
@@ -145,10 +153,10 @@ export const authenticate = async (req, res, next) => {
     req.userType = userType;
     next();
   } catch (error) {
-    console.error('Authentication error:', error);
-    return res.status(401).json({ 
-      success: false, 
-      message: 'Authentication failed' 
+    console.error("Authentication error:", error);
+    return res.status(401).json({
+      success: false,
+      message: "Authentication failed",
     });
   }
 };

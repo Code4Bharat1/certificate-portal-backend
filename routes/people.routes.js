@@ -4,7 +4,7 @@ import People from "../models/people.models.js";
 import multer from "multer";
 import xlsx from "xlsx";
 import { authenticate } from "../middleware/auth.middleware.js";
-import Student from "../models/student.models.js";
+import Student from "../models/users.models.js";
 import { validateCategory } from "../middleware/validateCategory.js";
 
 const router = express.Router();
