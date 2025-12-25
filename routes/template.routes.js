@@ -62,19 +62,19 @@ const optionalAuth = (req, res, next) => {
         email: 'test@example.com',
         isAdmin: true
       };
-      console.log('✅ Authenticated user:', req.user.id);
+      
     } else {
       req.user = {
         id: 'anonymous',
         email: 'anonymous@example.com',
         isAdmin: false
       };
-      console.log('⚠️  No authentication - using anonymous user');
+     
     }
     
     next();
   } catch (error) {
-    console.error('Auth error:', error);
+   
     next();
   }
 };
@@ -85,7 +85,7 @@ let templatesDB = [];
 // 🔥 LOAD EXISTING TEMPLATES FROM FOLDER ON STARTUP
 const loadExistingTemplates = () => {
   try {
-    console.log('\n📂 Loading existing templates from:', templatesDir);
+   
     
     const files = fs.readdirSync(templatesDir);
     
@@ -117,12 +117,11 @@ const loadExistingTemplates = () => {
       };
       
       templatesDB.push(template);
-      console.log(`✅ Loaded: ${filename}`);
+     
     });
     
-    console.log(`✅ Total templates loaded: ${templatesDB.length}\n`);
+
   } catch (error) {
-    console.error('❌ Error loading existing templates:', error);
   }
 };
 
@@ -144,8 +143,8 @@ loadExistingTemplates();
 // GET: Fetch all templates
 router.get('/templates', optionalAuth, async (req, res) => {
   try {
-    console.log('📥 GET /api/templates - Fetching templates');
-    console.log('Templates count:', templatesDB.length);
+    
+   
     
     res.json({
       success: true,
@@ -153,7 +152,7 @@ router.get('/templates', optionalAuth, async (req, res) => {
       count: templatesDB.length
     });
   } catch (error) {
-    console.error('Error fetching templates:', error);
+   
     res.status(500).json({
       success: false,
       message: 'Failed to fetch templates',
@@ -165,7 +164,7 @@ router.get('/templates', optionalAuth, async (req, res) => {
 // GET: Reload templates from folder (manual refresh)
 router.get('/templates/reload/all', optionalAuth, async (req, res) => {
   try {
-    console.log('🔄 Reloading templates from disk...');
+   
     templatesDB = []; // Clear existing
     loadExistingTemplates();
     
@@ -176,7 +175,7 @@ router.get('/templates/reload/all', optionalAuth, async (req, res) => {
       data: templatesDB
     });
   } catch (error) {
-    console.error('Error reloading templates:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to reload templates',
@@ -188,7 +187,7 @@ router.get('/templates/reload/all', optionalAuth, async (req, res) => {
 // GET: Fetch single template by ID
 router.get('/templates/:id', optionalAuth, async (req, res) => {
   try {
-    console.log('📥 GET /api/templates/:id - Fetching template:', req.params.id);
+
     
     const template = templatesDB.find(t => t.id === req.params.id);
     
@@ -204,7 +203,7 @@ router.get('/templates/:id', optionalAuth, async (req, res) => {
       data: template
     });
   } catch (error) {
-    console.error('Error fetching template:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to fetch template',
@@ -216,9 +215,7 @@ router.get('/templates/:id', optionalAuth, async (req, res) => {
 // POST: Upload new template
 router.post('/templates/upload', optionalAuth, upload.single('template'), async (req, res) => {
   try {
-    console.log('📤 POST /api/templates/upload - Uploading template');
-    console.log('File:', req.file);
-    console.log('Body:', req.body);
+ 
     
     if (!req.file) {
       return res.status(400).json({
@@ -244,8 +241,7 @@ router.post('/templates/upload', optionalAuth, upload.single('template'), async 
 
     templatesDB.push(newTemplate);
     
-    console.log('✅ Template uploaded successfully:', newTemplate.id);
-    console.log('Total templates:', templatesDB.length);
+    
 
     res.status(201).json({
       success: true,
@@ -253,7 +249,7 @@ router.post('/templates/upload', optionalAuth, upload.single('template'), async 
       data: newTemplate
     });
   } catch (error) {
-    console.error('❌ Error uploading template:', error);
+    
     res.status(500).json({
       success: false,
       message: 'Failed to upload template',
@@ -265,8 +261,7 @@ router.post('/templates/upload', optionalAuth, upload.single('template'), async 
 // PUT: Update template details
 router.put('/templates/:id', optionalAuth, async (req, res) => {
   try {
-    console.log('✏️ PUT /api/templates/:id - Updating template:', req.params.id);
-    console.log('Update data:', req.body);
+
     
     const templateIndex = templatesDB.findIndex(t => t.id === req.params.id);
     
@@ -286,7 +281,7 @@ router.put('/templates/:id', optionalAuth, async (req, res) => {
       updatedAt: new Date().toISOString()
     };
 
-    console.log('✅ Template updated successfully');
+
 
     res.json({
       success: true,
@@ -294,7 +289,7 @@ router.put('/templates/:id', optionalAuth, async (req, res) => {
       data: templatesDB[templateIndex]
     });
   } catch (error) {
-    console.error('❌ Error updating template:', error);
+  
     res.status(500).json({
       success: false,
       message: 'Failed to update template',
@@ -306,7 +301,7 @@ router.put('/templates/:id', optionalAuth, async (req, res) => {
 // DELETE: Delete template
 router.delete('/templates/:id', optionalAuth, async (req, res) => {
   try {
-    console.log('🗑️ DELETE /api/templates/:id - Deleting template:', req.params.id);
+  
     
     const templateIndex = templatesDB.findIndex(t => t.id === req.params.id);
     
@@ -321,22 +316,21 @@ router.delete('/templates/:id', optionalAuth, async (req, res) => {
 
     // Delete file from filesystem
     if (fs.existsSync(template.filepath)) {
-      fs.unlinkSync(template.filepath);
-      console.log('✅ File deleted from disk');
+      fs.promises.unlink(template.filepath);
+     
     }
 
     // Remove from database
     templatesDB.splice(templateIndex, 1);
     
-    console.log('✅ Template deleted successfully');
-    console.log('Remaining templates:', templatesDB.length);
+
 
     res.json({
       success: true,
       message: 'Template deleted successfully'
     });
   } catch (error) {
-    console.error('❌ Error deleting template:', error);
+    
     res.status(500).json({
       success: false,
       message: 'Failed to delete template',
@@ -348,7 +342,7 @@ router.delete('/templates/:id', optionalAuth, async (req, res) => {
 // GET: Download template
 router.get('/templates/:id/download', optionalAuth, async (req, res) => {
   try {
-    console.log('💾 GET /api/templates/:id/download - Downloading template:', req.params.id);
+   
     
     const template = templatesDB.find(t => t.id === req.params.id);
     
@@ -366,10 +360,10 @@ router.get('/templates/:id/download', optionalAuth, async (req, res) => {
       });
     }
 
-    console.log('✅ Sending file for download');
+    
     res.download(template.filepath, template.originalName);
   } catch (error) {
-    console.error('❌ Error downloading template:', error);
+    
     res.status(500).json({
       success: false,
       message: 'Failed to download template',

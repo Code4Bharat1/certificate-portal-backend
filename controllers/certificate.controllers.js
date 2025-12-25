@@ -1,3 +1,4 @@
+//certificate.controllers.js
 import { body, validationResult } from "express-validator";
 import Certificate from "../models/certificate.models.js";
 import ActivityLog from "../models/activitylog.models.js";
@@ -18,13 +19,26 @@ import { wrapText as letterwraptext } from "./letter.controllers.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ✅ FIX 3 — Template image cache
+const templateCache = new Map();
+
+async function loadTemplateImage(templatePath) {
+  if (templateCache.has(templatePath)) {
+    return templateCache.get(templatePath);
+  }
+
+  const image = await loadImage(templatePath);
+  templateCache.set(templatePath, image);
+  return image;
+}
+
 export async function generateCertificateId(category) {
   const catMap = {
-    "IT-Nexcore": "NEX",
+    "it-nexcore": "NEX",
     "marketing-junction": "MJ",
-    FSD: "FSD",
-    HR: "HR",
-    BVOC: "BVOC",
+    fsd: "fsd",
+    hr: "hr",
+    bvoc: "bvoc",
     BOOTCAMP: "BC",
   };
 
@@ -37,7 +51,7 @@ export async function generateCertificateId(category) {
   const dd = String(today.getDate()).padStart(2, "0");
   const dateStr = `${yyyy}-${mm}-${dd}`;
 
-  // Regex: FSD-YYYY-MM-DD-XX
+  // Regex: fsd-YYYY-MM-DD-XX
   const regex = new RegExp(`^${catAbbr}-${dateStr}-(\\d+)$`);
 
   // Find last certificateId generated today for this category
@@ -66,9 +80,7 @@ export async function generateCertificateId(category) {
 // Map courses to template filenames
 function getCourseTemplateFilename(course, category) {
   const templateMap = {
-    "IT-Nexcore": {
-      // "Appreciation Letter": "Letter.jpg",
-      // "Experience Certificate": "Letter.jpg",
+    "it-nexcore": {
       "Full Stack Certificate (MERN Stack)":
         "certificates/c4b-fullstack-mern.jpg",
       "JavaScript Developer Certificate": "certificates/c4b-javascript.jpg",
@@ -86,8 +98,6 @@ function getCourseTemplateFilename(course, category) {
         "certificates/c4b-capstone.jpg",
     },
     "marketing-junction": {
-      // "Appreciation Letter": "Letter.jpg",
-      // "Experience Certificate": "Letter.jpg",
       "Digital Marketing Specialist Certificate":
         "certificates/mj-digital-marketing.jpg",
       "Advanced SEO Specialist Certificate": "certificates/mj-seo.jpg",
@@ -99,9 +109,7 @@ function getCourseTemplateFilename(course, category) {
         "certificates/mj-ai-marketing.jpg",
       "Videography Course": "certificates/mj-videography.jpg",
     },
-    FSD: {
-      // "Appreciation Letter": "Letter.jpg",
-      // "Experience Certificate": "Letter.jpg",
+    fsd: {
       "Full Stack Certificate (MERN Stack)":
         "certificates/c4b-fullstack-mern.jpg",
       "JavaScript Developer Certificate": "certificates/c4b-javascript.jpg",
@@ -163,14 +171,18 @@ function getAdjustedFontSize(ctx, text, maxWidth, baseFontSize) {
 
 const getAllCertificate = async (req, res) => {
   try {
-    const { category, status, search } = req.query;
+    const { categories, status, search } = req.query;
 
     let query = {};
+    let categoryFilter = {};
+
+    if (categories) {
+      categoryFilter.category = {
+        $in: categories.split(","),
+      };
+    }
 
     // Normal category filter (for certificates)
-    if (category) {
-      query.category = category;
-    }
 
     if (status) {
       query.status = status;
@@ -185,26 +197,26 @@ const getAllCertificate = async (req, res) => {
       ];
     }
 
-    // Fetch CERTIFICATES normally
-    const certificates = await Certificate.find(query)
-      .sort({ createdAt: -1 })
-      .populate("createdBy", "username");
+    
+    // Fetch CERTIFICATES
+  // Build final query ONCE
+const finalQuery = {
+  ...query,
+  ...categoryFilter,
+};
 
-    let letterQuery = { ...query };
+// Fetch certificates
+const certificates = await Certificate.find(finalQuery)
+  .sort({ createdAt: -1 })
+  .populate("createdBy", "username");
 
-    // *** Special condition for Letters ***
-    if (category === "IT-Nexcore") {
-      delete letterQuery.category; // remove the original category filter
+// Fetch letters (same logic)
+const letters = await Letter.find(finalQuery)
+  .sort({ createdAt: -1 })
+  .populate("createdBy", "username");
 
-      // Replace with the categories you want:
-      letterQuery.category = { $in: ["code4bharat", "IT-Nexcore"] };
-    }
 
-    // Fetch LETTERS
-    const letters = await Letter.find(letterQuery)
-      .sort({ createdAt: -1 })
-      .populate("createdBy", "username");
-
+     
     // Final response (same structure as you wanted)
     return res.json({
       success: true,
@@ -247,6 +259,7 @@ const getCertificateById = async (req, res) => {
     });
   }
 };
+
 export const createCertificate = async (req, res) => {
   try {
     // ✅ Validate inputs
@@ -261,13 +274,8 @@ export const createCertificate = async (req, res) => {
     // ✅ Extract ALL fields including description
     const { name, category, batch, course, issueDate, description } = req.body;
 
-    // ✅ Auto-generate unique certificateId
-    let certificateId;
-    let existingId;
-    do {
-      certificateId = await generateCertificateId(category);
-      existingId = await Certificate.findOne({ certificateId });
-    } while (existingId);
+    // ✅ FIX 1 — Generate certificateId ONCE (no loop)
+    const certificateId = await generateCertificateId(category);
 
     // ✅ Find user data (for notifications)
     const userData = await People.findOne({ name });
@@ -286,192 +294,210 @@ export const createCertificate = async (req, res) => {
       createdBy: req.user?._id || null,
     };
 
-    // ✅ Create certificate document FIRST
-    const certificate = await Certificate.create(certificateData);
+    let certificate;
 
-    // ✅ Send notifications (Email + WhatsApp)
     try {
-      const emailService = await import("../services/emailService.js");
+      // ✅ Create certificate document ONCE
+      // MongoDB will enforce unique constraint
+      certificate = await Certificate.create(certificateData);
+    } catch (err) {
+      // ✅ Handle duplicate key error (race condition)
+      if (err.code === 11000) {
+        return res.status(409).json({
+          success: false,
+          message: "Certificate ID conflict. Please try again.",
+          error: "Duplicate certificate ID",
+        });
+      }
+      throw err; // Re-throw other errors
+    }
 
-      if (certificateId) {
-        // ✅✅✅ GENERATE ACTUAL CERTIFICATE PDF (NOT GENERIC) ✅✅✅
-        // ✅✅✅ GENERATE ACTUAL CERTIFICATE PDF (NOT GENERIC) ✅✅✅
-        // ✅ Generate PDF attachment using the same logic as download
-        let pdfBuffer = null;
-        try {
-          const templateFilename = getCourseTemplateFilename(course, category);
-          const templatePath = path.join(
-            __dirname,
-            "../templates",
-            templateFilename
-          );
+    // ✅ FIX 2 — Move PDF generation and notifications to background
+    setImmediate(async () => {
+      try {
+        const emailService = await import("../services/emailService.js");
 
-          if (!fs.existsSync(templatePath)) {
-            throw new Error(`Template not found: ${course}`);
-          }
+        if (certificateId) {
+          let pdfBuffer = null;
+          try {
+            const templateFilename = getCourseTemplateFilename(
+              course,
+              category
+            );
+            const templatePath = path.join(
+              __dirname,
+              "../templates",
+              templateFilename
+            );
 
-          const templateImage = await loadImage(templatePath);
-          const width = templateImage.width;
-          const height = templateImage.height;
-          const canvas = createCanvas(width, height);
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(templateImage, 0, 0);
-
-          const formattedDate = new Date(issueDate).toLocaleDateString(
-            "en-US",
-            {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
+            if (!fs.existsSync(templatePath)) {
+              throw new Error(`Template not found: ${course}`);
             }
-          );
 
-          const id = certificateId.split("-")[0];
-          const isAppreciation = isAppreciationCertificate(course);
+            // ✅ FIX 3 — Use cached template
+            const templateImage = await loadTemplateImage(templatePath);
+            const width = templateImage.width;
+            const height = templateImage.height;
+            const canvas = createCanvas(width, height);
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(templateImage, 0, 0);
 
-          // Apply the same rendering logic as downloadCertificateAsPdf
-          if (isAppreciation || course === "Experience Certificate") {
-            ctx.fillStyle = "#111827";
-            ctx.textAlign = "left";
-            ctx.textBaseline = "top";
-            ctx.font = 'bold 40px "Times New Roman", serif';
-            ctx.fillText(formattedDate, width * 0.78, height * 0.253);
+            const formattedDate = new Date(issueDate).toLocaleDateString(
+              "en-US",
+              {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }
+            );
 
-            const subject = `${course} – ${certificate.name}`;
-            ctx.font = '50px "Times New Roman", serif';
-            ctx.fillText(subject, width * 0.32, height * 0.313);
+            const id = certificateId.split("-")[0];
+            const isAppreciation = isAppreciationCertificate(course);
 
-            ctx.fillStyle = "#1a1a1a";
-            ctx.font =
-              '45px "Georgia", "Garamond", "Merriweather", "Times New Roman", serif';
-            const topY = height * 0.4;
-            const bottomY = height * 0.7;
-            const availableHeight = bottomY - topY;
-            const descMaxWidth = width * 0.8;
+            // Apply the same rendering logic as downloadCertificateAsPdf
+            if (isAppreciation || course === "Experience Certificate") {
+              ctx.fillStyle = "#111827";
+              ctx.textAlign = "left";
+              ctx.textBaseline = "top";
+              ctx.font = 'bold 40px "Times New Roman", serif';
+              ctx.fillText(formattedDate, width * 0.78, height * 0.253);
 
-            const paragraphs = (description || "")
-              .split(/\n\s*\n/)
-              .map((p) => p.replace(/\n/g, " ").trim())
-              .filter((p) => p.length > 0)
-              .slice(0, 3);
+              const subject = `${course} – ${certificate.name}`;
+              ctx.font = '50px "Times New Roman", serif';
+              ctx.fillText(subject, width * 0.32, height * 0.313);
 
-            const lineHeight = 66;
-            const paraSpacing =
-              paragraphs.length > 1
-                ? availableHeight / (paragraphs.length + 1)
-                : availableHeight / 2;
+              ctx.fillStyle = "#1a1a1a";
+              ctx.font =
+                '45px "Georgia", "Garamond", "Merriweather", "Times New Roman", serif';
+              const topY = height * 0.4;
+              const bottomY = height * 0.7;
+              const availableHeight = bottomY - topY;
+              const descMaxWidth = width * 0.8;
 
-            paragraphs.forEach((p, i) => {
-              const y = topY + i * paraSpacing;
-              wrapText(ctx, p, width * 0.13, y, descMaxWidth, lineHeight);
+              const paragraphs = (description || "")
+                .split(/\n\s*\n/)
+                .map((p) => p.replace(/\n/g, " ").trim())
+                .filter((p) => p.length > 0)
+                .slice(0, 3);
+
+              const lineHeight = 66;
+              const paraSpacing =
+                paragraphs.length > 1
+                  ? availableHeight / (paragraphs.length + 1)
+                  : availableHeight / 2;
+
+              paragraphs.forEach((p, i) => {
+                const y = topY + i * paraSpacing;
+                wrapText(ctx, p, width * 0.13, y, descMaxWidth, lineHeight);
+              });
+
+              ctx.textAlign = "left";
+              ctx.font = 'bold 60px "Poppins"';
+              ctx.fillText(`${certificateId}`, width * 0.33, height * 0.761);
+
+              ctx.font = '60px "Ovo", serif';
+              ctx.fillStyle = "#1F2937";
+              ctx.textAlign = "center";
+              ctx.fillText(
+                "https://portal.nexcorealliance.com/verify-certificate",
+                width / 2,
+                height * 0.83
+              );
+            } else if (id === "NEX" || id === "fsd") {
+              ctx.fillStyle = "#1F2937";
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              const nameFontSize = getAdjustedFontSize(
+                ctx,
+                name.toUpperCase(),
+                width * 0.65,
+                50
+              );
+              ctx.font = `bold ${nameFontSize}px Arial`;
+              ctx.fillText(name.toUpperCase(), width / 2, height * 0.46);
+
+              ctx.fillStyle = "#1F2937";
+              ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
+              ctx.textAlign = "left";
+              ctx.fillText(formattedDate, width * 0.595, height * 0.66);
+
+              ctx.font = '40px "Times New Roman", "Ovo", serif';
+              ctx.fillText(certificateId, width * 0.42, height * 0.8);
+            } else {
+              ctx.fillStyle = "#1F2937";
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              const nameFontSize = getAdjustedFontSize(
+                ctx,
+                name.toUpperCase(),
+                width * 0.65,
+                50
+              );
+              ctx.font = `bold ${nameFontSize}px Arial`;
+              ctx.fillText(name.toUpperCase(), width / 2, height * 0.44);
+
+              ctx.fillStyle = "#1F2937";
+              ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
+              ctx.textAlign = "left";
+              ctx.fillText(formattedDate, width * 0.48, height * 0.669);
+
+              ctx.font = '42px "Times New Roman", "Ovo", serif';
+              ctx.fillText(certificateId, width * 0.42, height * 0.815);
+            }
+
+            // Convert canvas to PDF
+            const imageBuffer = canvas.toBuffer("image/png");
+            const doc = new PDFDocument({ size: [width, height], margin: 0 });
+
+            const chunks = [];
+            doc.on("data", (chunk) => chunks.push(chunk));
+            doc.on("end", () => {
+              pdfBuffer = Buffer.concat(chunks);
             });
 
-            ctx.textAlign = "left";
-            ctx.font = 'bold 60px "Poppins"';
-            ctx.fillText(`${certificateId}`, width * 0.33, height * 0.761);
+            doc.image(imageBuffer, 0, 0, { width, height });
+            doc.end();
 
-            ctx.font = '60px "Ovo", serif';
-            ctx.fillStyle = "#1F2937";
-            ctx.textAlign = "center";
-            ctx.fillText(
-              "https://portal.nexcorealliance.com/verify-certificate",
-              width / 2,
-              height * 0.83
-            );
-          } else if (id === "NEX" || id === "FSD") {
-            ctx.fillStyle = "#1F2937";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            const nameFontSize = getAdjustedFontSize(
-              ctx,
-              name.toUpperCase(),
-              width * 0.65,
-              50
-            );
-            ctx.font = `bold ${nameFontSize}px Arial`;
-            ctx.fillText(name.toUpperCase(), width / 2, height * 0.46);
-
-            ctx.fillStyle = "#1F2937";
-            ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
-            ctx.textAlign = "left";
-            ctx.fillText(formattedDate, width * 0.595, height * 0.66);
-
-            ctx.font = '40px "Times New Roman", "Ovo", serif';
-            ctx.fillText(certificateId, width * 0.42, height * 0.8);
-          } else {
-            ctx.fillStyle = "#1F2937";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            const nameFontSize = getAdjustedFontSize(
-              ctx,
-              name.toUpperCase(),
-              width * 0.65,
-              50
-            );
-            ctx.font = `bold ${nameFontSize}px Arial`;
-            ctx.fillText(name.toUpperCase(), width / 2, height * 0.44);
-
-            ctx.fillStyle = "#1F2937";
-            ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
-            ctx.textAlign = "left";
-            ctx.fillText(formattedDate, width * 0.48, height * 0.669);
-
-            ctx.font = '42px "Times New Roman", "Ovo", serif';
-            ctx.fillText(certificateId, width * 0.42, height * 0.815);
+            await new Promise((resolve) => doc.on("end", resolve));
+          } catch (pdfError) {
+            console.error("⚠️ Certificate PDF generation failed:", pdfError);
           }
 
-          // Convert canvas to PDF
-          const imageBuffer = canvas.toBuffer("image/png");
-          const doc = new PDFDocument({ size: [width, height], margin: 0 });
+          // Send email WITH actual certificate PDF
+          if (userEmail) {
+            await emailService.default.sendCertificateNotification({
+              userName: name,
+              userEmail: userEmail,
+              certificateId,
+              course,
+              category,
+              batch: batch || null,
+              issueDate,
+              description: description || "",
+              pdfBuffer,
+            });
+          }
 
-          const chunks = [];
-          doc.on("data", (chunk) => chunks.push(chunk));
-          doc.on("end", () => {
-            pdfBuffer = Buffer.concat(chunks);
-          });
-
-          doc.image(imageBuffer, 0, 0, { width, height });
-          doc.end();
-
-          await new Promise((resolve) => doc.on("end", resolve));
-
-          console.log("✅ Certificate PDF generated successfully");
-        } catch (pdfError) {
-          console.error("⚠️ Certificate PDF generation failed:", pdfError);
+          // Send WhatsApp notification
+          if (userPhone) {
+            await sendCertificateNotification({
+              userName: name,
+              userPhone,
+              certificateId,
+              course,
+              category,
+              batch: batch || null,
+              issueDate,
+            });
+          }
         }
-        // Send email WITH actual certificate PDF
-        if (userEmail) {
-          await emailService.default.sendCertificateNotification({
-            userName: name,
-            userEmail: userEmail,
-            certificateId,
-            course,
-            category,
-            batch: batch || null,
-            issueDate,
-            description: description || "",
-            pdfBuffer, // ✅ Pass the actual PDF buffer
-          });
-          console.log(`✅ Email notification sent to ${userEmail}`);
-        }
-
-        // Send WhatsApp notification
-        if (userPhone) {
-          await sendCertificateNotification({
-            userName: name,
-            userPhone,
-            certificateId,
-            course,
-            category,
-            batch: batch || null,
-            issueDate,
-          });
-          console.log(`✅ WhatsApp notification sent to ${userPhone}`);
-        }
+      } catch (notificationError) {
+        console.error(
+          "⚠️ Notification error (non-critical):",
+          notificationError
+        );
       }
-    } catch (notificationError) {
-      console.error("⚠️ Notification error (non-critical):", notificationError);
-    }
+    });
 
     // ✅ Log action
     await ActivityLog.create({
@@ -482,14 +508,14 @@ export const createCertificate = async (req, res) => {
       details: `Certificate created for ${certificate.name}`,
     });
 
-    // ✅ Success response
+    // ✅ Success response (sent IMMEDIATELY)
     return res.status(201).json({
       success: true,
       message: "Certificate created successfully",
       certificate,
       notifications: {
-        email: userEmail ? "sent" : "no email available",
-        whatsapp: userPhone ? "sent" : "no phone available",
+        email: userEmail ? "queued" : "no email available",
+        whatsapp: userPhone ? "queued" : "no phone available",
       },
     });
   } catch (error) {
@@ -658,23 +684,18 @@ const downloadCertificateAsPdf = async (req, res) => {
     let certificate;
     let type = "Certificate";
 
-    console.log("PDF download started for:", identifier);
-
-    // Check valid ObjectId format
+    // ✅ FIX 4 — Single optimized query
     const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
 
     if (isValidObjectId) {
-      // Try Certificate first
+      // Try both collections with single query each
       certificate = await Certificate.findById(identifier);
       if (!certificate) {
         certificate = await Letter.findById(identifier);
         type = "Letter";
       }
-    }
-
-    // If not found, search by certificateId / authCode
-    if (!certificate) {
-      // Check Certificate
+    } else {
+      // Search by certificateId/authCode with single $or query
       certificate = await Certificate.findOne({
         $or: [
           { certificateId: identifier.toUpperCase() },
@@ -682,7 +703,6 @@ const downloadCertificateAsPdf = async (req, res) => {
         ],
       });
 
-      // If still not found, check Letter
       if (!certificate) {
         certificate = await Letter.findOne({
           $or: [
@@ -701,26 +721,11 @@ const downloadCertificateAsPdf = async (req, res) => {
       });
     }
 
-    // ✅ Update stats only for certificates
-    if (type === "Certificate") {
-      certificate.status = "downloaded";
-      certificate.downloadCount += 1;
-      certificate.lastDownloaded = new Date();
-      await certificate.save();
-    }
-
-    // ✅ If it's a letter, use a different template logic
-    if (type === "Letter") {
-      // return generateLetterPdf(certificate, res); // we'll implement this next
-      certificate.status = "downloaded";
-      certificate.downloadCount += 1;
-      certificate.lastDownloaded = new Date();
-      await certificate.save();
-    }
-
-    // ------------------------
-    // BELOW IS EXISTING CERTIFICATE LOGIC
-    // ------------------------
+    // ✅ Update stats
+    certificate.status = "downloaded";
+    certificate.downloadCount += 1;
+    certificate.lastDownloaded = new Date();
+    await certificate.save();
 
     const templateFilename = getCourseTemplateFilename(
       certificate.course,
@@ -737,7 +742,8 @@ const downloadCertificateAsPdf = async (req, res) => {
       });
     }
 
-    const templateImage = await loadImage(templatePath);
+    // ✅ FIX 3 — Use cached template
+    const templateImage = await loadTemplateImage(templatePath);
     const width = templateImage.width;
     const height = templateImage.height;
 
@@ -758,7 +764,6 @@ const downloadCertificateAsPdf = async (req, res) => {
 
     const tempId =
       type === "Certificate" ? certificate.certificateId : certificate.letterId;
-    // console.log(tempId);
 
     const id = tempId.split("-")[0];
     const isAppreciation = isAppreciationCertificate(certificate.course);
@@ -768,63 +773,49 @@ const downloadCertificateAsPdf = async (req, res) => {
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
     if (isAppreciation || certificate.course === "Experience Certificate") {
-      // =================== STYLES ===================
       ctx.fillStyle = "#111827";
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
-      // ==============================================
 
-      // ---- DATE ----
       ctx.font = 'bold 40px "Times New Roman", serif';
       ctx.fillText(issueDate, width * 0.78, height * 0.253);
 
-      // ---- SUBJECT ----
       const subject = `${certificate.course} – ${certificate.name}`;
       ctx.font = '50px "Times New Roman", serif';
       ctx.fillText(subject, width * 0.32, height * 0.313);
 
-      // ---- DESCRIPTION ----
-      ctx.fillStyle = "#1a1a1a"; // slightly softer black for a printed look
+      ctx.fillStyle = "#1a1a1a";
       ctx.font =
         '45px "Georgia", "Garamond", "Merriweather", "Times New Roman", serif';
       ctx.textAlign = "left";
 
-      // Dynamic area between greeting and “Warm Regards”
       const topY = height * 0.4;
       const bottomY = height * 0.7;
       const availableHeight = bottomY - topY;
       const descMaxWidth = width * 0.8;
 
-      console.log(certificate.description);
-
-      // Split into paragraphs based on blank lines
       const paragraphs = certificate.description
         .split(/\n\s*\n/)
         .map((p) => p.replace(/\n/g, " ").trim())
         .filter((p) => p.length > 0)
         .slice(0, 3);
 
-      // 🧩 Softer line height for readability
-      const lineHeight = 66; // increased from 45 → gives elegant paragraph rhythm
+      const lineHeight = 66;
 
-      // 🧩 Balanced paragraph spacing
       const paraSpacing =
         paragraphs.length > 1
           ? availableHeight / (paragraphs.length + 1)
           : availableHeight / 2;
 
-      // Draw wrapped text for each paragraph, spaced evenly
       paragraphs.forEach((p, i) => {
         const y = topY + i * paraSpacing;
         letterwraptext(ctx, p, width * 0.13, y, descMaxWidth, lineHeight);
       });
 
-      // ---- LETTER ID ----
       ctx.textAlign = "left";
       ctx.font = 'bold 60px "Poppins"';
       ctx.fillText(`${tempId}`, width * 0.33, height * 0.761);
 
-      // ---- FOOTER INFO ----
       ctx.font = '60px "Ovo", serif';
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
@@ -844,14 +835,10 @@ const downloadCertificateAsPdf = async (req, res) => {
       doc.pipe(res);
       doc.image(imageBuffer, 0, 0, { width, height });
 
-      // ✅ Clickable link in PDF
       doc.link(width / 2 - 250, height * 0.87, 500, 40, verifyURL);
 
       doc.end();
-    } else if (id === "NEX" || id === "FSD") {
-      // -----------------------------
-      // C4B CERTIFICATE LAYOUT
-      // -----------------------------
+    } else if (id === "NEX" || id === "fsd") {
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -884,9 +871,6 @@ const downloadCertificateAsPdf = async (req, res) => {
 
       doc.end();
     } else {
-      // -----------------------------
-      // OTHER CERTIFICATE LAYOUT
-      // -----------------------------
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -929,230 +913,13 @@ const downloadCertificateAsPdf = async (req, res) => {
   }
 };
 
-// const downloadCertificateAsJpg = async (req, res) => {
-//   try {
-//     // const certificate = await Certificate.findById(req.params.id);
-
-//     const identifier = req.params.id;
-//     let certificate;
-
-//     // Check if the identifier is a valid ObjectId format
-//     const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
-
-//     if (isValidObjectId) {
-//       // Try to find by _id first if it's a valid ObjectId
-//       certificate = await Certificate.findById(identifier);
-//     }
-
-//     // If not found or not a valid ObjectId, search by certificateId or authCode
-//     if (!certificate) {
-//       certificate = await Certificate.findOne({
-//         $or: [
-//           { certificateId: identifier.toUpperCase() },
-//           { authCode: identifier.toUpperCase() },
-//         ],
-//       });
-//     }
-
-//     if (!certificate) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Certificate not found",
-//       });
-//     }
-
-//     // Update download status
-//     certificate.status = "downloaded";
-//     certificate.downloadCount += 1;
-//     certificate.lastDownloaded = new Date();
-//     await certificate.save();
-
-//     // // Log download
-//     // await ActivityLog.create({
-//     //   action: 'download',
-//     //   certificateId: certificate.certificateId,
-//     //   userName: certificate.name,
-//     //   adminId: req.user._id,
-//     //   details: `Certificate JPG downloaded for ${certificate.name}`
-//     // });
-
-//     // Load the PNG template based on category and course
-//     const templateFilename = getCourseTemplateFilename(
-//       certificate.course,
-//       certificate.category
-//     );
-//     const templatePath = path.join(__dirname, "../templates", templateFilename);
-
-//     // Check if template exists
-//     if (!fs.existsSync(templatePath)) {
-//       console.error(`Template not found: ${templatePath}`);
-//       return res.status(500).json({
-//         success: false,
-//         message: `Certificate template not found for course: ${certificate.course}`,
-//       });
-//     }
-
-//     // Load the image
-//     const templateImage = await loadImage(templatePath);
-//     const width = templateImage.width;
-//     const height = templateImage.height;
-
-//     // Create canvas and draw template
-//     const canvas = createCanvas(width, height);
-//     const ctx = canvas.getContext("2d");
-//     ctx.drawImage(templateImage, 0, 0);
-
-//     // Format date
-//     const issueDate = new Date(certificate.issueDate).toLocaleDateString(
-//       "en-US",
-//       {
-//         year: "numeric",
-//         month: "long",
-//         day: "numeric",
-//       }
-//     );
-
-//     const tempId = type === "Certificate" ? certificate.certificateId : certificate.letterId
-//     console.log(tempId);
-
-//     const id = tempId.split("-")[0];
-//     // console.log(id);
-//     const isAppreciation = isAppreciationCertificate(certificate.course);
-//     // console.log(isAppreciation);
-
-//     if (isAppreciation) {
-//       // =================== STYLES ===================
-//       ctx.fillStyle = "#111827";
-//       ctx.textAlign = "left";
-//       ctx.textBaseline = "top";
-//       // ==============================================
-
-//       // ---- SUBJECT ----
-//       const subject = `${certificate.course} – ${certificate.name}`;
-//       ctx.font = '50px "Times New Roman", serif';
-//       ctx.fillText(subject, width * 0.32, height * 0.313);
-
-//       // ---- DESCRIPTION ----
-//       ctx.fillStyle = "#1a1a1a";
-//       ctx.font = '45px "Georgia", "Garamond", "Merriweather", "Times New Roman", serif';
-
-//       const topY = height * 0.40;
-//       const bottomY = height * 0.70;
-//       const availableHeight = bottomY - topY;
-//       const descMaxWidth = width * 0.80;
-
-//       // Split into paragraphs based on blank lines
-//       const paragraphs = certificate.description
-//         .split(/\n\s*\n/)
-//         .map(p => p.replace(/\n/g, " ").trim())
-//         .filter(p => p.length > 0)
-//         .slice(0, 3);
-
-//       const lineHeight = 66;
-
-//       const paraSpacing =
-//         paragraphs.length > 1
-//           ? availableHeight / (paragraphs.length + 1)
-//           : availableHeight / 2;
-
-//       paragraphs.forEach((p, i) => {
-//         const y = topY + i * paraSpacing;
-//         letterwraptext(ctx, p, width * 0.13, y, descMaxWidth, lineHeight);
-//       });
-
-//       // ---- CERTIFICATE / LETTER ID ----
-//       ctx.textAlign = "left";
-//       ctx.font = 'bold 60px "Poppins"';
-//       ctx.fillText(`${tempId}`, width * 0.33, height * 0.761);
-
-//       // ---- FOOTER VERIFY LINK ----
-//       ctx.font = '60px "Ovo", serif';
-//       ctx.fillStyle = "#1F2937";
-//       ctx.textAlign = "center";
-//       ctx.fillText(
-//         "https://portal.nexcorealliance.com/verify-certificate",
-//         width / 2,
-//         height * 0.830
-//       );
-
-//       // (Existing canvas export code continues...)
-//     }
-//     else if (id == "C4B") {
-//       // NAME - Centered on certificate between "This certificate is awarded to" and course description
-//       ctx.fillStyle = "#1F2937";
-//       ctx.textAlign = "center";
-//       ctx.textBaseline = "middle";
-//       const nameFontSize = getAdjustedFontSize(
-//         ctx,
-//         certificate.name.toUpperCase(),
-//         width * 0.65,
-//         50
-//       );
-//       ctx.font = `bold ${nameFontSize}px Arial`;
-//       ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.46);
-
-//       // DATE - Bottom left area, right after "Awarded on:" text in template
-//       ctx.fillStyle = "#1F2937";
-//       ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
-//       ctx.textAlign = "left";
-//       ctx.textBaseline = "alphabetic";
-//       ctx.fillText(issueDate, width * 0.595, height * 0.665);
-
-//       // CREDENTIAL ID - Positioned after "CREDENTIAL ID:" label in template
-//       ctx.fillStyle = "#1F2937";
-//       ctx.font = '40px "Times New Roman", "Ovo", serif';
-//       ctx.fillText(certificate.certificateId, width * 0.42, height * 0.806);
-//     } else {
-//       // NAME - Centered on certificate between "This certificate is awarded to" and course description
-//       ctx.fillStyle = "#1F2937";
-//       ctx.textAlign = "center";
-//       ctx.textBaseline = "middle";
-//       const nameFontSize = getAdjustedFontSize(
-//         ctx,
-//         certificate.name.toUpperCase(),
-//         width * 0.65,
-//         50
-//       );
-//       ctx.font = `bold ${nameFontSize}px Arial`;
-//       ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.44);
-
-//       // DATE - Bottom left area, right after "Awarded on:" text in template
-//       ctx.fillStyle = "#1F2937";
-//       ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
-//       ctx.textAlign = "left";
-//       ctx.textBaseline = "alphabetic";
-//       ctx.fillText(issueDate, width * 0.48, height * 0.675);
-
-//       // CREDENTIAL ID - Positioned after "CREDENTIAL ID:" label in template
-//       ctx.fillStyle = "#1F2937";
-//       ctx.font = '42px "Times New Roman", "Ovo", serif';
-//       ctx.fillText(certificate.certificateId, width * 0.42, height * 0.82);
-//     }
-
-//     // Convert to buffer and send
-//     const buffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
-//     const filename = `${certificate.name.replace(/\s+/g, "_")}.jpg`;
-
-//     res.setHeader("Content-Type", "image/jpeg");
-//     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-//     res.send(buffer);
-//   } catch (error) {
-//     console.error("Download JPG error:", error);
-//     res.status(500).json({
-//       success: false,
-//       message: "Server error",
-//       error: error.message,
-//     });
-//   }
-// };
-
 const downloadCertificateAsJpg = async (req, res) => {
   try {
     const identifier = req.params.id;
     let certificate;
     let type = "Certificate";
 
-    // Check if valid ObjectId
+    // ✅ FIX 4 — Single optimized query
     const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
 
     if (isValidObjectId) {
@@ -1161,10 +928,7 @@ const downloadCertificateAsJpg = async (req, res) => {
         certificate = await Letter.findById(identifier);
         if (certificate) type = "Letter";
       }
-    }
-
-    // If not found by ID, search by certificateId / authCode
-    if (!certificate) {
+    } else {
       certificate = await Certificate.findOne({
         $or: [
           { certificateId: identifier.toUpperCase() },
@@ -1209,7 +973,8 @@ const downloadCertificateAsJpg = async (req, res) => {
       });
     }
 
-    const templateImage = await loadImage(templatePath);
+    // ✅ FIX 3 — Use cached template
+    const templateImage = await loadTemplateImage(templatePath);
     const width = templateImage.width;
     const height = templateImage.height;
 
@@ -1228,24 +993,19 @@ const downloadCertificateAsJpg = async (req, res) => {
     const isAppreciation = isAppreciationCertificate(certificate.course);
 
     if (isAppreciation || certificate.course === "Experience Certificate") {
-      // =================== STYLES ===================
       ctx.fillStyle = "#111827";
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
-      // ==============================================
 
-      // ---- DATE ----
       ctx.font = 'bold 40px "Times New Roman", serif';
       ctx.fillStyle = "#111827";
       ctx.textAlign = "left";
       ctx.fillText(issueDate, width * 0.78, height * 0.253);
 
-      // ---- SUBJECT ----
       const subject = `${certificate.course} – ${certificate.name}`;
       ctx.font = '50px "Times New Roman", serif';
       ctx.fillText(subject, width * 0.32, height * 0.313);
 
-      // ---- DESCRIPTION ----
       ctx.fillStyle = "#1a1a1a";
       ctx.font =
         '45px "Georgia", "Garamond", "Merriweather", "Times New Roman", serif';
@@ -1273,12 +1033,10 @@ const downloadCertificateAsJpg = async (req, res) => {
         letterwraptext(ctx, p, width * 0.13, y, descMaxWidth, lineHeight);
       });
 
-      // ---- LETTER / CERTIFICATE ID ----
       ctx.textAlign = "left";
       ctx.font = 'bold 60px "Poppins"';
       ctx.fillText(`${tempId}`, width * 0.33, height * 0.761);
 
-      // ---- PRINTED VERIFY LINK ----
       ctx.font = '60px "Ovo", serif';
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
@@ -1288,7 +1046,6 @@ const downloadCertificateAsJpg = async (req, res) => {
         height * 0.83
       );
     } else if (id == "NEX") {
-      // NAME - Centered on certificate between "This certificate is awarded to" and course description
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -1301,19 +1058,16 @@ const downloadCertificateAsJpg = async (req, res) => {
       ctx.font = `bold ${nameFontSize}px Arial`;
       ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.46);
 
-      // DATE - Bottom left area, right after "Awarded on:" text in template
       ctx.fillStyle = "#1F2937";
       ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
       ctx.textAlign = "left";
       ctx.textBaseline = "alphabetic";
       ctx.fillText(issueDate, width * 0.595, height * 0.665);
 
-      // CREDENTIAL ID - Positioned after "CREDENTIAL ID:" label in template
       ctx.fillStyle = "#1F2937";
       ctx.font = '40px "Times New Roman", "Ovo", serif';
       ctx.fillText(certificate.certificateId, width * 0.42, height * 0.806);
     } else {
-      // NAME - Centered on certificate between "This certificate is awarded to" and course description
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -1326,14 +1080,12 @@ const downloadCertificateAsJpg = async (req, res) => {
       ctx.font = `bold ${nameFontSize}px Arial`;
       ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.44);
 
-      // DATE - Bottom left area, right after "Awarded on:" text in template
       ctx.fillStyle = "#1F2937";
       ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
       ctx.textAlign = "left";
       ctx.textBaseline = "alphabetic";
       ctx.fillText(issueDate, width * 0.48, height * 0.675);
 
-      // CREDENTIAL ID - Positioned after "CREDENTIAL ID:" label in template
       ctx.fillStyle = "#1F2937";
       ctx.font = '42px "Times New Roman", "Ovo", serif';
       ctx.fillText(certificate.certificateId, width * 0.42, height * 0.82);
@@ -1360,7 +1112,7 @@ const getCoursesByCategory = async (req, res) => {
     const { category } = req.params;
 
     const courses = {
-      "IT-Nexcore": [
+      "it-nexcore": [
         "Full Stack Certificate (MERN Stack)",
         "JavaScript Developer Certificate",
         "Advanced React Developer Certificate",
@@ -1386,7 +1138,7 @@ const getCoursesByCategory = async (req, res) => {
       return res.status(400).json({
         success: false,
         message:
-          'Invalid category. Must be either "IT-Nexcore" or "marketing-junction"',
+          'Invalid category. Must be either "it-nexcore" or "marketing-junction"',
       });
     }
 
@@ -1408,7 +1160,6 @@ const generateCertificatePreview = async (req, res) => {
   try {
     const { name, category, issueDate, course, batch } = req.body;
 
-    // Validate required fields
     if (!name || !category || !issueDate || !course) {
       return res.status(400).json({
         success: false,
@@ -1416,13 +1167,10 @@ const generateCertificatePreview = async (req, res) => {
       });
     }
 
-    // Generate a temporary certificate ID for preview
     const tempCertificateId = await generateCertificateId(category);
 
     const templateFilename = getCourseTemplateFilename(course, category);
     const templatePath = path.join(__dirname, "../templates", templateFilename);
-
-    console.log(templateFilename, templatePath);
 
     if (!fs.existsSync(templatePath)) {
       console.error(`Template not found: ${templatePath}`);
@@ -1432,7 +1180,8 @@ const generateCertificatePreview = async (req, res) => {
       });
     }
 
-    const templateImage = await loadImage(templatePath);
+    // ✅ FIX 3 — Use cached template
+    const templateImage = await loadTemplateImage(templatePath);
     const width = templateImage.width;
     const height = templateImage.height;
 
@@ -1447,15 +1196,11 @@ const generateCertificatePreview = async (req, res) => {
     });
 
     const isAppreciation = isAppreciationCertificate(course);
-    // console.log(isAppreciation);
 
     if (isAppreciation) {
-      // APPRECIATION CERTIFICATE LAYOUT
-
-      // NAME - Positioned above the golden line, centered
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
-      ctx.textBaseline = "bottom"; // Changed to bottom so text sits above the line
+      ctx.textBaseline = "bottom";
       const nameFontSize = getAdjustedFontSize(
         ctx,
         name.toUpperCase(),
@@ -1463,22 +1208,19 @@ const generateCertificatePreview = async (req, res) => {
         56
       );
       ctx.font = `bold ${nameFontSize}px "Times New Roman", serif`;
-      ctx.fillText(name.toUpperCase(), width / 2, height * 0.515); // Adjusted position
+      ctx.fillText(name.toUpperCase(), width / 2, height * 0.515);
 
-      // DATE - Bottom left, aligned with template
       ctx.fillStyle = "#1F2937";
       ctx.font = 'bold 36px "Times New Roman", serif';
       ctx.textAlign = "left";
       ctx.textBaseline = "alphabetic";
       ctx.fillText(issueDate, width * 0.25, height * 0.88);
 
-      // CERTIFICATE ID - Bottom center area
       ctx.fillStyle = "#1F2937";
       ctx.font = '36px "Times New Roman", serif';
       ctx.textAlign = "left";
       ctx.fillText(tempCertificateId, width * 0.29, height * 0.94);
-    } else if (category == "IT-Nexcore" || category == "FSD") {
-      // NAME
+    } else if (category == "it-nexcore" || category == "fsd") {
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -1491,19 +1233,16 @@ const generateCertificatePreview = async (req, res) => {
       ctx.font = `bold ${nameFontSize}px Arial`;
       ctx.fillText(name.toUpperCase(), width / 2, height * 0.46);
 
-      // DATE
       ctx.fillStyle = "#1F2937";
       ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
       ctx.textAlign = "left";
       ctx.textBaseline = "alphabetic";
       ctx.fillText(formattedDate, width * 0.595, height * 0.665);
 
-      // CERTIFICATE ID (temporary for preview)
       ctx.fillStyle = "#1F2937";
       ctx.font = '40px "Times New Roman", "Ovo", serif';
       ctx.fillText(tempCertificateId, width * 0.42, height * 0.806);
     } else {
-      // NAME
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -1516,14 +1255,12 @@ const generateCertificatePreview = async (req, res) => {
       ctx.font = `bold ${nameFontSize}px Arial`;
       ctx.fillText(name.toUpperCase(), width / 2, height * 0.44);
 
-      // DATE
       ctx.fillStyle = "#1F2937";
       ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
       ctx.textAlign = "left";
       ctx.textBaseline = "alphabetic";
       ctx.fillText(formattedDate, width * 0.47, height * 0.675);
 
-      // CERTIFICATE ID (temporary for preview)
       ctx.fillStyle = "#1F2937";
       ctx.font = '42px "Times New Roman", "Ovo", serif';
       ctx.fillText(tempCertificateId, width * 0.415, height * 0.821);
@@ -1547,11 +1284,20 @@ const downloadBulkCertificate = async (req, res) => {
   try {
     const { certificateIds } = req.body;
 
-    // Validate input
+    // ✅ FIX 5 — Limit bulk size to prevent memory issues
+    const MAX_BULK_SIZE = 20;
+
     if (!Array.isArray(certificateIds) || certificateIds.length === 0) {
       return res.status(400).json({
         success: false,
         message: "Certificate IDs array is required",
+      });
+    }
+
+    if (certificateIds.length > MAX_BULK_SIZE) {
+      return res.status(400).json({
+        success: false,
+        message: `Bulk download limited to ${MAX_BULK_SIZE} certificates at a time. Please split your request.`,
       });
     }
 
@@ -1562,14 +1308,11 @@ const downloadBulkCertificate = async (req, res) => {
 
     const certificateBuffers = [];
 
-    // Import required libraries (ensure they're at the top of your file)
     const { createCanvas, loadImage } = await import("canvas");
     const PDFDocument = (await import("pdfkit")).default;
 
-    // Process each certificate
     for (const certId of certificateIds) {
       try {
-        // Find certificate
         const certificate = await Certificate.findOne({
           certificateId: certId,
         });
@@ -1578,7 +1321,6 @@ const downloadBulkCertificate = async (req, res) => {
           throw new Error("Certificate not found");
         }
 
-        // Get template path
         const templateFilename = getCourseTemplateFilename(
           certificate.course,
           certificate.category
@@ -1593,8 +1335,8 @@ const downloadBulkCertificate = async (req, res) => {
           throw new Error(`Template not found: ${certificate.course}`);
         }
 
-        // Load template and create canvas
-        const templateImage = await loadImage(templatePath);
+        // ✅ FIX 3 — Use cached template
+        const templateImage = await loadTemplateImage(templatePath);
         const width = templateImage.width;
         const height = templateImage.height;
 
@@ -1602,7 +1344,6 @@ const downloadBulkCertificate = async (req, res) => {
         const ctx = canvas.getContext("2d");
         ctx.drawImage(templateImage, 0, 0);
 
-        // Format date
         const issueDate = new Date(certificate.issueDate).toLocaleDateString(
           "en-US",
           {
@@ -1614,9 +1355,7 @@ const downloadBulkCertificate = async (req, res) => {
 
         const id = certificate.certificateId.split("-")[0];
 
-        // Draw certificate content based on category
-        if (id === "NEX" || id === "FSD") {
-          // NAME
+        if (id === "NEX" || id === "fsd") {
           ctx.fillStyle = "#1F2937";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -1633,19 +1372,16 @@ const downloadBulkCertificate = async (req, res) => {
             height * 0.46
           );
 
-          // DATE
           ctx.fillStyle = "#1F2937";
           ctx.font = 'bold 40px "Times New Roman", "Roboto Slab", serif';
           ctx.textAlign = "left";
           ctx.textBaseline = "alphabetic";
           ctx.fillText(issueDate, width * 0.595, height * 0.665);
 
-          // CERTIFICATE ID
           ctx.fillStyle = "#1F2937";
           ctx.font = '40px "Times New Roman", "Ovo", serif';
           ctx.fillText(certificate.certificateId, width * 0.42, height * 0.806);
         } else {
-          // NAME
           ctx.fillStyle = "#1F2937";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -1662,23 +1398,19 @@ const downloadBulkCertificate = async (req, res) => {
             height * 0.44
           );
 
-          // DATE
           ctx.fillStyle = "#1F2937";
           ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
           ctx.textAlign = "left";
           ctx.textBaseline = "alphabetic";
           ctx.fillText(issueDate, width * 0.48, height * 0.675);
 
-          // CERTIFICATE ID
           ctx.fillStyle = "#1F2937";
           ctx.font = '42px "Times New Roman", "Ovo", serif';
           ctx.fillText(certificate.certificateId, width * 0.42, height * 0.82);
         }
 
-        // Convert canvas to buffer
         const imageBuffer = canvas.toBuffer("image/png");
 
-        // Store buffer with certificate info
         certificateBuffers.push({
           buffer: imageBuffer,
           width,
@@ -1704,7 +1436,6 @@ const downloadBulkCertificate = async (req, res) => {
       }
     }
 
-    // If no certificates were successfully processed
     if (certificateBuffers.length === 0) {
       return res.status(404).json({
         success: false,
@@ -1720,34 +1451,24 @@ const downloadBulkCertificate = async (req, res) => {
       });
     }
 
-    // Create merged PDF
+    // ✅ FIX 5 — Stream PDF directly to response (no memory accumulation)
     const doc = new PDFDocument({ autoFirstPage: false });
 
-    // Set response headers
     const timestamp = new Date().toISOString().split("T")[0];
     const filename = `certificates_bulk_${timestamp}.pdf`;
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
-    // Pipe PDF to response
+    // Stream directly to response
     doc.pipe(res);
 
-    // Add each certificate as a page
     for (const cert of certificateBuffers) {
       doc.addPage({ size: [cert.width, cert.height], margin: 0 });
       doc.image(cert.buffer, 0, 0, { width: cert.width, height: cert.height });
     }
 
-    // Finalize PDF
     doc.end();
-
-    // Log activity (optional)
-    console.log("Bulk download completed:", {
-      total: certificateIds.length,
-      successful: results.successful.length,
-      failed: results.failed.length,
-    });
 
     await ActivityLog.create({
       action: "bulk_downloaded",
@@ -1771,10 +1492,20 @@ const downloadBulkCertificateInfo = async (req, res) => {
   try {
     const { certificateIds } = req.body;
 
+    // ✅ FIX 5 — Limit bulk size
+    const MAX_BULK_SIZE = 20;
+
     if (!Array.isArray(certificateIds) || certificateIds.length === 0) {
       return res.status(400).json({
         success: false,
         message: "Certificate IDs array is required",
+      });
+    }
+
+    if (certificateIds.length > MAX_BULK_SIZE) {
+      return res.status(400).json({
+        success: false,
+        message: `Bulk download limited to ${MAX_BULK_SIZE} certificates at a time.`,
       });
     }
 
@@ -1787,7 +1518,6 @@ const downloadBulkCertificateInfo = async (req, res) => {
     const { createCanvas, loadImage } = await import("canvas");
     const PDFDocument = (await import("pdfkit")).default;
 
-    // Helper function to get adjusted font size (from your controller)
     function getAdjustedFontSize(ctx, text, maxWidth, baseFontSize) {
       let fontSize = baseFontSize;
       ctx.font = `bold ${fontSize}px Arial`;
@@ -1800,35 +1530,6 @@ const downloadBulkCertificateInfo = async (req, res) => {
       return fontSize;
     }
 
-    // Helper function to get course template filename (from your controller)
-    // function getCourseTemplateFilename(course, category) {
-    //   const templateMap = {
-    //     IT-Nexcore: {
-    //       "Full Stack Certificate (MERN Stack)": "c4b-fullstack-mern.jpg",
-    //       "JavaScript Developer Certificate": "c4b-javascript.jpg",
-    //       "Advanced React Developer Certificate": "c4b-react.jpg",
-    //       "Node.js and Express.js Specialist Certificate": "c4b-nodejs.jpg",
-    //       "MongoDB Professional Certificate": "c4b-mongodb.jpg",
-    //       "Git & Version Control Expert Certificate": "c4b-git.jpg",
-    //       "Frontend Development Pro Certificate": "c4b-frontend.jpg",
-    //       "Backend Development Specialist Certificate": "c4b-backend.jpg",
-    //       "Web Development Project Certificate": "c4b-webdev-project.jpg",
-    //       "Advanced Web Development Capstone Certificate": "c4b-capstone.jpg",
-    //     },
-    //     "marketing-junction": {
-    //       "Digital Marketing Specialist Certificate": "mj-digital-marketing.jpg",
-    //       "Advanced SEO Specialist Certificate": "mj-seo.jpg",
-    //       "Social Media Marketing Expert Certificate": "mj-social-media.jpg",
-    //       "Full Stack Digital Marketer Certificate": "mj-fullstack-marketer.jpg",
-    //       "AI-Powered Digital Marketing Specialist Certificate": "mj-ai-marketing.jpg",
-    //       "Videography Course": "mj-videography.jpg",
-    //     },
-    //   };
-
-    //   return templateMap[category]?.[course] || `${category}-default.png`;
-    // }
-
-    // Process each certificate
     for (const certId of certificateIds) {
       try {
         const certificate = await Certificate.findOne({
@@ -1853,7 +1554,8 @@ const downloadBulkCertificateInfo = async (req, res) => {
           throw new Error(`Template not found: ${certificate.course}`);
         }
 
-        const templateImage = await loadImage(templatePath);
+        // ✅ FIX 3 — Use cached template
+        const templateImage = await loadTemplateImage(templatePath);
         const width = templateImage.width;
         const height = templateImage.height;
 
@@ -1961,7 +1663,6 @@ const downloadBulkCertificateInfo = async (req, res) => {
       });
     }
 
-    // Create merged PDF
     const doc = new PDFDocument({ autoFirstPage: false });
     const chunks = [];
 
@@ -1970,7 +1671,6 @@ const downloadBulkCertificateInfo = async (req, res) => {
       const pdfBuffer = Buffer.concat(chunks);
       const base64Pdf = pdfBuffer.toString("base64");
 
-      // Return JSON with results and PDF
       res.json({
         success: true,
         message: "Bulk download completed",
@@ -1990,7 +1690,6 @@ const downloadBulkCertificateInfo = async (req, res) => {
       });
     });
 
-    // Add each certificate as a page
     for (const cert of certificateBuffers) {
       doc.addPage({ size: [cert.width, cert.height], margin: 0 });
       doc.image(cert.buffer, 0, 0, { width: cert.width, height: cert.height });

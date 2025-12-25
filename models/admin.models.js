@@ -1,4 +1,4 @@
-// File: models/Admin.js
+// File: models/admin.models.js
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
@@ -25,12 +25,16 @@ const adminSchema = new mongoose.Schema(
       enum: [
         "admin",
         "superadmin",
-        "code4bharat_admin",
+        "it_nexcore_admin", // ✅ Changed from "it-nexcore"
+        "code4bharat_admin", // ✅ Kept (same as it-nexcore)
         "marketing_junction_admin",
         "fsd_admin",
         "hr_admin",
         "bootcamp_admin",
         "bvoc_admin",
+        "dm_admin",
+        "operations_admin",
+        "client_admin",
       ],
       default: "admin",
     },
@@ -51,6 +55,30 @@ const adminSchema = new mongoose.Schema(
 
     name: { type: String, trim: true },
     phone: { type: String, trim: true },
+
+    whatsappNumber: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    organization: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    designation: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    location: {
+      type: String,
+      trim: true,
+      default: "",
+    },
 
     isActive: { type: Boolean, default: true },
 

@@ -1,8 +1,6 @@
 // File: controllers/admin.document.controller.js
-// Version 1: Student.js (capital S)
 import Student from "../models/users.models.js";
-import path from "path";
-import fs from "fs";
+import cloudinary from "../config/cloudinary.config.js";
 
 /**
  * Get all students with documents
@@ -11,7 +9,6 @@ export const getStudentsWithDocuments = async (req, res) => {
   try {
     const { page = 1, limit = 100, verified } = req.query;
 
-    // Build query based on verification filter
     let query = {
       $or: [
         { "documents.aadhaarFront": { $exists: true, $ne: null } },
@@ -21,7 +18,6 @@ export const getStudentsWithDocuments = async (req, res) => {
       ],
     };
 
-    // Apply verification filter
     if (verified === "verified") {
       query.documentsVerified = true;
     } else if (verified === "pending") {
@@ -36,11 +32,33 @@ export const getStudentsWithDocuments = async (req, res) => {
       .limit(parseInt(limit))
       .sort({ documentsUploadedAt: -1 });
 
+    const transformedStudents = students.map((student) => {
+      const studentObj = student.toObject();
+
+      if (studentObj.documents) {
+        Object.keys(studentObj.documents).forEach((docKey) => {
+          if (studentObj.documents[docKey]) {
+            const docPath = studentObj.documents[docKey];
+            studentObj.documents[docKey] = {
+              path: docPath,
+              url: docPath,
+              status: studentObj.documentStatus?.[docKey]?.status || "pending",
+              rejectionReason:
+                studentObj.documentStatus?.[docKey]?.rejectionReason || null,
+              updatedAt: studentObj.documentStatus?.[docKey]?.updatedAt || null,
+            };
+          }
+        });
+      }
+
+      return studentObj;
+    });
+
     const total = await Student.countDocuments(query);
 
     res.json({
       success: true,
-      students,
+      students: transformedStudents,
       pagination: {
         total,
         page: parseInt(page),
@@ -58,24 +76,30 @@ export const getStudentsWithDocuments = async (req, res) => {
 };
 
 /**
- * View a specific document
+ * View a specific document - Returns Cloudinary URL
  */
 export const viewStudentDocument = async (req, res) => {
   try {
     const { studentId, docType } = req.params;
 
-    console.log("📄 Viewing document:", { studentId, docType });
+    console.log("\n==========================================");
+    console.log("📄 VIEW DOCUMENT REQUEST");
+    console.log("==========================================");
+    console.log("Student ID:", studentId);
+    console.log("Document Type:", docType);
 
     const student = await Student.findById(studentId);
 
     if (!student) {
+      console.log("❌ Student not found");
       return res.status(404).json({
         success: false,
         message: "Student not found",
       });
     }
 
-    // Map frontend docType to backend field names
+    console.log("✅ Student found:", student.name);
+
     const docFieldMap = {
       aadharFront: "aadhaarFront",
       aadharBack: "aadhaarBack",
@@ -84,104 +108,51 @@ export const viewStudentDocument = async (req, res) => {
     };
 
     const backendField = docFieldMap[docType] || docType;
-    let documentPath = student.documents?.[backendField];
+    console.log("📝 Backend field name:", backendField);
+
+    const documentPath = student.documents?.[backendField];
 
     if (!documentPath) {
+      console.log("❌ Document not found in student.documents");
+      console.log("Available documents:", Object.keys(student.documents || {}));
       return res.status(404).json({
         success: false,
         message: "Document not found",
       });
     }
 
-    // 🔥 FIX: Remove leading slash if present
-    const originalPath = documentPath;
-    documentPath = documentPath.replace(/^\/+/, "");
-
-    // Resolve absolute file path
-    // Handle both "uploads/..." and "uploads-data/..." paths
-    let filePath;
-
-    if (documentPath.startsWith("uploads-data/")) {
-      // If path already includes uploads-data, use it directly
-      filePath = path.join(path.resolve("uploads"), documentPath);
-    } else if (documentPath.startsWith("uploads/")) {
-      // If path starts with uploads/, resolve normally
-      filePath = path.resolve(documentPath);
-    } else {
-      // Otherwise, assume it's relative to uploads folder
-      filePath = path.join(path.resolve("uploads"), documentPath);
-    }
-
-    console.log("📂 Document path from DB:", originalPath);
-    console.log("📂 Cleaned path:", documentPath);
-    console.log("📂 Resolved file path:", filePath);
-
-    const fileExists = fs.existsSync(filePath);
-    console.log("📂 File exists?", fileExists);
-
-    // Check if file exists
-    if (!fileExists) {
-      console.error("❌ File not found at:", filePath);
-
-      // Additional debugging
-      const uploadsDir = path.resolve("uploads");
-      console.log("📁 Uploads directory:", uploadsDir);
-      console.log("📁 Uploads dir exists?", fs.existsSync(uploadsDir));
-
-      try {
-        const files = fs.readdirSync(
-          path.join(uploadsDir, "uploads-data", "student-documents")
-        );
-        console.log("📁 Files in directory:", files.slice(0, 5)); // Show first 5 files
-      } catch (err) {
-        console.error("❌ Cannot read directory:", err.message);
-      }
-
-      return res.status(404).json({
-        success: false,
-        message: "File not found on server",
-        debug: {
-          expectedPath: filePath,
-          uploadsDir: uploadsDir,
-        },
-      });
-    }
-
-    // Get file extension and set content type
-    const ext = path.extname(filePath).toLowerCase();
-    const contentTypes = {
-      ".pdf": "application/pdf",
-      ".jpg": "image/jpeg",
-      ".jpeg": "image/jpeg",
-      ".png": "image/png",
-      ".gif": "image/gif",
-      ".webp": "image/webp",
-    };
-
-    const contentType = contentTypes[ext] || "application/octet-stream";
-
-    // Set headers
-    res.setHeader("Content-Type", contentType);
-    res.setHeader(
-      "Content-Disposition",
-      `inline; filename="${path.basename(filePath)}"`
+    console.log("\n📂 DOCUMENT PATH ANALYSIS");
+    console.log("==========================================");
+    console.log("Raw path from DB:", documentPath);
+    console.log("Path type:", typeof documentPath);
+    console.log("Path length:", documentPath.length);
+    console.log("Starts with http:", documentPath.startsWith("http"));
+    console.log(
+      "Contains cloudinary.com:",
+      documentPath.includes("cloudinary.com")
     );
 
-    // Stream the file
-    const fileStream = fs.createReadStream(filePath);
-    fileStream.pipe(res);
+    // The document path should already be a full Cloudinary URL
+    // Just return it as-is
+    const finalUrl = documentPath;
+    const isCloudinary = finalUrl.includes("cloudinary.com");
 
-    fileStream.on("error", (error) => {
-      console.error("❌ Error streaming file:", error);
-      if (!res.headersSent) {
-        res.status(500).json({
-          success: false,
-          message: "Error reading file",
-        });
-      }
+    console.log("\n✅ FINAL RESPONSE");
+    console.log("==========================================");
+    console.log("Final URL:", finalUrl);
+    console.log("Is Cloudinary:", isCloudinary);
+    console.log("==========================================\n");
+
+    res.json({
+      success: true,
+      url: finalUrl,
+      docType: backendField,
+      isCloudinary: isCloudinary,
     });
   } catch (error) {
-    console.error("❌ Error viewing document:", error);
+    console.error("\n❌ ERROR in viewStudentDocument:");
+    console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -240,7 +211,6 @@ export const updateDocumentStatus = async (req, res) => {
 
     console.log("🔄 Updating document status:", { studentId, docType, status });
 
-    // Validate status
     if (!["pending", "approved", "rejected"].includes(status)) {
       return res.status(400).json({
         success: false,
@@ -248,7 +218,6 @@ export const updateDocumentStatus = async (req, res) => {
       });
     }
 
-    // If rejecting, require rejection reason
     if (status === "rejected" && !rejectionReason) {
       return res.status(400).json({
         success: false,
@@ -265,7 +234,6 @@ export const updateDocumentStatus = async (req, res) => {
       });
     }
 
-    // Map frontend docType to backend field names
     const docFieldMap = {
       aadharFront: "aadhaarFront",
       aadharBack: "aadhaarBack",
@@ -275,7 +243,6 @@ export const updateDocumentStatus = async (req, res) => {
 
     const backendField = docFieldMap[docType] || docType;
 
-    // Check if document exists
     if (!student.documents?.[backendField]) {
       return res.status(404).json({
         success: false,
@@ -283,12 +250,10 @@ export const updateDocumentStatus = async (req, res) => {
       });
     }
 
-    // Initialize documentStatus if it doesn't exist
     if (!student.documentStatus) {
       student.documentStatus = {};
     }
 
-    // Update document status
     student.documentStatus[backendField] = {
       status,
       rejectionReason: status === "rejected" ? rejectionReason : null,
@@ -296,9 +261,7 @@ export const updateDocumentStatus = async (req, res) => {
       updatedBy: req.user.userId,
     };
 
-    // Mark the field as modified (important for nested objects)
     student.markModified("documentStatus");
-
     await student.save();
 
     res.json({
@@ -311,6 +274,64 @@ export const updateDocumentStatus = async (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message,
+    });
+  }
+};
+
+/**
+ * DEBUG: Test Cloudinary configuration
+ */
+export const testCloudinaryConfig = async (req, res) => {
+  try {
+    const config = cloudinary.config();
+
+    res.json({
+      success: true,
+      cloudinary: {
+        configured: !!config.cloud_name,
+        cloud_name: config.cloud_name,
+        has_api_key: !!config.api_key,
+        has_api_secret: !!config.api_secret,
+      },
+      note: "If any value is false or undefined, check your .env file",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * DEBUG: Get raw student document data
+ */
+export const getStudentDocumentsRaw = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const student = await Student.findById(studentId);
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      studentId: student._id,
+      name: student.name,
+      documents: student.documents,
+      documentStatus: student.documentStatus,
+      documentsUploadedAt: student.documentsUploadedAt,
+      documentsVerified: student.documentsVerified,
+      rawDocumentsJSON: JSON.stringify(student.documents, null, 2),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
     });
   }
 };

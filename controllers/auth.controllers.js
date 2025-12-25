@@ -1,11 +1,55 @@
-// File: controllers/auth.controller.js
+// File: controllers/auth.controllers.js
 import jwt from "jsonwebtoken";
-import bcryptjs from "bcryptjs";
 import Admin from "../models/admin.models.js";
 import Student from "../models/users.models.js";
 import { sendOTPViaWhatsApp, verifyOTP } from "../services/whatsappService.js";
 
-// ========== ADMIN LOGIN ==========
+// ✅ FIXED: Unified Permission Mapping
+const ROLE_PERMISSIONS = {
+  superadmin: [
+    "it-nexcore",
+    "marketing-junction",
+    "dm",
+    "fsd",
+    "hr",
+    "bootcamp",
+    "bvoc",
+    "operations",
+    "client",
+    "admin_management",
+  ],
+
+  admin: [
+    "it-nexcore",
+    "marketing-junction",
+    "dm",
+    "fsd",
+    "hr",
+    "bootcamp",
+    "bvoc",
+    "operations",
+    "client",
+    "admin_management", // ✅ Admin can manage other admins
+  ],
+
+  // ✅ IT-Nexcore, Code4Bharat, FSD share access
+  it_nexcore_admin: ["it-nexcore", "fsd"],
+  code4bharat_admin: ["it-nexcore", "fsd"], // Same as IT-Nexcore
+  fsd_admin: ["fsd", "it-nexcore"], // Reverse order, same access
+  
+  // Marketing Junction & DM share access
+  marketing_junction_admin: ["marketing-junction", "dm"],
+  dm_admin: ["dm", "marketing-junction"],
+  
+  // Single-category admins
+  hr_admin: ["hr"],
+  bootcamp_admin: ["bootcamp"],
+  bvoc_admin: ["bvoc"],
+  operations_admin: ["operations"],
+  client_admin: ["client"],
+};
+
+// ========== FIXED ADMIN LOGIN ==========
 export const adminLogin = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -26,6 +70,14 @@ export const adminLogin = async (req, res) => {
       });
     }
 
+    if (!admin.isActive) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Your account has been deactivated. Please contact administrator.",
+      });
+    }
+
     const isPasswordValid = await admin.comparePassword(password);
 
     if (!isPasswordValid) {
@@ -35,15 +87,24 @@ export const adminLogin = async (req, res) => {
       });
     }
 
+    // ✅ CRITICAL FIX: Get permissions from ROLE_PERMISSIONS
+    const permissions = ROLE_PERMISSIONS[admin.role] || [];
+
     const token = jwt.sign(
       {
         username: admin.username,
         userId: admin._id,
         role: admin.role,
+        permissions: permissions, // ✅ Include in token
       },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
+
+    admin.lastLogin = new Date();
+    await admin.save();
+
+   
 
     res.status(200).json({
       success: true,
@@ -55,6 +116,12 @@ export const adminLogin = async (req, res) => {
         role: admin.role,
         name: admin.name,
         email: admin.email,
+        permissions: permissions, // ✅ THIS IS THE KEY FIX
+        phone: admin.phone,
+        whatsappNumber: admin.whatsappNumber,
+        organization: admin.organization,
+        designation: admin.designation,
+        location: admin.location,
       },
     });
   } catch (error) {
@@ -62,7 +129,6 @@ export const adminLogin = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error during login",
-      error: error.message,
     });
   }
 };
@@ -94,14 +160,14 @@ export const studentFirstLogin = async (req, res) => {
       });
     }
 
-    if (student.disabled) {
+    if (!student.isActive) {
       return res.status(403).json({
         success: false,
         message: "Your account has been disabled. Please contact admin.",
       });
     }
 
-    if (!student.firstLogin || student.password) {
+    if (!student.firstLogin) {
       return res.status(400).json({
         success: false,
         requiresPassword: true,
@@ -109,17 +175,18 @@ export const studentFirstLogin = async (req, res) => {
       });
     }
 
-    // Send OTP via WhatsApp
-    const otpResult = await sendOTPViaWhatsApp(formattedPhone, student.name);
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`⚠️ DEV MODE: Skipping OTP send for ${formattedPhone}`);
+    } else {
+      const otpResult = await sendOTPViaWhatsApp(formattedPhone, student.name);
 
-    if (!otpResult.success) {
-      return res.status(500).json({
-        success: false,
-        message: "Failed to send OTP",
-      });
+      if (!otpResult.success) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to send OTP",
+        });
+      }
     }
-
-    console.log("OTP sent via WhatsApp:", otpResult);
 
     const tempToken = jwt.sign(
       {
@@ -134,7 +201,10 @@ export const studentFirstLogin = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "OTP sent to your WhatsApp! Please verify.",
+      message:
+        process.env.NODE_ENV === "production"
+          ? "OTP sent to your WhatsApp! Please verify."
+          : "OTP sent (DEV MODE - use any 6 digits)",
       tempToken,
       firstLogin: true,
       user: {
@@ -151,7 +221,6 @@ export const studentFirstLogin = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Server error during first login",
-      error: error.message,
     });
   }
 };
@@ -161,15 +230,61 @@ export const studentVerifyOTP = async (req, res) => {
   try {
     const { phone, otp } = req.body;
 
-    const formattedPhone = phone.startsWith("91") ? phone : `91${phone}`;
-
-    const result = verifyOTP(formattedPhone, otp);
-
-    if (!result.success) {
+    if (!phone || !otp) {
       return res.status(400).json({
         success: false,
-        message: result.message,
+        message: "Phone and OTP are required",
       });
+    }
+
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "No token provided for OTP verification",
+      });
+    }
+
+    const tempToken = authHeader.split(" ")[1];
+
+    let decoded;
+    try {
+      decoded = jwt.verify(tempToken, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(401).json({
+        success: false,
+        message: "OTP session expired. Please start login again.",
+      });
+    }
+
+    if (!decoded.isFirstLogin) {
+      return res.status(403).json({
+        success: false,
+        message: "Invalid OTP session",
+      });
+    }
+
+    const formattedPhone = phone.startsWith("91") ? phone : `91${phone}`;
+
+    if (decoded.phone !== formattedPhone) {
+      return res.status(403).json({
+        success: false,
+        message: "OTP does not belong to this session",
+      });
+    }
+
+    let result = { success: true };
+
+    if (process.env.NODE_ENV === "production") {
+      result = verifyOTP(formattedPhone, otp);
+
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          message: result.message,
+        });
+      }
     }
 
     const student = await Student.findOne({ phone: formattedPhone });
@@ -181,8 +296,7 @@ export const studentVerifyOTP = async (req, res) => {
       });
     }
 
-    // Generate tempToken for password setup step
-    const tempToken = jwt.sign(
+    const nextTempToken = jwt.sign(
       {
         userId: student._id,
         phone: student.phone,
@@ -196,7 +310,7 @@ export const studentVerifyOTP = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "OTP verified",
-      tempToken,
+      tempToken: nextTempToken,
       user: {
         id: student._id,
         name: student.name,
@@ -288,9 +402,7 @@ export const studentSetPassword = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcryptjs.hash(password, 10);
-
-    student.password = hashedPassword;
+    student.password = password;
     student.firstLogin = false;
     await student.save();
 
@@ -323,7 +435,6 @@ export const studentSetPassword = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error during password setup",
-      error: error.message,
     });
   }
 };
@@ -340,21 +451,15 @@ export const studentLogin = async (req, res) => {
       });
     }
 
-    // Format phone if it's a number
     const formattedLoginId = /^\d+$/.test(loginId)
       ? loginId.startsWith("91")
         ? loginId
         : `91${loginId}`
       : loginId;
 
-    console.log(formattedLoginId);
-
-    // Find student by phone or email
     const student = await Student.findOne({
       $or: [{ phone: formattedLoginId }, { email: formattedLoginId }],
     }).select("+password");
-
-    console.log(student);
 
     if (!student) {
       return res.status(401).json({
@@ -363,15 +468,13 @@ export const studentLogin = async (req, res) => {
       });
     }
 
-    // Check if student is disabled
-    if (student.disabled) {
+    if (!student.isActive) {
       return res.status(403).json({
         success: false,
         message: "Your account has been disabled. Please contact admin.",
       });
     }
 
-    // Check if first login
     if (student.firstLogin) {
       return res.status(403).json({
         success: false,
@@ -380,10 +483,7 @@ export const studentLogin = async (req, res) => {
       });
     }
 
-    // Verify password
     const isPasswordValid = await student.comparePassword(password);
-
-    console.log(isPasswordValid);
 
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -392,7 +492,6 @@ export const studentLogin = async (req, res) => {
       });
     }
 
-    // Generate token
     const token = jwt.sign(
       {
         phone: student.phone,
@@ -422,7 +521,6 @@ export const studentLogin = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error during login",
-      error: error.message,
     });
   }
 };
@@ -453,7 +551,6 @@ export const studentChangePassword = async (req, res) => {
       });
     }
 
-    // Get student with password
     const student = await Student.findById(req.user._id).select("+password");
 
     if (!student) {
@@ -463,7 +560,6 @@ export const studentChangePassword = async (req, res) => {
       });
     }
 
-    // Verify current password
     const isCurrentPasswordValid = await student.comparePassword(
       currentPassword
     );
@@ -475,7 +571,6 @@ export const studentChangePassword = async (req, res) => {
       });
     }
 
-    // Set new password
     student.password = newPassword;
     await student.save();
 
@@ -488,7 +583,6 @@ export const studentChangePassword = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error during password change",
-      error: error.message,
     });
   }
 };
@@ -505,10 +599,8 @@ export const studentRegister = async (req, res) => {
       });
     }
 
-    // Format phone
     const formattedPhone = phone.startsWith("91") ? phone : `91${phone}`;
 
-    // Check if student already exists
     const existingStudent = await Student.findOne({
       $or: [{ email }, { phone: formattedPhone }],
     });
@@ -520,7 +612,6 @@ export const studentRegister = async (req, res) => {
       });
     }
 
-    // Create new student (no password, firstLogin = true)
     const newStudent = new Student({
       name,
       email: email || null,
@@ -528,7 +619,7 @@ export const studentRegister = async (req, res) => {
       category,
       batch: batch || "",
       firstLogin: true,
-      password: undefined, // No password initially
+      password: undefined,
     });
 
     await newStudent.save();
@@ -553,7 +644,6 @@ export const studentRegister = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error during registration",
-      error: error.message,
     });
   }
 };
@@ -571,6 +661,207 @@ export const verifyToken = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error verifying token",
+    });
+  }
+};
+
+// ========== FORGOT PASSWORD - SEND OTP ==========
+export const studentForgotPassword = async (req, res) => {
+  try {
+    const { phone } = req.body;
+
+    if (!phone) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number is required",
+      });
+    }
+
+    const formattedPhone = phone.startsWith("91") ? phone : `91${phone}`;
+
+    const student = await Student.findOne({ phone: formattedPhone });
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    if (!student.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: "Your account has been disabled. Please contact admin.",
+      });
+    }
+
+    if (process.env.NODE_ENV !== "production") {
+      console.log(
+        `⚠️ DEV MODE: Skipping forgot password OTP send for ${formattedPhone}`
+      );
+    } else {
+      const otpResult = await sendOTPViaWhatsApp(formattedPhone, student.name);
+
+      if (!otpResult.success) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to send OTP",
+        });
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message:
+        process.env.NODE_ENV === "production"
+          ? "OTP sent for password reset"
+          : "OTP sent (DEV MODE - use any 6 digits)",
+    });
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+// ========== FORGOT PASSWORD - VERIFY OTP ==========
+export const studentVerifyResetOTP = async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+
+    if (!phone || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone and OTP are required",
+      });
+    }
+
+    const formattedPhone = phone.startsWith("91") ? phone : `91${phone}`;
+
+    if (process.env.NODE_ENV === "production") {
+      const result = verifyOTP(formattedPhone, otp);
+
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          message: result.message,
+        });
+      }
+    } else {
+      console.log(
+        `⚠️ DEV MODE: Accepting reset OTP ${otp} without verification`
+      );
+    }
+
+    const student = await Student.findOne({ phone: formattedPhone });
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    const resetToken = jwt.sign(
+      {
+        userId: student._id,
+        purpose: "password-reset",
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "OTP verified",
+      resetToken,
+    });
+  } catch (error) {
+    console.error("Verify reset OTP error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+// ========== FORGOT PASSWORD - RESET PASSWORD ==========
+export const studentResetPassword = async (req, res) => {
+  try {
+    const { password, confirmPassword } = req.body;
+
+    if (!password || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Password and confirm password are required",
+      });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Passwords do not match",
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters long",
+      });
+    }
+
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "No reset token provided",
+      });
+    }
+
+    const resetToken = authHeader.split(" ")[1];
+
+    let decoded;
+    try {
+      decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired reset token",
+      });
+    }
+
+    if (decoded.purpose !== "password-reset") {
+      return res.status(403).json({
+        success: false,
+        message: "Invalid reset token",
+      });
+    }
+
+    const student = await Student.findById(decoded.userId).select("+password");
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    student.password = password;
+    await student.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successful",
+    });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
     });
   }
 };

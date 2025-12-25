@@ -20,23 +20,6 @@ const app = express();
 const PORT = process.env.PORT || 5235;
 
 // ===============================
-// MongoDB Connection
-// ===============================
-// if (process.env.MONGODB_URI) {
-//   mongoose
-//     .connect(process.env.MONGODB_URI)
-//     .then(() => console.log('✅ Connected to MongoDB'))
-//     .catch((err) => {
-//       console.error('❌ MongoDB error:', err.message);
-//       process.exit(1);
-//     });
-// } else {
-//   console.log('⚠️ Running without MongoDB - using memory storage');
-// }
-
-connectDb();
-
-// ===============================
 // CORS
 // ===============================
 const allowedOrigins = [
@@ -64,7 +47,7 @@ app.use(
 );
 
 // ===============================
-// RATE LIMITER
+// RATE LIMITER (API only)
 // ===============================
 import rateLimit from "express-rate-limit";
 
@@ -79,7 +62,7 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.use(limiter);
+app.use("/api", limiter);
 
 app.use((req, res, next) => {
   // HTTPS only
@@ -97,12 +80,11 @@ app.use((req, res, next) => {
   // Referrer protection
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 
-  // Strong CSP
+  // ✅ FIXED CSP - Allow iframe for document preview
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self'; img-src 'self' data: blob: https:; object-src 'none'; frame-ancestors 'none';"
+    "default-src 'self'; img-src 'self' data: blob: https:; media-src 'self' https:; connect-src 'self' https:; object-src 'self'; frame-src 'self'; frame-ancestors 'none';"
   );
-
   // Disable browser features
   res.setHeader(
     "Permissions-Policy",
@@ -120,9 +102,17 @@ app.use((req, res, next) => {
   }
 
   // Cross-origin protections (PDF friendly)
-  res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+  if (
+    req.url.startsWith("/api/documents/students/") &&
+    req.url.includes("/view")
+  ) {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+  } else {
+    res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+    res.setHeader("Cross-Origin-Embedder-Policy", "credentialless");
+  }
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
-  res.setHeader("Cross-Origin-Embedder-Policy", "credentialless");
 
   next();
 });
@@ -133,11 +123,14 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Logger
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  next();
-});
+// Logger (dev only or API routes only)
+if (process.env.NODE_ENV !== "production") {
+  app.use((req, res, next) => {
+    const safeUrl = req.originalUrl.split("?")[0]; // Remove query params
+    console.log(`${new Date().toISOString()} - ${req.method} ${safeUrl}`);
+    next();
+  });
+}
 
 // ===============================
 // Static Files
@@ -146,15 +139,19 @@ app.use("/templates", express.static(path.join(__dirname, "templates")));
 app.use("/uploads-data", express.static(path.join(__dirname, "uploads-data")));
 
 // Auto-create upload folders
-[
-  "uploads-data/certificates",
-  "uploads-data/letters",
-  "uploads-data/signed-letters",
-  "uploads-data/profiles",
-  "uploads-data/student-documents",
-].forEach((dir) => {
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-});
+function ensureDirs() {
+  const dirs = [
+    "uploads-data/certificates",
+    "uploads-data/letters",
+    "uploads-data/signed-letters",
+    "uploads-data/profiles",
+    "uploads-data/student-documents",
+  ];
+  dirs.forEach((dir) => {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  });
+}
+ensureDirs();
 
 // ===============================
 // ROUTES — FIXED & CLEANED
@@ -163,12 +160,12 @@ app.use("/uploads-data", express.static(path.join(__dirname, "uploads-data")));
 // Auth (Admin + Student)
 import authRoutes from "./routes/auth.routes.js";
 app.use("/api/auth", authRoutes);
+app.use("/api/auth/user", authRoutes);
 
 // Admin System (MongoDB Based)
 import adminRoutes from "./routes/admin.routes.js";
 app.use("/api/admin", adminRoutes);
 
-// Admin Document Management
 import adminDocumentRoutes from "./routes/admin.document.routes.js";
 app.use("/api/documents", adminDocumentRoutes);
 
@@ -179,10 +176,8 @@ import templateRoutes from "./routes/template.routes.js";
 import peopleRoutes from "./routes/people.routes.js";
 import batchRoutes from "./routes/batch.routes.js";
 import letterRoutes from "./routes/letter.routes.js";
-import userAuthRoutes from "./routes/auth.routes.js";
 import onboardingRoutes from "./routes/onboardingRequest.routes.js";
 import categoryRoutes from "./routes/category.routes.js";
-import userRoutes from "./routes/user.routes.js";
 import clientRoutes from "./routes/client.routes.js";
 
 // Attach Routes
@@ -193,13 +188,11 @@ app.use("/api/people", peopleRoutes);
 app.use("/api/batches", batchRoutes);
 app.use("/api/letters", letterRoutes);
 app.use("/api/categories", categoryRoutes);
-app.use("/api/auth/user", userAuthRoutes);
 app.use("/api/onboarding-request", onboardingRoutes);
-app.use("/api/client", clientRoutes);
+app.use("/api/clientletters", clientRoutes);
 
 // Student
 import studentRoutes from "./routes/users.routes.js";
-import connectDb from "./config/db.config.js";
 app.use("/api/student", studentRoutes);
 
 // ===============================
@@ -214,6 +207,23 @@ app.get("/health", (req, res) => {
 });
 
 // ===============================
+// Debug: Log all registered routes (FIXED)
+// ===============================
+if (process.env.NODE_ENV !== "production" && app._router) {
+  console.log("\n📋 Registered Routes:");
+  app._router.stack.forEach(function (r) {
+    if (r.route && r.route.path) {
+      console.log(
+        `  ${Object.keys(r.route.methods).join(", ").toUpperCase()} ${
+          r.route.path
+        }`
+      );
+    }
+  });
+  console.log("\n");
+}
+
+// ===============================
 // 404 Handler
 // ===============================
 app.use((req, res) => {
@@ -226,15 +236,114 @@ app.use((req, res) => {
 // Global Error Handler
 // ===============================
 app.use((err, req, res, next) => {
-  console.error("❌ ERROR:", err.message);
-  res.status(500).json({ success: false, message: err.message });
+  console.error("❌ ERROR:", {
+    message: err.message,
+    path: req.originalUrl,
+    method: req.method,
+  });
+
+  // Multer errors (file upload issues)
+  if (err.name === "MulterError") {
+    return res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+
+  // Custom status codes (from controllers)
+  if (err.statusCode) {
+    return res.status(err.statusCode).json({
+      success: false,
+      message: err.message,
+    });
+  }
+
+  // Default 500
+  res.status(500).json({
+    success: false,
+    message:
+      process.env.NODE_ENV === "production"
+        ? "Internal server error"
+        : err.message,
+  });
 });
 
 // ===============================
-// Start Server
+// MongoDB Connection & Server Start
 // ===============================
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+import connectDb from "./config/db.config.js";
+
+const startServer = async () => {
+  try {
+    // ✅ Wait for MongoDB connection first
+    await connectDb();
+    console.log("✅ MongoDB connected successfully");
+
+    // ✅ Create default admin AFTER connection is established
+    await createDefaultAdmin();
+
+    // ✅ Start server only after DB is ready
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+      console.log(`📊 Health check: http://localhost:${PORT}/health`);
+    });
+  } catch (error) {
+    console.error("❌ Failed to start server:", error);
+    process.exit(1);
+  }
+};
+
+// ===============================
+// Default Admin Creation
+// ===============================
+const createDefaultAdmin = async () => {
+  try {
+    const Admin = (await import("./models/admin.models.js")).default;
+
+    const adminCount = await Admin.countDocuments();
+
+    if (adminCount === 0) {
+      const defaultAdmin = new Admin({
+        username: "admin",
+        password: "admin123", // ⚠️ Change this in production!
+        permissions: ["admin_management"],
+      });
+
+      await defaultAdmin.save();
+      console.log(
+        "✅ Default admin created (username: admin, password: admin123)"
+      );
+      console.log("⚠️  IMPORTANT: Change default password immediately!");
+    } else {
+      console.log(`ℹ️  ${adminCount} admin user(s) already exist`);
+    }
+  } catch (error) {
+    console.error("❌ Error creating default admin:", error.message);
+    // Don't exit - server can still run without default admin
+  }
+};
+
+// ===============================
+// Graceful Shutdown
+// ===============================
+process.on("SIGTERM", async () => {
+  console.log("👋 SIGTERM received, closing server gracefully");
+  await mongoose.connection.close();
+  process.exit(0);
 });
+
+process.on("SIGINT", async () => {
+  console.log("👋 SIGINT received, closing server gracefully");
+  await mongoose.connection.close();
+  process.exit(0);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.error("❌ Unhandled Promise Rejection:", err);
+  process.exit(1);
+});
+
+// ✅ Start the application
+startServer();
 
 export default app;

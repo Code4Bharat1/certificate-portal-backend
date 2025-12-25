@@ -1,64 +1,75 @@
-import express from 'express';
-import { body, validationResult } from 'express-validator';
-import { authenticate } from '../middleware/auth.middleware.js';
-import certificateControllers from '../controllers/certificate.controllers.js';
+import express from "express";
+import { body, validationResult } from "express-validator";
+import { authenticate } from "../middleware/auth.middleware.js";
+import certificateControllers from "../controllers/certificate.controllers.js";
 import {
   sendOTPViaWhatsApp,
   verifyOTP,
   sendCertificateNotification,
-  sendBulkCertificateNotification
-} from '../services/whatsappService.js';
-import Certificate from '../models/certificate.models.js';
+  sendBulkCertificateNotification,
+} from "../services/whatsappService.js";
+import Certificate from "../models/certificate.models.js";
 import ActivityLog from "../models/activitylog.models.js";
-
 
 const router = express.Router();
 
 // ==================== OTP ROUTES (WhatsApp) ====================
 
 // Send OTP via WhatsApp
-router.post('/otp/send', authenticate, async (req, res) => {
+router.post("/otp/send", async (req, res) => {
   try {
     const { phone, name } = req.body;
 
     if (!phone) {
       return res.status(400).json({
         success: false,
-        message: 'Phone number is required'
+        message: "Phone number is required",
       });
     }
 
-    const result = await sendOTPViaWhatsApp(phone, name || 'Admin');
+    let result;
+    try {
+      result = await sendOTPViaWhatsApp(phone, name || "Admin");
+    } catch (whatsappError) {
+      if (process.env.NODE_ENV !== "production") {
+        console.log("WhatsApp Response:", whatsappResponse);
+      }
 
-    if (result.success) {
+      return res.status(502).json({
+        success: false,
+        message: "WhatsApp service unavailable",
+      });
+    }
+
+    if (result?.success) {
       res.json({
         success: true,
-        message: 'OTP sent successfully to WhatsApp'
+        message: "OTP sent successfully to WhatsApp",
       });
     } else {
       res.status(500).json({
         success: false,
-        message: result.message
+        message: result?.message || "Failed to send OTP",
       });
     }
   } catch (error) {
-    console.error('Send OTP error:', error);
+    console.error("Send OTP error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to send OTP'
+      message: "Failed to send OTP",
     });
   }
 });
 
 // Verify OTP
-router.post('/otp/verify',  async (req, res) => {
+router.post("/otp/verify", async (req, res) => {
   try {
     const { otp, phone } = req.body;
 
-    if (!otp) {
+    if (!otp || !phone) {
       return res.status(400).json({
         success: false,
-        message: 'OTP and phone number are required'
+        message: "OTP and phone number are required",
       });
     }
 
@@ -67,19 +78,19 @@ router.post('/otp/verify',  async (req, res) => {
     if (result.success) {
       res.json({
         success: true,
-        message: 'OTP verified successfully'
+        message: "OTP verified successfully",
       });
     } else {
       res.status(400).json({
         success: false,
-        message: result.message
+        message: result.message,
       });
     }
   } catch (error) {
-    console.error('Verify OTP error:', error);
+    console.error("Verify OTP error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to verify OTP'
+      message: "Failed to verify OTP",
     });
   }
 });
@@ -87,7 +98,7 @@ router.post('/otp/verify',  async (req, res) => {
 // ==================== INTERN MANAGEMENT ====================
 
 // Get interns by category, subcategory and batch
-router.get('/interns', authenticate, async (req, res) => {
+router.get("/interns", authenticate, async (req, res) => {
   try {
     const { category, batch, subCategory } = req.query;
 
@@ -97,69 +108,75 @@ router.get('/interns', authenticate, async (req, res) => {
     // Sample implementation
     const sampleInterns = [
       {
-        internId: 'C4B001',
-        name: 'Rahul Sharma',
-        phone: '919876543210',
-        category: 'internship',
-        subCategory: 'c4b',
-        batch: 'C4B Batch 1',
-        email: 'rahul@example.com',
+        internId: "C4B001",
+        name: "Rahul Sharma",
+        phone: "919876543210",
+        category: "internship",
+        subCategory: "c4b",
+        batch: "C4B Batch 1",
+        email: "rahul@example.com",
         certificatesCreated: 2,
-        certificatesTotal: 5
+        certificatesTotal: 5,
       },
       {
-        internId: 'MJ001',
-        name: 'Priya Singh',
-        phone: '919876543211',
-        category: 'internship',
-        subCategory: 'mj',
-        batch: 'MJ Batch 1',
-        email: 'priya@example.com',
+        internId: "MJ001",
+        name: "Priya Singh",
+        phone: "919876543211",
+        category: "internship",
+        subCategory: "mj",
+        batch: "MJ Batch 1",
+        email: "priya@example.com",
         certificatesCreated: 1,
-        certificatesTotal: 5
+        certificatesTotal: 5,
       },
       {
-        internId: 'FSD001',
-        name: 'Amit Patel',
-        phone: '919876543212',
-        category: 'fsd',
+        internId: "FSD001",
+        name: "Amit Patel",
+        phone: "919876543212",
+        category: "fsd",
         subCategory: null,
-        batch: 'FSD1',
-        email: 'amit@example.com',
+        batch: "FSD1",
+        email: "amit@example.com",
         certificatesCreated: 3,
-        certificatesTotal: 5
-      }
+        certificatesTotal: 5,
+      },
     ];
 
     let filteredInterns = sampleInterns;
 
     if (category) {
-      filteredInterns = filteredInterns.filter(intern => intern.category === category);
+      filteredInterns = filteredInterns.filter(
+        (intern) => intern.category === category
+      );
     }
 
     if (subCategory) {
-      filteredInterns = filteredInterns.filter(intern => intern.subCategory === subCategory);
+      filteredInterns = filteredInterns.filter(
+        (intern) => intern.subCategory === subCategory
+      );
     }
 
     if (batch) {
-      filteredInterns = filteredInterns.filter(intern => intern.batch === batch);
+      filteredInterns = filteredInterns.filter(
+        (intern) => intern.batch === batch
+      );
     }
 
     res.json({
       success: true,
-      interns: filteredInterns
+      interns: filteredInterns,
     });
   } catch (error) {
-    console.error('Fetch interns error:', error);
+    console.error("Fetch interns error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch interns'
+      message: "Failed to fetch interns",
     });
   }
 });
 
 // Get certificate statistics for an intern
-router.get('/stats/:internId', authenticate, async (req, res) => {
+router.get("/stats/:internId", authenticate, async (req, res) => {
   try {
     const { internId } = req.params;
 
@@ -172,18 +189,18 @@ router.get('/stats/:internId', authenticate, async (req, res) => {
     const stats = {
       created: 2,
       total: 5,
-      remaining: 3
+      remaining: 3,
     };
 
     res.json({
       success: true,
-      stats
+      stats,
     });
   } catch (error) {
-    console.error('Fetch stats error:', error);
+    console.error("Fetch stats error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch statistics'
+      message: "Failed to fetch statistics",
     });
   }
 });
@@ -191,10 +208,10 @@ router.get('/stats/:internId', authenticate, async (req, res) => {
 // ==================== EXISTING ROUTES (UPDATED) ====================
 
 // Get all certificates
-router.get('/', authenticate, certificateControllers.getAllCertificate);
+router.get("/", authenticate, certificateControllers.getAllCertificate);
 
 // ==================== FETCH COURSES (ACTIVE ROUTE) ====================
-router.get('/available-courses', authenticate, async (req, res) => {
+router.get("/available-courses", authenticate, async (req, res) => {
   try {
     const { category, name } = req.query;
 
@@ -264,38 +281,38 @@ router.get('/available-courses', authenticate, async (req, res) => {
     // Aggregate certificate data by name for this category
     const certificateStats = await Certificate.aggregate([
       {
-        $match: { category: category }
+        $match: { category: category },
       },
       {
         $group: {
-          _id: '$name',
+          _id: "$name",
           totalCertificates: { $sum: 1 },
-          courses: { $addToSet: '$course' },
+          courses: { $addToSet: "$course" },
           certificates: {
             $push: {
-              certificateId: '$certificateId',
-              course: '$course',
-              issueDate: '$issueDate',
-              status: '$status',
-              batch: '$batch',
-              _id: '$_id'
-            }
-          }
-        }
+              certificateId: "$certificateId",
+              course: "$course",
+              issueDate: "$issueDate",
+              status: "$status",
+              batch: "$batch",
+              _id: "$_id",
+            },
+          },
+        },
       },
       {
         $project: {
           _id: 0,
-          name: '$_id',
+          name: "$_id",
           totalCertificates: 1,
-          courseCount: { $size: '$courses' },
-          completedCourses: '$courses',
-          certificates: 1
-        }
+          courseCount: { $size: "$courses" },
+          completedCourses: "$courses",
+          certificates: 1,
+        },
       },
       {
-        $sort: { courseCount: -1, name: 1 }
-      }
+        $sort: { courseCount: -1, name: 1 },
+      },
     ]);
 
     // Get certificates already created for the selected student (if name is provided)
@@ -304,7 +321,7 @@ router.get('/available-courses', authenticate, async (req, res) => {
     let studentStats = null;
 
     if (name) {
-      const studentData = certificateStats.find(s => s.name === name);
+      const studentData = certificateStats.find((s) => s.name === name);
 
       if (studentData) {
         createdCertificates = studentData.completedCourses || [];
@@ -313,18 +330,20 @@ router.get('/available-courses', authenticate, async (req, res) => {
           totalCertificates: studentData.totalCertificates,
           courseCount: studentData.courseCount,
           completedCourses: studentData.completedCourses,
-          certificates: studentData.certificates
+          certificates: studentData.certificates,
         };
 
         // Filter out already completed courses
         availableCourses = allCourses.filter(
-          course => !createdCertificates.includes(course)
+          (course) => !createdCertificates.includes(course)
         );
       }
     }
 
     // Get overall statistics
-    const totalCertificatesIssued = await Certificate.countDocuments({ category });
+    const totalCertificatesIssued = await Certificate.countDocuments({
+      category,
+    });
     const uniqueStudents = certificateStats.length;
 
     res.json({
@@ -336,27 +355,27 @@ router.get('/available-courses', authenticate, async (req, res) => {
       statistics: {
         totalCertificatesIssued,
         uniqueStudents,
-        averageCertificatesPerStudent: uniqueStudents > 0
-          ? (totalCertificatesIssued / uniqueStudents).toFixed(2)
-          : 0,
-        totalAvailableCourses: allCourses.length
+        averageCertificatesPerStudent:
+          uniqueStudents > 0
+            ? (totalCertificatesIssued / uniqueStudents).toFixed(2)
+            : 0,
+        totalAvailableCourses: allCourses.length,
       },
       studentStats, // Stats for the selected student
-      studentProgress: certificateStats // All students' progress
+      studentProgress: certificateStats, // All students' progress
     });
-
   } catch (error) {
-    console.error('Fetch available courses error:', error);
+    console.error("Fetch available courses error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch available courses',
-      error: error.message
+      message: "Failed to fetch available courses",
+      error: error.message,
     });
   }
 });
 
 // Get certificate by ID
-router.get('/:id', authenticate, certificateControllers.getCertificateById);
+router.get("/:id", authenticate, certificateControllers.getCertificateById);
 
 // Create certificate (UPDATED with WhatsApp notification)
 router.post(
@@ -375,14 +394,14 @@ router.post(
 );
 
 // Bulk certificate creation (NEW)
-router.post('/bulk', authenticate, async (req, res) => {
+router.post("/bulk", authenticate, async (req, res) => {
   try {
     const { certificates, adminPhone, adminName } = req.body;
 
     if (!Array.isArray(certificates) || certificates.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid certificate data'
+        message: "Invalid certificate data",
       });
     }
 
@@ -390,7 +409,7 @@ router.post('/bulk', authenticate, async (req, res) => {
       successful: [],
       failed: [],
       whatsappSuccess: 0,
-      whatsappFailed: 0
+      whatsappFailed: 0,
     };
 
     // Process each certificate
@@ -398,14 +417,18 @@ router.post('/bulk', authenticate, async (req, res) => {
       try {
         // Validate required fields
         if (!cert.name || !cert.category || !cert.course || !cert.issueDate) {
-          throw new Error('Missing required fields: name, category, course, or issueDate');
+          throw new Error(
+            "Missing required fields: name, category, course, or issueDate"
+          );
         }
 
         let certificateId;
         let existingId;
 
         do {
-          certificateId = certificateControllers.generateCertificateId(cert.category);
+          certificateId = certificateControllers.generateCertificateId(
+            cert.category
+          );
           existingId = await Certificate.findOne({ certificateId });
         } while (existingId);
 
@@ -417,9 +440,9 @@ router.post('/bulk', authenticate, async (req, res) => {
           batch: cert.batch || null,
           course: cert.course,
           issueDate: new Date(cert.issueDate),
-          status: 'pending',
+          status: "pending",
           downloadCount: 0,
-          createdBy: req.user._id || req.user.id
+          createdBy: req.user._id || req.user.id,
         };
 
         // Save certificate to database
@@ -441,15 +464,14 @@ router.post('/bulk', authenticate, async (req, res) => {
               course: cert.course,
               category: cert.category,
               batch: cert.batch,
-              issueDate: cert.issueDate
+              issueDate: cert.issueDate,
             });
 
             console.log("WhatsApp Response: ", whatsappResponse);
             whatsappSent = true;
             results.whatsappSuccess++;
-
           } catch (notificationError) {
-            console.error('WhatsApp notification failed:', notificationError);
+            console.error("WhatsApp notification failed:", notificationError);
             whatsappError = notificationError.message;
             results.whatsappFailed++;
           }
@@ -466,15 +488,14 @@ router.post('/bulk', authenticate, async (req, res) => {
           phone: cert.phone,
           // previewUrl: previewUrl, // ✅ Frontend expects this for preview
           whatsappSent: whatsappSent,
-          whatsappError: whatsappError
+          whatsappError: whatsappError,
         });
-
       } catch (error) {
-        console.error('Certificate creation error:', error);
+        // console.error("Certificate creation error:", error);
         results.failed.push({
-          name: cert.name || 'Unknown',
-          phone: cert.phone || 'N/A',
-          error: error.message
+          name: cert.name || "Unknown",
+          phone: cert.phone || "N/A",
+          error: error.message,
         });
       }
     }
@@ -482,15 +503,19 @@ router.post('/bulk', authenticate, async (req, res) => {
     // Send summary to admin via WhatsApp
     if (adminPhone) {
       try {
-        await sendBulkCertificateNotification(adminPhone, adminName || 'Admin', {
-          total: certificates.length,
-          successful: results.successful.length,
-          failed: results.failed.length,
-          whatsappSent: results.whatsappSuccess,
-          whatsappFailed: results.whatsappFailed
-        });
+        await sendBulkCertificateNotification(
+          adminPhone,
+          adminName || "Admin",
+          {
+            total: certificates.length,
+            successful: results.successful.length,
+            failed: results.failed.length,
+            whatsappSent: results.whatsappSuccess,
+            whatsappFailed: results.whatsappFailed,
+          }
+        );
       } catch (notificationError) {
-        console.error('Admin notification failed:', notificationError);
+        console.error("Admin notification failed:", notificationError);
       }
     }
 
@@ -501,39 +526,37 @@ router.post('/bulk', authenticate, async (req, res) => {
       details: `Bulk created ${results.successful.length} certificates`,
     });
 
-
     // ✅ Response structure matching frontend expectations
     return res.json({
       success: true,
-      message: 'Bulk creation completed',
+      message: "Bulk creation completed",
       results: {
         total: certificates.length,
         successful: results.successful.length,
         failed: results.failed.length,
         whatsappSent: results.whatsappSuccess,
-        whatsappFailed: results.whatsappFailed
+        whatsappFailed: results.whatsappFailed,
       },
       data: {
         successful: results.successful, // ✅ Frontend uses data.successful
-        failed: results.failed           // ✅ Frontend uses data.failed
-      }
+        failed: results.failed, // ✅ Frontend uses data.failed
+      },
     });
-
   } catch (error) {
-    console.error('Bulk creation error:', error);
+    console.error("Bulk creation error:", error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to process bulk creation',
-      error: error.message
+      message: "Failed to process bulk creation",
+      error: error.message,
     });
   }
 });
 
 // Verify certificate (PUBLIC - No Auth)
-router.post('/verify', certificateControllers.verifyCertificate);
+router.post("/verify", certificateControllers.verifyCertificate);
 
 // Verify certificate by ID (PUBLIC - For WhatsApp links)
-router.get('/verify/:certificateId', async (req, res) => {
+router.get("/verify/:certificateId", async (req, res) => {
   try {
     const { certificateId } = req.params;
 
@@ -542,53 +565,74 @@ router.get('/verify/:certificateId', async (req, res) => {
 
     const mockReq = {
       body: { certificateId },
-      params: { id: certificateId }
+      params: { id: certificateId },
     };
 
-    const certificate = await certificateControllers.getCertificateById(mockReq, res);
+    const certificate = await certificateControllers.getCertificateById(
+      mockReq,
+      res
+    );
 
     if (!certificate) {
       return res.status(404).json({
         success: false,
-        message: 'Certificate not found'
+        message: "Certificate not found",
       });
     }
 
     res.json({
       success: true,
-      data: certificate
+      data: certificate,
     });
   } catch (error) {
-    console.error('Verify certificate error:', error);
+    console.error("Verify certificate error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to verify certificate'
+      message: "Failed to verify certificate",
     });
   }
 });
 
 // Update download status
-router.patch('/:id/download', authenticate, certificateControllers.updateDownloadStatus);
+router.patch(
+  "/:id/download",
+  authenticate,
+  certificateControllers.updateDownloadStatus
+);
 
 // Delete certificate
-router.delete('/:id', authenticate, certificateControllers.deleteCertificate);
+router.delete("/:id", authenticate, certificateControllers.deleteCertificate);
 
 // Download Certificate as PDF
-router.get('/:id/download/pdf', certificateControllers.downloadCertificateAsPdf);
+router.get(
+  "/:id/download/pdf",
+  certificateControllers.downloadCertificateAsPdf
+);
 
 // Download Certificate as JPG
-router.get('/:id/download/jpg', certificateControllers.downloadCertificateAsJpg);
+router.get(
+  "/:id/download/jpg",
+  certificateControllers.downloadCertificateAsJpg
+);
 
 // Add this route after the existing download routes
 
 // Bulk Download Certificates as Single Merged PDF
-router.post('/bulk/download', authenticate, certificateControllers.downloadBulkCertificate)
+router.post(
+  "/bulk/download",
+  authenticate,
+  certificateControllers.downloadBulkCertificate
+);
 
 // Alternative: Bulk Download with JSON Response (includes failed certificates info)
-router.post('/bulk/download-info', authenticate, certificateControllers.downloadBulkCertificateInfo)
+router.post(
+  "/bulk/download-info",
+  authenticate,
+  certificateControllers.downloadBulkCertificateInfo
+);
 
 // Download certificate by ID (For WhatsApp links)
-router.get('/download/:certificateId', async (req, res) => {
+router.get("/download/:certificateId", async (req, res) => {
   try {
     const { certificateId } = req.params;
 
@@ -598,21 +642,21 @@ router.get('/download/:certificateId', async (req, res) => {
 
     // Redirect to existing download route
     const mockReq = {
-      params: { id: certificateId }
+      params: { id: certificateId },
     };
 
     return certificateControllers.downloadCertificateAsPdf(mockReq, res);
   } catch (error) {
-    console.error('Download certificate error:', error);
+    console.error("Download certificate error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to download certificate'
+      message: "Failed to download certificate",
     });
   }
 });
 
 // Get courses by category
-router.get('/courses/:category', authenticate, async (req, res) => {
+router.get("/courses/:category", authenticate, async (req, res) => {
   try {
     const { category } = req.params;
 
@@ -670,71 +714,69 @@ router.get('/courses/:category', authenticate, async (req, res) => {
 
     res.json({
       success: true,
-      courses
+      courses,
     });
   } catch (error) {
-    console.error('Fetch courses error:', error);
+    console.error("Fetch courses error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch courses'
+      message: "Failed to fetch courses",
     });
   }
 });
 
-
-
-
 // Certificate Preview
-router.post('/preview', authenticate, certificateControllers.generateCertificatePreview);
+router.post(
+  "/preview",
+  authenticate,
+  certificateControllers.generateCertificatePreview
+);
 
 // ==================== ANALYTICS ====================
 
 // Get certificate analytics (NEW)
-router.get('/analytics', authenticate, async (req, res) => {
+router.get("/analytics", authenticate, async (req, res) => {
   try {
     // TODO: Implement actual analytics from database
     const analytics = {
       totalCertificates: 1234,
       certificatesByCategory: {
-        'internship': {
-          'c4b': 450,
-          'mj': 320
+        internship: {
+          c4b: 450,
+          mj: 320,
         },
-        'fsd': 280,
-        'bvoc': 134,
-        'bootcamp': 50
+        fsd: 280,
+        bvoc: 134,
+        bootcamp: 50,
       },
       recentActivity: [
-        { date: '2025-10-25', count: 45 },
-        { date: '2025-10-24', count: 38 },
-        { date: '2025-10-23', count: 52 }
+        { date: "2025-10-25", count: 45 },
+        { date: "2025-10-24", count: 38 },
+        { date: "2025-10-23", count: 52 },
       ],
       topCourses: [
-        { course: 'Full Stack Web Development', count: 156 },
-        { course: 'Digital Marketing Fundamentals', count: 134 },
-        { course: 'Python Programming', count: 98 }
+        { course: "Full Stack Web Development", count: 156 },
+        { course: "Digital Marketing Fundamentals", count: 134 },
+        { course: "Python Programming", count: 98 },
       ],
       notificationStats: {
         sent: 1150,
         delivered: 1120,
-        failed: 30
-      }
+        failed: 30,
+      },
     };
 
     res.json({
       success: true,
-      data: analytics
+      data: analytics,
     });
   } catch (error) {
-    console.error('Analytics error:', error);
+    console.error("Analytics error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch analytics'
+      message: "Failed to fetch analytics",
     });
   }
 });
-
-
-
 
 export default router;

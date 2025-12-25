@@ -1,5 +1,5 @@
-// Backend API Routes for Super Admin - With C4B Default Login
-// File: routes/profileRoutes.js (ES6)
+
+// File: routes/profile.routes.js 
 
 import express from 'express';
 import multer from 'multer';
@@ -21,7 +21,7 @@ const ADMINS_DATA_FILE = path.join(DATA_DIR, 'admins.json');
 // Ensure data directory exists
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
-  console.log('✅ Created data directory');
+
 }
 
 // Default Super Admin with C4B credentials
@@ -59,20 +59,11 @@ try {
     // Sync username and email
     SUPER_ADMIN.profile.username = SUPER_ADMIN.username;
     SUPER_ADMIN.profile.email = SUPER_ADMIN.email;
-    console.log('✅ Loaded Super Admin credentials');
-    console.log(`👤 Username: ${SUPER_ADMIN.username}`);
-    console.log(`📧 Email: ${SUPER_ADMIN.email}`);
+   
   } else {
     // First time setup
     fs.writeFileSync(SUPER_ADMIN_FILE, JSON.stringify(SUPER_ADMIN, null, 2));
-    console.log('📋 Created initial Super Admin file');
-    console.log('═══════════════════════════════════════');
-    console.log('🔐 DEFAULT SUPER ADMIN CREDENTIALS:');
-    console.log('👤 Username: C4B');
-    console.log('📧 Email: hr@nexcorealliance.com');
-    console.log('🔑 Password: C4B');
-    console.log('═══════════════════════════════════════');
-    console.log('⚠️  Please change password after first login!');
+
   }
 } catch (error) {
   console.error('❌ Error loading Super Admin:', error);
@@ -85,7 +76,7 @@ const saveSuperAdmin = () => {
     SUPER_ADMIN.profile.username = SUPER_ADMIN.username;
     SUPER_ADMIN.profile.email = SUPER_ADMIN.email;
     fs.writeFileSync(SUPER_ADMIN_FILE, JSON.stringify(SUPER_ADMIN, null, 2));
-    console.log('✅ Super Admin data saved');
+   
     return true;
   } catch (error) {
     console.error('❌ Error saving Super Admin:', error);
@@ -99,7 +90,7 @@ try {
   if (fs.existsSync(ADMINS_DATA_FILE)) {
     const savedAdmins = fs.readFileSync(ADMINS_DATA_FILE, 'utf8');
     adminsDatabase = JSON.parse(savedAdmins);
-    console.log(`✅ Loaded ${adminsDatabase.length} admin users`);
+  
   } else {
     adminsDatabase = [
       {
@@ -215,7 +206,7 @@ const isSuperAdmin = (req, res, next) => {
 // POST: Login - Support for both username/email
 router.post('/login', async (req, res) => {
   try {
-    console.log('🔐 POST /api/admin/login - Login attempt');
+   
     const {  username, password } = req.body;
     
     // Accept either username or email
@@ -228,8 +219,7 @@ router.post('/login', async (req, res) => {
       });
     }
     
-    console.log(`📝 Login attempt with: ${loginIdentifier}`);
-    console.log(`🔑 Password provided: ${password}`);
+  
     
     // Check if Super Admin (by username or email)
     const isSuperAdminLogin = 
@@ -237,13 +227,13 @@ router.post('/login', async (req, res) => {
       loginIdentifier.toLowerCase() === SUPER_ADMIN.email.toLowerCase();
     
     if (isSuperAdminLogin) {
-      console.log('👑 Super Admin login attempt');
+   
       
       const isPasswordValid = await bcrypt.compare(password, SUPER_ADMIN.password);
       
       if (!isPasswordValid) {
-        console.log('❌ Invalid Super Admin password');
-        console.log(`Expected hash: ${SUPER_ADMIN.password.substring(0, 20)}...`);
+     
+     
         return res.status(401).json({
           success: false,
           message: 'Invalid credentials'
@@ -267,8 +257,7 @@ router.post('/login', async (req, res) => {
         { expiresIn: '24h' }
       );
       
-      console.log('✅ Super Admin logged in successfully');
-      console.log(`👤 Username: ${SUPER_ADMIN.username}`);
+      
       
       return res.json({
         success: true,
@@ -282,43 +271,39 @@ router.post('/login', async (req, res) => {
     const admin = adminsDatabase.find(a => a.email.toLowerCase() === loginIdentifier.toLowerCase());
     
     if (!admin) {
-      console.log('❌ User not found with identifier:', loginIdentifier);
-      console.log('📋 Available admin emails:', adminsDatabase.map(a => a.email).join(', '));
+     
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
       });
     }
     
-    console.log(`✅ Admin found: ${admin.name} (${admin.email})`);
-    console.log(`📊 Admin status: ${admin.status}`);
+
     
     if (admin.status !== 'active') {
-      console.log('❌ Admin account is inactive');
+   
       return res.status(403).json({
         success: false,
         message: 'Your account has been deactivated. Please contact Super Admin.'
       });
     }
     
-    console.log('🔐 Verifying password...');
-    console.log(`Password hash in DB: ${admin.password.substring(0, 20)}...`);
+    
     
     const isPasswordValid = await bcrypt.compare(password, admin.password);
     
-    console.log(`🔍 Password validation result: ${isPasswordValid}`);
+    
     
     if (!isPasswordValid) {
-      console.log('❌ Invalid admin password');
-      console.log('💡 Trying direct comparison...');
+   
       
       // Fallback: Direct comparison (if password not hashed properly)
       if (admin.password === password) {
-        console.log('⚠️ WARNING: Password is stored in plain text! Fixing...');
+        
         // Hash it properly
         admin.password = await bcrypt.hash(password, 10);
         saveAdmins();
-        console.log('✅ Password hashed and saved');
+      
       } else {
         return res.status(401).json({
           success: false,
@@ -345,9 +330,6 @@ router.post('/login', async (req, res) => {
     
     const { password: _, ...adminData } = admin;
     
-    console.log('✅ Admin logged in successfully');
-    console.log(`👤 Name: ${admin.name}`);
-    console.log(`📧 Email: ${admin.email}`);
     
     res.json({
       success: true,
@@ -403,7 +385,7 @@ router.get('/profile', authMiddleware, async (req, res) => {
 // PUT: Update Profile
 router.put('/profile', authMiddleware, async (req, res) => {
   try {
-    console.log('✏️ PUT /api/admin/profile');
+    
     
     if (req.user.adminType === 'main' || req.user.isSystemAdmin) {
       const allowedFields = [
@@ -420,7 +402,7 @@ router.put('/profile', authMiddleware, async (req, res) => {
       
       // Check if username is being changed
       if (req.body.username && req.body.username !== SUPER_ADMIN.username) {
-        console.log(`👤 Changing username from ${SUPER_ADMIN.username} to ${req.body.username}`);
+        
         SUPER_ADMIN.username = req.body.username;
       }
       
@@ -442,7 +424,7 @@ router.put('/profile', authMiddleware, async (req, res) => {
           });
         }
         
-        console.log(`📧 Changing email from ${SUPER_ADMIN.email} to ${req.body.email}`);
+        
         SUPER_ADMIN.email = req.body.email;
       }
 
@@ -461,7 +443,7 @@ router.put('/profile', authMiddleware, async (req, res) => {
       SUPER_ADMIN.profile.permissions = DEFAULT_SUPER_ADMIN.profile.permissions;
       
       if (saveSuperAdmin()) {
-        console.log('✅ Super Admin profile updated');
+        
         
         // Generate new token with updated credentials
         const newToken = jwt.sign(
@@ -525,7 +507,7 @@ router.put('/profile', authMiddleware, async (req, res) => {
 // POST: Change Password
 router.post('/change-password', authMiddleware, async (req, res) => {
   try {
-    console.log('🔑 POST /api/admin/change-password');
+    
     
     const { currentPassword, newPassword } = req.body;
     
@@ -556,7 +538,7 @@ router.post('/change-password', authMiddleware, async (req, res) => {
       SUPER_ADMIN.password = await bcrypt.hash(newPassword, 10);
       
       if (saveSuperAdmin()) {
-        console.log('✅ Super Admin password changed');
+        
         return res.json({
           success: true,
           message: 'Password changed successfully'
@@ -583,7 +565,7 @@ router.post('/change-password', authMiddleware, async (req, res) => {
       admin.password = await bcrypt.hash(newPassword, 10);
       
       if (saveAdmins()) {
-        console.log('✅ Admin password changed');
+       
         return res.json({
           success: true,
           message: 'Password changed successfully'
@@ -659,14 +641,12 @@ router.post('/profile/image', authMiddleware, upload.single('profileImage'), asy
 // POST: Reset to Default C4B credentials
 router.post('/profile/reset', authMiddleware, isSuperAdmin, async (req, res) => {
   try {
-    console.log('🔄 POST /api/admin/profile/reset');
+
     
     SUPER_ADMIN = { ...DEFAULT_SUPER_ADMIN };
     
     if (saveSuperAdmin()) {
-      console.log('✅ Reset to default C4B credentials');
-      console.log('👤 Username: C4B');
-      console.log('🔑 Password: C4B');
+   
       
       res.json({
         success: true,
@@ -761,7 +741,7 @@ router.post('/admins', authMiddleware, isSuperAdmin, async (req, res) => {
     
     if (saveAdmins()) {
       const { password: _, ...adminData } = newAdmin;
-      console.log(`✅ New admin created: ${email}`);
+     
       
       res.status(201).json({
         success: true,
@@ -857,7 +837,7 @@ router.delete('/admins/:id', authMiddleware, isSuperAdmin, async (req, res) => {
 // POST: Reset Admin Password (Super Admin Only)
 router.post('/admins/:id/reset-password', authMiddleware, isSuperAdmin, async (req, res) => {
   try {
-    console.log(`🔑 POST /api/admin/admins/${req.params.id}/reset-password`);
+   
     
     const { newPassword } = req.body;
     const adminId = req.params.id;
@@ -890,9 +870,7 @@ router.post('/admins/:id/reset-password', authMiddleware, isSuperAdmin, async (r
     admin.updatedAt = new Date().toISOString();
     
     if (saveAdmins()) {
-      console.log(`✅ Password reset for: ${admin.name}`);
-      console.log(`📧 Email: ${admin.email}`);
-      console.log(`🔑 New password: ${newPassword}`);
+      
       
       res.json({
         success: true,

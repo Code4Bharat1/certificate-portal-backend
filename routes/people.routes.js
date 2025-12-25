@@ -279,16 +279,43 @@ router.post(
  */
 router.get("/", async (req, res) => {
   try {
-    const { category, batch, disabled } = req.query;
+    let { category, batch, disabled } = req.query;
+
+    console.log("📊 Incoming query params:", { category, batch, disabled });
 
     let filter = {};
-    if (category && category !== "all") filter.category = category;
-    if (batch && batch !== "all") filter.batch = batch;
-    if (disabled !== undefined) filter.disabled = disabled === "true";
 
-    console.log("📊 Fetching people with filter:", filter);
+    // ✅ Handle category filtering with proper case-insensitive matching
+    if (category && category !== "all") {
+      const categoryLower = category.toLowerCase();
+      
+      // Special handling for it-nexcore/Code4Bharat unified category
+      if (categoryLower === "it-nexcore" || categoryLower === "code4bharat") {
+        filter.category = { $in: ["it-nexcore", "Code4Bharat"] };
+      } else {
+        // For all other categories, use case-insensitive regex
+        filter.category = new RegExp(`^${category}$`, 'i');
+      }
+    }
+
+    // Add batch filter if provided
+    if (batch && batch !== "all") {
+      filter.batch = batch;
+    }
+
+    // Add disabled filter
+    if (disabled !== undefined) {
+      filter.disabled = disabled === "true";
+    } else {
+      // Default to only enabled people if not specified
+      filter.disabled = false;
+    }
+
+    console.log("🔍 MongoDB filter:", JSON.stringify(filter, null, 2));
 
     const people = await People.find(filter).sort({ createdAt: -1 });
+
+    console.log(`✅ Found ${people.length} people matching filter`);
 
     // Format data for frontend
     const names = people.map((p) => {
@@ -331,6 +358,7 @@ router.get("/", async (req, res) => {
       total: names.length,
       enabled: enabledCount,
       disabled: disabledCount,
+      categories: [...new Set(names.map(p => p.category))],
     });
 
     res.json({

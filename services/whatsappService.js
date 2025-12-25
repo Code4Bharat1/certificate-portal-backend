@@ -26,7 +26,7 @@ export const generateOTP = () => {
  */
 export const sendWhatsAppMessage = async (phoneNumber, message) => {
   try {
-    console.log('📱 Sending WhatsApp message...');
+    
 
     // const formattedPhone = phoneNumber.replace(/[^0-9]/g, '');
     const payload = {
@@ -45,15 +45,15 @@ export const sendWhatsAppMessage = async (phoneNumber, message) => {
       }
     });
 
-    console.log('✅ WhatsApp API Response:', response.status);
-    console.log('   Response data:', response.data);
+
 
     return { success: true, data: response.data };
   } catch (error) {
-    console.error('❌ WhatsApp Send Error:');
-    if (error.response) console.error(error.response.data);
-    else if (error.request) console.error('No response received', error.request);
-    else console.error(error.message);
+    if (process.env.NODE_ENV !== "production") {
+      console.error("WhatsApp send failed:", error.message);
+    }
+
+
 
     return { success: false, error: error.message, details: error.response?.data || null };
   }
@@ -264,11 +264,11 @@ Branch Offices:
 
     // Send WhatsApp notification
     const result = await sendWhatsAppMessage(userPhone, message);
-    console.log(result);
+    
 
     return result;
   } catch (error) {
-    console.error('Certificate Notification Error:', error);
+   
     return {
       success: false,
       error: 'Failed to send certificate notification'
@@ -321,7 +321,8 @@ Branch Offices:
     const result = await sendWhatsAppMessage(adminPhone, message);
     return result;
   } catch (error) {
-    console.error('Bulk Notification Error:', error);
+   console.error("Send OTP Error:", error.message);
+
     return {
       success: false,
       error: 'Failed to send bulk notification'

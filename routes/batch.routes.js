@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
   try {
     const { category } = req.query;
 
-    console.log('📊 Fetching batches...', category ? `Filter: ${category}` : 'All categories');
+
 
     let filter = {};
     if (category && category !== 'all') {
@@ -36,10 +36,7 @@ router.get('/', async (req, res) => {
       }
     });
 
-    console.log('✅ Batches fetched:', {
-      FSD: formattedBatches.FSD.length,
-      BVOC: formattedBatches.BVOC.length
-    });
+  
 
     res.json({ 
       success: true, 
@@ -69,7 +66,7 @@ router.get('/list', async (req, res) => {
   try {
     const { category } = req.query;
 
-    console.log('📋 Fetching batch list...', category ? `Filter: ${category}` : 'All');
+  
 
     let filter = {};
     if (category && category !== 'all') {
@@ -86,7 +83,6 @@ router.get('/list', async (req, res) => {
       updatedAt: batch.updatedAt
     }));
 
-    console.log('✅ Batch list fetched:', formattedBatches.length, 'batches');
 
     res.json({ 
       success: true, 
@@ -110,12 +106,11 @@ router.get('/list', async (req, res) => {
  */
 router.get('/:id', async (req, res) => {
   try {
-    console.log('🔍 Fetching batch by ID:', req.params.id);
+   
 
     const batch = await Batch.findById(req.params.id);
 
     if (!batch) {
-      console.error('❌ Batch not found:', req.params.id);
       return res.status(404).json({
         success: false,
         message: 'Batch not found'
@@ -128,7 +123,6 @@ router.get('/:id', async (req, res) => {
       batch: batch.name
     });
 
-    console.log('✅ Batch found:', batch.name, `(${peopleCount} people)`);
 
     res.json({
       success: true,
@@ -161,11 +155,9 @@ router.post('/', async (req, res) => {
   try {
     const { category, batchName } = req.body;
 
-    console.log('📝 Creating new batch:', { category, batchName });
 
     // Validate input
     if (!category || !batchName) {
-      console.error('❌ Missing required fields');
       return res.status(400).json({ 
         success: false, 
         message: 'Category and batchName are required'
@@ -173,7 +165,6 @@ router.post('/', async (req, res) => {
     }
 
     if (!['FSD', 'BVOC'].includes(category)) {
-      console.error('❌ Invalid category:', category);
       return res.status(400).json({ 
         success: false, 
         message: 'Category must be FSD or BVOC' 
@@ -191,7 +182,6 @@ router.post('/', async (req, res) => {
     });
 
     if (existing) {
-      console.error('❌ Batch already exists:', trimmedName);
       return res.status(400).json({ 
         success: false,
         message: `Batch ${trimmedName} already exists in ${category}` 
@@ -206,7 +196,6 @@ router.post('/', async (req, res) => {
     
     await newBatch.save();
 
-    console.log('✅ Batch created successfully:', newBatch._id);
 
     res.status(201).json({ 
       success: true,
@@ -239,7 +228,6 @@ router.put('/update-by-name', async (req, res) => {
   try {
     const { category, oldBatchName, newBatchName } = req.body;
 
-    console.log('📝 Updating batch by name:', { category, oldBatchName, newBatchName });
 
     // Validate input
     if (!category || !oldBatchName || !newBatchName) {
@@ -260,7 +248,6 @@ router.put('/update-by-name', async (req, res) => {
     const batch = await Batch.findOne({ category, name: oldBatchName });
 
     if (!batch) {
-      console.error('❌ Batch not found:', { category, oldBatchName });
       return res.status(404).json({
         success: false,
         message: 'Batch not found'
@@ -275,7 +262,6 @@ router.put('/update-by-name', async (req, res) => {
       });
 
       if (duplicate) {
-        console.error('❌ Duplicate batch name:', newBatchName);
         return res.status(400).json({
           success: false,
           message: `Batch ${newBatchName} already exists in ${category}`
@@ -328,7 +314,6 @@ router.put('/:id', async (req, res) => {
     const { name, category } = req.body;
     const batchId = req.params.id;
 
-    console.log('📝 Updating batch:', batchId, { name, category });
 
     if (!name && !category) {
       return res.status(400).json({
@@ -341,7 +326,6 @@ router.put('/:id', async (req, res) => {
     const batch = await Batch.findById(batchId);
 
     if (!batch) {
-      console.error('❌ Batch not found:', batchId);
       return res.status(404).json({
         success: false,
         message: 'Batch not found'
@@ -372,7 +356,6 @@ router.put('/:id', async (req, res) => {
       });
 
       if (duplicate) {
-        console.error('❌ Duplicate batch name:', batch.name);
         return res.status(400).json({
           success: false,
           message: `Batch ${batch.name} already exists in ${batch.category}`
@@ -391,7 +374,6 @@ router.put('/:id', async (req, res) => {
       console.log(`✅ Updated ${updateResult.modifiedCount} people: ${oldName} → ${batch.name}`);
     }
 
-    console.log('✅ Batch updated successfully:', batch._id);
 
     res.json({
       success: true,
@@ -423,12 +405,10 @@ router.delete('/:id', async (req, res) => {
   try {
     const batchId = req.params.id;
 
-    console.log('🗑️ Deleting batch by ID:', batchId);
 
     const batch = await Batch.findById(batchId);
     
     if (!batch) {
-      console.error('❌ Batch not found:', batchId);
       return res.status(404).json({ 
         success: false,
         message: 'Batch not found' 
@@ -442,7 +422,6 @@ router.delete('/:id', async (req, res) => {
     });
 
     if (peopleCount > 0) {
-      console.error('⚠️ Cannot delete batch with assigned people:', batch.name, `(${peopleCount} people)`);
       return res.status(400).json({
         success: false,
         message: `Cannot delete batch ${batch.name}. It has ${peopleCount} people assigned. Please reassign or remove them first.`,
@@ -452,7 +431,6 @@ router.delete('/:id', async (req, res) => {
 
     await Batch.findByIdAndDelete(batchId);
 
-    console.log('✅ Batch deleted successfully:', batch.name);
 
     res.json({ 
       success: true,
@@ -478,11 +456,9 @@ router.delete('/', async (req, res) => {
   try {
     const { category, batchName } = req.body;
 
-    console.log('🗑️ Deleting batch by name:', { category, batchName });
 
     // Validate input
     if (!category || !batchName) {
-      console.error('❌ Missing required fields');
       return res.status(400).json({
         success: false,
         message: 'Category and batchName are required'
@@ -490,7 +466,6 @@ router.delete('/', async (req, res) => {
     }
 
     if (!['FSD', 'BVOC'].includes(category)) {
-      console.error('❌ Invalid category:', category);
       return res.status(400).json({ 
         success: false,
         message: 'Invalid category. Must be FSD or BVOC' 
@@ -500,7 +475,6 @@ router.delete('/', async (req, res) => {
     const batch = await Batch.findOne({ category, name: batchName });
     
     if (!batch) {
-      console.error('❌ Batch not found:', { category, batchName });
       return res.status(404).json({ 
         success: false,
         message: `Batch ${batchName} not found in ${category}` 
@@ -514,7 +488,6 @@ router.delete('/', async (req, res) => {
     });
 
     if (peopleCount > 0) {
-      console.error('⚠️ Cannot delete batch with assigned people:', batch.name, `(${peopleCount} people)`);
       return res.status(400).json({
         success: false,
         message: `Cannot delete batch ${batch.name}. It has ${peopleCount} people assigned. Please reassign or remove them first.`,
@@ -524,7 +497,6 @@ router.delete('/', async (req, res) => {
 
     await Batch.findByIdAndDelete(batch._id);
 
-    console.log('✅ Batch deleted successfully:', batch.name);
 
     res.json({ 
       success: true,
@@ -547,7 +519,7 @@ router.delete('/', async (req, res) => {
  */
 router.get('/stats', async (req, res) => {
   try {
-    console.log('📊 Fetching batch statistics...');
+  
 
     const fsdCount = await Batch.countDocuments({ category: 'FSD' });
     const bvocCount = await Batch.countDocuments({ category: 'BVOC' });
@@ -609,7 +581,6 @@ router.get('/stats', async (req, res) => {
     const totalFsdPeople = fsdStats.reduce((sum, b) => sum + b.peopleCount, 0);
     const totalBvocPeople = bvocStats.reduce((sum, b) => sum + b.peopleCount, 0);
 
-    console.log('✅ Batch statistics fetched');
 
     res.json({
       success: true,
@@ -647,7 +618,7 @@ router.get('/category/:category/people', async (req, res) => {
   try {
     const { category } = req.params;
 
-    console.log('👥 Fetching people for category:', category);
+
 
     if (!['FSD', 'BVOC'].includes(category)) {
       return res.status(400).json({
@@ -679,7 +650,6 @@ router.get('/category/:category/people', async (req, res) => {
       })
     );
 
-    console.log('✅ Category people data fetched');
 
     res.json({
       success: true,
@@ -713,7 +683,6 @@ router.post('/bulk-create', async (req, res) => {
       });
     }
 
-    console.log('📦 Creating multiple batches:', batches.length);
 
     const results = {
       successful: [],
@@ -766,7 +735,6 @@ router.post('/bulk-create', async (req, res) => {
       }
     }
 
-    console.log(`✅ Bulk create completed: ${results.successful.length} success, ${results.failed.length} failed`);
 
     res.status(200).json({
       success: true,

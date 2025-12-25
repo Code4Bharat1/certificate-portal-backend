@@ -1,4 +1,4 @@
-// File: routes/student.routes.js
+// File: routes/users.routes.js
 import express from "express";
 import multer from "multer";
 import path from "path";

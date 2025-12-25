@@ -5,33 +5,49 @@ import {
   getStudentsWithDocuments,
   viewStudentDocument,
   verifyStudentDocuments,
-  updateDocumentStatus
+  updateDocumentStatus,
+  testCloudinaryConfig,
+  getStudentDocumentsRaw,
 } from "../controllers/admin.document.controller.js";
 
 const router = express.Router();
 
-// Get all students with documents
+// ========== MAIN ROUTES ==========
+
+// GET all students with documents
 router.get("/students/documents", authenticateAdmin, getStudentsWithDocuments);
 
-// View a specific document
+// VIEW a specific document
 router.get(
   "/students/:studentId/documents/:docType/view",
   authenticateAdmin,
   viewStudentDocument
 );
 
-// Verify all documents for a student
+// VERIFY all documents for a student
 router.put(
   "/students/:studentId/documents/verify",
   authenticateAdmin,
   verifyStudentDocuments
 );
 
-// Update individual document status (approve/reject)
+// UPDATE individual document status
 router.put(
   "/students/:studentId/documents/:docType/status",
   authenticateAdmin,
   updateDocumentStatus
+);
+
+// ========== DEBUG ROUTES ==========
+
+// Test Cloudinary configuration
+router.get("/test-cloudinary", authenticateAdmin, testCloudinaryConfig);
+
+// Get raw student document data
+router.get(
+  "/debug/student/:studentId/raw",
+  authenticateAdmin,
+  getStudentDocumentsRaw
 );
 
 export default router;

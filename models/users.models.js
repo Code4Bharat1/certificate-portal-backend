@@ -1,4 +1,4 @@
-// File: models/Student.js
+// File: models/users.models.js
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -20,14 +20,14 @@ const studentSchema = new mongoose.Schema(
       type: String,
       // enum: {
       //   values: [
-      //     "IT-Nexcore",
+      //     "it-nexcore",
       //     "marketing-junction",
-      //     "FSD",
-      //     "BVOC",
-      //     "HR",
-      //     "DM",
-      //     "OD",
-      //     "Client",
+      //     "fsd",
+      //     "bvoc",
+      //     "hr",
+      //     "dm",
+      //     "operations",
+      //     "client",
       //   ],
       //   message: "{VALUE} is not a valid category",
       // },
@@ -37,7 +37,7 @@ const studentSchema = new mongoose.Schema(
     batch: {
       type: String,
       required: function () {
-        return ["FSD", "BVOC"].includes(this.category);
+        return ["fsd", "bvoc"].includes(this.category);
       },
       trim: true,
       default: "",
@@ -59,7 +59,7 @@ const studentSchema = new mongoose.Schema(
       lowercase: true,
       match: [/^\S+@\S+\.\S+$/, "Please enter a valid parent email address"],
       required: function () {
-        return this.category === "BVOC";
+        return this.category === "bvoc";
       },
       default: null,
     },
@@ -310,11 +310,11 @@ studentSchema.methods.comparePassword = async function (enteredPassword) {
 // -------------------------
 
 studentSchema.pre("save", function (next) {
-  if (["FSD", "BVOC"].includes(this.category) && !this.batch) {
+  if (["fsd", "bvoc"].includes(this.category) && !this.batch) {
     return next(new Error(`Batch is required for ${this.category} category`));
   }
 
-  if (!["FSD", "BVOC"].includes(this.category)) {
+  if (!["fsd", "bvoc"].includes(this.category)) {
     this.batch = "";
   }
 
@@ -348,7 +348,7 @@ studentSchema.post("save", function (doc) {
 studentSchema.pre("findOneAndUpdate", function (next) {
   const update = this.getUpdate();
 
-  if (update.category && ["FSD", "BVOC"].includes(update.category)) {
+  if (update.category && ["fsd", "bvoc"].includes(update.category)) {
     if (!update.batch) {
       return next(new Error(`Batch is required for ${update.category} category`));
     }
@@ -410,7 +410,7 @@ studentSchema.statics.getBatchStats = async function () {
   return await this.aggregate([
     {
       $match: {
-        category: { $in: ["FSD", "BVOC"] },
+        category: { $in: ["fsd", "bvoc"] },
         batch: { $exists: true, $ne: "" },
       },
     },
@@ -430,7 +430,7 @@ studentSchema.statics.getBatchStats = async function () {
 // -------------------------
 
 studentSchema.methods.requiresBatch = function () {
-  return ["FSD", "BVOC"].includes(this.category);
+  return ["fsd", "bvoc"].includes(this.category);
 };
 
 studentSchema.methods.isActive = function () {

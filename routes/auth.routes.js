@@ -3,13 +3,17 @@ import express from "express";
 import {
   adminLogin,
   studentFirstLogin,
+  studentVerifyOTP,
   studentSetPassword,
   studentLogin,
   studentChangePassword,
   studentRegister,
   verifyToken,
-  studentVerifyOTP,
+  studentForgotPassword,
+  studentVerifyResetOTP,
+  studentResetPassword,
 } from "../controllers/auth.controllers.js";
+
 import uploadDocuments from "../middleware/uploadDocuments.js";
 import {
   uploadStudentDocuments,
@@ -52,7 +56,7 @@ router.get("/verify-admin", authenticateAdmin, verifyToken);
 router.post("/first-login", loginLimiter, studentFirstLogin);
 
 // POST /api/auth/verify-otp - Verify OTP
-router.post("/verify-otp", studentVerifyOTP);
+router.post("/verify-otp", loginLimiter, studentVerifyOTP);
 
 // POST /api/auth/set-password - Set password after OTP verification
 router.post("/set-password", studentSetPassword);
@@ -102,5 +106,16 @@ router.post("/logout", (req, res) => {
     message: "Logged out successfully",
   });
 });
+
+// ========== FORGOT PASSWORD (OTP RESET FLOW) ==========
+
+// Send OTP for password reset
+router.post("/forgot-password", studentForgotPassword);
+
+// Verify OTP for password reset
+router.post("/verify-reset-otp", studentVerifyResetOTP);
+
+// Reset password using reset token
+router.post("/reset-password", studentResetPassword);
 
 export default router;

@@ -1,6 +1,11 @@
-// File: controllers/student.controller.js
+// File: controllers/users.controller.js
 import Student from "../models/users.models.js";
 import Letter from "../models/letter.models.js";
+import cloudinary from "../config/cloudinary.config.js";
+import fs from "fs";
+import { promisify } from "util";
+
+const unlinkAsync = promisify(fs.unlink);
 
 // ========== PROFILE MANAGEMENT ==========
 
@@ -181,12 +186,11 @@ export const getStudentStatistics = async (req, res) => {
 export const getRecentLetters = async (req, res) => {
   try {
     const studentPhone = req.user?.phone;
-    // const limit = Number(req.query.limit) || 10;
 
     if (!studentPhone) {
       return res.status(400).json({
         success: false,
-        message: "Phone number not found in request",
+        message: "Student phone missing",
       });
     }
 
@@ -256,6 +260,13 @@ export const getRecentLetters = async (req, res) => {
 // Get All Student Letters (with pagination, search, filter)
 export const getAllStudentLetters = async (req, res) => {
   try {
+    if (!req.user?.phone) {
+      return res.status(400).json({
+        success: false,
+        message: "Student authentication missing",
+      });
+    }
+
     const studentPhone = req.user.phone;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -331,6 +342,14 @@ export const getAllStudentLetters = async (req, res) => {
 export const getLetterDetails = async (req, res) => {
   try {
     const { letterId } = req.params;
+
+    if (!letterId) {
+      return res.status(400).json({
+        success: false,
+        message: "Letter ID required",
+      });
+    }
+
     const studentPhone = req.user.phone;
 
     // Find student by phone to get name
@@ -400,6 +419,14 @@ export const getLetterDetails = async (req, res) => {
 export const uploadSignedLetter = async (req, res) => {
   try {
     const { letterId } = req.body;
+
+    if (!letterId) {
+      return res.status(400).json({
+        success: false,
+        message: "Letter ID required",
+      });
+    }
+
     const studentPhone = req.user.phone;
 
     if (!req.file) {
@@ -621,6 +648,8 @@ export const getStudentNameByPhone = async (req, res) => {
   }
 };
 
+// REPLACE your uploadStudentDocuments function with this fixed version
+
 export const uploadStudentDocuments = async (req, res) => {
   try {
     const studentId = req.user._id;
@@ -635,29 +664,162 @@ export const uploadStudentDocuments = async (req, res) => {
 
     const files = req.files;
 
-    student.documents = {
-      aadhaarFront: files.aadhaarFront
-        ? `/uploads-data/student-documents/${files.aadhaarFront[0].filename}`
-        : student.documents?.aadhaarFront,
-      aadhaarBack: files.aadhaarBack
-        ? `/uploads-data/student-documents/${files.aadhaarBack[0].filename}`
-        : student.documents?.aadhaarBack,
-      panCard: files.panCard
-        ? `/uploads-data/student-documents/${files.panCard[0].filename}`
-        : student.documents?.panCard,
-      bankPassbook: files.bankPassbook
-        ? `/uploads-data/student-documents/${files.bankPassbook[0].filename}`
-        : student.documents?.bankPassbook,
+    if (!files || Object.keys(files).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No files uploaded",
+      });
+    }
+
+    console.log("📤 Uploading documents to Cloudinary...");
+    console.log("Files received:", Object.keys(files));
+
+    // Helper function to upload to Cloudinary
+    const uploadToCloudinary = async (file, docType) => {
+      try {
+        console.log(`\n⬆️ Starting upload for ${docType}...`);
+        console.log(`   Local file path: ${file.path}`);
+        console.log(`   Filename: ${file.filename}`);
+
+        // Upload to Cloudinary
+        const result = await cloudinary.uploader.upload(file.path, {
+          folder: "student-documents",
+          resource_type: "raw",
+          public_id: `${studentId}-${docType}-${Date.now()}`,
+        });
+
+        console.log(`✅ ${docType} uploaded successfully!`);
+        console.log(`   Cloudinary URL: ${result.secure_url}`);
+        console.log(`   Public ID: ${result.public_id}`);
+
+        // Delete local file after successful upload
+        try {
+          await unlinkAsync(file.path);
+          console.log(`🗑️  Deleted local file: ${file.path}`);
+        } catch (unlinkError) {
+          console.warn(`⚠️  Could not delete local file: ${file.path}`);
+        }
+
+        // IMPORTANT: Return the Cloudinary URL
+        return result.secure_url;
+      } catch (error) {
+        console.error(`❌ Error uploading ${docType} to Cloudinary:`, error);
+        throw error;
+      }
     };
 
+    // Upload each document to Cloudinary and save URL
+    const uploadPromises = [];
+
+    if (files.aadhaarFront) {
+      uploadPromises.push(
+        (async () => {
+          const cloudinaryUrl = await uploadToCloudinary(
+            files.aadhaarFront[0],
+            "aadhaarFront"
+          );
+          student.documents.aadhaarFront = cloudinaryUrl;
+          
+          if (!student.documentStatus) student.documentStatus = {};
+          student.documentStatus.aadhaarFront = {
+            status: "pending",
+            updatedAt: new Date(),
+          };
+          
+          console.log(`💾 Saved aadhaarFront URL to DB: ${cloudinaryUrl}`);
+        })()
+      );
+    }
+
+    if (files.aadhaarBack) {
+      uploadPromises.push(
+        (async () => {
+          const cloudinaryUrl = await uploadToCloudinary(
+            files.aadhaarBack[0],
+            "aadhaarBack"
+          );
+          student.documents.aadhaarBack = cloudinaryUrl;
+          
+          if (!student.documentStatus) student.documentStatus = {};
+          student.documentStatus.aadhaarBack = {
+            status: "pending",
+            updatedAt: new Date(),
+          };
+          
+          console.log(`💾 Saved aadhaarBack URL to DB: ${cloudinaryUrl}`);
+        })()
+      );
+    }
+
+    if (files.panCard) {
+      uploadPromises.push(
+        (async () => {
+          const cloudinaryUrl = await uploadToCloudinary(
+            files.panCard[0],
+            "panCard"
+          );
+          student.documents.panCard = cloudinaryUrl;
+          
+          if (!student.documentStatus) student.documentStatus = {};
+          student.documentStatus.panCard = {
+            status: "pending",
+            updatedAt: new Date(),
+          };
+          
+          console.log(`💾 Saved panCard URL to DB: ${cloudinaryUrl}`);
+        })()
+      );
+    }
+
+    if (files.bankPassbook) {
+      uploadPromises.push(
+        (async () => {
+          const cloudinaryUrl = await uploadToCloudinary(
+            files.bankPassbook[0],
+            "bankPassbook"
+          );
+          student.documents.bankPassbook = cloudinaryUrl;
+          
+          if (!student.documentStatus) student.documentStatus = {};
+          student.documentStatus.bankPassbook = {
+            status: "pending",
+            updatedAt: new Date(),
+          };
+          
+          console.log(`💾 Saved bankPassbook URL to DB: ${cloudinaryUrl}`);
+        })()
+      );
+    }
+
+    // Wait for all uploads to complete
+    console.log("\n⏳ Waiting for all uploads to complete...");
+    await Promise.all(uploadPromises);
+
+    // Set upload timestamp
+    if (!student.documentsUploadedAt) {
+      student.documentsUploadedAt = new Date();
+    }
+
+    // Mark as modified (important for nested objects)
+    student.markModified("documents");
+    student.markModified("documentStatus");
+
+    console.log("\n💾 Saving to database...");
     await student.save();
+
+    console.log("\n✅ ALL DOCUMENTS PROCESSED SUCCESSFULLY");
+    console.log("Final documents in DB:");
+    console.log(JSON.stringify(student.documents, null, 2));
 
     res.status(200).json({
       success: true,
-      message: "Documents uploaded successfully",
+      message: "Documents uploaded successfully to Cloudinary",
       documents: student.documents,
+      documentStatus: student.documentStatus,
     });
   } catch (error) {
+    console.error("\n❌ UPLOAD ERROR:", error);
+    console.error("Error stack:", error.stack);
     res.status(500).json({
       success: false,
       message: "Error uploading documents",
@@ -691,6 +853,7 @@ export const getStudentDocuments = async (req, res) => {
     });
   }
 };
+
 export const studentForgotPassword = async (req, res) => {
   try {
     const { phone } = req.body;

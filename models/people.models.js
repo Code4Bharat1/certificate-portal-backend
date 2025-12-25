@@ -12,26 +12,28 @@ const peopleSchema = new mongoose.Schema(
 
     category: {
       type: String,
-      // enum: {
-      //   values: [
-      //     "code4bharat",
-      //     "marketing-junction",
-      //     "FSD",
-      //     "BVOC",
-      //     "HR",
-      //     "DM",
-      //     "OD",
-      //   ],
-      //   message: "{VALUE} is not a valid category",
-      // },
       required: [true, "Category is required"],
+      enum: {
+        values: [
+          "it-nexcore",
+          "Code4Bharat",
+          "marketing-junction",
+          "fsd",
+          "bvoc",
+          "hr",
+          "dm",
+          "operations",
+          "client",
+        ],
+        message: "{VALUE} is not a valid category",
+      },
     },
 
     batch: {
       type: String,
       required: function () {
-        // Batch is required only for FSD and BVOC categories
-        return ["FSD", "BVOC"].includes(this.category);
+        // Batch is required only for fsd and bvoc categories
+        return ["fsd", "bvoc"].includes(this.category);
       },
       trim: true,
       // match: [/^B-\d+$/, "Batch must be in format B-1, B-2, etc."],
@@ -49,14 +51,14 @@ const peopleSchema = new mongoose.Schema(
       index: true,
     },
 
-    // ✅ Parent email (required only for BVOC)
+    // ✅ Parent email (required only for bvoc)
     parentEmail: {
       type: String,
       trim: true,
       lowercase: true,
       match: [/^\S+@\S+\.\S+$/, "Please enter a valid parent email address"],
       required: function () {
-        return this.category === "BVOC";
+        return this.category === "bvoc";
       },
       default: null,
     },
@@ -105,7 +107,7 @@ const peopleSchema = new mongoose.Schema(
       default: null,
     },
 
-    // ⭐ NEW: Client Email 1 (optional, only for Client category)
+    // ⭐ NEW: client Email 1 (optional, only for client category)
     clientEmail1: {
       type: String,
       trim: true,
@@ -114,7 +116,7 @@ const peopleSchema = new mongoose.Schema(
       default: null,
     },
 
-    // ⭐ NEW: Client Email 2 (optional, only for Client category)
+    // ⭐ NEW: client Email 2 (optional, only for client category)
     clientEmail2: {
       type: String,
       trim: true,
@@ -123,24 +125,24 @@ const peopleSchema = new mongoose.Schema(
       default: null,
     },
 
-    // ⭐ NEW: Client Phone 1 (optional, only for Client category)
+    // ⭐ NEW: client Phone 1 (optional, only for client category)
     clientPhone1: {
       type: String,
       trim: true,
       match: [
         /^91[0-9]{10}$/,
-        "Client Phone 1 must be in format 91XXXXXXXXXX (12 digits with country code)",
+        "client Phone 1 must be in format 91XXXXXXXXXX (12 digits with country code)",
       ],
       default: null,
     },
 
-    // ⭐ NEW: Client Phone 2 (optional, only for Client category)
+    // ⭐ NEW: client Phone 2 (optional, only for client category)
     clientPhone2: {
       type: String,
       trim: true,
       match: [
         /^91[0-9]{10}$/,
-        "Client Phone 2 must be in format 91XXXXXXXXXX (12 digits with country code)",
+        "client Phone 2 must be in format 91XXXXXXXXXX (12 digits with country code)",
       ],
       default: null,
     },
@@ -230,13 +232,13 @@ peopleSchema.pre("save", function (next) {
     );
   }
 
-  // Ensure batch is provided for FSD and BVOC
-  if (["FSD", "BVOC"].includes(this.category) && !this.batch) {
+  // Ensure batch is provided for fsd and bvoc
+  if (["fsd", "bvoc"].includes(this.category) && !this.batch) {
     return next(new Error(`Batch is required for ${this.category} category`));
   }
 
   // Clear batch for categories that don't need it
-  if (!["FSD", "BVOC"].includes(this.category)) {
+  if (!["fsd", "bvoc"].includes(this.category)) {
     this.batch = "";
   }
 
@@ -276,7 +278,7 @@ peopleSchema.pre("findOneAndUpdate", function (next) {
   }
 
   // Check if category is being updated
-  if (update.category && ["FSD", "BVOC"].includes(update.category)) {
+  if (update.category && ["fsd", "bvoc"].includes(update.category)) {
     if (!update.batch) {
       return next(
         new Error(`Batch is required for ${update.category} category`)
@@ -293,9 +295,9 @@ peopleSchema.pre("findOneAndUpdate", function (next) {
   if (update.address && update.address.length > 200) {
     return next(new Error("Address cannot exceed 200 characters"));
   }
-  // Validate parentEmail requirement for BVOC
-  if (this.category === "BVOC" && !this.parentEmail) {
-    return next(new Error("Parent email is required for BVOC category"));
+  // Validate parentEmail requirement for bvoc
+  if (this.category === "bvoc" && !this.parentEmail) {
+    return next(new Error("Parent email is required for bvoc category"));
   }
 
   next();
@@ -355,7 +357,7 @@ peopleSchema.statics.getBatchStats = async function () {
   return await this.aggregate([
     {
       $match: {
-        category: { $in: ["FSD", "BVOC"] },
+        category: { $in: ["fsd", "bvoc"] },
         batch: { $exists: true, $ne: "" },
       },
     },
@@ -375,7 +377,7 @@ peopleSchema.statics.getBatchStats = async function () {
 
 // Static method to get disabled statistics by category
 peopleSchema.statics.getDisabledStatsByCategory = async function () {
-  console.log("📊 [STATS] Fetching disabled statistics by category...");
+
   return await this.aggregate([
     {
       $match: { disabled: true },
@@ -394,7 +396,7 @@ peopleSchema.statics.getDisabledStatsByCategory = async function () {
 
 // Instance method to check if batch is required
 peopleSchema.methods.requiresBatch = function () {
-  return ["FSD", "BVOC"].includes(this.category);
+  return ["fsd", "bvoc"].includes(this.category);
 };
 
 // Instance method to check if person is active
@@ -472,5 +474,22 @@ peopleSchema.methods.getFullDetails = function () {
 };
 
 const People = mongoose.model("People", peopleSchema);
+
+// Static method to normalize category queries
+peopleSchema.statics.findByNormalizedCategory = function (category, additionalFilter = {}) {
+  const filter = { ...additionalFilter };
+  
+  const lower = category.toLowerCase();
+  
+  // Handle it-nexcore and Code4Bharat as unified
+  if (lower === "it-nexcore" || lower === "code4bharat") {
+    filter.category = { $in: ["it-nexcore", "Code4Bharat"] };
+  } else {
+    filter.category = category;
+  }
+  
+  console.log("🔍 [NORMALIZED QUERY] Category filter:", filter);
+  return this.find(filter).sort({ createdAt: -1 });
+};
 
 export default People;

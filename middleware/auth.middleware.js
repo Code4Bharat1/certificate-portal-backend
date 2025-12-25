@@ -3,6 +3,11 @@ import jwt from "jsonwebtoken";
 import Admin from "../models/admin.models.js";
 import Student from "../models/users.models.js";
 
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET is not defined");
+}
+
+
 // Admin Authentication Middleware
 export const authenticateAdmin = async (req, res, next) => {
   try {
@@ -40,7 +45,7 @@ export const authenticateAdmin = async (req, res, next) => {
     req.userType = "admin";
     next();
   } catch (error) {
-    console.error("Admin authentication error:", error);
+    console.error("Admin authentication error:", error.message);
     return res.status(401).json({
       success: false,
       message: "Authentication failed",
@@ -94,11 +99,11 @@ export const authenticateStudent = async (req, res, next) => {
     req.userType = "student";
     next();
   } catch (error) {
-    console.error("Student authentication error:", error);
+    console.error("Student authentication error:", error.message);
     return res.status(401).json({
       success: false,
       message: "Authentication failed",
-      error: error.message,
+
     });
   }
 };
@@ -153,7 +158,7 @@ export const authenticate = async (req, res, next) => {
     req.userType = userType;
     next();
   } catch (error) {
-    console.error("Authentication error:", error);
+    console.error("Authentication error:", error.message);
     return res.status(401).json({
       success: false,
       message: "Authentication failed",

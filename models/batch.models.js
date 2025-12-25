@@ -5,8 +5,8 @@ const batchSchema = new mongoose.Schema(
     category: {
       type: String,
       enum: {
-        values: ['FSD', 'BVOC'],
-        message: '{VALUE} is not a valid category. Must be FSD or BVOC',
+        values: ['fsd', 'bvoc'],
+        message: '{VALUE} is not a valid category. Must be fsd or bvoc',
       },
       required: [true, 'Category is required'],
       index: true,
@@ -18,8 +18,8 @@ const batchSchema = new mongoose.Schema(
       validate: {
         validator: function(value) {
           // Allow formats like:
-          // - "B-1 (June-2025)" for FSD
-          // - "B-1 2025" for BVOC
+          // - "B-1 (June-2025)" for fsd
+          // - "B-1 2025" for bvoc
           // - "B-1", "B-2", etc.
           
           // Check if it starts with B-{number}
@@ -29,12 +29,12 @@ const batchSchema = new mongoose.Schema(
             return false;
           }
           
-          // If it's FSD format with month and year
+          // If it's fsd format with month and year
           if (value.includes('(') && value.includes(')')) {
             return /^B-\d+\s+\([A-Za-z]+-\d{4}\)$/.test(value);
           }
           
-          // If it's BVOC format with just year
+          // If it's bvoc format with just year
           if (/^B-\d+\s+\d{4}$/.test(value)) {
             return true;
           }
@@ -46,7 +46,7 @@ const batchSchema = new mongoose.Schema(
           
           return false;
         },
-        message: 'Batch name must be in format: B-1, B-2 (basic), B-1 (June-2025) (FSD), or B-1 2025 (BVOC)'
+        message: 'Batch name must be in format: B-1, B-2 (basic), B-1 (June-2025) (fsd), or B-1 2025 (bvoc)'
       }
     },
   },
@@ -66,15 +66,15 @@ batchSchema.pre('save', function(next) {
   console.log(`💾 [PRE-SAVE] Saving batch: ${this.category} - ${this.name}`);
   
   // Additional validation based on category
-  if (this.category === 'FSD') {
-    // FSD batches should have format like "B-1 (June-2025)"
+  if (this.category === 'fsd') {
+    // fsd batches should have format like "B-1 (June-2025)"
     if (!this.name.includes('(') && !this.name.includes(')')) {
-      console.warn(`⚠️ FSD batch ${this.name} doesn't follow recommended format: B-X (Month-Year)`);
+      console.warn(`⚠️ fsd batch ${this.name} doesn't follow recommended format: B-X (Month-Year)`);
     }
-  } else if (this.category === 'BVOC') {
-    // BVOC batches should have format like "B-1 2025"
+  } else if (this.category === 'bvoc') {
+    // bvoc batches should have format like "B-1 2025"
     if (this.name.includes('(') || this.name.includes(')')) {
-      console.warn(`⚠️ BVOC batch ${this.name} doesn't follow recommended format: B-X Year`);
+      console.warn(`⚠️ bvoc batch ${this.name} doesn't follow recommended format: B-X Year`);
     }
   }
   
@@ -139,17 +139,17 @@ batchSchema.statics.getAllGrouped = async function() {
   const batches = await this.find({}).sort({ category: 1, name: 1 });
   
   const grouped = {
-    FSD: [],
-    BVOC: []
+    fsd: [],
+    bvoc: []
   };
   
   batches.forEach(batch => {
-    if (batch.category === 'FSD' || batch.category === 'BVOC') {
+    if (batch.category === 'fsd' || batch.category === 'bvoc') {
       grouped[batch.category].push(batch.name);
     }
   });
   
-  console.log(`✅ [RESULT] FSD: ${grouped.FSD.length}, BVOC: ${grouped.BVOC.length}`);
+  console.log(`✅ [RESULT] fsd: ${grouped.fsd.length}, bvoc: ${grouped.bvoc.length}`);
   
   return grouped;
 };
@@ -172,9 +172,9 @@ batchSchema.methods.getYear = function() {
   return match ? parseInt(match[0]) : null;
 };
 
-// Instance method to extract month (if present in FSD format)
+// Instance method to extract month (if present in fsd format)
 batchSchema.methods.getMonth = function() {
-  if (this.category !== 'FSD') return null;
+  if (this.category !== 'fsd') return null;
   
   // Extract month from format "B-1 (June-2025)"
   const match = this.name.match(/\(([A-Za-z]+)-\d{4}\)/);
@@ -183,10 +183,10 @@ batchSchema.methods.getMonth = function() {
 
 // Instance method to check if batch format is valid for category
 batchSchema.methods.hasValidFormat = function() {
-  if (this.category === 'FSD') {
+  if (this.category === 'fsd') {
     // Should have format like "B-1 (June-2025)"
     return /^B-\d+\s+\([A-Za-z]+-\d{4}\)$/.test(this.name);
-  } else if (this.category === 'BVOC') {
+  } else if (this.category === 'bvoc') {
     // Should have format like "B-1 2025"
     return /^B-\d+\s+\d{4}$/.test(this.name);
   }
@@ -199,10 +199,10 @@ batchSchema.virtual('fullDescription').get(function() {
   const year = this.getYear();
   const month = this.getMonth();
   
-  if (this.category === 'FSD' && month && year) {
-    return `FSD Batch ${batchNum} - ${month} ${year}`;
-  } else if (this.category === 'BVOC' && year) {
-    return `BVOC Batch ${batchNum} - ${year}`;
+  if (this.category === 'fsd' && month && year) {
+    return `fsd Batch ${batchNum} - ${month} ${year}`;
+  } else if (this.category === 'bvoc' && year) {
+    return `bvoc Batch ${batchNum} - ${year}`;
   }
   
   return `${this.category} Batch ${batchNum}`;

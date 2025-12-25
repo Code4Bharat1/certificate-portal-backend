@@ -99,7 +99,6 @@ const createTransporter = (user, pass) => {
  */
 export const sendEmail = async (to, subject, html, text = "", category = "", attachments = []) => {
   try {
-    console.log("📧 Preparing email...");
 
     // Get dynamic email account
     const account = getEmailAccountByCategory(category);
@@ -111,8 +110,7 @@ export const sendEmail = async (to, subject, html, text = "", category = "", att
     // Create new transporter based on category
     const transporter = createTransporter(account.user, account.pass);
 
-    console.log("📨 Using Email:", account.user);
-
+   
     const mailOptions = {
       from: `"${account.fromName}" <${account.user}>`,
       to,
@@ -124,9 +122,7 @@ export const sendEmail = async (to, subject, html, text = "", category = "", att
 
     const info = await transporter.sendMail(mailOptions);
 
-    console.log("✅ Email sent:", info.messageId);
     if (attachments && attachments.length > 0) {
-      console.log(`📎 ${attachments.length} attachment(s) sent`);
     }
 
     return { success: true, messageId: info.messageId };
@@ -441,7 +437,7 @@ export const sendCertificateNotification = async (certificateData) => {
 
     return result;
   } catch (error) {
-    console.error("Certificate Notification Error:", error);
+ 
     return {
       success: false,
       error: "Failed to send certificate notification",
@@ -2047,9 +2043,9 @@ export const sendLetterNotification = async (letterData) => {
         issueDate: letterData.issueDate,
         description: letterData.description,
       }, 'letter');
-      console.log('✅ Letter PDF generated successfully');
+
     } catch (pdfError) {
-      console.error('⚠️ Letter PDF generation failed:', pdfError);
+    
     }
 
     const emailHtml = getLetterEmailTemplate(letterType, subType, letterData);

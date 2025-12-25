@@ -6,7 +6,6 @@ const clientLetterSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      // Format: CLA-YYYY-MM-DD-XX, CLM-YYYY-MM-DD-XX, or CLP-YYYY-MM-DD-XX
     },
 
     name: {
@@ -18,8 +17,7 @@ const clientLetterSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: ["Client"],
-      default: "Client",
+      default: "client",
     },
 
     issueDate: {
@@ -30,7 +28,6 @@ const clientLetterSchema = new mongoose.Schema(
     letterType: {
       type: String,
       required: true,
-      enum: ["Agenda", "MOM (Minutes of Meeting)", "Project Progress"],
     },
 
     projectName: {
@@ -53,34 +50,27 @@ const clientLetterSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // Outward number tracking (same as letter system)
     outwardNo: {
       type: String,
       required: true,
       unique: true,
-      // Format: NEX/YYYY/MM/DD/SerialNumber
     },
 
     outwardSerial: {
       type: Number,
       required: true,
-      // Continuous serial number across all client letters
     },
 
-    // Optional: Link to stored/generated PDF
     pdfUrl: {
       type: String,
       default: null,
     },
 
-    // Status tracking for admin dashboard
     status: {
       type: String,
-      enum: ["Generated", "Pending Approval", "Sent to Client"],
       default: "Generated",
     },
 
-    // Email & WhatsApp tracking
     emailSent: {
       type: Boolean,
       default: false,
@@ -99,7 +89,6 @@ const clientLetterSchema = new mongoose.Schema(
       type: Date,
     },
 
-    // Download tracking (optional, similar to letter system)
     downloadCount: {
       type: Number,
       default: 0,
@@ -109,14 +98,13 @@ const clientLetterSchema = new mongoose.Schema(
       type: Date,
     },
 
-    // Created by user reference (optional)
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
   },
   {
-    timestamps: true, // createdAt & updatedAt auto-managed
+    timestamps: true,
   }
 );
 

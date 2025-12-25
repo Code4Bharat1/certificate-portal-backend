@@ -1,9 +1,14 @@
+//client.controllers.js
 import nodemailer from "nodemailer";
 import axios from "axios";
 import PdfPrinter from "pdfmake";
 import fs from "fs";
 import path from "path";
 import ClientLetter from "../models/clientdata.models.js";
+import { generateUnifiedOutwardNo } from "../utils/outwardNumberGenerator.js";
+
+// Dev mode check
+const IS_DEV_MODE = process.env.NODE_ENV === 'development' || process.env.DEV_MODE === 'true';
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -24,6 +29,7 @@ const fonts = {
 
 const printer = new PdfPrinter(fonts);
 
+
 /* -------------------------
    Helper: generateClientLetterId
 ------------------------- */
@@ -32,6 +38,7 @@ async function generateClientLetterId(letterType) {
     Agenda: "CLA",
     "MOM (Minutes of Meeting)": "CLM",
     "Project Progress": "CLP",
+    "Project Communication": "CLPC",
   };
 
   const typeAbbr = typeMap[letterType] || "CL";
@@ -63,42 +70,6 @@ async function generateClientLetterId(letterType) {
   return `${typeAbbr}-${dateStr}-${padded}`;
 }
 
-/* -------------------------
-   Helper: generateClientOutwardNo
-------------------------- */
-async function generateClientOutwardNo(issueDate) {
-  const issue = issueDate ? new Date(issueDate) : new Date();
-
-  const yyyy = issue.getFullYear();
-  const mm = String(issue.getMonth() + 1).padStart(2, "0");
-  const dd = String(issue.getDate()).padStart(2, "0");
-  const datePart = `${yyyy}/${mm}/${dd}`;
-
-  let lastLetter = await ClientLetter.findOne({})
-    .sort({ outwardSerial: -1, createdAt: -1 })
-    .lean();
-
-  let maxSerial = 0;
-
-  if (lastLetter) {
-    if (
-      typeof lastLetter.outwardSerial === "number" &&
-      lastLetter.outwardSerial > 0
-    ) {
-      maxSerial = lastLetter.outwardSerial;
-    } else if (lastLetter.outwardNo) {
-      const match = String(lastLetter.outwardNo).match(/(\d+)\s*$/);
-      if (match && match[1]) maxSerial = parseInt(match[1], 10);
-    }
-  }
-
-  let nextSerial = maxSerial + 1;
-  if (nextSerial < 5) nextSerial = 5;
-
-  const outwardNo = `NEX/${datePart}/${nextSerial}`;
-
-  return { outwardNo, outwardSerial: nextSerial };
-}
 
 /* -------------------------
    Utility: load template
@@ -227,7 +198,6 @@ function buildDocDefinition({
   };
 }
 
-
 /* -------------------------
    Helper: Send PDF via Email
 ------------------------- */
@@ -235,7 +205,7 @@ async function sendEmailWithPDF(clientEmail, clientName, pdfBuffer, letterId) {
   const mailOptions = {
     from: process.env.EMAIL_USER_C4B,
     to: clientEmail,
-    subject: `Client Letter - ${letterId}`,
+    subject: `client Letter - ${letterId}`,
     html: `
       <div style="font-family: Arial, sans-serif; padding: 20px;">
         <h2>Dear ${clientName},</h2>
@@ -287,16 +257,12 @@ The PDF has been sent to your email.
 Best Regards,
 Nexcore Alliance`;
 
-    console.log("📱 Sending WhatsApp to:", cleanPhone);
-
     const payload = {
       number: cleanPhone,
       type: "text",
       message: message,
       instance_id: instanceId,
     };
-
-    console.log("📦 Payload:", JSON.stringify(payload, null, 2));
 
     const response = await axios.post(
       `${whatsappApiUrl}?access_token=${whatsappAccessToken}`,
@@ -308,19 +274,15 @@ Nexcore Alliance`;
       }
     );
 
-    console.log(
-      "✅ WhatsApp API Response:",
-      JSON.stringify(response.data, null, 2)
-    );
     return response.data;
   } catch (error) {
-    console.error("❌ WhatsApp Error Response:", error.response?.data);
+    console.error("❌ WhatsApp send failed:", error.message);
     throw error;
   }
 }
 
 /* -------------------------
-   Helper: Get Client Details (Phone & Email)
+   Helper: Get client Details (Phone & Email)
 ------------------------- */
 async function getClientDetails(clientName) {
   try {
@@ -328,21 +290,13 @@ async function getClientDetails(clientName) {
 
     const client = await People.findOne({
       name: clientName,
-      category: "Client",
+      category: "client",
     });
 
     if (!client) {
-      console.error("❌ Client not found:", clientName);
-      throw new Error("Client not found");
+      console.error("❌ client not found:", clientName);
+      throw new Error("client not found");
     }
-
-    console.log("📋 Client found:", clientName);
-    console.log("📧 Client Email 1:", client.clientEmail1);
-    console.log("📧 Client Email 2:", client.clientEmail2);
-    console.log("📧 Regular Email:", client.email);
-    console.log("📱 Client Phone 1:", client.clientPhone1);
-    console.log("📱 Client Phone 2:", client.clientPhone2);
-    console.log("📱 Regular Phone:", client.phone);
 
     return {
       phone: client.clientPhone1 || client.clientPhone2 || client.phone || null,
@@ -357,8 +311,14 @@ async function getClientDetails(clientName) {
 /* -------------------------
    clientLetter (SAVE + GENERATE PDF)
 ------------------------- */
+/* -------------------------
+   clientLetter (SAVE + GENERATE PDF)
+------------------------- */
 const clientLetter = async (req, res) => {
   try {
+    console.log("📨 Received client letter creation request");
+    console.log("📦 Request body:", req.body);
+
     const {
       name,
       issueDate,
@@ -369,19 +329,51 @@ const clientLetter = async (req, res) => {
       category,
     } = req.body;
 
-    if (
-      !name ||
-      !issueDate ||
-      !letterType ||
-      !projectName ||
-      !subject ||
-      !description
-    ) {
+    // ✅ Enhanced validation
+    if (!name || !issueDate || !letterType || !projectName || !subject || !description) {
+      console.log("❌ Validation failed - missing required fields");
       return res.status(400).json({
         success: false,
         message: "All fields are required",
+        missingFields: {
+          name: !name,
+          issueDate: !issueDate,
+          letterType: !letterType,
+          projectName: !projectName,
+          subject: !subject,
+          description: !description,
+        },
       });
     }
+
+    // ✅ Validate letter type
+    const validLetterTypes = [
+      "Agenda",
+      "MOM (Minutes of Meeting)",
+      "Project Progress",
+      "Project Communication",
+    ];
+
+    if (!validLetterTypes.includes(letterType)) {
+      console.log("❌ Invalid letter type:", letterType);
+      return res.status(400).json({
+        success: false,
+        message: `Invalid letter type. Must be one of: ${validLetterTypes.join(", ")}`,
+        receivedType: letterType,
+      });
+    }
+
+    // ✅ Validate category
+    if (category && category !== "client") {
+      console.log("❌ Invalid category:", category);
+      return res.status(400).json({
+        success: false,
+        message: "Category must be 'client'",
+        receivedCategory: category,
+      });
+    }
+
+    console.log("✅ Validation passed");
 
     let letterId;
     let exists;
@@ -391,124 +383,21 @@ const clientLetter = async (req, res) => {
       exists = await ClientLetter.findOne({ letterId });
     } while (exists);
 
-    const { outwardNo, outwardSerial } = await generateClientOutwardNo(
-      issueDate
-    );
+    console.log("✅ Generated Letter ID:", letterId);
 
-    const templateAPath = path.join(
-      process.cwd(),
-      "templates",
-      "client",
-      "TemplateA.jpg"
-    );
+    const { outwardNo, outwardSerial } = await generateUnifiedOutwardNo(issueDate);
+    console.log("✅ Generated Outward No:", outwardNo);
 
-    const templateABase64 = loadTemplateBase64(templateAPath);
+    // ... rest of your existing code ...
 
-    const docDefinition = buildDocDefinition({
-      templateABase64,
-      outwardNo,
-      letterType,
-      issueDate,
-      name,
-      subject,
-      projectName,
-      description,
-      letterIdOrEmpty: letterId,
-    });
-
-    const pdfDoc = printer.createPdfKitDocument(docDefinition);
-    const chunks = [];
-
-    pdfDoc.on("data", (c) => chunks.push(c));
-
-    pdfDoc.on("end", async () => {
-      try {
-        const pdfBuffer = Buffer.concat(chunks);
-
-        // Save PDF to uploads folder
-        const uploadsDir = path.join(
-          process.cwd(),
-          "uploads",
-          "client-letters"
-        );
-        if (!fs.existsSync(uploadsDir)) {
-          fs.mkdirSync(uploadsDir, { recursive: true });
-        }
-
-        const filename = `${name.replace(/\s+/g, "_")}_${letterId}.pdf`;
-        const filePath = path.join(uploadsDir, filename);
-        fs.writeFileSync(filePath, pdfBuffer);
-
-        const pdfUrl = `/uploads/client-letters/${filename}`;
-
-        // Save to database
-        const clientLetterData = {
-          letterId,
-          name,
-          category: category || "Client",
-          issueDate: new Date(issueDate),
-          letterType,
-          projectName,
-          subject,
-          description,
-          outwardNo,
-          outwardSerial,
-          pdfUrl,
-          status: "Generated",
-        };
-
-        const savedLetter = await ClientLetter.create(clientLetterData);
-
-        // Get client contact details
-        const { phone, email } = await getClientDetails(name);
-
-        // Send via Email
-        if (email) {
-          try {
-            await sendEmailWithPDF(email, name, pdfBuffer, letterId);
-            savedLetter.emailSent = true;
-            savedLetter.emailSentAt = new Date();
-            console.log(`✅ Email sent to ${email}`);
-          } catch (emailError) {
-            console.error("Email send failed:", emailError);
-          }
-        }
-
-        // Send via WhatsApp
-        if (phone) {
-          try {
-            const pdfBase64 = pdfBuffer.toString("base64");
-            await sendWhatsAppWithPDF(phone, name, pdfBase64, letterId);
-            savedLetter.whatsappSent = true;
-            savedLetter.whatsappSentAt = new Date();
-            console.log(`✅ WhatsApp sent to ${phone}`);
-          } catch (whatsappError) {
-            console.error("WhatsApp send failed:", whatsappError);
-          }
-        }
-
-        // Update status
-        savedLetter.status = "Sent to Client";
-        await savedLetter.save();
-
-        // Send letterId in response header
-        res.setHeader("X-Letter-Id", letterId);
-        res.setHeader("Content-Type", "application/pdf");
-        res.setHeader(
-          "Content-Disposition",
-          `attachment; filename="${filename}"`
-        );
-        res.send(pdfBuffer);
-      } catch (error) {
-        console.error("PDF save/send error:", error);
-        return res.status(500).json({ success: false, message: error.message });
-      }
-    });
-
-    pdfDoc.end();
   } catch (error) {
-    console.error("clientLetter error:", error);
-    return res.status(500).json({ success: false, message: error.message });
+    console.error("❌ clientLetter error:", error);
+    console.error("Error stack:", error.stack);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to create client letter",
+      error: error.message,
+    });
   }
 };
 
@@ -517,54 +406,62 @@ const clientLetter = async (req, res) => {
 ------------------------- */
 const clientPreview = async (req, res) => {
   try {
-    const { name, issueDate, letterType, projectName, subject, description } =
-      req.body;
+    console.log("📨 Received preview request");
+    console.log("📦 Request body:", req.body);
 
+    const { name, issueDate, letterType, projectName, subject, description } = req.body;
+
+    // ✅ Enhanced validation
     if (!name || !issueDate || !letterType || !projectName || !subject) {
+      console.log("❌ Preview validation failed");
       return res.status(400).json({
         success: false,
-        message: "Missing preview fields",
+        message: "Missing required fields for preview",
+        missingFields: {
+          name: !name,
+          issueDate: !issueDate,
+          letterType: !letterType,
+          projectName: !projectName,
+          subject: !subject,
+        },
       });
     }
 
+    // ✅ Validate letter type
+    const validLetterTypes = [
+      "Agenda",
+      "MOM (Minutes of Meeting)",
+      "Project Progress",
+      "Project Communication",
+    ];
+
+    if (!validLetterTypes.includes(letterType)) {
+      console.log("❌ Invalid letter type for preview:", letterType);
+      return res.status(400).json({
+        success: false,
+        message: `Invalid letter type. Must be one of: ${validLetterTypes.join(", ")}`,
+        receivedType: letterType,
+      });
+    }
+
+    console.log("✅ Preview validation passed");
+
     const tempLetterId = await generateClientLetterId(letterType);
-    const { outwardNo } = await generateClientOutwardNo(issueDate);
+    const { outwardNo } = await generateUnifiedOutwardNo(issueDate);
 
-    const templateAPath = path.join(
-      process.cwd(),
-      "templates",
-      "client",
-      "TemplateA.jpg"
-    );
+    console.log("✅ Temp Letter ID:", tempLetterId);
+    console.log("✅ Outward No:", outwardNo);
 
-    const templateABase64 = loadTemplateBase64(templateAPath);
+    // ... rest of your existing code ...
 
-    const docDefinition = buildDocDefinition({
-      templateABase64,
-      outwardNo,
-      letterType,
-      issueDate,
-      name,
-      subject,
-      projectName,
-      description,
-      letterIdOrEmpty: tempLetterId,
-    });
-
-    const pdfDoc = printer.createPdfKitDocument(docDefinition);
-    const chunks = [];
-
-    pdfDoc.on("data", (c) => chunks.push(c));
-    pdfDoc.on("end", () => {
-      const result = Buffer.concat(chunks);
-      res.setHeader("Content-Type", "application/pdf");
-      res.send(result);
-    });
-
-    pdfDoc.end();
   } catch (error) {
-    console.error("clientPreview error:", error);
-    return res.status(500).json({ success: false, message: error.message });
+    console.error("❌ clientPreview error:", error);
+    console.error("Error stack:", error.stack);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to generate preview",
+      error: error.message,
+    });
   }
 };
 
@@ -598,7 +495,7 @@ const getClientLetterById = async (req, res) => {
     if (!letter) {
       return res
         .status(404)
-        .json({ success: false, message: "Client letter not found" });
+        .json({ success: false, message: "client letter not found" });
     }
 
     res.status(200).json({ success: true, data: letter });
@@ -625,7 +522,7 @@ const downloadClientLetter = async (req, res) => {
     if (!letter) {
       return res
         .status(404)
-        .json({ success: false, message: "Client letter not found" });
+        .json({ success: false, message: "client letter not found" });
     }
 
     if (!letter.pdfUrl) {

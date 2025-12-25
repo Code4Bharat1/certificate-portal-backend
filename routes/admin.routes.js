@@ -8,7 +8,7 @@ import {
   getAllAdmins,
   createAdmin,
   deleteAdmin,
-  deleteAdminByUsername   
+  deleteAdminByUsername,
 } from "../controllers/admin.controller.js";
 
 import { authenticateAdmin } from "../middleware/auth.middleware.js";
@@ -30,7 +30,10 @@ router.delete("/:id", authenticateAdmin, deleteAdmin);
 router.get("/admins", authenticateAdmin, getAllAdmins);
 router.post("/admins", authenticateAdmin, createAdmin);
 router.delete("/admins/:id", authenticateAdmin, deleteAdmin);
-router.delete("/admins/username/:username", authenticateAdmin, deleteAdminByUsername);
-
+router.delete(
+  "/admins/username/:username",
+  authenticateAdmin,
+  deleteAdminByUsername
+);
 
 export default router;

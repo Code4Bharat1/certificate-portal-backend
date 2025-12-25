@@ -1,3 +1,4 @@
+//certificate.models.js
 import mongoose from 'mongoose';
 
 const certificateSchema = new mongoose.Schema({
@@ -14,7 +15,7 @@ const certificateSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ["FSD", "BVOC", "BOOTCAMP", "HR", "marketing-junction", "IT-Nexcore"],
+    enum: ["fsd", "bvoc", "BOOTCAMP", "hr", "marketing-junction", "it-nexcore"],
   },
   batch: {
     type: String,

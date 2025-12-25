@@ -1,3 +1,4 @@
+//activitylog.models.js
 import mongoose from 'mongoose';
 
 const activityLogSchema = new mongoose.Schema({
@@ -22,7 +23,7 @@ const activityLogSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: ['internship', 'fsd', 'bvoc', 'bootcamp', 'marketing-junction', 'code4bharat']
+    enum: ['internship', 'fsd', 'bvoc', 'bootcamp', 'marketing-junction', 'it-nexcore']
   },
   details: {
     type: String

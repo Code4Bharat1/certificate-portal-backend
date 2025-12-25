@@ -14,6 +14,22 @@ import {
   getParentNotificationTemplate,
 } from "../services/whatsappService.js";
 import emailService from "../services/emailService.js";
+import { generateUnifiedOutwardNo } from "../utils/outwardNumberGenerator.js";
+
+// Add this helper function after your imports in letter.controllers.js
+
+/**
+ * Normalize category for template lookup
+ * Maps Code4Bharat to it-nexcore for template selection
+ */
+function normalizeCategory(category) {
+  const lower = category.toLowerCase();
+  if (lower === "code4bharat") {
+    return "it-nexcore";
+  }
+  return category;
+}
+
 const { getLetterEmailTemplate, getParentNotificationEmailTemplate, sendEmail, sendParentNotification } = emailService;
 
 
@@ -40,11 +56,11 @@ const TOP_ROW_FONT_SIZE = 15;
 // (Paste the same generateLetterId implementation here)
 export async function generateLetterId(category) {
   const catMap = {
-    "IT-Nexcore": "NEX",
+    "it-nexcore": "NEX",
     "marketing-junction": "MJ",
-    FSD: "FSD",
-    HR: "HR",
-    BVOC: "BVOC",
+    fsd: "fsd",
+    hr: "hr",
+    bvoc: "bvoc",
   };
 
   const catAbbr = catMap[category] || category.toUpperCase().slice(0, 4);
@@ -82,59 +98,13 @@ export async function generateLetterId(category) {
   return `${catAbbr}-${dateStr}-${padded}`;
 }
 
-/* -------------------------
-   Helper: generateOutwardNo
-   (unchanged, used to produce outwardNo/outwardSerial)
-   ------------------------- */
-export async function generateOutwardNo(category, course, issueDate) {
-  const issue = issueDate ? new Date(issueDate) : new Date();
-
-  const yyyy = issue.getFullYear();
-  const mm = String(issue.getMonth() + 1).padStart(2, "0");
-  const dd = String(issue.getDate()).padStart(2, "0");
-  const datePart = `${yyyy}/${mm}/${dd}`;
-
-  // ✅ Get the last letter globally — no category/course filters
-  let lastLetter = await Letter.findOne({})
-    .sort({ outwardSerial: -1, createdAt: -1 })
-    .lean();
-
-  let maxSerial = 0;
-
-  if (lastLetter) {
-    if (
-      typeof lastLetter.outwardSerial === "number" &&
-      lastLetter.outwardSerial > 0
-    ) {
-      maxSerial = lastLetter.outwardSerial;
-    } else if (lastLetter.outwardNo) {
-      const match = String(lastLetter.outwardNo).match(/(\d+)\s*$/);
-      if (match && match[1]) {
-        maxSerial = parseInt(match[1], 10);
-      }
-    }
-  }
-
-  // ✅ Continuous outward serial for all categories/courses
-  let nextSerial = maxSerial + 1;
-
-  // ✅ Ensure numbering starts from 5 if no previous letters
-  if (nextSerial < 5) {
-    nextSerial = 5;
-  }
-
-  // ✅ Unified outward number format (no category logic)
-  const outwardNo = `NEX/${datePart}/${nextSerial}`;
-
-  return { outwardNo, outwardSerial: nextSerial };
-}
 
 /* -------------------------
    Template filename helper (unchanged)
    ------------------------- */
 export function getLetterTemplateFilename(course, category) {
   const templateMap = {
-    "IT-Nexcore": {
+    "it-nexcore": {
       "Internship Joining Letter - Unpaid": "C4B/C4B-internship-unpaid.pdf",
       "Internship Joining Letter - Paid": "C4B/C4B-internship-paid.pdf",
       "Non-Disclosure Agreement": "C4B/C4B-NDA.pdf",
@@ -157,101 +127,101 @@ export function getLetterTemplateFilename(course, category) {
       "Non Paid to Paid": "common/Non-Paid-to-Paid-Promotion-Letter.png",
       "Stipend Revision": "common/Stipend-Revision-Promotion-Letter.png",
     },
-    FSD: {
+    fsd: {
       // "Appreciation Letter": "Letter.jpg",
       // "Experience Certificate": "Letter.jpg",
-      // 'Warning Letter': "FSD-WarningLetter.jpg",
+      // 'Warning Letter': "fsd-WarningLetter.jpg",
 
       "Appreciation for Best Attendance":
-        "FSD/FSD-appreciation-for-bestAttendance.jpg",
+        "fsd/fsd-appreciation-for-bestAttendance.jpg",
       "Appreciation for Outstanding Performance":
-        "FSD/FSD-appreciation-for-outstanding-performance.jpg",
+        "fsd/fsd-appreciation-for-outstanding-performance.jpg",
       "Appreciation for Consistent Performance":
-        "FSD/FSD-appreciation-for-consistent-performer.png",
+        "fsd/fsd-appreciation-for-consistent-performer.png",
 
       "Internship Experience Certificate":
-        "FSD/FSD-internship-experience-certificate.jpg",
-      "Live Project Agreement": "FSD/FSD-LiveProject.pdf",
-      "Non-Disclosure Agreement": "FSD/NDA.pdf",
-      "Offer Letter": "FSD/FSD-OfferLetter.pdf",
+        "fsd/fsd-internship-experience-certificate.jpg",
+      "Live Project Agreement": "fsd/fsd-LiveProject.pdf",
+      "Non-Disclosure Agreement": "fsd/NDA.pdf",
+      "Offer Letter": "fsd/fsd-OfferLetter.pdf",
 
       "Warning for Incomplete Assignment/Project Submissions":
-        "FSD/FSD-warning-incomplete-assignment.jpg",
-      "Warning for Low Attendance": "FSD/FSD-warning-low-attendance.jpg",
+        "fsd/fsd-warning-incomplete-assignment.jpg",
+      "Warning for Low Attendance": "fsd/fsd-warning-low-attendance.jpg",
       "Warning for Misconduct or Disrespectful Behavior":
-        "FSD/FSD-warning-for-misconduct.jpg",
+        "fsd/fsd-warning-for-misconduct.jpg",
       "Warning for Unauthorized Absence from Training Sessions":
-        "FSD/FSD-warning-for-unauthorized-absence.jpg",
+        "fsd/fsd-warning-for-unauthorized-absence.jpg",
       "Warning Regarding Punctuality and Professional Discipline":
-        "FSD/FSD-warning-regarding-punctuality.jpg",
+        "fsd/fsd-warning-regarding-punctuality.jpg",
 
       "Concern Letter-Audit Interview Performance":
-        "FSD/FSD-concern-letter.jpg",
+        "fsd/fsd-concern-letter.jpg",
     },
-    BVOC: {
+    bvoc: {
       // "Appreciation Letter": "Letter.jpg",
       // "Experience Certificate": "Letter.jpg",
-      // 'Warning Letter': "BVOC-WarningLetter.jpg",
+      // 'Warning Letter': "bvoc-WarningLetter.jpg",
       // 'Community Letter': "Letter.jpg",
 
       "Appreciation for Best Attendance":
-        "BVOC/BVOC-appreciation-for-bestAttendance.jpg",
+        "bvoc/bvoc-appreciation-for-bestAttendance.jpg",
       "Appreciation for Detecting Errors And Debugging":
-        "BVOC/BVOC-appreciation-for-debugging.jpg",
+        "bvoc/bvoc-appreciation-for-debugging.jpg",
       "Appreciation for Outstanding Performance":
-        "BVOC/BVOC-appreciation-for-outstanding-performance.jpg",
+        "bvoc/bvoc-appreciation-for-outstanding-performance.jpg",
       "Appreciation for Consistent Performance":
-        "BVOC/BVOC-appreciation-for-consistent-performer.jpg",
+        "bvoc/bvoc-appreciation-for-consistent-performer.jpg",
 
-      "Committee Member": "BVOC/BVOC-committe-member.jpg",
-      "Committee President": "BVOC/BVOC-committe-president.jpg",
-      "Committee Vice-President": "BVOC/BVOC-committe-vice-president.jpg",
+      "Committee Member": "bvoc/bvoc-committe-member.jpg",
+      "Committee President": "bvoc/bvoc-committe-president.jpg",
+      "Committee Vice-President": "bvoc/bvoc-committe-vice-president.jpg",
 
       "Warning for Incomplete Assignment/Project Submissions":
-        "BVOC/BVOC-warning-incomplete-assignment.jpg",
-      "Warning for Low Attendance": "BVOC/BVOC-warning-low-attendance.jpg",
+        "bvoc/bvoc-warning-incomplete-assignment.jpg",
+      "Warning for Low Attendance": "bvoc/bvoc-warning-low-attendance.jpg",
       "Warning for Misconduct or Disrespectful Behavior":
-        "BVOC/BVOC-warning-for-misconduct.jpg",
+        "bvoc/bvoc-warning-for-misconduct.jpg",
       "Warning for Punctuality and Discipline":
-        "BVOC/BVOC-warning-for-punctuality.jpg",
+        "bvoc/bvoc-warning-for-punctuality.jpg",
       "Warning for Unauthorized Absence from Sessions":
-        "BVOC/BVOC-warning-for-unauthorized-absence.jpg",
+        "bvoc/bvoc-warning-for-unauthorized-absence.jpg",
 
       "Concern Letter-Audit Interview Performance":
-        "BVOC/BVOC-concern-letter.jpg",
+        "bvoc/bvoc-concern-letter.jpg",
     },
-    DM: {
+    dm: {
       // "Appreciation Letter": "Letter.jpg",
       // "Experience Certificate": "Letter.jpg",
-      // 'Warning Letter': "FSD-WarningLetter.jpg",
+      // 'Warning Letter': "fsd-WarningLetter.jpg",
 
       "Appreciation for Best Attendance":
-        "DM/DM-appreciation-for-bestAttendance.jpg",
+        "dm/dm-appreciation-for-bestAttendance.jpg",
       "Appreciation for Outstanding Performance":
-        "DM/DM-appreciation-for-outstanding-performance.jpg",
+        "dm/dm-appreciation-for-outstanding-performance.jpg",
       "Appreciation for Consistent Performance":
-        "DM/DM-appreciation-for-consistent-performer.jpg",
+        "dm/dm-appreciation-for-consistent-performer.jpg",
 
       "Internship Experience Certificate":
-        "DM/DM-internship-experience-certificate.jpg",
-      "Offer Letter": "DM/DM-OfferLetter.pdf",
+        "dm/dm-internship-experience-certificate.jpg",
+      "Offer Letter": "dm/dm-OfferLetter.pdf",
 
       "Warning for Incomplete Assignment/Project Submissions":
-        "DM/DM-warning-incomplete-assignment.jpg",
-      "Warning for Low Attendance": "DM/DM-warning-low-attendance.jpg",
+        "dm/dm-warning-incomplete-assignment.jpg",
+      "Warning for Low Attendance": "dm/dm-warning-low-attendance.jpg",
       "Warning for Misconduct or Disrespectful Behavior":
-        "DM/DM-warning-for-misconduct.jpg",
+        "dm/dm-warning-for-misconduct.jpg",
       "Warning for Unauthorized Absence from Training Sessions":
-        "DM/DM-warning-for-unauthorized-absence.jpg",
+        "dm/dm-warning-for-unauthorized-absence.jpg",
       "Warning Regarding Punctuality and Professional Discipline":
-        "DM/DM-warning-regarding-punctuality.jpg",
+        "dm/dm-warning-regarding-punctuality.jpg",
 
-      "Concern Letter-Audit Interview Performance": "DM/DM-concern-letter.jpg",
+      "Concern Letter-Audit Interview Performance": "dm/dm-concern-letter.jpg",
     },
-    HR: {
-      "Internship Joining Letter - Unpaid": "HR/HR-internship-unpaid.pdf",
-      "Internship Joining Letter - Paid": "HR/HR-internship-paid.pdf",
-      "Non-Disclosure Agreement": "HR/HR-NDA.pdf",
+    hr: {
+      "Internship Joining Letter - Unpaid": "hr/hr-internship-unpaid.pdf",
+      "Internship Joining Letter - Paid": "hr/hr-internship-paid.pdf",
+      "Non-Disclosure Agreement": "hr/hr-NDA.pdf",
       // 'Memo': "Letter.jpg",
       // common
       "Appreciation Letter": "common/Appreciation.jpg",
@@ -260,10 +230,10 @@ export function getLetterTemplateFilename(course, category) {
       "Non Paid to Paid": "common/Non-Paid-to-Paid-Promotion-Letter.png",
       "Stipend Revision": "common/Stipend-Revision-Promotion-Letter.png",
     },
-    OD: {
-      "Internship Joining Letter - Unpaid": "OD/OD-internship-unpaid.pdf",
-      "Internship Joining Letter - Paid": "OD/OD-internship-paid.pdf",
-      "Non-Disclosure Agreement": "OD/OD-NDA.pdf",
+    operations: {
+      "Internship Joining Letter - Unpaid": "operations/operations-internship-unpaid.pdf",
+      "Internship Joining Letter - Paid": "operations/operations-internship-paid.pdf",
+      "Non-Disclosure Agreement": "operations/operations-NDA.pdf",
       // 'Memo': "Letter.jpg",
       // common
       "Appreciation Letter": "common/Appreciation.jpg",
@@ -323,7 +293,6 @@ export const createLetter = async (req, res) => {
       return res.status(400).json({ success: false, errors: errors.array() });
     }
 
-    // ✅ Extract ALL fields from frontend formData
     const {
       name,
       category,
@@ -351,8 +320,6 @@ export const createLetter = async (req, res) => {
       subjectName,
       projectName,
       auditDate,
-
-      // Newly added missing fields:
       trainingStartDate,
       trainingEndDate,
       officialStartDate,
@@ -360,7 +327,6 @@ export const createLetter = async (req, res) => {
       responsibilities,
       amount,
       effectiveFrom,
-
       timelineStage,
       timelineProjectName,
       timelineDueDate,
@@ -370,7 +336,6 @@ export const createLetter = async (req, res) => {
       year,
     } = req.body;
 
-    // Basic validations
     if (!name || !category || !course || !issueDate || !letterType) {
       return res.status(400).json({
         success: false,
@@ -379,7 +344,6 @@ export const createLetter = async (req, res) => {
       });
     }
 
-    // Generate Letter ID
     let letterId;
     let exists;
     do {
@@ -387,18 +351,14 @@ export const createLetter = async (req, res) => {
       exists = await Letter.findOne({ letterId });
     } while (exists);
 
-    // Generate outward no
-    const { outwardNo, outwardSerial } = await generateOutwardNo(
-      category,
-      course,
+    // ✅ USE UNIFIED FUNCTION
+    const { outwardNo, outwardSerial } = await generateUnifiedOutwardNo(
       issueDate
     );
 
-    // Get user phone
     const userData = await People.findOne({ name });
     const userPhone = userData?.phone || null;
 
-    // Prepare DB object with ALL fields included
     const letterData = {
       letterId,
       name,
@@ -430,8 +390,6 @@ export const createLetter = async (req, res) => {
       projectName: projectName || "",
       uncover: uncover || "",
       auditDate: auditDate ? new Date(auditDate) : null,
-
-      // NEWLY ADDED FIELDS
       trainingStartDate: trainingStartDate ? new Date(trainingStartDate) : null,
       trainingEndDate: trainingEndDate ? new Date(trainingEndDate) : null,
       officialStartDate: officialStartDate ? new Date(officialStartDate) : null,
@@ -439,7 +397,6 @@ export const createLetter = async (req, res) => {
       responsibilities: responsibilities || "",
       amount: amount || "",
       effectiveFrom: effectiveFrom ? new Date(effectiveFrom) : null,
-
       timelineStage: timelineStage || "",
       timelineProjectName: timelineProjectName || "",
       timelineDueDate: timelineDueDate || "",
@@ -449,442 +406,10 @@ export const createLetter = async (req, res) => {
       year: year || "",
     };
 
-    // Create letter
     const letter = await Letter.create(letterData);
 
-    // Send WhatsApp and Email notifications
-    try {
-      const subType = letter.subType || letterType;
+    // ... rest of notification code ...
 
-      const templateData = {
-        userName: name,
-        category,
-        batch,
-        issueDate: letter.issueDate,
-        credentialId: letterId,
-        letterId: letterId,
-        organizationName: "Nexcore Alliance",
-      };
-
-      // ----------------------- WHATSAPP TO STUDENT -----------------------
-      if (userPhone && letterId) {
-        const html = getLetterMessageTemplate(
-          letterType,
-          subType,
-          templateData
-        );
-        const waText = html.replace(/<[^>]+>/g, "").replace(/\s{2,}/g, "\n");
-        await sendWhatsAppMessage(userPhone, waText);
-      }
-
-      // ----------------------- EMAIL TO STUDENT -----------------------
-      if (userData.email && letterId) {
-        try {
-          // ✅ Generate PDF attachment for letter
-    
-          let pdfBuffer = null;
-          try {
-            const templateFilename = getLetterTemplateFilename(
-              course,
-              category
-            );
-            const templatePath = path.join(
-              __dirname,
-              "../templates",
-              templateFilename
-            );
-            const templateType = getTemplateTypeByFilename(templateFilename);
-
-            if (templateType === "image") {
-              // Image-based template
-              const templateImage = await loadImage(templatePath);
-              const width = templateImage.width;
-              const height = templateImage.height;
-              const canvas = createCanvas(width, height);
-              const ctx = canvas.getContext("2d");
-              ctx.drawImage(templateImage, 0, 0);
-
-              const formattedDate = new Date(
-                letter.issueDate
-              ).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              });
-
-              // Apply template code (same as preview/download)
-              if (category === "FSD") {
-                await TemplateCode.getFSDTemplateCode(
-                  ctx,
-                  width,
-                  height,
-                  letter.issueDate,
-                  course,
-                  name,
-                  letter.outwardNo,
-                  formattedDate,
-                  letterId,
-                  description,
-                  subject,
-                  role,
-                  startDate,
-                  endDate,
-                  committeeType,
-                  attendancePercent,
-                  assignmentName,
-                  misconductReason,
-                  attendanceMonth,
-                  attendanceYear,
-                  performanceMonth,
-                  performanceYear,
-                  testingPhase,
-                  uncover,
-                  subjectName,
-                  projectName,
-                  auditDate
-                );
-              } else if (category === "BVOC") {
-                await TemplateCode.getBVOCTemplateCode(
-                  ctx,
-                  width,
-                  height,
-                  letter.issueDate,
-                  course,
-                  name,
-                  letter.outwardNo,
-                  formattedDate,
-                  letterId,
-                  description,
-                  subject,
-                  role,
-                  startDate,
-                  endDate,
-                  committeeType,
-                  attendancePercent,
-                  assignmentName,
-                  misconductReason,
-                  attendanceMonth,
-                  attendanceYear,
-                  performanceMonth,
-                  performanceYear,
-                  testingPhase,
-                  uncover,
-                  subjectName,
-                  projectName,
-                  auditDate
-                );
-              } else if (category === "DM") {
-                await TemplateCode.getDMTemplateCode(
-                  ctx,
-                  width,
-                  height,
-                  letter.issueDate,
-                  course,
-                  name,
-                  letter.outwardNo,
-                  formattedDate,
-                  letterId,
-                  description,
-                  subject,
-                  role,
-                  startDate,
-                  endDate,
-                  committeeType,
-                  attendancePercent,
-                  assignmentName,
-                  misconductReason,
-                  attendanceMonth,
-                  attendanceYear,
-                  performanceMonth,
-                  performanceYear,
-                  testingPhase,
-                  uncover,
-                  subjectName,
-                  projectName,
-                  auditDate
-                );
-              } else if (
-                ["marketing-junction", "IT-Nexcore", "HR", "OD"].includes(
-                  category
-                )
-              ) {
-                await TemplateCode.getCommonTemplateCode(
-                  ctx,
-                  width,
-                  height,
-                  letter.issueDate,
-                  course,
-                  name,
-                  letter.outwardNo,
-                  formattedDate,
-                  letterId,
-                  description,
-                  subject,
-                  role,
-                  startDate,
-                  endDate,
-                  committeeType,
-                  attendancePercent,
-                  assignmentName,
-                  misconductReason,
-                  attendanceMonth,
-                  attendanceYear,
-                  performanceMonth,
-                  performanceYear,
-                  testingPhase,
-                  uncover,
-                  subjectName,
-                  projectName,
-                  auditDate,
-                  trainingStartDate,
-                  trainingEndDate,
-                  officialStartDate,
-                  completionDate,
-                  responsibilities,
-                  amount,
-                  effectiveFrom,
-                  timelineStage,
-                  timelineProjectName,
-                  timelineDueDate,
-                  timelineNewDate,
-                  genderPronoun,
-                  month,
-                  year
-                );
-              }
-
-              const jpegBuffer = canvas.toBuffer("image/jpeg", {
-                quality: 0.95,
-              });
-              const doc = new PDFDocument({ size: [width, height], margin: 0 });
-
-              const chunks = [];
-              doc.on("data", (chunk) => chunks.push(chunk));
-              doc.on("end", () => {
-                pdfBuffer = Buffer.concat(chunks);
-              });
-
-              doc.image(jpegBuffer, 0, 0, { width, height });
-              doc.end();
-
-              await new Promise((resolve) => doc.on("end", resolve));
-            } else {
-              // PDF-based template
-              const PDFLibDocument = (await import("pdf-lib")).PDFDocument;
-              const existingPdfBytes = fs.readFileSync(templatePath);
-              const pdfDoc = await PDFLibDocument.load(existingPdfBytes);
-
-              const formattedDate = new Date(
-                letter.issueDate
-              ).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              });
-
-              if (category === "FSD") {
-                await TemplateCode.drawFSDPdfTemplate(pdfDoc, course, {
-                  name,
-                  outwardNo: letter.outwardNo,
-                  issueDate: letter.issueDate,
-                  formattedDate,
-                  tempId: letterId,
-                  description,
-                  subject,
-                  startDate,
-                  endDate,
-                });
-              } else if (category === "marketing-junction") {
-                await TemplateCode.drawMJPdfTemplate(pdfDoc, course, {
-                  name,
-                  outwardNo: letter.outwardNo,
-                  formattedDate,
-                  tempId: letterId,
-                  role,
-                  trainingStartDate,
-                  trainingEndDate,
-                  officialStartDate,
-                  completionDate,
-                  responsibilities,
-                  amount,
-                  effectiveFrom,
-                  duration,
-                });
-              } else if (category === "IT-Nexcore") {
-                await TemplateCode.drawC4BPdfTemplate(pdfDoc, course, {
-                  name,
-                  outwardNo: letter.outwardNo,
-                  formattedDate,
-                  tempId: letterId,
-                  role,
-                  trainingStartDate,
-                  trainingEndDate,
-                  officialStartDate,
-                  completionDate,
-                  responsibilities,
-                  amount,
-                  effectiveFrom,
-                  duration,
-                });
-              } else if (category === "HR") {
-                await TemplateCode.drawHRPdfTemplate(pdfDoc, course, {
-                  name,
-                  outwardNo: letter.outwardNo,
-                  formattedDate,
-                  tempId: letterId,
-                  role,
-                  trainingStartDate,
-                  trainingEndDate,
-                  officialStartDate,
-                  completionDate,
-                  responsibilities,
-                  amount,
-                  effectiveFrom,
-                  duration,
-                });
-              } else if (category === "OD") {
-                await TemplateCode.drawODPdfTemplate(pdfDoc, course, {
-                  name,
-                  outwardNo: letter.outwardNo,
-                  formattedDate,
-                  tempId: letterId,
-                  role,
-                  trainingStartDate,
-                  trainingEndDate,
-                  officialStartDate,
-                  completionDate,
-                  responsibilities,
-                  amount,
-                  effectiveFrom,
-                  duration,
-                });
-              } else if (category === "DM") {
-                await TemplateCode.drawDMPdfTemplate(pdfDoc, course, {
-                  name,
-                  outwardNo: letter.outwardNo,
-                  issueDate: letter.issueDate,
-                  formattedDate,
-                  tempId: letterId,
-                  description,
-                  subject,
-                  startDate,
-                  endDate,
-                });
-              }
-
-              pdfBuffer = Buffer.from(await pdfDoc.save());
-            }
-
-            console.log("✅ Letter PDF generated successfully");
-          } catch (pdfError) {
-            console.error("⚠️ Letter PDF generation failed:", pdfError);
-          }
-
-          // ✅ Get email template
-          const htmlContent = emailService.getLetterEmailTemplate(
-            letterType,
-            subType,
-            templateData
-          );
-
-          const emailSubject = `${letterType}${
-            subType ? " - " + subType : ""
-          } | ${templateData.organizationName}`;
-
-          // ✅ Send email WITH PDF attachment
-          await emailService.sendEmail(
-            userData.email,
-            emailSubject,
-            htmlContent,
-            "",
-            category,
-            pdfBuffer
-              ? [
-                  {
-                    filename: `${letterId}_${name.replace(/\s+/g, "_")}.pdf`,
-                    content: pdfBuffer,
-                    contentType: "application/pdf",
-                  },
-                ]
-              : []
-          );
-
-          console.log(`✅ Email sent to ${userData.email} with PDF attachment`);
-
-          // ✅ Parent Email notifications (BVOC only)
-          if (userData.parentEmail && category === "BVOC") {
-            try {
-              const parentHtml =
-                emailService.getParentNotificationEmailTemplate(
-                  letterType,
-                  subType,
-                  templateData
-                );
-
-              const parentSubject = `📢 Parent Notification: ${letterType} for ${name}`;
-
-              await emailService.sendEmail(
-                userData.parentEmail,
-                parentSubject,
-                parentHtml,
-                "",
-                category,
-                pdfBuffer
-                  ? [
-                      {
-                        filename: `${letterId}_${name.replace(
-                          /\s+/g,
-                          "_"
-                        )}.pdf`,
-                        content: pdfBuffer,
-                        contentType: "application/pdf",
-                      },
-                    ]
-                  : []
-              );
-
-              console.log(`✅ Parent email sent to ${userData.parentEmail}`);
-            } catch (parentEmailError) {
-              console.error("⚠️ Parent email failed:", parentEmailError);
-            }
-          }
-        } catch (emailError) {
-          console.error("❌ Email notification error:", emailError);
-        }
-      }
-
-      // ✅ Parent WhatsApp notifications (BVOC only)
-      if (
-        userData.parentPhone1 &&
-        userData.parentPhone2 &&
-        category === "BVOC"
-      ) {
-        try {
-          const parentHtml = getParentNotificationTemplate(
-            letterType,
-            subType,
-            templateData
-          );
-
-          const parentWaText = parentHtml
-            .replace(/<[^>]+>/g, "")
-            .replace(/\s{2,}/g, "\n");
-
-          await sendWhatsAppMessage(userData.parentPhone1, parentWaText);
-          await sendWhatsAppMessage(userData.parentPhone2, parentWaText);
-
-          console.log(
-            `✅ Parent WhatsApp sent to ${userData.parentPhone1} & ${userData.parentPhone2}`
-          );
-        } catch (waError) {
-          console.error("⚠️ Parent WhatsApp failed:", waError);
-        }
-      }
-    } catch (notificationError) {
-      console.error("⚠️ Notification error (non-critical):", notificationError);
-    }
-
-    // Log admin activity
     await ActivityLog.create({
       action: "created",
       letterId: letter.letterId,
@@ -964,10 +489,10 @@ export const previewLetter = async (req, res) => {
     }
 
     const tempId = await generateLetterId(category, course);
-    const { outwardNo } = await generateOutwardNo(category, course, issueDate);
+   const { outwardNo } = await generateUnifiedOutwardNo(issueDate);
 
-    const templateFilename = getLetterTemplateFilename(course, category);
-    const templatePath = path.join(__dirname, "../templates", templateFilename);
+const normalizedCategory = normalizeCategory(category);
+const templateFilename = getLetterTemplateFilename(course, normalizedCategory);    const templatePath = path.join(__dirname, "../templates", templateFilename);
 
     if (!fs.existsSync(templatePath)) {
       return res.status(500).json({
@@ -1031,7 +556,7 @@ export const previewLetter = async (req, res) => {
       const ctx = canvas.getContext("2d");
       ctx.drawImage(templateImage, 0, 0);
 
-      if (category === "FSD") {
+      if (category === "fsd") {
         await TemplateCode.getFSDTemplateCode(
           ctx,
           width,
@@ -1061,7 +586,7 @@ export const previewLetter = async (req, res) => {
           projectName,
           auditDate
         );
-      } else if (category === "BVOC") {
+      } else if (category === "bvoc") {
         await TemplateCode.getBVOCTemplateCode(
           ctx,
           width,
@@ -1091,7 +616,7 @@ export const previewLetter = async (req, res) => {
           projectName,
           auditDate
         );
-      } else if (category === "DM") {
+      } else if (category === "dm") {
         await TemplateCode.getDMTemplateCode(
           ctx,
           width,
@@ -1121,7 +646,7 @@ export const previewLetter = async (req, res) => {
           projectName,
           auditDate
         );
-      } else if (category === "marketing-junction" || category === "IT-Nexcore" || category === "HR" || category === "OD") {
+      } else if (category === "marketing-junction" || category === "it-nexcore" || category === "hr" || category === "operations") {
         await TemplateCode.getCommonTemplateCode(
           ctx,
           width,
@@ -1179,7 +704,7 @@ export const previewLetter = async (req, res) => {
       const existingPdfBytes = fs.readFileSync(templatePath);
       const pdfDoc = await PDFLibDocument.load(existingPdfBytes);
 
-      if (category === "FSD") {
+      if (category === "fsd") {
         await TemplateCode.drawFSDPdfTemplate(pdfDoc, course, {
           name,
           outwardNo,
@@ -1207,7 +732,8 @@ export const previewLetter = async (req, res) => {
           effectiveFrom,
           duration,
         });
-      } else if (category === "IT-Nexcore") {
+     } else if (["it-nexcore", "Code4Bharat"].includes(category)) {
+
         await TemplateCode.drawC4BPdfTemplate(pdfDoc, course, {
           name,
           outwardNo,
@@ -1223,7 +749,7 @@ export const previewLetter = async (req, res) => {
           effectiveFrom,
           duration,
         });
-      } else if (category === "HR") {
+      } else if (category === "hr") {
         await TemplateCode.drawHRPdfTemplate(pdfDoc, course, {
           name,
           outwardNo,
@@ -1239,7 +765,7 @@ export const previewLetter = async (req, res) => {
           effectiveFrom,
           duration,
         });
-      } else if (category === "OD") {
+      } else if (category === "operations") {
         await TemplateCode.drawODPdfTemplate(pdfDoc, course, {
           name,
           outwardNo,
@@ -1255,7 +781,7 @@ export const previewLetter = async (req, res) => {
           effectiveFrom,
           duration,
         });
-      } else if (category === "DM") {
+      } else if (category === "dm") {
         await TemplateCode.drawDMPdfTemplate(pdfDoc, course, {
           name,
           outwardNo,
@@ -1326,12 +852,9 @@ export const downloadLetterAsPdf = async (req, res) => {
 
     // console.log(letter);
 
-
     // Generate outward no. if missing
     if (!letter.outwardNo || !letter.outwardSerial) {
-      const { outwardNo, outwardSerial } = await generateOutwardNo(
-        letter.category,
-        letter.course,
+      const { outwardNo, outwardSerial } = await generateUnifiedOutwardNo(
         letter.issueDate || new Date()
       );
       await Letter.findByIdAndUpdate(letter._id, { outwardNo, outwardSerial });
@@ -1341,9 +864,10 @@ export const downloadLetterAsPdf = async (req, res) => {
 
     // console.log(letter.course, letter.category);
 
+    const normalizedCategory = normalizeCategory(letter.category);
     const templateFilename = getLetterTemplateFilename(
       letter.course,
-      letter.category
+      normalizedCategory
     );
     const templatePath = path.join(__dirname, "../templates", templateFilename);
 
@@ -1363,14 +887,13 @@ export const downloadLetterAsPdf = async (req, res) => {
       }
     );
 
-    const trainingStartDate = new Date(letter.trainingStartDate).toLocaleDateString(
-      "en-US",
-      {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }
-    );
+    const trainingStartDate = new Date(
+      letter.trainingStartDate
+    ).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
 
     const trainingEndDate = new Date(letter.trainingEndDate).toLocaleDateString(
       "en-US",
@@ -1381,14 +904,13 @@ export const downloadLetterAsPdf = async (req, res) => {
       }
     );
 
-    const officialStartDate = new Date(letter.officialStartDate).toLocaleDateString(
-      "en-US",
-      {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }
-    );
+    const officialStartDate = new Date(
+      letter.officialStartDate
+    ).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
 
     const completionDate = new Date(letter.completionDate).toLocaleDateString(
       "en-US",
@@ -1427,11 +949,8 @@ export const downloadLetterAsPdf = async (req, res) => {
           signatureImage = await loadImage(
             path.join(__dirname, "../", letter.signedDocumentPath)
           );
-        } catch (err) {
-          console.log("Signature load failed (ignored):", err.message);
-        }
+        } catch (err) {}
       }
-
 
       const {
         name,
@@ -1475,7 +994,6 @@ export const downloadLetterAsPdf = async (req, res) => {
         year,
       } = letter;
 
-
       const tempId =
         letter.letterId || (await generateLetterId(category, course));
       const outwardNo = letter.outwardNo;
@@ -1490,9 +1008,9 @@ export const downloadLetterAsPdf = async (req, res) => {
 
       const startDate = formatDate(letter.startDate);
       const endDate = formatDate(letter.endDate);
-      const effectiveFrom = formatDate(letter.effectiveFrom)
+      const effectiveFrom = formatDate(letter.effectiveFrom);
 
-      if (category === "FSD") {
+      if (category === "fsd") {
         TemplateCode.getFSDTemplateCode(
           ctx,
           width,
@@ -1521,9 +1039,9 @@ export const downloadLetterAsPdf = async (req, res) => {
           subjectName,
           projectName,
           auditDate,
-          signatureImage,
+          signatureImage
         );
-      } else if (category === "BVOC") {
+      } else if (category === "bvoc") {
         TemplateCode.getBVOCTemplateCode(
           ctx,
           width,
@@ -1552,9 +1070,9 @@ export const downloadLetterAsPdf = async (req, res) => {
           subjectName,
           projectName,
           auditDate,
-          signatureImage,
+          signatureImage
         );
-      } else if (category === "DM") {
+      } else if (category === "dm") {
         TemplateCode.getDMTemplateCode(
           ctx,
           width,
@@ -1583,9 +1101,14 @@ export const downloadLetterAsPdf = async (req, res) => {
           subjectName,
           projectName,
           auditDate,
-          signatureImage,
+          signatureImage
         );
-      } else if (category === "marketing-junction" || category === "IT-Nexcore" || category === "HR" || category === "OD") {
+      } else if (
+        category === "marketing-junction" ||
+        category === "it-nexcore" ||
+        category === "hr" ||
+        category === "operations"
+      ) {
         await TemplateCode.getCommonTemplateCode(
           ctx,
           width,
@@ -1630,9 +1153,10 @@ export const downloadLetterAsPdf = async (req, res) => {
           genderPronoun,
           month,
           year,
-          signatureImage,
+          signatureImage
         );
-      } else { }
+      } else {
+      }
 
       // Convert canvas to JPEG buffer
       const jpegBuffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
@@ -1661,9 +1185,7 @@ export const downloadLetterAsPdf = async (req, res) => {
       });
 
       return;
-    }
-
-    else {
+    } else {
       /* ----------------------------------
      📄 PDF Template Rendering (Download)
     ---------------------------------- */
@@ -1681,8 +1203,7 @@ export const downloadLetterAsPdf = async (req, res) => {
         }
       }
 
-
-      if (letter.category === "FSD") {
+      if (letter.category === "fsd") {
         // Reuse the same unified drawPdfTemplate logic
         await TemplateCode.drawFSDPdfTemplate(pdfDoc, letter.course, {
           name: letter.name,
@@ -1707,11 +1228,14 @@ export const downloadLetterAsPdf = async (req, res) => {
         await TemplateCode.drawMJPdfTemplate(pdfDoc, letter.course, {
           name: letter.name,
           outwardNo: letter.outwardNo,
-          formattedDate: new Date(letter.issueDate).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
+          formattedDate: new Date(letter.issueDate).toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          ),
           tempId: letter.letterId,
           role: letter.role,
 
@@ -1735,16 +1259,18 @@ export const downloadLetterAsPdf = async (req, res) => {
           year: letter.year,
           signatureImage,
         });
-
-      } else if (letter.category === "IT-Nexcore") {
+      } else if (letter.category === "it-nexcore") {
         await TemplateCode.drawC4BPdfTemplate(pdfDoc, letter.course, {
           name: letter.name,
           outwardNo: letter.outwardNo,
-          formattedDate: new Date(letter.issueDate).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
+          formattedDate: new Date(letter.issueDate).toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          ),
           tempId: letter.letterId,
           role: letter.role,
 
@@ -1768,16 +1294,18 @@ export const downloadLetterAsPdf = async (req, res) => {
           year: letter.year,
           signatureImage,
         });
-
-      } else if (letter.category === "HR") {
+      } else if (letter.category === "hr") {
         await TemplateCode.drawHRPdfTemplate(pdfDoc, letter.course, {
           name: letter.name,
           outwardNo: letter.outwardNo,
-          formattedDate: new Date(letter.issueDate).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
+          formattedDate: new Date(letter.issueDate).toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          ),
           tempId: letter.letterId,
           role: letter.role,
 
@@ -1801,16 +1329,18 @@ export const downloadLetterAsPdf = async (req, res) => {
           year: letter.year,
           signatureImage,
         });
-
-      } else if (letter.category === "OD") {
+      } else if (letter.category === "operations") {
         await TemplateCode.drawODPdfTemplate(pdfDoc, letter.course, {
           name: letter.name,
           outwardNo: letter.outwardNo,
-          formattedDate: new Date(letter.issueDate).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
+          formattedDate: new Date(letter.issueDate).toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          ),
           tempId: letter.letterId,
           role: letter.role,
 
@@ -1834,8 +1364,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           year: letter.year,
           signatureImage,
         });
-
-      } else if (letter.category === "DM") {
+      } else if (letter.category === "dm") {
         // Reuse the same unified drawPdfTemplate logic
         await TemplateCode.drawDMPdfTemplate(pdfDoc, letter.course, {
           name: letter.name,
