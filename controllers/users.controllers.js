@@ -853,7 +853,51 @@ export const getStudentDocuments = async (req, res) => {
     });
   }
 };
+// View/Download Document
+export const viewStudentDocument = async (req, res) => {
+  try {
+    const { studentId, docType } = req.params;
 
+    console.log(`📄 Viewing document: ${docType} for student: ${studentId}`);
+
+    // Find student
+    const student = await Student.findById(studentId);
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    // Get document URL from database
+    const documentUrl = student.documents?.[docType];
+
+    if (!documentUrl) {
+      return res.status(404).json({
+        success: false,
+        message: "Document not found",
+      });
+    }
+
+    console.log(`✅ Document URL found: ${documentUrl}`);
+
+    // Return the Cloudinary URL directly
+    res.status(200).json({
+      success: true,
+      url: documentUrl,
+      isCloudinary: documentUrl.includes("cloudinary.com"),
+    });
+
+  } catch (error) {
+    console.error("View document error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error viewing document",
+      error: error.message,
+    });
+  }
+};
 export const studentForgotPassword = async (req, res) => {
   try {
     const { phone } = req.body;

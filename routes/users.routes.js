@@ -218,4 +218,5 @@ router.post("/student/forgot-password", studentForgotPassword);
 // Verify OTP and reset password
 router.post("/student/reset-password", studentResetPassword);
 
+
 export default router;
