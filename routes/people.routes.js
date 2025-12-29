@@ -277,25 +277,48 @@ router.post(
  * @desc    Get all people (with optional filters)
  * @access  Public
  */
+// In people.routes.js - Update the GET /api/people route
+
 router.get("/", async (req, res) => {
   try {
-    let { category, batch, disabled } = req.query;
+    let { category, categories, batch, disabled } = req.query;
 
-    console.log("📊 Incoming query params:", { category, batch, disabled });
+    console.log("📊 Incoming query params:", {
+      category,
+      categories,
+      batch,
+      disabled,
+    });
 
     let filter = {};
 
-    // ✅ Handle category filtering with proper case-insensitive matching
-    if (category && category !== "all") {
-      const categoryLower = category.toLowerCase();
-      
-      // Special handling for it-nexcore/Code4Bharat unified category
-      if (categoryLower === "it-nexcore" || categoryLower === "code4bharat") {
-        filter.category = { $in: ["it-nexcore", "Code4Bharat"] };
-      } else {
-        // For all other categories, use case-insensitive regex
-        filter.category = new RegExp(`^${category}$`, 'i');
+    // ✅ Handle multiple categories (for IT-Nexcore + Code4Bharat)
+    // ✅ Handle multiple categories
+    if (categories) {
+      try {
+        const categoryArray = JSON.parse(categories);
+        const normalizedCategories = categoryArray.map((cat) =>
+          normalizeCategory(cat)
+        );
+
+        // Use $or with case-insensitive match for each
+        filter.$or = normalizedCategories.map((cat) => ({
+          category: new RegExp(`^${cat}$`, "i"),
+        }));
+
+        console.log(
+          "🔍 Multiple categories filter (OR):",
+          normalizedCategories
+        );
+      } catch (error) {
+        console.error("Error parsing categories:", error);
       }
+    }
+    // ✅ Handle single category (existing logic)
+    else if (category && category !== "all") {
+      const normalizedCategory = normalizeCategory(category);
+      filter.category = new RegExp(`^${normalizedCategory}$`, "i");
+      console.log("🔍 Single category filter:", normalizedCategory);
     }
 
     // Add batch filter if provided
@@ -303,12 +326,9 @@ router.get("/", async (req, res) => {
       filter.batch = batch;
     }
 
-    // Add disabled filter
-    if (disabled !== undefined) {
-      filter.disabled = disabled === "true";
-    } else {
-      // Default to only enabled people if not specified
-      filter.disabled = false;
+    // Handle disabled status filter
+    if (disabled !== undefined && disabled !== null) {
+      filter.disabled = disabled === "true" || disabled === true;
     }
 
     console.log("🔍 MongoDB filter:", JSON.stringify(filter, null, 2));
@@ -316,6 +336,9 @@ router.get("/", async (req, res) => {
     const people = await People.find(filter).sort({ createdAt: -1 });
 
     console.log(`✅ Found ${people.length} people matching filter`);
+    console.log(`📋 Categories in results:`, [
+      ...new Set(people.map((p) => p.category)),
+    ]);
 
     // Format data for frontend
     const names = people.map((p) => {
@@ -324,7 +347,7 @@ router.get("/", async (req, res) => {
       return {
         _id: p._id,
         name: p.name,
-        category: p.category,
+        category: p.category, // Return exact category from DB
         batch: p.batch || "",
         phone: phone ? phone.slice(-10) : null,
         parentPhone1: p.parentPhone1
@@ -358,12 +381,13 @@ router.get("/", async (req, res) => {
       total: names.length,
       enabled: enabledCount,
       disabled: disabledCount,
-      categories: [...new Set(names.map(p => p.category))],
+      categories: [...new Set(names.map((p) => p.category))],
     });
 
     res.json({
       success: true,
       names,
+      data: names,
       count: names.length,
       enabledCount,
       disabledCount,
@@ -377,6 +401,33 @@ router.get("/", async (req, res) => {
     });
   }
 });
+
+// Add this helper function at the top of your routes file
+function normalizeCategory(category) {
+  if (!category) return "";
+
+  const lower = category.toLowerCase().trim();
+
+  // Map all variations to their canonical form
+  const categoryMap = {
+    "it-nexcore": "IT-Nexcore",
+    itnexcore: "IT-Nexcore",
+    code4bharat: "Code4Bharat",
+    "code 4 bharat": "Code4Bharat",
+    "marketing-junction": "marketing-junction",
+    marketingjunction: "marketing-junction",
+    fsd: "FSD",
+    bvoc: "BVOC",
+    hr: "HR",
+    dm: "DM",
+    od: "Operations Department",
+    "operations department": "Operations Department",
+    operationsdepartment: "Operations Department",
+    client: "client",
+  };
+
+  return categoryMap[lower] || category;
+}
 
 /**
  * @route   PUT /api/people/update-by-name

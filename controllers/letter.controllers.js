@@ -20,13 +20,19 @@ import { generateUnifiedOutwardNo } from "../utils/outwardNumberGenerator.js";
 
 /**
  * Normalize category for template lookup
- * Maps Code4Bharat to it-nexcore for template selection
+ * Maps Code4Bharat and IT-Nexcore variations to it-nexcore for template selection
  */
 function normalizeCategory(category) {
-  const lower = category.toLowerCase();
-  if (lower === "code4bharat") {
+  if (!category) return category;
+  
+  const lower = category.toLowerCase().trim();
+  
+  // Map all IT-Nexcore and Code4Bharat variations to it-nexcore
+  if (lower === "code4bharat" || lower === "it-nexcore") {
     return "it-nexcore";
   }
+  
+  // Return the original category for others
   return category;
 }
 
@@ -103,13 +109,14 @@ export async function generateLetterId(category) {
    Template filename helper (unchanged)
    ------------------------- */
 export function getLetterTemplateFilename(course, category) {
+  // Normalize category first
+  const normalizedCategory = normalizeCategory(category);
+
   const templateMap = {
     "it-nexcore": {
       "Internship Joining Letter - Unpaid": "C4B/C4B-internship-unpaid.pdf",
       "Internship Joining Letter - Paid": "C4B/C4B-internship-paid.pdf",
       "Non-Disclosure Agreement": "C4B/C4B-NDA.pdf",
-      // 'Memo': "Letter.jpg",
-      // common
       "Appreciation Letter": "common/Appreciation.jpg",
       "Experience Certificate": "common/Experience-certificate.jpg",
       "Timeline Letter": "common/Timeline Letter.jpg",
@@ -120,7 +127,6 @@ export function getLetterTemplateFilename(course, category) {
       "Internship Joining Letter - Unpaid": "MJ/MJ-internship-unpaid.pdf",
       "Internship Joining Letter - Paid": "MJ/MJ-internship-paid.pdf",
       "Non-Disclosure Agreement": "MJ/MJ-NDA.pdf",
-      // common
       "Appreciation Letter": "common/Appreciation.jpg",
       "Experience Certificate": "common/Experience-certificate.jpg",
       "Timeline Letter": "common/Timeline Letter.jpg",
@@ -128,23 +134,17 @@ export function getLetterTemplateFilename(course, category) {
       "Stipend Revision": "common/Stipend-Revision-Promotion-Letter.png",
     },
     fsd: {
-      // "Appreciation Letter": "Letter.jpg",
-      // "Experience Certificate": "Letter.jpg",
-      // 'Warning Letter': "fsd-WarningLetter.jpg",
-
       "Appreciation for Best Attendance":
         "fsd/fsd-appreciation-for-bestAttendance.jpg",
       "Appreciation for Outstanding Performance":
         "fsd/fsd-appreciation-for-outstanding-performance.jpg",
       "Appreciation for Consistent Performance":
         "fsd/fsd-appreciation-for-consistent-performer.png",
-
       "Internship Experience Certificate":
         "fsd/fsd-internship-experience-certificate.jpg",
       "Live Project Agreement": "fsd/fsd-LiveProject.pdf",
       "Non-Disclosure Agreement": "fsd/NDA.pdf",
       "Offer Letter": "fsd/fsd-OfferLetter.pdf",
-
       "Warning for Incomplete Assignment/Project Submissions":
         "fsd/fsd-warning-incomplete-assignment.jpg",
       "Warning for Low Attendance": "fsd/fsd-warning-low-attendance.jpg",
@@ -154,16 +154,10 @@ export function getLetterTemplateFilename(course, category) {
         "fsd/fsd-warning-for-unauthorized-absence.jpg",
       "Warning Regarding Punctuality and Professional Discipline":
         "fsd/fsd-warning-regarding-punctuality.jpg",
-
       "Concern Letter-Audit Interview Performance":
         "fsd/fsd-concern-letter.jpg",
     },
     bvoc: {
-      // "Appreciation Letter": "Letter.jpg",
-      // "Experience Certificate": "Letter.jpg",
-      // 'Warning Letter': "bvoc-WarningLetter.jpg",
-      // 'Community Letter': "Letter.jpg",
-
       "Appreciation for Best Attendance":
         "bvoc/bvoc-appreciation-for-bestAttendance.jpg",
       "Appreciation for Detecting Errors And Debugging":
@@ -172,11 +166,9 @@ export function getLetterTemplateFilename(course, category) {
         "bvoc/bvoc-appreciation-for-outstanding-performance.jpg",
       "Appreciation for Consistent Performance":
         "bvoc/bvoc-appreciation-for-consistent-performer.jpg",
-
       "Committee Member": "bvoc/bvoc-committe-member.jpg",
       "Committee President": "bvoc/bvoc-committe-president.jpg",
       "Committee Vice-President": "bvoc/bvoc-committe-vice-president.jpg",
-
       "Warning for Incomplete Assignment/Project Submissions":
         "bvoc/bvoc-warning-incomplete-assignment.jpg",
       "Warning for Low Attendance": "bvoc/bvoc-warning-low-attendance.jpg",
@@ -186,26 +178,19 @@ export function getLetterTemplateFilename(course, category) {
         "bvoc/bvoc-warning-for-punctuality.jpg",
       "Warning for Unauthorized Absence from Sessions":
         "bvoc/bvoc-warning-for-unauthorized-absence.jpg",
-
       "Concern Letter-Audit Interview Performance":
         "bvoc/bvoc-concern-letter.jpg",
     },
     dm: {
-      // "Appreciation Letter": "Letter.jpg",
-      // "Experience Certificate": "Letter.jpg",
-      // 'Warning Letter': "fsd-WarningLetter.jpg",
-
       "Appreciation for Best Attendance":
         "dm/dm-appreciation-for-bestAttendance.jpg",
       "Appreciation for Outstanding Performance":
         "dm/dm-appreciation-for-outstanding-performance.jpg",
       "Appreciation for Consistent Performance":
         "dm/dm-appreciation-for-consistent-performer.jpg",
-
       "Internship Experience Certificate":
         "dm/dm-internship-experience-certificate.jpg",
       "Offer Letter": "dm/dm-OfferLetter.pdf",
-
       "Warning for Incomplete Assignment/Project Submissions":
         "dm/dm-warning-incomplete-assignment.jpg",
       "Warning for Low Attendance": "dm/dm-warning-low-attendance.jpg",
@@ -215,15 +200,12 @@ export function getLetterTemplateFilename(course, category) {
         "dm/dm-warning-for-unauthorized-absence.jpg",
       "Warning Regarding Punctuality and Professional Discipline":
         "dm/dm-warning-regarding-punctuality.jpg",
-
       "Concern Letter-Audit Interview Performance": "dm/dm-concern-letter.jpg",
     },
     hr: {
       "Internship Joining Letter - Unpaid": "hr/hr-internship-unpaid.pdf",
       "Internship Joining Letter - Paid": "hr/hr-internship-paid.pdf",
       "Non-Disclosure Agreement": "hr/hr-NDA.pdf",
-      // 'Memo': "Letter.jpg",
-      // common
       "Appreciation Letter": "common/Appreciation.jpg",
       "Experience Certificate": "common/Experience-certificate.jpg",
       "Timeline Letter": "common/Timeline Letter.jpg",
@@ -231,11 +213,11 @@ export function getLetterTemplateFilename(course, category) {
       "Stipend Revision": "common/Stipend-Revision-Promotion-Letter.png",
     },
     operations: {
-      "Internship Joining Letter - Unpaid": "operations/operations-internship-unpaid.pdf",
-      "Internship Joining Letter - Paid": "operations/operations-internship-paid.pdf",
+      "Internship Joining Letter - Unpaid":
+        "operations/operations-internship-unpaid.pdf",
+      "Internship Joining Letter - Paid":
+        "operations/operations-internship-paid.pdf",
       "Non-Disclosure Agreement": "operations/operations-NDA.pdf",
-      // 'Memo': "Letter.jpg",
-      // common
       "Appreciation Letter": "common/Appreciation.jpg",
       "Experience Certificate": "common/Experience-certificate.jpg",
       "Timeline Letter": "common/Timeline Letter.jpg",
@@ -244,7 +226,16 @@ export function getLetterTemplateFilename(course, category) {
     },
   };
 
-  return templateMap[category]?.[course] || `${category}-default.jpg`;
+  const template = templateMap[normalizedCategory]?.[course];
+
+  if (!template) {
+    console.warn(
+      `No template found for category: ${normalizedCategory}, course: ${course}`
+    );
+    return `${normalizedCategory}-default.jpg`;
+  }
+
+  return template;
 }
 
 /* -------------------------
@@ -336,6 +327,7 @@ export const createLetter = async (req, res) => {
       year,
     } = req.body;
 
+    // Validation
     if (!name || !category || !course || !issueDate || !letterType) {
       return res.status(400).json({
         success: false,
@@ -344,41 +336,68 @@ export const createLetter = async (req, res) => {
       });
     }
 
+    console.log("Create Letter Request:", {
+      name,
+      category,
+      course,
+      letterType,
+    });
+
+    // ✅ Normalize category before generating letter ID
+    const normalizedCategory = normalizeCategory(category);
+
+    // Generate unique letter ID
     let letterId;
     let exists;
+    let attempts = 0;
+    const maxAttempts = 5;
+
     do {
-      letterId = await generateLetterId(category, course);
+      letterId = await generateLetterId(normalizedCategory, course);
       exists = await Letter.findOne({ letterId });
+      attempts++;
+
+      if (attempts >= maxAttempts) {
+        throw new Error(
+          "Failed to generate unique letter ID after multiple attempts"
+        );
+      }
     } while (exists);
 
-    // ✅ USE UNIFIED FUNCTION
+    console.log("Generated Letter ID:", letterId);
+
+    // ✅ USE UNIFIED FUNCTION for outward number
     const { outwardNo, outwardSerial } = await generateUnifiedOutwardNo(
       issueDate
     );
 
+    console.log("Generated Outward Number:", outwardNo);
+
+    // Get user phone if exists
     const userData = await People.findOne({ name });
     const userPhone = userData?.phone || null;
 
+    // Prepare letter data - use ORIGINAL category for storage
     const letterData = {
       letterId,
       name,
-      category,
+      category, // ✅ Store original category in database
       batch: batch || "",
       letterType: letterType || "",
       subType: subType || "default",
       course,
-      subject: subject.trim(),
+      subject: subject ? subject.trim() : "",
       role: role || "",
       startDate: startDate ? new Date(startDate) : null,
       endDate: endDate ? new Date(endDate) : null,
       duration: duration || "",
-      description: description.trim(),
+      description: description ? description.trim() : "",
       issueDate: new Date(issueDate),
       outwardNo,
       outwardSerial,
       createdBy: req.user?._id || null,
       committeeType: committeeType || "",
-      attendancePercent: attendancePercent || "",
+      attendancePercent: attendancePercent || null,
       assignmentName: assignmentName || "",
       misconductReason: misconductReason || "",
       attendanceMonth: attendanceMonth || "",
@@ -395,40 +414,126 @@ export const createLetter = async (req, res) => {
       officialStartDate: officialStartDate ? new Date(officialStartDate) : null,
       completionDate: completionDate ? new Date(completionDate) : null,
       responsibilities: responsibilities || "",
-      amount: amount || "",
+      amount: amount || null,
       effectiveFrom: effectiveFrom ? new Date(effectiveFrom) : null,
       timelineStage: timelineStage || "",
       timelineProjectName: timelineProjectName || "",
-      timelineDueDate: timelineDueDate || "",
-      timelineNewDate: timelineNewDate || "",
+      timelineDueDate: timelineDueDate ? new Date(timelineDueDate) : null,
+      timelineNewDate: timelineNewDate ? new Date(timelineNewDate) : null,
       genderPronoun: genderPronoun || "",
       month: month || "",
-      year: year || "",
+      year: year || null,
     };
 
+    console.log("Creating letter with data:", {
+      letterId: letterData.letterId,
+      name: letterData.name,
+      category: letterData.category,
+      outwardNo: letterData.outwardNo,
+    });
+
+    // Create letter in database
     const letter = await Letter.create(letterData);
 
-    // ... rest of notification code ...
+    console.log("Letter created successfully:", letter.letterId);
 
-    await ActivityLog.create({
-      action: "created",
-      letterId: letter.letterId,
-      userName: letter.name,
-      adminId: req.user?._id,
-      details: `Letter created for ${letter.name}`,
-    });
+    // Send WhatsApp notification if phone exists
+    if (userPhone) {
+      try {
+        const message = getLetterMessageTemplate(
+          name,
+          course,
+          new Date(issueDate).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })
+        );
+        await sendWhatsAppMessage(userPhone, message);
+        console.log("WhatsApp notification sent to:", userPhone);
+      } catch (whatsappError) {
+        console.error("WhatsApp notification failed:", whatsappError);
+        // Don't fail the whole request if WhatsApp fails
+      }
+    }
+
+    // Send email notification if email exists
+    if (userData?.email) {
+      try {
+        const emailContent = getLetterEmailTemplate(
+          name,
+          course,
+          new Date(issueDate).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })
+        );
+        await sendEmail(
+          userData.email,
+          `Your ${course} is Ready`,
+          emailContent
+        );
+        console.log("Email notification sent to:", userData.email);
+      } catch (emailError) {
+        console.error("Email notification failed:", emailError);
+        // Don't fail the whole request if email fails
+      }
+    }
+
+    // Log activity
+    try {
+      await ActivityLog.create({
+        action: "created",
+        letterId: letter.letterId,
+        userName: letter.name,
+        adminId: req.user?._id,
+        details: `Letter created for ${letter.name} - ${course}`,
+      });
+    } catch (logError) {
+      console.error("Activity log failed:", logError);
+      // Don't fail the whole request if logging fails
+    }
 
     return res.status(201).json({
       success: true,
       message: "Letter created successfully",
-      letter,
+      letter: {
+        letterId: letter.letterId,
+        name: letter.name,
+        category: letter.category,
+        course: letter.course,
+        outwardNo: letter.outwardNo,
+        issueDate: letter.issueDate,
+      },
     });
   } catch (error) {
     console.error("Create letter error:", error);
+    console.error("Error stack:", error.stack);
+
+    // Check for specific MongoDB errors
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "Duplicate letter ID or outward number",
+        error: error.message,
+      });
+    }
+
+    // Check for validation errors
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        errors: Object.values(error.errors).map((e) => e.message),
+      });
+    }
+
     return res.status(500).json({
       success: false,
       message: "Failed to create letter",
       error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
     });
   }
 };
@@ -481,68 +586,86 @@ export const previewLetter = async (req, res) => {
       year,
     } = req.body;
 
+    // Validation
     if (!name || !category || !issueDate || !course) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required for preview",
+        message: "Missing required fields: name, category, issueDate, course",
       });
     }
 
+    // Generate temporary IDs
     const tempId = await generateLetterId(category, course);
-   const { outwardNo } = await generateUnifiedOutwardNo(issueDate);
+    const { outwardNo } = await generateUnifiedOutwardNo(issueDate);
 
-const normalizedCategory = normalizeCategory(category);
-const templateFilename = getLetterTemplateFilename(course, normalizedCategory);    const templatePath = path.join(__dirname, "../templates", templateFilename);
+    // Normalize category for template lookup
+    const normalizedCategory = normalizeCategory(category);
 
+    console.log("Preview Request:", {
+      originalCategory: category,
+      normalizedCategory,
+      course,
+    });
+
+    // Get template filename
+    const templateFilename = getLetterTemplateFilename(
+      course,
+      normalizedCategory
+    );
+    const templatePath = path.join(__dirname, "../templates", templateFilename);
+
+    console.log("Template path:", templatePath);
+
+    // Check if template exists
     if (!fs.existsSync(templatePath)) {
+      console.error("Template not found:", templatePath);
       return res.status(500).json({
         success: false,
-        message: `Letter template not found for course: ${course}`,
+        message: `Letter template not found for course: ${course}, category: ${normalizedCategory}`,
+        templatePath,
       });
     }
 
     const templateType = getTemplateTypeByFilename(templateFilename);
+
+    // Format dates
     const formattedDate = new Date(issueDate).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
     });
 
-    const formattedtrainingStartDate = new Date(trainingStartDate).toLocaleDateString(
-      "en-US",
-      {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }
-    );
+    const formattedtrainingStartDate = trainingStartDate
+      ? new Date(trainingStartDate).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : null;
 
-    const formattedtrainingEndDate = new Date(trainingEndDate).toLocaleDateString(
-      "en-US",
-      {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }
-    );
+    const formattedtrainingEndDate = trainingEndDate
+      ? new Date(trainingEndDate).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : null;
 
-    const formattedofficialStartDate = new Date(officialStartDate).toLocaleDateString(
-      "en-US",
-      {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }
-    );
+    const formattedofficialStartDate = officialStartDate
+      ? new Date(officialStartDate).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : null;
 
-    const formattedcompletionDate = new Date(completionDate).toLocaleDateString(
-      "en-US",
-      {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }
-    );
+    const formattedcompletionDate = completionDate
+      ? new Date(completionDate).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : null;
 
     /* ----------------------------------
        🖼 Image Template Rendering
@@ -556,7 +679,8 @@ const templateFilename = getLetterTemplateFilename(course, normalizedCategory); 
       const ctx = canvas.getContext("2d");
       ctx.drawImage(templateImage, 0, 0);
 
-      if (category === "fsd") {
+      // Use normalizedCategory for template code selection
+      if (normalizedCategory === "fsd") {
         await TemplateCode.getFSDTemplateCode(
           ctx,
           width,
@@ -586,7 +710,7 @@ const templateFilename = getLetterTemplateFilename(course, normalizedCategory); 
           projectName,
           auditDate
         );
-      } else if (category === "bvoc") {
+      } else if (normalizedCategory === "bvoc") {
         await TemplateCode.getBVOCTemplateCode(
           ctx,
           width,
@@ -616,7 +740,7 @@ const templateFilename = getLetterTemplateFilename(course, normalizedCategory); 
           projectName,
           auditDate
         );
-      } else if (category === "dm") {
+      } else if (normalizedCategory === "dm") {
         await TemplateCode.getDMTemplateCode(
           ctx,
           width,
@@ -646,7 +770,12 @@ const templateFilename = getLetterTemplateFilename(course, normalizedCategory); 
           projectName,
           auditDate
         );
-      } else if (category === "marketing-junction" || category === "it-nexcore" || category === "hr" || category === "operations") {
+      } else if (
+        normalizedCategory === "marketing-junction" ||
+        normalizedCategory === "it-nexcore" ||
+        normalizedCategory === "hr" ||
+        normalizedCategory === "operations"
+      ) {
         await TemplateCode.getCommonTemplateCode(
           ctx,
           width,
@@ -688,23 +817,22 @@ const templateFilename = getLetterTemplateFilename(course, normalizedCategory); 
           timelineNewDate,
           genderPronoun,
           month,
-          year,
+          year
         );
-      } else {
       }
 
       const buffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
       res.setHeader("Content-Type", "image/jpeg");
       return res.send(buffer);
-    }
-    else {
+    } else {
       /* ----------------------------------
       📄 PDF Template Rendering
       ---------------------------------- */
       const existingPdfBytes = fs.readFileSync(templatePath);
       const pdfDoc = await PDFLibDocument.load(existingPdfBytes);
 
-      if (category === "fsd") {
+      // Use normalizedCategory for PDF template selection
+      if (normalizedCategory === "fsd") {
         await TemplateCode.drawFSDPdfTemplate(pdfDoc, course, {
           name,
           outwardNo,
@@ -716,7 +844,7 @@ const templateFilename = getLetterTemplateFilename(course, normalizedCategory); 
           startDate,
           endDate,
         });
-      } else if (category === "marketing-junction") {
+      } else if (normalizedCategory === "marketing-junction") {
         await TemplateCode.drawMJPdfTemplate(pdfDoc, course, {
           name,
           outwardNo,
@@ -732,8 +860,7 @@ const templateFilename = getLetterTemplateFilename(course, normalizedCategory); 
           effectiveFrom,
           duration,
         });
-     } else if (["it-nexcore", "Code4Bharat"].includes(category)) {
-
+      } else if (normalizedCategory === "it-nexcore") {
         await TemplateCode.drawC4BPdfTemplate(pdfDoc, course, {
           name,
           outwardNo,
@@ -749,7 +876,7 @@ const templateFilename = getLetterTemplateFilename(course, normalizedCategory); 
           effectiveFrom,
           duration,
         });
-      } else if (category === "hr") {
+      } else if (normalizedCategory === "hr") {
         await TemplateCode.drawHRPdfTemplate(pdfDoc, course, {
           name,
           outwardNo,
@@ -765,7 +892,7 @@ const templateFilename = getLetterTemplateFilename(course, normalizedCategory); 
           effectiveFrom,
           duration,
         });
-      } else if (category === "operations") {
+      } else if (normalizedCategory === "operations") {
         await TemplateCode.drawODPdfTemplate(pdfDoc, course, {
           name,
           outwardNo,
@@ -781,7 +908,7 @@ const templateFilename = getLetterTemplateFilename(course, normalizedCategory); 
           effectiveFrom,
           duration,
         });
-      } else if (category === "dm") {
+      } else if (normalizedCategory === "dm") {
         await TemplateCode.drawDMPdfTemplate(pdfDoc, course, {
           name,
           outwardNo,
@@ -802,10 +929,13 @@ const templateFilename = getLetterTemplateFilename(course, normalizedCategory); 
     }
   } catch (error) {
     console.error("Preview letter error:", error);
+    console.error("Error stack:", error.stack);
+
     res.status(500).json({
       success: false,
       message: "Failed to generate letter preview",
       error: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
     });
   }
 };

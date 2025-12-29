@@ -18,9 +18,25 @@ const letterSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: ["it-nexcore", "marketing-junction", "fsd", "hr", "bvoc", "dm", "operations","client", "other"],
+      enum: [
+        "IT-Nexcore", // ✅ Add uppercase version
+        "it-nexcore", // Keep lowercase for backward compatibility
+        "Code4Bharat", // ✅ Add this
+        "marketing-junction",
+        "FSD",
+        "fsd", // Keep lowercase for backward compatibility
+        "HR",
+        "hr",
+        "BVOC",
+        "bvoc",
+        "DM",
+        "dm",
+        "Operations Department",
+        "operations",
+        "client",
+        "other",
+      ],
     },
-
     batch: {
       type: String,
       default: "",
@@ -191,9 +207,7 @@ const letterSchema = new mongoose.Schema(
       type: String,
       enum: ["his", "her", ""],
       required: function () {
-        return (
-          this.course === "Experience Certificate"
-        );
+        return this.course === "Experience Certificate";
       },
     },
 

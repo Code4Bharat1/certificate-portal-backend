@@ -15,14 +15,14 @@ const peopleSchema = new mongoose.Schema(
       required: [true, "Category is required"],
       enum: {
         values: [
-          "it-nexcore",
+          "IT-Nexcore", // ✅ Capitalized to match DB
           "Code4Bharat",
           "marketing-junction",
-          "fsd",
-          "bvoc",
-          "hr",
-          "dm",
-          "operations",
+          "FSD", // ✅ Uppercase
+          "BVOC", // ✅ Uppercase
+          "HR", // ✅ Uppercase
+          "DM", // ✅ Uppercase
+          "OD", // ✅ Uppercase (not lowercase "od")
           "client",
         ],
         message: "{VALUE} is not a valid category",
