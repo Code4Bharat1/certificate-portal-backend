@@ -1,4 +1,4 @@
-//certificate.models.js
+//letter.models.js
 import mongoose from "mongoose";
 
 const letterSchema = new mongoose.Schema(

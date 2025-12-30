@@ -1,3 +1,4 @@
+//outwardNumberGenerator.js
 import Letter from "../models/letter.models.js";
 import ClientLetter from "../models/clientdata.models.js";
 
