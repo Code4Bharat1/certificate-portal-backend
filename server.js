@@ -179,6 +179,7 @@ import letterRoutes from "./routes/letter.routes.js";
 import onboardingRoutes from "./routes/onboardingRequest.routes.js";
 import categoryRoutes from "./routes/category.routes.js";
 import clientRoutes from "./routes/client.routes.js";
+import codeLetterRoutes from "./routes/codeletter.routes.js";
 
 // Attach Routes
 app.use("/api/certificates", certificateRoutes);
@@ -190,7 +191,7 @@ app.use("/api/letters", letterRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/onboarding-request", onboardingRoutes);
 app.use("/api/clientletters", clientRoutes);
-
+app.use("/api/codeletters", codeLetterRoutes);
 // Student
 import studentRoutes from "./routes/users.routes.js";
 app.use("/api/student", studentRoutes);
