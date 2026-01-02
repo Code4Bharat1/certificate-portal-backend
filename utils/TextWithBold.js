@@ -1,3 +1,4 @@
+//TextWithBold.js
 function drawTextWithBold(ctx, parts, x, y, fontSize, maxWidth, lineHeight) {
   let currentX = x;
   let currentY = y;

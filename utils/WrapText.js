@@ -1,6 +1,4 @@
-// =====================================================
-// HELPER: Wrap Text with paragraph support
-// =====================================================
+//WrapText.js
 function wrapText(
   ctx,
   text,
