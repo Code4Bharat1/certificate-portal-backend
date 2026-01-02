@@ -225,9 +225,7 @@ export const getRecentLetters = async (req, res) => {
         "_id letterType course letterId issueDate status signedUploaded verificationLink downloadLink"
       );
 
-    console.log("✅ Found", recentLetters.length, "letters");
 
-    console.log("🔍 Recent letters raw data:", recentLetters);
 
     // Format output
     const formattedLetters = recentLetters.map((letter) => ({
@@ -240,7 +238,6 @@ export const getRecentLetters = async (req, res) => {
       signedUploaded: letter.signedUploaded || false,
     }));
 
-    console.log("📄 Formatted letters:", formattedLetters);
 
     return res.status(200).json({
       success: true,
@@ -671,15 +668,12 @@ export const uploadStudentDocuments = async (req, res) => {
       });
     }
 
-    console.log("📤 Uploading documents to Cloudinary...");
     console.log("Files received:", Object.keys(files));
 
     // Helper function to upload to Cloudinary
     const uploadToCloudinary = async (file, docType) => {
       try {
-        console.log(`\n⬆️ Starting upload for ${docType}...`);
-        console.log(`   Local file path: ${file.path}`);
-        console.log(`   Filename: ${file.filename}`);
+
 
         // Upload to Cloudinary
         const result = await cloudinary.uploader.upload(file.path, {
@@ -688,14 +682,11 @@ export const uploadStudentDocuments = async (req, res) => {
           public_id: `${studentId}-${docType}-${Date.now()}`,
         });
 
-        console.log(`✅ ${docType} uploaded successfully!`);
-        console.log(`   Cloudinary URL: ${result.secure_url}`);
-        console.log(`   Public ID: ${result.public_id}`);
+
 
         // Delete local file after successful upload
         try {
           await unlinkAsync(file.path);
-          console.log(`🗑️  Deleted local file: ${file.path}`);
         } catch (unlinkError) {
           console.warn(`⚠️  Could not delete local file: ${file.path}`);
         }
@@ -726,7 +717,6 @@ export const uploadStudentDocuments = async (req, res) => {
             updatedAt: new Date(),
           };
           
-          console.log(`💾 Saved aadhaarFront URL to DB: ${cloudinaryUrl}`);
         })()
       );
     }
@@ -746,7 +736,6 @@ export const uploadStudentDocuments = async (req, res) => {
             updatedAt: new Date(),
           };
           
-          console.log(`💾 Saved aadhaarBack URL to DB: ${cloudinaryUrl}`);
         })()
       );
     }
@@ -766,7 +755,6 @@ export const uploadStudentDocuments = async (req, res) => {
             updatedAt: new Date(),
           };
           
-          console.log(`💾 Saved panCard URL to DB: ${cloudinaryUrl}`);
         })()
       );
     }
@@ -792,7 +780,6 @@ export const uploadStudentDocuments = async (req, res) => {
     }
 
     // Wait for all uploads to complete
-    console.log("\n⏳ Waiting for all uploads to complete...");
     await Promise.all(uploadPromises);
 
     // Set upload timestamp
@@ -819,7 +806,6 @@ export const uploadStudentDocuments = async (req, res) => {
     });
   } catch (error) {
     console.error("\n❌ UPLOAD ERROR:", error);
-    console.error("Error stack:", error.stack);
     res.status(500).json({
       success: false,
       message: "Error uploading documents",
@@ -858,8 +844,6 @@ export const viewStudentDocument = async (req, res) => {
   try {
     const { studentId, docType } = req.params;
 
-    console.log(`📄 Viewing document: ${docType} for student: ${studentId}`);
-
     // Find student
     const student = await Student.findById(studentId);
 
@@ -880,7 +864,6 @@ export const viewStudentDocument = async (req, res) => {
       });
     }
 
-    console.log(`✅ Document URL found: ${documentUrl}`);
 
     // Return the Cloudinary URL directly
     res.status(200).json({
@@ -926,7 +909,6 @@ export const studentForgotPassword = async (req, res) => {
 
     await student.save();
 
-    console.log("Student OTP:", otp);
 
     res.status(200).json({
       success: true,

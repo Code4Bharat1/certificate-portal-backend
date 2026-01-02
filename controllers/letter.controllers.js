@@ -364,14 +364,12 @@ export const createLetter = async (req, res) => {
       }
     } while (exists);
 
-    console.log("Generated Letter ID:", letterId);
 
     // ✅ USE UNIFIED FUNCTION for outward number
     const { outwardNo, outwardSerial } = await generateUnifiedOutwardNo(
       issueDate
     );
 
-    console.log("Generated Outward Number:", outwardNo);
 
     // Get user phone if exists
     const userData = await People.findOne({ name });
@@ -435,7 +433,6 @@ export const createLetter = async (req, res) => {
     // Create letter in database
     const letter = await Letter.create(letterData);
 
-    console.log("Letter created successfully:", letter.letterId);
 
     // Send WhatsApp notification if phone exists
     if (userPhone) {
@@ -450,7 +447,6 @@ export const createLetter = async (req, res) => {
           })
         );
         await sendWhatsAppMessage(userPhone, message);
-        console.log("WhatsApp notification sent to:", userPhone);
       } catch (whatsappError) {
         console.error("WhatsApp notification failed:", whatsappError);
         // Don't fail the whole request if WhatsApp fails
@@ -474,7 +470,6 @@ export const createLetter = async (req, res) => {
           `Your ${course} is Ready`,
           emailContent
         );
-        console.log("Email notification sent to:", userData.email);
       } catch (emailError) {
         console.error("Email notification failed:", emailError);
         // Don't fail the whole request if email fails
@@ -614,7 +609,6 @@ export const previewLetter = async (req, res) => {
     );
     const templatePath = path.join(__dirname, "../templates", templateFilename);
 
-    console.log("Template path:", templatePath);
 
     // Check if template exists
     if (!fs.existsSync(templatePath)) {
@@ -929,7 +923,6 @@ export const previewLetter = async (req, res) => {
     }
   } catch (error) {
     console.error("Preview letter error:", error);
-    console.error("Error stack:", error.stack);
 
     res.status(500).json({
       success: false,

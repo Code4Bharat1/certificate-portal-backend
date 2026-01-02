@@ -225,7 +225,7 @@ const letters = await Letter.find(finalQuery)
       letters: letters,
     });
   } catch (error) {
-    console.error("Get certificates error:", error);
+    
     res.status(500).json({
       success: false,
       message: "Server error",
@@ -252,7 +252,7 @@ const getCertificateById = async (req, res) => {
       data: certificate,
     });
   } catch (error) {
-    console.error("Get certificate error:", error);
+    
     res.status(500).json({
       success: false,
       message: "Server error",
@@ -460,7 +460,7 @@ export const createCertificate = async (req, res) => {
 
             await new Promise((resolve) => doc.on("end", resolve));
           } catch (pdfError) {
-            console.error("⚠️ Certificate PDF generation failed:", pdfError);
+            
           }
 
           // Send email WITH actual certificate PDF
@@ -573,7 +573,7 @@ const verifyCertificate = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Verify certificate error:", error);
+    
     res.status(500).json({
       success: false,
       message: "Server error",
@@ -619,7 +619,7 @@ const updateDownloadStatus = async (req, res) => {
       data: certificate,
     });
   } catch (error) {
-    console.error("Update status error:", error);
+    
     res.status(500).json({
       success: false,
       message: "Server error",
@@ -735,7 +735,7 @@ const downloadCertificateAsPdf = async (req, res) => {
     const templatePath = path.join(__dirname, "../templates", templateFilename);
 
     if (!fs.existsSync(templatePath)) {
-      console.error(`Template not found: ${templatePath}`);
+      
       return res.status(500).json({
         success: false,
         message: `Certificate template not found for course: ${certificate.course}`,
@@ -904,7 +904,7 @@ const downloadCertificateAsPdf = async (req, res) => {
       doc.end();
     }
   } catch (error) {
-    console.error("Download PDF error:", error);
+    
     res.status(500).json({
       success: false,
       message: "Server error",
@@ -1148,7 +1148,7 @@ const getCoursesByCategory = async (req, res) => {
       courses: courses[category],
     });
   } catch (error) {
-    console.error("Get courses error:", error);
+    
     res.status(500).json({
       success: false,
       message: "Server error",
@@ -1173,7 +1173,7 @@ const generateCertificatePreview = async (req, res) => {
     const templatePath = path.join(__dirname, "../templates", templateFilename);
 
     if (!fs.existsSync(templatePath)) {
-      console.error(`Template not found: ${templatePath}`);
+      
       return res.status(500).json({
         success: false,
         message: `Certificate template not found for course: ${course}`,
@@ -1428,7 +1428,7 @@ const downloadBulkCertificate = async (req, res) => {
           batch: certificate.batch,
         });
       } catch (error) {
-        console.error(`Failed to process certificate ${certId}:`, error);
+        
         results.failed.push({
           certificateId: certId,
           error: error.message,
@@ -1640,7 +1640,7 @@ const downloadBulkCertificateInfo = async (req, res) => {
           batch: certificate.batch,
         });
       } catch (error) {
-        console.error(`Failed to process certificate ${certId}:`, error);
+        
         results.failed.push({
           certificateId: certId,
           error: error.message,

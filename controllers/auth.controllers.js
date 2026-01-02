@@ -125,7 +125,7 @@ export const adminLogin = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Admin login error:", error);
+    
     res.status(500).json({
       success: false,
       message: "Server error during login",
@@ -176,7 +176,7 @@ export const studentFirstLogin = async (req, res) => {
     }
 
     if (process.env.NODE_ENV !== "production") {
-      console.log(`⚠️ DEV MODE: Skipping OTP send for ${formattedPhone}`);
+      
     } else {
       const otpResult = await sendOTPViaWhatsApp(formattedPhone, student.name);
 
@@ -217,7 +217,7 @@ export const studentFirstLogin = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("First login error:", error);
+   
     return res.status(500).json({
       success: false,
       message: "Server error during first login",
@@ -318,7 +318,7 @@ export const studentVerifyOTP = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("OTP verify error:", err);
+    
     return res.status(500).json({
       success: false,
       message: "Server error",
@@ -517,7 +517,7 @@ export const studentLogin = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Student login error:", error);
+    
     res.status(500).json({
       success: false,
       message: "Server error during login",
@@ -579,7 +579,7 @@ export const studentChangePassword = async (req, res) => {
       message: "Password changed successfully",
     });
   } catch (error) {
-    console.error("Change password error:", error);
+    
     res.status(500).json({
       success: false,
       message: "Server error during password change",
@@ -640,7 +640,7 @@ export const studentRegister = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Student registration error:", error);
+    
     res.status(500).json({
       success: false,
       message: "Server error during registration",
@@ -858,7 +858,7 @@ export const studentResetPassword = async (req, res) => {
       message: "Password reset successful",
     });
   } catch (error) {
-    console.error("Reset password error:", error);
+    
     res.status(500).json({
       success: false,
       message: "Server error",

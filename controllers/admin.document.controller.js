@@ -67,7 +67,6 @@ export const getStudentsWithDocuments = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ Error fetching students with documents:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -82,23 +81,19 @@ export const viewStudentDocument = async (req, res) => {
   try {
     const { studentId, docType } = req.params;
 
-    console.log("\n==========================================");
-    console.log("📄 VIEW DOCUMENT REQUEST");
-    console.log("==========================================");
-    console.log("Student ID:", studentId);
-    console.log("Document Type:", docType);
+    
 
     const student = await Student.findById(studentId);
 
     if (!student) {
-      console.log("❌ Student not found");
+      
       return res.status(404).json({
         success: false,
         message: "Student not found",
       });
     }
 
-    console.log("✅ Student found:", student.name);
+    
 
     const docFieldMap = {
       aadharFront: "aadhaarFront",
@@ -108,12 +103,12 @@ export const viewStudentDocument = async (req, res) => {
     };
 
     const backendField = docFieldMap[docType] || docType;
-    console.log("📝 Backend field name:", backendField);
+    
 
     const documentPath = student.documents?.[backendField];
 
     if (!documentPath) {
-      console.log("❌ Document not found in student.documents");
+      
       console.log("Available documents:", Object.keys(student.documents || {}));
       return res.status(404).json({
         success: false,
@@ -193,7 +188,7 @@ export const verifyStudentDocuments = async (req, res) => {
       student,
     });
   } catch (error) {
-    console.error("❌ Error verifying documents:", error);
+    
     res.status(500).json({
       success: false,
       message: error.message,
@@ -209,7 +204,7 @@ export const updateDocumentStatus = async (req, res) => {
     const { studentId, docType } = req.params;
     const { status, rejectionReason } = req.body;
 
-    console.log("🔄 Updating document status:", { studentId, docType, status });
+    
 
     if (!["pending", "approved", "rejected"].includes(status)) {
       return res.status(400).json({
@@ -270,7 +265,7 @@ export const updateDocumentStatus = async (req, res) => {
       documentStatus: student.documentStatus[backendField],
     });
   } catch (error) {
-    console.error("❌ Error updating document status:", error);
+    
     res.status(500).json({
       success: false,
       message: error.message,

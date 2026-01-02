@@ -230,7 +230,6 @@ export const getDashboardStatistics = async (req, res) => {
       });
 
       // ✅ Debug log
-      console.log("📊 Formatted Stats:", JSON.stringify(result, null, 2));
 
       return result;
     };

@@ -149,7 +149,7 @@ export const loginAdmin = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ Login error:", error);
+    
     res.status(500).json({
       success: false,
       message: "An error occurred during login. Please try again.",
@@ -181,7 +181,7 @@ export const getAdminProfile = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Get profile error:", error);
+    
     res.status(500).json({
       success: false,
       message: "Failed to load profile",
@@ -214,7 +214,7 @@ export const updateAdminProfile = async (req, res) => {
       data: admin,
     });
   } catch (error) {
-    console.error("Update profile error:", error);
+    
     res.status(500).json({
       success: false,
       message: "Failed to update profile",
@@ -267,7 +267,7 @@ export const changeAdminPassword = async (req, res) => {
       message: "Password changed successfully",
     });
   } catch (error) {
-    console.error("Change password error:", error);
+    
     res.status(500).json({
       success: false,
       message: "Failed to change password",
@@ -381,7 +381,7 @@ export const createAdmin = async (req, res) => {
       data: adminData,
     });
   } catch (error) {
-    console.error("Admin creation error:", error);
+    
     res.status(500).json({
       success: false,
       message: "Internal server error",

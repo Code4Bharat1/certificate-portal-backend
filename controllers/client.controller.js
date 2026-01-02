@@ -316,8 +316,8 @@ async function getClientDetails(clientName) {
 ------------------------- */
 const clientLetter = async (req, res) => {
   try {
-    console.log("📨 Received client letter creation request");
-    console.log("📦 Request body:", req.body);
+    
+    
 
     const {
       name,
@@ -331,7 +331,7 @@ const clientLetter = async (req, res) => {
 
     // ✅ Enhanced validation
     if (!name || !issueDate || !letterType || !projectName || !subject || !description) {
-      console.log("❌ Validation failed - missing required fields");
+      
       return res.status(400).json({
         success: false,
         message: "All fields are required",
@@ -355,7 +355,7 @@ const clientLetter = async (req, res) => {
     ];
 
     if (!validLetterTypes.includes(letterType)) {
-      console.log("❌ Invalid letter type:", letterType);
+      
       return res.status(400).json({
         success: false,
         message: `Invalid letter type. Must be one of: ${validLetterTypes.join(", ")}`,
@@ -365,7 +365,7 @@ const clientLetter = async (req, res) => {
 
     // ✅ Validate category
     if (category && category !== "client") {
-      console.log("❌ Invalid category:", category);
+      
       return res.status(400).json({
         success: false,
         message: "Category must be 'client'",
@@ -373,7 +373,6 @@ const clientLetter = async (req, res) => {
       });
     }
 
-    console.log("✅ Validation passed");
 
     let letterId;
     let exists;
@@ -383,10 +382,8 @@ const clientLetter = async (req, res) => {
       exists = await ClientLetter.findOne({ letterId });
     } while (exists);
 
-    console.log("✅ Generated Letter ID:", letterId);
 
     const { outwardNo, outwardSerial } = await generateUnifiedOutwardNo(issueDate);
-    console.log("✅ Generated Outward No:", outwardNo);
 
     // ... rest of your existing code ...
 
@@ -406,14 +403,13 @@ const clientLetter = async (req, res) => {
 ------------------------- */
 const clientPreview = async (req, res) => {
   try {
-    console.log("📨 Received preview request");
-    console.log("📦 Request body:", req.body);
+    
 
     const { name, issueDate, letterType, projectName, subject, description } = req.body;
 
     // ✅ Enhanced validation
     if (!name || !issueDate || !letterType || !projectName || !subject) {
-      console.log("❌ Preview validation failed");
+      
       return res.status(400).json({
         success: false,
         message: "Missing required fields for preview",
@@ -436,7 +432,6 @@ const clientPreview = async (req, res) => {
     ];
 
     if (!validLetterTypes.includes(letterType)) {
-      console.log("❌ Invalid letter type for preview:", letterType);
       return res.status(400).json({
         success: false,
         message: `Invalid letter type. Must be one of: ${validLetterTypes.join(", ")}`,
@@ -444,19 +439,16 @@ const clientPreview = async (req, res) => {
       });
     }
 
-    console.log("✅ Preview validation passed");
 
     const tempLetterId = await generateClientLetterId(letterType);
     const { outwardNo } = await generateUnifiedOutwardNo(issueDate);
 
-    console.log("✅ Temp Letter ID:", tempLetterId);
-    console.log("✅ Outward No:", outwardNo);
+   
 
     // ... rest of your existing code ...
 
   } catch (error) {
     console.error("❌ clientPreview error:", error);
-    console.error("Error stack:", error.stack);
     return res.status(500).json({
       success: false,
       message: "Failed to generate preview",
