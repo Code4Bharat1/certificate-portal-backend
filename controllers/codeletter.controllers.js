@@ -20,7 +20,19 @@ import drawJoiningLetterUnpaid from "../utils/C4B/JoiningLetter/JoiningLetterUnp
 // Marketing Junction templates
 import drawMJJoiningLetterPaid from "../utils/MJ/JoiningLetter/JoiningLetterPaid.js";
 import drawMJJoiningLetterUnpaid from "../utils/MJ/JoiningLetter/JoiningLetterUnpaid.js";
-
+import drawC4BExperienceLetter from "../utils/C4B/ExperienceLetter.js";
+import drawODExperienceLetter from "../utils/OD/ExperienceLetter.js";
+import drawC4BNDA from "../utils/C4B/NDA.js";
+import drawODNDA from "../utils/OD/NDA.js";
+// Add to existing imports
+import drawC4BUnpaidToPaid from "../utils/C4B/PromotionLetter/C4BUnpaidToPaid.js";
+import drawC4BStipendRevision from "../utils/C4B/PromotionLetter/C4BStipendRev.js";
+import drawODUnpaidToPaid from "../utils/OD/PromotionLetter/ODUnpaidToPaid.js";
+import drawODStipendRevision from "../utils/OD/PromotionLetter/ODStipendRev.js";
+import drawHRUnpaidToPaid from "../utils/HR/PromotionLetter/HRUnpaidToPaid.js";
+import drawHRStipendRevision from "../utils/HR/PromotionLetter/HRStipendRev.js";
+import drawMJUnpaidToPaid from "../utils/MJ/PromotionLetter/MJUnpaidToPaid.js";
+import drawMJStipendRevision from "../utils/MJ/PromotionLetter/MJStipendRev.js";
 const { getLetterEmailTemplate, sendEmail } = emailService;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -109,12 +121,52 @@ function getDrawingFunction(category, course) {
       return drawMJJoiningLetterPaid;
     } else if (course === "Internship Joining Letter - Unpaid") {
       return drawMJJoiningLetterUnpaid;
+    } else if (course === "Experience Certificate") {
+      return drawMJExperienceLetter;
+    } else if (course === "Non Paid to Paid") {
+      return drawMJUnpaidToPaid; // ✅ Added
+    } else if (course === "Stipend Revision") {
+      return drawMJStipendRevision; // ✅ Added
     }
   } else if (category === "IT-Nexcore") {
     if (course === "Internship Joining Letter - Paid") {
       return drawJoiningLetterPaid;
     } else if (course === "Internship Joining Letter - Unpaid") {
       return drawJoiningLetterUnpaid;
+    } else if (course === "Experience Certificate") {
+      return drawC4BExperienceLetter;
+    } else if (course === "Non-Disclosure Agreement") {
+      return drawC4BNDA;
+    } else if (course === "Non Paid to Paid") {
+      return drawC4BUnpaidToPaid; // ✅ Added
+    } else if (course === "Stipend Revision") {
+      return drawC4BStipendRevision; // ✅ Added
+    }
+  } else if (category === "Operations Department") {
+    if (course === "Internship Joining Letter - Paid") {
+      return drawODJoiningLetterPaid;
+    } else if (course === "Internship Joining Letter - Unpaid") {
+      return drawODJoiningLetterUnpaid;
+    } else if (course === "Experience Certificate") {
+      return drawODExperienceLetter;
+    } else if (course === "Non-Disclosure Agreement") {
+      return drawODNDA;
+    } else if (course === "Non Paid to Paid") {
+      return drawODUnpaidToPaid; // ✅ Added
+    } else if (course === "Stipend Revision") {
+      return drawODStipendRevision; // ✅ Added
+    }
+  } else if (category === "HR") {
+    if (course === "Internship Joining Letter - Paid") {
+      return drawHRJoiningLetterPaid;
+    } else if (course === "Internship Joining Letter - Unpaid") {
+      return drawHRJoiningLetterUnpaid;
+    } else if (course === "Experience Certificate") {
+      return drawC4BExperienceLetter;
+    } else if (course === "Non Paid to Paid") {
+      return drawHRUnpaidToPaid; // ✅ Added
+    } else if (course === "Stipend Revision") {
+      return drawHRStipendRevision; // ✅ Added
     }
   }
 
@@ -377,6 +429,10 @@ export const previewCodeLetter = async (req, res) => {
       responsibilities,
       amount,
       effectiveFrom,
+      startDate,
+      endDate,
+      genderPronoun,
+      duration, // ✅ Added
     } = req.body;
 
     // Validation
@@ -412,6 +468,8 @@ export const previewCodeLetter = async (req, res) => {
     const formattedEffectiveFrom = effectiveFrom
       ? formatDate(effectiveFrom)
       : "";
+    const formattedStartDate = startDate ? formatDate(startDate) : "";
+    const formattedEndDate = endDate ? formatDate(endDate) : "";
 
     // Get template paths based on category
     const { headerPath, footerPath, signaturePath, stampPath } =
@@ -458,7 +516,8 @@ export const previewCodeLetter = async (req, res) => {
     // Check if this is a multi-page letter
     const isMultiPage =
       course === "Internship Joining Letter - Paid" ||
-      course === "Internship Joining Letter - Unpaid";
+      course === "Internship Joining Letter - Unpaid" ||
+      course === "Non-Disclosure Agreement";
 
     if (isMultiPage) {
       // For multi-page letters, create PDF directly
@@ -475,6 +534,7 @@ export const previewCodeLetter = async (req, res) => {
       const templateData = {
         name,
         role: role || "",
+        duration: duration || "",
         trainingStartDate: formattedTrainingStart,
         trainingEndDate: formattedTrainingEnd,
         officialStartDate: formattedOfficialStart,
@@ -503,8 +563,11 @@ export const previewCodeLetter = async (req, res) => {
         });
       }
 
-      // Generate both pages
-      for (let pageNum = 1; pageNum <= 2; pageNum++) {
+      // Determine number of pages
+      const totalPages = course === "Non-Disclosure Agreement" ? 3 : 2;
+
+      // Generate all pages
+      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
         const canvas = createCanvas(width, height);
         const ctx = canvas.getContext("2d");
 
@@ -525,7 +588,7 @@ export const previewCodeLetter = async (req, res) => {
         const jpegBuffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
         doc.image(jpegBuffer, 0, 0, { width, height });
 
-        if (pageNum < 2) {
+        if (pageNum < totalPages) {
           doc.addPage();
         }
       }
@@ -533,7 +596,7 @@ export const previewCodeLetter = async (req, res) => {
       doc.end();
       console.log("✅ Multi-page PDF preview generated successfully");
     } else {
-      // Single page letters
+      // Single page letters (including Experience Certificate)
       const canvas = createCanvas(width, height);
       const ctx = canvas.getContext("2d");
 
@@ -544,6 +607,12 @@ export const previewCodeLetter = async (req, res) => {
         month: month || "",
         year: year || "",
         description: description || "",
+        role: role || "",
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        genderPronoun: genderPronoun || "",
+        amount: amount || "", // ✅ ADD THIS
+        effectiveFrom: formattedEffectiveFrom, // ✅ ADD THIS
         formattedDate,
         outwardNo,
         credentialId: tempId,
@@ -551,27 +620,32 @@ export const previewCodeLetter = async (req, res) => {
 
       console.log("📋 Template data:", templateData);
 
-      // Draw template based on course
-      if (course === "Appreciation Letter") {
-        console.log("🖌️ Drawing Appreciation Letter template...");
-        await drawAppreciationTemplate(
-          ctx,
-          width,
-          height,
-          templateData,
-          headerImg,
-          footerImg,
-          signatureImg,
-          stampImg
-        );
-        console.log("✅ Template drawn successfully");
-      } else {
-        console.error("❌ Unknown course type:", course);
+      // Get the appropriate drawing function
+      const drawFunction = getDrawingFunction(category, course);
+
+      if (!drawFunction) {
+        console.error("❌ No drawing function found for:", {
+          category,
+          course,
+        });
         return res.status(400).json({
           success: false,
-          message: `Template not implemented for course: ${course}`,
+          message: `Template not implemented for: ${category} - ${course}`,
         });
       }
+
+      console.log("🖌️ Drawing template...");
+      await drawFunction(
+        ctx,
+        width,
+        height,
+        templateData,
+        headerImg,
+        footerImg,
+        signatureImg,
+        stampImg
+      );
+      console.log("✅ Template drawn successfully");
 
       // Convert to buffer
       console.log("🔄 Converting canvas to JPEG buffer...");
@@ -597,6 +671,7 @@ export const previewCodeLetter = async (req, res) => {
     }
   }
 };
+
 
 // =====================================================
 // GET ALL CODE LETTERS
@@ -692,6 +767,10 @@ export const downloadCodeLetterAsPdf = async (req, res) => {
     const formattedEffectiveFrom = letter.effectiveFrom
       ? formatDate(letter.effectiveFrom)
       : "";
+    const formattedStartDate = letter.startDate
+      ? formatDate(letter.startDate)
+      : "";
+    const formattedEndDate = letter.endDate ? formatDate(letter.endDate) : "";
 
     // Get template paths
     const { headerPath, footerPath, signaturePath, stampPath } =
@@ -713,7 +792,8 @@ export const downloadCodeLetterAsPdf = async (req, res) => {
     // Check if multi-page
     const isMultiPage =
       letter.course === "Internship Joining Letter - Paid" ||
-      letter.course === "Internship Joining Letter - Unpaid";
+      letter.course === "Internship Joining Letter - Unpaid" ||
+      letter.course === "Non-Disclosure Agreement";
 
     const doc = new PDFDocument({
       size: [width, height],
@@ -729,10 +809,11 @@ export const downloadCodeLetterAsPdf = async (req, res) => {
     doc.pipe(res);
 
     if (isMultiPage) {
-      // Multi-page joining letters
+      // Multi-page letters
       const templateData = {
         name: letter.name,
         role: letter.role || "",
+        duration: letter.duration || "",
         trainingStartDate: formattedTrainingStart,
         trainingEndDate: formattedTrainingEnd,
         officialStartDate: formattedOfficialStart,
@@ -748,7 +829,9 @@ export const downloadCodeLetterAsPdf = async (req, res) => {
       // Get the appropriate drawing function
       const drawFunction = getDrawingFunction(letter.category, letter.course);
 
-      for (let pageNum = 1; pageNum <= 2; pageNum++) {
+      const totalPages = letter.course === "Non-Disclosure Agreement" ? 3 : 2;
+
+      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
         const canvas = createCanvas(width, height);
         const ctx = canvas.getContext("2d");
 
@@ -767,28 +850,37 @@ export const downloadCodeLetterAsPdf = async (req, res) => {
         const jpegBuffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
         doc.image(jpegBuffer, 0, 0, { width, height });
 
-        if (pageNum < 2) {
+        if (pageNum < totalPages) {
           doc.addPage();
         }
       }
     } else {
-      // Single page letters
+      // Single page letters (including Experience Certificate)
       const canvas = createCanvas(width, height);
       const ctx = canvas.getContext("2d");
 
+      // Prepare data
       const templateData = {
-        name: letter.name,
-        subject: letter.subject || "",
-        month: letter.month || "",
-        year: letter.year || "",
-        description: letter.description || "",
+        name,
+        subject: subject || "",
+        month: month || "",
+        year: year || "",
+        description: description || "",
+        role: role || "",
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        genderPronoun: genderPronoun || "",
+        amount: amount || "", // ✅ ADD THIS
+        effectiveFrom: formattedEffectiveFrom, // ✅ ADD THIS
         formattedDate,
-        outwardNo: letter.outwardNo,
-        credentialId: letter.letterId,
+        outwardNo,
+        credentialId: tempId,
       };
 
-      if (letter.course === "Appreciation Letter") {
-        await drawAppreciationTemplate(
+      const drawFunction = getDrawingFunction(letter.category, letter.course);
+
+      if (drawFunction) {
+        await drawFunction(
           ctx,
           width,
           height,
