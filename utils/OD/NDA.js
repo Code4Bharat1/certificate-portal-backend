@@ -81,7 +81,7 @@ const drawODNDA = async (
     currentY += 25;
 
     // Company details
-    const companyPara = `**Nexcore Alliance LLP**, a company incorporated under the **Limited Liability Partnership Act, 2008**, having its registered office at **Office No. 2, White House Bldg No. 3, Kurla West Basement, SG Barve Marg, Mumbai, Maharashtra 400 070, India**, hereinafter referred to as the "Company";`;
+    const companyPara = `**Code4Bharat, a brand of Nexcore Alliance LLP**, a company incorporated under the **Limited Liability Partnership Act, 2008**, having its registered office at **Office No 2, White House Bldg No.3, Kurla West Basement, SG Barve Marg, Mumbai, Maharashtra, India 400070**, hereinafter referred to as the "Company";`;
     const companyParts = parseMarkdown(companyPara);
     currentY = drawTextWithBold(
       ctx,
@@ -100,7 +100,7 @@ const drawODNDA = async (
     currentY += 25;
 
     // Recipient details
-    const recipientPara = `** ${name} **, an individual who has been employed as a **${role}** with Nexcore Alliance LLP for a period of **${duration}**, residing at **${
+    const recipientPara = `** ${name} **, an individual who has been employed as a **${role}** with Code4Bharat for a period of **${duration}**, residing at **${
       data.address || "address not provided"
     }**, Aadhaar card no: **${
       data.aadhaarCard || "not provided"
@@ -119,11 +119,11 @@ const drawODNDA = async (
 
     // WHEREAS clauses
     ctx.font = "18px 'Times New Roman'";
-    const whereas1 = "WHEREAS,";
+    const whereas1 = "**WHEREAS,**";
     ctx.fillText(whereas1, leftMargin, currentY);
     currentY += 23;
 
-    const whereas1Para = `The  Recipient, during his tenure, had access to **confidential, proprietary, and sensitive information** of the Company, including but not limited to: **technical data, source code, business strategies, client details, and other proprietary assets**; and`;
+    const whereas1Para = `The Recipient, during his tenure, had access to confidential, operational, and sensitive information related to the Company, including internal workflow data, departmental processes, vendor details, task reports, and proprietary operational structures;and`;
     const whereas1Parts = parseMarkdown(whereas1Para);
     currentY = drawTextWithBold(
       ctx,
@@ -137,7 +137,7 @@ const drawODNDA = async (
     currentY += 23;
 
     const whereas2 =
-      "WHEREAS, the Company seeks to protect its confidential information from unauthorized disclosure, usage, or exploitation post-employment.";
+      "**WHEREAS**, the Company seeks to protect  its confidential information from unauthorized disclosure, usage, or exploitation post-employment.";
     currentY = wrapText(ctx, whereas2, leftMargin, currentY, contentWidth, 23);
     currentY += 23;
 
@@ -198,10 +198,10 @@ const drawODNDA = async (
 
     const section1Items = [
       "(a) Source code, software architecture, algorithms, databases, and proprietary technology.",
-      "(b) Business strategies, project plans, research and development insights.",
-      "(c) Customer details, supplier/vendor relationships, pricing, financial models.",
-      "(d) Login credentials, passwords, API keys, internal documentation, and communication records.",
-      "(e) Any other non-public information that provides a competitive advantage to the Company.",
+      "(b) Vendor, supplier, or service provider details, agreements, and internal pricing information.",
+      "(c) Departmental coordination data, schedules, communication logs, and performance records.",
+      "(d) Internal documents, training materials, SOPs (Standard Operating Procedures), planning sheets, and execution strategies.",
+      "(e) Any non-public information that contributes to operational efficiency, productivity, or Company functioning.",
     ];
 
     section1Items.forEach((item) => {
@@ -244,7 +244,7 @@ const drawODNDA = async (
 
     // (a)
     const section2a =
-      "(a) **Return of Company Assets & Access Credentials:** Upon termination of employment, the Recipient shall return **all physical and digital assets** belonging to the Company, including but not limited to: **passwords, access credentials, source codes, hardware, documents, email accounts, and proprietary data.**";
+      "**(a) Return of Company Assets:** The Recipient agrees that:Upon termination of employment, the Recipient shall return all Company assets, including but not limited to: Access cards,Documents (digital & physical),Task reports,Operational data,Tools, devices, or Company property,Internal communication records";
     const section2aParts = parseMarkdown(section2a);
     currentY = drawTextWithBold(
       ctx,
@@ -259,7 +259,7 @@ const drawODNDA = async (
 
     // (b)
     const section2b =
-      "(b) **Non-Disclosure & Non-Use:** The Recipient shall not, directly or indirectly, **disclose, share, use, or reproduce** any Confidential Information for personal use or for the benefit of any third party, now or in the future.";
+      "**(b)Non-Disclosure & Non-Use:** The Recipient shall not, directly or indirectly, disclose, share, use, or reproduce any Confidential Information for personal use or for the benefit of any third party, now or in the future.";
     const section2bParts = parseMarkdown(section2b);
     currentY = drawTextWithBold(
       ctx,
@@ -274,7 +274,7 @@ const drawODNDA = async (
 
     // (c)
     const section2c =
-      "(c) **Non-Compete & Non-Solicitation:** For a period of **one (1) year** from the date of this Agreement, the Recipient shall not:";
+      "**(c)Non-Compete & Non-Solicitation:** For a period of **one (1) year** from the date of this Agreement, the Recipient shall not:";
     const section2cParts = parseMarkdown(section2c);
     currentY = drawTextWithBold(
       ctx,
@@ -289,8 +289,9 @@ const drawODNDA = async (
 
     ctx.font = "18px 'Times New Roman'";
     const section2cItems = [
-      "• Engage in any business, directly or indirectly, that involves products which compete in any manner with those offered, developed, or planned by the Company.",
-      "• Solicit any employees, clients, or vendors of the Company.",
+      "• Work with any entity for the purpose of sharing operational structures of the Company",
+      "• Attempt to influence, solicit, or divert Company employees, interns, clients, or vendors",
+      "• Use internal operational knowledge in any competing business",
     ];
 
     section2cItems.forEach((item) => {
@@ -301,7 +302,7 @@ const drawODNDA = async (
 
     // (d)
     const section2d =
-      "(d) **Legal Compliance:** Any violation of this Agreement will subject the Recipient to **strict legal action under applicable laws**, including **but not limited to:**";
+      "**(d)Legal Compliance:** Any violation of this Agreement will subject the Recipient to **strict legal action under applicable Indian laws**, including **but not limited to:**";
     const section2dParts = parseMarkdown(section2d);
     currentY = drawTextWithBold(
       ctx,
@@ -318,7 +319,7 @@ const drawODNDA = async (
       "• **Indian Penal Code (IPC), 1860** – Section 405 (Criminal Breach of Trust), Section 408 (Criminal Breach by Clerk or Servant).",
       "• **Information Technology Act, 2000** – Section 72 (Penalty for Breach of Confidentiality & Privacy).",
       "• **Copyright Act, 1957** – Unauthorized use of proprietary materials.",
-      "• **Indian Contract Act, 1872** – Breach of contract obligations.",
+      "• **Indian Contract Act, 1872 – Breach of contract obligations.",
     ];
 
     legalItems.forEach((item) => {
@@ -365,7 +366,7 @@ const drawODNDA = async (
 
     ctx.font = "18px 'Times New Roman'";
     const section3Para =
-      "This  Agreement shall remain in effect **indefinitely**, covering both **pre-existing and post-employment obligations**.";
+      "This Agreement shall remain in effect **indefinitely**, covering both **pre-existing and post- employment obligations**. In case of a breach, the Company reserves the right to:";
     const section3Parts = parseMarkdown(section3Para);
     currentY = drawTextWithBold(
       ctx,
@@ -393,7 +394,7 @@ const drawODNDA = async (
     const section3Items = [
       "• **Pursue civil or criminal legal action.**",
       "• **Seek monetary damages or injunctive relief.**",
-      "• **Blacklist the Recipient from industry opportunities via legal channels.**",
+      "• **Blacklist the Recipient from operations/administration opportunities via legal channels.**",
     ];
 
     section3Items.forEach((item) => {
@@ -418,7 +419,7 @@ const drawODNDA = async (
 
     ctx.font = "18px 'Times New Roman'";
     const section4Para =
-      "This  Agreement shall be governed by and construed in accordance with the **laws of India**. Any disputes arising out of or in connection with this Agreement shall be subject to the exclusive jurisdiction of the **courts in Mumbai, Maharashtra.**";
+      "This Agreement shall be governed by and construed in accordance with the **laws of India**. Any disputes arising out of or in connection with this Agreement shall be subject to the exclusive jurisdiction of the **courts in Mumbai, Maharashtra.**";
     const section4Parts = parseMarkdown(section4Para);
     currentY = drawTextWithBold(
       ctx,
@@ -438,7 +439,7 @@ const drawODNDA = async (
 
     ctx.font = "18px 'Times New Roman'";
     const section5Para =
-      "By  signing below, the Recipient acknowledges that he has read, understood, and agreed to abide by the terms of this **Non-Disclosure Agreement (NDA).**";
+      "By signing below, the Recipient acknowledges that he has read, understood, and agreed to abide by the terms of this **Non-Disclosure Agreement (NDA).**";
     const section5Parts = parseMarkdown(section5Para);
     currentY = drawTextWithBold(
       ctx,
@@ -453,8 +454,8 @@ const drawODNDA = async (
 
     // Company signature section
     ctx.font = "bold 18px 'Times New Roman'";
-    ctx.fillText("For Nexcore Alliance LLP", leftMargin, currentY);
-    currentY += 30;
+    ctx.fillText("For Code4Bharat, Nexcore Alliance LLP", leftMargin, currentY);
+    currentY += 25;
 
     // Signature section with fixed positions
     const signatureWidth = 190;
@@ -487,26 +488,26 @@ const drawODNDA = async (
     currentY += signatureHeight + 15;
 
     ctx.fillText(`CREDENTIAL ID: ${credentialId}`, leftMargin, currentY);
-    currentY += 40;
+    currentY += 35;
 
     // Recipient section
     ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("For the Recipient", leftMargin, currentY);
-    currentY += 25;
+    currentY += 20;
 
     ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText(`Name: ${name}`, leftMargin, currentY);
-    currentY += 25;
+    currentY += 20;
 
     ctx.fillText(`Designation: ${role}`, leftMargin, currentY);
-    currentY += 40;
+    currentY += 35;
 
     ctx.fillText(
       "Signature: ____________________  Date: ____________________",
       leftMargin,
       currentY
     );
-    currentY += 80;
+    currentY += 75;
 
     // Verification section - FIXED POSITION
     ctx.font = "18px 'Times New Roman'";
