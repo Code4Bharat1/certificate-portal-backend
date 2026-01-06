@@ -34,6 +34,23 @@ import drawHRUnpaidToPaid from "../utils/HR/PromotionLetter/HRUnpaidToPaid.js";
 import drawHRStipendRevision from "../utils/HR/PromotionLetter/HRStipendRev.js";
 import drawMJUnpaidToPaid from "../utils/MJ/PromotionLetter/MJUnpaidToPaid.js";
 import drawMJStipendRevision from "../utils/MJ/PromotionLetter/MJStipendRev.js";
+import drawTimelineLetter from "../utils/C4B/TimelineLetter.js";
+import drawHRTimelineLetter from "../utils/HR/TimelineLetter.js";
+import drawMJTimelineLetter from "../utils/MJ/TimelineLetter.js";
+import drawODTimelineLetter from "../utils/OD/TimelineLetter.js";
+import drawFSDGeneralAppreciation from "../utils/FSD/AppreciationLetter/FSDGeneral.js";
+import drawFSDConsistentPerformance from "../utils/FSD/AppreciationLetter/FSDConsistentPerformance.js";
+import drawFSDOutstandingPerformance from "../utils/FSD/AppreciationLetter/FSDOutstandingPerformance.js";
+import drawFSDBestAttendance from "../utils/FSD/AppreciationLetter/FSDBestAttendance.js";
+import drawFSDGeneralWarning from "../utils/FSD/WarningLetter/FSDGeneralWarningLetter.js";
+import drawFSDIncompleteAssignment from "../utils/FSD/WarningLetter/FSDInc.js";
+import drawFSDLowAttendance from "../utils/FSD/WarningLetter/FSDLowAttendance.js";
+import drawFSDMisconduct from "../utils/FSD/WarningLetter/FSDMisconduct.js";
+import drawFSDUnauthorizedAbsence from "../utils/FSD/WarningLetter/FSDUnauth.js";
+import drawFSDPunctuality from "../utils/FSD/WarningLetter/FSDPunctuality.js";
+import drawFSDConcernLetter from "../utils/FSD/ConcernLetter.js";
+
+
 const { getLetterEmailTemplate, sendEmail } = emailService;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -128,6 +145,8 @@ function getDrawingFunction(category, course) {
       return drawMJUnpaidToPaid;
     } else if (course === "Stipend Revision") {
       return drawMJStipendRevision;
+    } else if (course === "Timeline Letter") {
+      return drawMJTimelineLetter;
     }
   } else if (category === "IT-Nexcore") {
     if (course === "Internship Joining Letter - Paid") {
@@ -142,6 +161,8 @@ function getDrawingFunction(category, course) {
       return drawC4BUnpaidToPaid;
     } else if (course === "Stipend Revision") {
       return drawC4BStipendRevision;
+    } else if (course === "Timeline Letter") {
+      return drawTimelineLetter;
     }
   } else if (category === "Operations Department") {
     if (course === "Internship Joining Letter - Paid") {
@@ -156,6 +177,8 @@ function getDrawingFunction(category, course) {
       return drawODUnpaidToPaid;
     } else if (course === "Stipend Revision") {
       return drawODStipendRevision;
+    } else if (course === "Timeline Letter") {
+      return drawODTimelineLetter;
     }
   } else if (category === "HR") {
     if (course === "Internship Joining Letter - Paid") {
@@ -168,13 +191,46 @@ function getDrawingFunction(category, course) {
       return drawHRUnpaidToPaid;
     } else if (course === "Stipend Revision") {
       return drawHRStipendRevision;
+    } else if (course === "Timeline Letter") {
+      return drawHRTimelineLetter;
     }
-  }
-
+  }  else if (category === "FSD") {
+    if (course === "General Appreciation Letter") {
+      return drawFSDGeneralAppreciation;
+    } else if (course === "Appreciation for Consistent Performance") {
+      return drawFSDConsistentPerformance;
+    } else if (course === "Appreciation for Outstanding Performance") {
+      return drawFSDOutstandingPerformance;
+    } else if (course === "Appreciation for Best Attendance") {
+      return drawFSDBestAttendance;
+    } else if (course === "General Warning Letter") {
+      return drawFSDGeneralWarning;
+    } else if (
+      course === "Warning for Incomplete Assignment/Project Submissions"
+    ) {
+      return drawFSDIncompleteAssignment;
+    } else if (course === "Warning for Low Attendance") {
+      return drawFSDLowAttendance;
+    } else if (course === "Warning for Misconduct or Disrespectful Behavior") {
+      return drawFSDMisconduct;
+    } else if (
+      course === "Warning for Unauthorized Absence from Training Sessions"
+    ) {
+      return drawFSDUnauthorizedAbsence;
+    } else if (
+      course === "Warning Regarding Punctuality and Professional Discipline"
+    ) {
+      return drawFSDPunctuality;
+    } else if (course === "Concern Letter-Audit Interview Performance") {
+     
+      return drawFSDConcernLetter;
+    }
+}
   // Default for other letter types
   if (course === "Appreciation Letter") {
     return drawAppreciationTemplate;
   }
+
 
   return null;
 }
@@ -182,7 +238,7 @@ function getDrawingFunction(category, course) {
 // =====================================================
 // CREATE CODE LETTER
 // =====================================================
-export const createCodeLetter = async (req, res) => {
+const createCodeLetter = async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -211,8 +267,11 @@ export const createCodeLetter = async (req, res) => {
       endDate,
       genderPronoun,
       duration,
+      timelineStage,
+      timelineProjectName,
+      timelineDueDate,
+      timelineNewDate,
     } = req.body;
-
 
     console.log("📥 Create Code Letter Request:", {
       name,
@@ -270,6 +329,20 @@ export const createCodeLetter = async (req, res) => {
         }
       }
     }
+    if (letterType === "Timeline Letter") {
+      if (
+        !timelineStage ||
+        !timelineProjectName ||
+        !timelineDueDate ||
+        !timelineNewDate
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Timeline Letter requires stage, project name, and both dates",
+        });
+      }
+    }
 
     // Generate unique letter ID
     let letterId;
@@ -324,6 +397,13 @@ export const createCodeLetter = async (req, res) => {
     letterData.genderPronoun = genderPronoun || "";
     letterData.duration = duration || "";
 
+    // ✅ ADD TIMELINE LETTER FIELDS
+    if (letterType === "Timeline Letter") {
+      letterData.timelineStage = timelineStage;
+      letterData.timelineProjectName = timelineProjectName;
+      letterData.timelineDueDate = new Date(timelineDueDate);
+      letterData.timelineNewDate = new Date(timelineNewDate);
+    }
 
     // Add fields based on letter type
     if (course === "Appreciation Letter") {
@@ -424,7 +504,7 @@ export const createCodeLetter = async (req, res) => {
 // =====================================================
 // PREVIEW CODE LETTER
 // =====================================================
-export const previewCodeLetter = async (req, res) => {
+const previewCodeLetter = async (req, res) => {
   try {
     console.log("🔍 Preview code letter request received");
     console.log("Request body:", JSON.stringify(req.body, null, 2));
@@ -451,6 +531,23 @@ export const previewCodeLetter = async (req, res) => {
       endDate,
       genderPronoun,
       duration,
+      timelineStage,
+      timelineProjectName,
+      timelineDueDate,
+      timelineNewDate,
+      // ✅ BVOC/FSD specific fields
+      committeeType,
+      attendancePercent,
+      attendanceMonth,
+      attendanceYear,
+      performanceMonth,
+      performanceYear,
+      testingPhase,
+      uncover,
+      subjectName,
+      projectName,
+      misconductReason,
+      auditDate,
     } = req.body;
 
     // Validation
@@ -463,17 +560,17 @@ export const previewCodeLetter = async (req, res) => {
 
     console.log("✅ Validation passed");
 
-   let userData = null;
-   if (name) {
-     userData = await People.findOne({ name }).lean();
-     console.log("👤 User data fetched:", userData ? "Found" : "Not found");
-   }
+    let userData = null;
+    if (name) {
+      userData = await People.findOne({ name }).lean();
+      console.log("👤 User data fetched:", userData ? "Found" : "Not found");
+    }
 
-   // Generate temporary IDs
-   const tempId = await generateCodeLetterId(category);
-   const { outwardNo } = await generateUnifiedOutwardNo(issueDate);
+    // Generate temporary IDs
+    const tempId = await generateCodeLetterId(category);
+    const { outwardNo } = await generateUnifiedOutwardNo(issueDate);
 
-   console.log("📝 Generated temp IDs:", { tempId, outwardNo });
+    console.log("📝 Generated temp IDs:", { tempId, outwardNo });
 
     // Format dates
     const formattedDate = formatDate(issueDate);
@@ -554,7 +651,7 @@ export const previewCodeLetter = async (req, res) => {
       res.setHeader("Content-Type", "application/pdf");
       doc.pipe(res);
 
-      // Prepare template data
+      // Prepare template data for multi-page
       const templateData = {
         name,
         role: role || "",
@@ -576,7 +673,7 @@ export const previewCodeLetter = async (req, res) => {
         aadhaarCard: userData?.aadhaarCard || "Not provided",
       };
 
-      console.log("📋 Template data:", templateData);
+      console.log("📋 Multi-page template data:", templateData);
 
       // Get the appropriate drawing function
       const drawFunction = getDrawingFunction(category, course);
@@ -625,11 +722,11 @@ export const previewCodeLetter = async (req, res) => {
       doc.end();
       console.log("✅ Multi-page PDF preview generated successfully");
     } else {
-      // Single page letters (including Experience Certificate and Appreciation Letter)
+      // Single page letters
       const canvas = createCanvas(width, height);
       const ctx = canvas.getContext("2d");
 
-      // Prepare template data - ✅ FIXED: Added all missing fields
+      // ✅ COMPLETE template data with ALL fields
       const templateData = {
         name,
         // Appreciation Letter fields
@@ -650,6 +747,25 @@ export const previewCodeLetter = async (req, res) => {
         startDate: formattedStartDate,
         endDate: formattedEndDate,
         genderPronoun: genderPronoun || "",
+        // Timeline fields
+        timelineStage: timelineStage || "",
+        timelineProjectName: timelineProjectName || "",
+        timelineDueDate: timelineDueDate || "",
+        timelineNewDate: timelineNewDate || "",
+        // ✅ BVOC/FSD specific fields
+        committeeType: committeeType || "",
+        attendancePercent: attendancePercent || "",
+        attendanceMonth: attendanceMonth || "",
+        attendanceYear: attendanceYear || "",
+        performanceMonth: performanceMonth || "",
+        performanceYear: performanceYear || "",
+        testingPhase: testingPhase || "",
+        uncover: uncover || "",
+        subjectName: subjectName || "",
+        projectName: projectName || "",
+        misconductReason: misconductReason || "",
+        auditDate: auditDate || "",
+        // Standard fields
         formattedDate,
         outwardNo,
         credentialId: tempId,
@@ -657,7 +773,11 @@ export const previewCodeLetter = async (req, res) => {
         aadhaarCard: userData?.aadhaarCard || "Not provided",
       };
 
-      console.log("📋 Template data:", templateData);
+      console.log("📋 Single-page template data:", templateData);
+      console.log("📊 Performance fields:", {
+        performanceMonth: templateData.performanceMonth,
+        performanceYear: templateData.performanceYear,
+      });
 
       // Get the appropriate drawing function
       const drawFunction = getDrawingFunction(category, course);
@@ -674,6 +794,7 @@ export const previewCodeLetter = async (req, res) => {
       }
 
       console.log("🖌️ Drawing template...");
+
       await drawFunction(
         ctx,
         width,
@@ -684,6 +805,7 @@ export const previewCodeLetter = async (req, res) => {
         signatureImg,
         stampImg
       );
+
       console.log("✅ Template drawn successfully");
 
       // Convert to buffer
@@ -715,7 +837,7 @@ export const previewCodeLetter = async (req, res) => {
 // =====================================================
 // GET ALL CODE LETTERS
 // =====================================================
-export const getCodeLetters = async (req, res) => {
+ const getCodeLetters = async (req, res) => {
   try {
     const letters = await Letter.find({
       subType: "code-letter",
@@ -733,7 +855,7 @@ export const getCodeLetters = async (req, res) => {
 // =====================================================
 // GET CODE LETTER BY ID
 // =====================================================
-export const getCodeLetterById = async (req, res) => {
+ const getCodeLetterById = async (req, res) => {
   try {
     const identifier = req.params.id;
     const isObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
@@ -761,7 +883,7 @@ export const getCodeLetterById = async (req, res) => {
 // =====================================================
 // DOWNLOAD CODE LETTER AS PDF
 // =====================================================
-export const downloadCodeLetterAsPdf = async (req, res) => {
+const downloadCodeLetterAsPdf = async (req, res) => {
   try {
     const identifier = req.params.id;
     let letter;
@@ -795,6 +917,7 @@ export const downloadCodeLetterAsPdf = async (req, res) => {
       letter.outwardNo = outwardNo;
       letter.outwardSerial = outwardSerial;
     }
+
     // Format dates
     const formattedDate = formatDate(letter.issueDate);
     const formattedTrainingStart = letter.trainingStartDate
@@ -902,9 +1025,10 @@ export const downloadCodeLetterAsPdf = async (req, res) => {
         }
       }
     } else {
-      // Single page letters - ✅ FIXED: Added all missing fields
-      constcanvas = createCanvas(width, height);
+      // Single page letters - ✅ COMPLETE with ALL fields
+      const canvas = createCanvas(width, height);
       const ctx = canvas.getContext("2d");
+
       const templateData = {
         name: letter.name,
         // Appreciation Letter fields
@@ -912,20 +1036,50 @@ export const downloadCodeLetterAsPdf = async (req, res) => {
         month: letter.month || "",
         year: letter.year || "",
         description: letter.description || "",
-        // Other letter fields
+        // Joining/Experience Letter fields
         role: letter.role || "",
         duration: letter.duration || "",
+        trainingStartDate: formattedTrainingStart,
+        trainingEndDate: formattedTrainingEnd,
+        officialStartDate: formattedOfficialStart,
+        completionDate: formattedCompletion,
+        responsibilities: letter.responsibilities || "",
         startDate: formattedStartDate,
         endDate: formattedEndDate,
         genderPronoun: letter.genderPronoun || "",
         amount: letter.amount || "",
         effectiveFrom: formattedEffectiveFrom,
+        // Timeline fields
+        timelineStage: letter.timelineStage || "",
+        timelineProjectName: letter.timelineProjectName || "",
+        timelineDueDate: letter.timelineDueDate || "",
+        timelineNewDate: letter.timelineNewDate || "",
+        // ✅ BVOC/FSD specific fields
+        committeeType: letter.committeeType || "",
+        attendancePercent: letter.attendancePercent || "",
+        attendanceMonth: letter.attendanceMonth || "",
+        attendanceYear: letter.attendanceYear || "",
+        performanceMonth: letter.performanceMonth || "",
+        performanceYear: letter.performanceYear || "",
+        testingPhase: letter.testingPhase || "",
+        uncover: letter.uncover || "",
+        subjectName: letter.subjectName || "",
+        projectName: letter.projectName || "",
+        misconductReason: letter.misconductReason || "",
+        auditDate: letter.auditDate || "",
+        // Standard fields
         formattedDate,
         outwardNo: letter.outwardNo,
         credentialId: letter.letterId,
         address: userData?.address || "Address not provided",
         aadhaarCard: userData?.aadhaarCard || "Not provided",
       };
+
+      console.log("📋 Download template data:", templateData);
+      console.log("📊 Performance fields:", {
+        performanceMonth: templateData.performanceMonth,
+        performanceYear: templateData.performanceYear,
+      });
 
       const drawFunction = getDrawingFunction(letter.category, letter.course);
 
@@ -965,7 +1119,7 @@ export const downloadCodeLetterAsPdf = async (req, res) => {
     }
   }
 };
-export default {
+export {
   createCodeLetter,
   previewCodeLetter,
   getCodeLetters,
