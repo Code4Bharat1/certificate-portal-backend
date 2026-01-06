@@ -63,7 +63,7 @@ const drawC4BNDA = async (
     ctx.textAlign = "center";
     ctx.fillText("NON-DISCLOSURE AGREEMENT (NDA)", width / 2, currentY);
     ctx.textAlign = "left";
-    currentY += 15;
+    currentY += 35;
 
     // First paragraph
     ctx.font = "18px 'Times New Roman'";
@@ -78,7 +78,7 @@ const drawC4BNDA = async (
       contentWidth,
       23
     );
-    
+    currentY += 25;
 
     // Company details
     const companyPara = `**Nexcore Alliance LLP**, a company incorporated under the **Limited Liability Partnership Act, 2008**, having its registered office at **Office No. 2, White House Bldg No. 3, Kurla West Basement, SG Barve Marg, Mumbai, Maharashtra 400 070, India**, hereinafter referred to as the "Company";`;
@@ -92,15 +92,19 @@ const drawC4BNDA = async (
       contentWidth,
       23
     );
-   
+    currentY += 25;
 
     // AND
     ctx.font = "18px 'Times New Roman'";
     ctx.fillText("AND", leftMargin, currentY);
-    currentY += 15;
+    currentY += 25;
 
     // Recipient details
-    const recipientPara = `** ${name} **, an individual who has been employed as a **${role}** with Nexcore Alliance LLP for a period of **${duration}**, residing at **1002/C building no-2, Room no-2, Maharashtra nagar, kherwadi police station, Bandra(east)-400051**, Aadhaar card no: **534492967387**, hereinafter referred to as the "Recipient";`;
+    const recipientPara = `** ${name} **, an individual who has been employed as a **${role}** with Nexcore Alliance LLP for a period of **${duration}**, residing at **${
+      data.address || "address not provided"
+    }**, Aadhaar card no: **${
+      data.aadhaarCard || "not provided"
+    }**, hereinafter referred to as the "Recipient";`;
     const recipientParts = parseMarkdown(recipientPara);
     currentY = drawTextWithBold(
       ctx,
@@ -111,13 +115,13 @@ const drawC4BNDA = async (
       contentWidth,
       23
     );
- 
+    currentY += 25;
 
     // WHEREAS clauses
     ctx.font = "18px 'Times New Roman'";
     const whereas1 = "WHEREAS,";
     ctx.fillText(whereas1, leftMargin, currentY);
-    currentY += 20;
+    currentY += 23;
 
     const whereas1Para = `The  Recipient, during his tenure, had access to **confidential, proprietary, and sensitive information** of the Company, including but not limited to: **technical data, source code, business strategies, client details, and other proprietary assets**; and`;
     const whereas1Parts = parseMarkdown(whereas1Para);
@@ -130,12 +134,12 @@ const drawC4BNDA = async (
       contentWidth,
       23
     );
-   
+    currentY += 23;
 
     const whereas2 =
       "WHEREAS, the Company seeks to protect its confidential information from unauthorized disclosure, usage, or exploitation post-employment.";
     currentY = wrapText(ctx, whereas2, leftMargin, currentY, contentWidth, 23);
-    
+    currentY += 23;
 
     const nowTherefore =
       "NOW, THEREFORE, in consideration of the mutual covenants contained herein, the parties hereto agree as follows:";
@@ -147,7 +151,29 @@ const drawC4BNDA = async (
       contentWidth,
       23
     );
-    
+
+    // Signature line and stamp at bottom of page 1
+    const signatureLineY = 950;
+    const stampWidth = 180;
+    const stampHeight = 140;
+
+    ctx.font = "18px 'Times New Roman'";
+    ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
+
+    // Draw Stamp (right aligned)
+    if (stampImg) {
+      ctx.drawImage(
+        stampImg,
+        rightMargin - stampWidth,
+        signatureLineY - 100,
+        stampWidth,
+        stampHeight
+      );
+    }
+  } else if (page === 2) {
+    // ==================== PAGE 2 ====================
+
+    currentY = contentStartY+100;
 
     // Section 1
     ctx.font = "bold 18px 'Times New Roman'";
@@ -156,7 +182,7 @@ const drawC4BNDA = async (
       leftMargin,
       currentY
     );
-    currentY += 20;
+    currentY += 23;
 
     ctx.font = "18px 'Times New Roman'";
     const section1Para = `For the purpose of this Agreement, "Confidential Information" means all information, in any form, disclosed to or acquired by the Recipient during his tenure at the Company, including but not limited to:`;
@@ -168,7 +194,7 @@ const drawC4BNDA = async (
       contentWidth,
       23
     );
-  
+    currentY += 20;
 
     const section1Items = [
       "(a) Source code, software architecture, algorithms, databases, and proprietary technology.",
@@ -180,25 +206,36 @@ const drawC4BNDA = async (
 
     section1Items.forEach((item) => {
       currentY = wrapText(ctx, item, leftMargin, currentY, contentWidth, 23);
-     
+      currentY += 5;
     });
 
-    // Signature line at bottom of page 1
-    ctx.font = "bold 18px 'Times New Roman'";
-    ctx.fillText(
-      "Signature (Receiving Party):_______________",
-      leftMargin,
-      1000
-    );
-  } else if (page === 2) {
-    // ==================== PAGE 2 ====================
+    // Signature line and stamp at bottom of page 2
+    const signatureLineY = 950;
+    const stampWidth = 180;
+    const stampHeight = 140;
+
+    ctx.font = "18px 'Times New Roman'";
+    ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
+
+    // Draw Stamp (right aligned)
+    if (stampImg) {
+      ctx.drawImage(
+        stampImg,
+        rightMargin - stampWidth,
+        signatureLineY - 100,
+        stampWidth,
+        stampHeight
+      );
+    }
+  } else if (page === 3) {
+    // ==================== PAGE 3 ====================
 
     currentY = contentStartY;
 
     // Section 2
     ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("2. Obligations of the Recipient", leftMargin, currentY);
-    currentY += 20;
+    currentY += 23;
 
     ctx.font = "18px 'Times New Roman'";
     const section2Intro = "The Recipient agrees that:";
@@ -218,7 +255,7 @@ const drawC4BNDA = async (
       contentWidth,
       23
     );
-    
+    currentY += 20;
 
     // (b)
     const section2b =
@@ -233,7 +270,7 @@ const drawC4BNDA = async (
       contentWidth,
       23
     );
-
+    currentY += 20;
 
     // (c)
     const section2c =
@@ -248,19 +285,19 @@ const drawC4BNDA = async (
       contentWidth,
       23
     );
-   
+    currentY += 18;
 
     ctx.font = "18px 'Times New Roman'";
     const section2cItems = [
-      "· Engage in any business, directly or indirectly, that involves products which compete in any manner with those offered, developed, or planned by the Company.",
-      "· Solicit any employees, clients, or vendors of the Company.",
+      "• Engage in any business, directly or indirectly, that involves products which compete in any manner with those offered, developed, or planned by the Company.",
+      "• Solicit any employees, clients, or vendors of the Company.",
     ];
 
     section2cItems.forEach((item) => {
       currentY = wrapText(ctx, item, leftMargin, currentY, contentWidth, 23);
-      currentY += 3;
+      currentY += 5;
     });
-   
+    currentY += 15;
 
     // (d)
     const section2d =
@@ -278,10 +315,10 @@ const drawC4BNDA = async (
     currentY += 18;
 
     const legalItems = [
-      "· **Indian Penal Code (IPC), 1860** – Section 405 (Criminal Breach of Trust), Section 408 (Criminal Breach by Clerk or Servant).",
-      "· **Information Technology Act, 2000** – Section 72 (Penalty for Breach of Confidentiality & Privacy).",
-      "· **Copyright Act, 1957** – Unauthorized use of proprietary materials.",
-      "· **Indian Contract Act, 1872** – Breach of contract obligations.",
+      "• **Indian Penal Code (IPC), 1860** – Section 405 (Criminal Breach of Trust), Section 408 (Criminal Breach by Clerk or Servant).",
+      "• **Information Technology Act, 2000** – Section 72 (Penalty for Breach of Confidentiality & Privacy).",
+      "• **Copyright Act, 1957** – Unauthorized use of proprietary materials.",
+      "• **Indian Contract Act, 1872** – Breach of contract obligations.",
     ];
 
     legalItems.forEach((item) => {
@@ -295,14 +332,36 @@ const drawC4BNDA = async (
         contentWidth,
         23
       );
-      currentY += 3;
+      currentY += 5;
     });
-    currentY += 20;
+
+    // Signature line and stamp at bottom of page 3
+    const signatureLineY = 950;
+    const stampWidth = 180;
+    const stampHeight = 140;
+
+    ctx.font = "18px 'Times New Roman'";
+    ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
+
+    // Draw Stamp (right aligned)
+    if (stampImg) {
+      ctx.drawImage(
+        stampImg,
+        rightMargin - stampWidth,
+        signatureLineY - 100,
+        stampWidth,
+        stampHeight
+      );
+    }
+  } else if (page === 4) {
+    // ==================== PAGE 4 ====================
+
+    currentY = contentStartY;
 
     // Section 3
     ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("3. Duration & Enforcement", leftMargin, currentY);
-    currentY += 20;
+    currentY += 23;
 
     ctx.font = "18px 'Times New Roman'";
     const section3Para =
@@ -317,7 +376,7 @@ const drawC4BNDA = async (
       contentWidth,
       23
     );
-    currentY += 18;
+    currentY += 23;
 
     const section3Para2 =
       "In case of a breach, the Company reserves the right to:";
@@ -332,9 +391,9 @@ const drawC4BNDA = async (
     currentY += 18;
 
     const section3Items = [
-      "· **Pursue civil or criminal legal action.**",
-      "· **Seek monetary damages or injunctive relief.**",
-      "· **Blacklist the Recipient from industry opportunities via legal channels.**",
+      "• **Pursue civil or criminal legal action.**",
+      "• **Seek monetary damages or injunctive relief.**",
+      "• **Blacklist the Recipient from industry opportunities via legal channels.**",
     ];
 
     section3Items.forEach((item) => {
@@ -348,25 +407,14 @@ const drawC4BNDA = async (
         contentWidth,
         23
       );
-      currentY += 3;
+      currentY += 5;
     });
-
-    // Signature line at bottom of page 2
-    ctx.font = "bold 18px 'Times New Roman'";
-    ctx.fillText(
-      "Signature (Receiving Party):_______________",
-      leftMargin,
-      1000
-    );
-  } else if (page === 3) {
-    // ==================== PAGE 3 ====================
-
-    currentY = contentStartY;
+    currentY += 25;
 
     // Section 4
     ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("4. Jurisdiction & Governing Law", leftMargin, currentY);
-    currentY += 20;
+    currentY += 23;
 
     ctx.font = "18px 'Times New Roman'";
     const section4Para =
@@ -386,7 +434,7 @@ const drawC4BNDA = async (
     // Section 5
     ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("5. Acknowledgment & Agreement", leftMargin, currentY);
-    currentY += 20;
+    currentY += 23;
 
     ctx.font = "18px 'Times New Roman'";
     const section5Para =
@@ -401,12 +449,12 @@ const drawC4BNDA = async (
       contentWidth,
       23
     );
-    currentY += 35;
+    currentY += 40;
 
     // Company signature section
     ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("For Nexcore Alliance LLP", leftMargin, currentY);
-    currentY += 120;
+    currentY += 30;
 
     // Signature section with fixed positions
     const signatureWidth = 190;
@@ -419,7 +467,7 @@ const drawC4BNDA = async (
       ctx.drawImage(
         signatureImg,
         leftMargin - 8,
-        currentY -112,
+        currentY,
         signatureWidth,
         signatureHeight
       );
@@ -430,36 +478,37 @@ const drawC4BNDA = async (
       ctx.drawImage(
         stampImg,
         rightMargin - stampWidth,
-        currentY - 112,
+        currentY,
         stampWidth,
         stampHeight
       );
     }
 
-  
+    currentY += signatureHeight + 15;
+
     ctx.fillText(`CREDENTIAL ID: ${credentialId}`, leftMargin, currentY);
     currentY += 40;
 
     // Recipient section
     ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("For the Recipient", leftMargin, currentY);
-    currentY += 20;
+    currentY += 25;
 
     ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText(`Name: ${name}`, leftMargin, currentY);
-    currentY += 20;
+    currentY += 25;
 
     ctx.fillText(`Designation: ${role}`, leftMargin, currentY);
     currentY += 40;
 
     ctx.fillText(
-      "Signature: _________________  Date: _____________",
+      "Signature: ____________________  Date: ____________________",
       leftMargin,
       currentY
     );
-    currentY += 100;
+    currentY += 80;
 
-    // Verification section - FIXED POSITION (same as joining letter)
+    // Verification section - FIXED POSITION
     ctx.font = "18px 'Times New Roman'";
     ctx.fillStyle = "#000000";
     ctx.textAlign = "center";

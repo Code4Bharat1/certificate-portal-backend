@@ -206,9 +206,9 @@ const letterSchema = new mongoose.Schema(
     genderPronoun: {
       type: String,
       enum: ["his", "her", ""],
-      required: function () {
-        return this.course === "Experience Certificate";
-      },
+      // required: function () {
+      //   return this.course === "Experience Certificate";
+      // },
     },
 
     month: {
