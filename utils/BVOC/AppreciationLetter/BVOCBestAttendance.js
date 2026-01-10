@@ -79,7 +79,7 @@ const drawBVOCBestAttendance = async (
   currentY += 35;
 
   // Main content with bold elements
-  const paragraph1 = `We  take great pleasure in recognizing your discipline and punctuality by awarding you the **Best Attendance** for the month of **${attendanceMonth}** in the **Full Stack Development (FSD)** program conducted by **Nexcore Alliance LLP**.`;
+  const paragraph1 = `We  take great pleasure in recognizing your discipline and punctuality by awarding you the **Best Attendance** for the month of **${attendanceMonth}** in the **B.Voc** program conducted by **Nexcore Alliance LLP**.`;
   const parts1 = parseMarkdown(paragraph1);
   currentY = drawTextWithBold(
     ctx,

@@ -79,7 +79,7 @@ const drawDMOutstandingPerformance = async (
   currentY += 35;
 
   // Main content with bold elements
-  const paragraph1 = `We  are delighted to recognize your remarkable dedication and achievement by awarding you the **Outstanding Performance** for the month of **${performanceMonth}** in the **Full Stack Development (FSD)** program conducted by **Nexcore Alliance LLP**.`;
+  const paragraph1 = `We  are delighted to recognize your remarkable dedication and achievement by awarding you the **Outstanding Performance** for the month of **${performanceMonth}** in the **Digital Marketing (DM)** program conducted by **Nexcore Alliance LLP**.`;
   const parts1 = parseMarkdown(paragraph1);
   currentY = drawTextWithBold(
     ctx,
@@ -94,7 +94,7 @@ const drawDMOutstandingPerformance = async (
 
   // Second paragraph
   ctx.font = "18px 'Times New Roman'";
-  const paragraph2 = `Your consistent effort, technical expertise, and commitment to delivering quality work throughout this month have set a high benchmark for your peers. Your performance in training sessions, project submissions, and overall conduct reflects true professionalism and a passion for excellence.`;
+  const paragraph2 = `Your consistent effort, creativity, and analytical approach in executing marketing strategies have set a high standard for your peers. Your excellence in campaign planning, content creation, social media engagement, and overall professionalism truly reflect your passion for the field and commitment to success.`;
   currentY = wrapText(ctx, paragraph2, leftMargin, currentY, contentWidth, 23);
   currentY += 25;
 

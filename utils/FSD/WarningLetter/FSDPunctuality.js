@@ -103,10 +103,7 @@ const drawFSDPunctuality = async (
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 19);
   currentY += 15;
 
-  // Authorized Signature
-  ctx.font = "bold 15px 'Times New Roman'";
-  ctx.fillText("Authorized Signature", leftMargin, currentY);
-  currentY += 7;
+
 
   // Signature and Stamp
   const signatureWidth = 155;

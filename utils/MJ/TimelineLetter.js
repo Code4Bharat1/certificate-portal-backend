@@ -204,9 +204,9 @@ const drawMJTimelineLetter = async (
   // Bullet points
   ctx.font = "18px 'Times New Roman'";
   const bulletPoints = [
-    `Complete and submit the pending deliverables by**${formattedNewDate}.**`,
-    "Provide daily progress updates to your reporting manager until the task is completed.",
-    "Ensure strict compliance with all future project timelines.",
+    `Complete  and submit the pending deliverables by**${formattedNewDate}.**`,
+    "Provide  daily progress updates to your reporting manager until the task is completed.",
+    "Ensure  strict compliance with all future project timelines.",
   ];
 
   bulletPoints.forEach((point) => {

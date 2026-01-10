@@ -65,7 +65,7 @@ const drawBVOCUnauthorizedAbsence = async (
   currentY += 28;
 
   // Paragraph 1
-  const paragraph1 = `This is to bring to your attention that you have accumulated more than three unauthorized leaves without prior permission or valid justification. Such repeated absences from scheduled training sessions violate the discipline and attendance policy of the **Full Stack Development** program conducted by **Nexcore Alliance LLP**.`;
+  const paragraph1 = `This is to bring to your attention that you have accumulated more than three unauthorized leaves without prior permission or valid justification. Such repeated absences from scheduled training sessions violate the discipline and attendance policy of the **B.Voc** program conducted by **Nexcore Alliance LLP**.`;
   const parts1 = parseMarkdown(paragraph1);
   currentY = drawTextWithBold(
     ctx,
@@ -87,12 +87,7 @@ const drawBVOCUnauthorizedAbsence = async (
   // Closing
   const closing = `Kindly treat this as an official warning and take immediate corrective measures to improve your attendance and commitment to the program.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
-  currentY += 28;
-
-  // Authorized Signature
-  ctx.font = "bold 16px 'Times New Roman'";
-  ctx.fillText("Authorized Signature", leftMargin, currentY);
-  currentY += 8;
+  currentY += 10;
 
   // Signature and Stamp
   const signatureWidth = 160;
@@ -133,14 +128,14 @@ const drawBVOCUnauthorizedAbsence = async (
   ctx.font = "16px 'Times New Roman'";
   const ackText = `I, __________________________, acknowledge that I have received and read this Warning Letter issued by Nexcore Alliance LLP. I understand the contents, the disciplinary concern mentioned, and the consequences outlined herein.`;
   currentY = wrapText(ctx, ackText, leftMargin, currentY, contentWidth, 20);
-  currentY += 22;
+  currentY += 12;
 
   ctx.fillText(
     "Student Signature: __________________________",
     leftMargin,
     currentY
   );
-  currentY += 20;
+  currentY += 35;
   ctx.fillText("Date: __________________________", leftMargin, currentY);
 
   // Verification footer (positioned absolutely)

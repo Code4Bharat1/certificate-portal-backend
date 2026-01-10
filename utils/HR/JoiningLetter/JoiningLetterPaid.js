@@ -2,7 +2,7 @@ import parseMarkdown from "../../ParseMarkdown.js";
 import drawTextWithBold from "../../TextWithBold.js";
 import wrapText from "../../WrapText.js";
 
-const drawJoiningLetterPaid = async (
+const drawHRJoiningLetterPaid = async (
   ctx,
   width,
   height,
@@ -306,4 +306,4 @@ const drawJoiningLetterPaid = async (
   }
 };
 
-export default drawJoiningLetterPaid;
+export default drawHRJoiningLetterPaid;

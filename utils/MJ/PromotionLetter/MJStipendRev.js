@@ -160,7 +160,7 @@ const drawMJStipendRevision = async (
   let currentY = contentStartY;
 
   // Outward No (left aligned, bold)
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   ctx.fillText(`Outward No.: ${outwardNo}`, leftMargin, currentY);
   currentY += 25;
 
@@ -169,7 +169,7 @@ const drawMJStipendRevision = async (
   currentY += 40;
 
   // To (bold)
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   ctx.fillText("To,", leftMargin, currentY);
   currentY += 40;
 
@@ -178,27 +178,27 @@ const drawMJStipendRevision = async (
   currentY += 40;
 
   // Subject (bold)
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   const subjectText =
     "Subject: Promotion and Stipend Revision for Outstanding Performance";
   currentY = wrapText(ctx, subjectText, leftMargin, currentY, contentWidth, 25);
   currentY += 30;
 
   // Dear Name (bold)
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   ctx.fillText(`Dear ${name},`, leftMargin, currentY);
   currentY += 35;
 
   // Congratulations! (bold)
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   ctx.fillText("Congratulations!", leftMargin, currentY);
   currentY += 30;
 
   // Promotion paragraph with bold elements
-  ctx.font = "16px 'Times New Roman'";
+  ctx.font = "18px 'Times New Roman'";
   // Format the effective from date properly
   const formattedEffectiveFrom = effectiveFrom || "Date not specified";
-  const promotionText = `We are pleased to inform you that in recognition of your consistent efforts, dedication, and the value you bring to your role, the management has approved a revision in your monthly stipend, effective from **${formattedEffectiveFrom}**.`;
+  const promotionText = `We  are pleased to inform you that in recognition of your consistent efforts, dedication, and the value you bring to your role, the management has approved a revision in your monthly stipend, effective from **${formattedEffectiveFrom}**.`;
   const promotionParts = parseMarkdown(promotionText);
   currentY = drawTextWithBold(
     ctx,
@@ -212,8 +212,8 @@ const drawMJStipendRevision = async (
   currentY += 15;
 
   // Revised stipend paragraph with bold amount
-  ctx.font = "16px 'Times New Roman'";
-  const stipendText = `Your revised stipend will now be **${formattedAmount} (Rupees ${amountInWords} only)** per month.`;
+  ctx.font = "18px 'Times New Roman'";
+  const stipendText = `Your  revised stipend will now be **${formattedAmount} (Rupees ${amountInWords} only)** per month.`;
   const stipendParts = parseMarkdown(stipendText);
   currentY = drawTextWithBold(
     ctx,
@@ -227,8 +227,8 @@ const drawMJStipendRevision = async (
   currentY += 15;
 
   // Appreciation paragraph with bold company name
-  ctx.font = "16px 'Times New Roman'";
-  const appreciationText = `This revision reflects our appreciation of your hard work, learning attitude, and performance during your internship period. We look forward to your continued contributions, commitment, and professional growth with **Nexcore Alliance LLP**.`;
+  ctx.font = "18px 'Times New Roman'";
+  const appreciationText = `This  revision reflects our appreciation of your hard work, learning attitude, and performance during your internship period. We look forward to your continued contributions, commitment, and professional growth with **Nexcore Alliance LLP**.`;
   const appreciationParts = parseMarkdown(appreciationText);
   currentY = drawTextWithBold(
     ctx,
@@ -242,13 +242,13 @@ const drawMJStipendRevision = async (
   currentY += 15;
 
   // Closing paragraph
-  ctx.font = "16px 'Times New Roman'";
+  ctx.font = "18px 'Times New Roman'";
   const closingText = `Keep up the good work and continue to strive for excellence in all that you do.`;
   currentY = wrapText(ctx, closingText, leftMargin, currentY, contentWidth, 23);
   currentY += 30;
 
   // Warm regards (bold)
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   ctx.fillText("Warm regards,", leftMargin, currentY);
   currentY += 40;
 
@@ -281,7 +281,7 @@ const drawMJStipendRevision = async (
   }
 
   // Credential ID (below signature) - fixed position
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, 940);
 
   // Verification text - fixed position

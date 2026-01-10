@@ -103,11 +103,6 @@ const drawFSDIncompleteAssignment = async (
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
   currentY += 28;
 
-  // Authorized Signature label
-  ctx.font = "bold 16px 'Times New Roman'";
-  ctx.fillText("Authorized Signature", leftMargin, currentY);
-  currentY += 8;
-
   // Signature and Stamp - reduced sizes
   const signatureWidth = 160;
   const signatureHeight = 85;
@@ -156,7 +151,7 @@ const drawFSDIncompleteAssignment = async (
   );
   currentY += 20;
   ctx.fillText("Date: __________________________", leftMargin, currentY);
-  currentY += 25;
+  currentY
 
   ctx.font = "18px 'Times Roman'";
   ctx.fillStyle = "#000000";

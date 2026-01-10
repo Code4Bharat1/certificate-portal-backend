@@ -198,7 +198,7 @@ const drawHRStipendRevision = async (
   ctx.font = "16px 'Times New Roman'";
   // Format the effective from date properly
   const formattedEffectiveFrom = effectiveFrom || "Date not specified";
-  const promotionText = `We are pleased to inform you that in recognition of your consistent efforts, dedication, and the value you bring to your role, the management has approved a revision in your monthly stipend, effective from **${formattedEffectiveFrom}**.`;
+  const promotionText = `We  are pleased to inform you that in recognition of your consistent efforts, dedication, and the value you bring to your role, the management has approved a revision in your monthly stipend, effective from **${formattedEffectiveFrom}**.`;
   const promotionParts = parseMarkdown(promotionText);
   currentY = drawTextWithBold(
     ctx,
@@ -213,7 +213,7 @@ const drawHRStipendRevision = async (
 
   // Revised stipend paragraph with bold amount
   ctx.font = "16px 'Times New Roman'";
-  const stipendText = `Your revised stipend will now be **${formattedAmount} (Rupees ${amountInWords} only)** per month.`;
+  const stipendText = `Your  revised stipend will now be **${formattedAmount} (Rupees ${amountInWords} only)** per month.`;
   const stipendParts = parseMarkdown(stipendText);
   currentY = drawTextWithBold(
     ctx,
@@ -228,7 +228,7 @@ const drawHRStipendRevision = async (
 
   // Appreciation paragraph with bold company name
   ctx.font = "16px 'Times New Roman'";
-  const appreciationText = `This revision reflects our appreciation of your hard work, learning attitude, and performance during your internship period. We look forward to your continued contributions, commitment, and professional growth with **Nexcore Alliance LLP**.`;
+  const appreciationText = `This  revision reflects our appreciation of your hard work, learning attitude, and performance during your internship period. We look forward to your continued contributions, commitment, and professional growth with **Nexcore Alliance LLP**.`;
   const appreciationParts = parseMarkdown(appreciationText);
   currentY = drawTextWithBold(
     ctx,

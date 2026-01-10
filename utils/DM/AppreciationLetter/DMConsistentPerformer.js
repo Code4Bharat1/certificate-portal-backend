@@ -72,7 +72,7 @@ const drawDMConsistentPerformance = async (
   currentY += 35;
 
   // Main content with bold elements
-  const paragraph1 = `We  are pleased to recognize your dedication and reliability by presenting you with the **Consistent Performer** for your sustained commitment, technical excellence, and consistent performance throughout the **Full Stack Development (FSD)** training program conducted by **Nexcore Alliance LLP**.`;
+  const paragraph1 = `We  are pleased to recognize your dedication and reliability by presenting you with the **Consistent Performer** for your sustained commitment, technical excellence, and consistent performance throughout the **Digital Marketing (DM)** training program conducted by **Nexcore Alliance LLP**.`;
   const parts1 = parseMarkdown(paragraph1);
   currentY = drawTextWithBold(
     ctx,
@@ -87,12 +87,12 @@ const drawDMConsistentPerformance = async (
 
   // Second paragraph
   ctx.font = "18px 'Times New Roman'";
-  const paragraph2 = `Your steady progress, active participation, and quality of work across all modules reflect true professionalism and a strong learning attitude. Your consistent effort and focus have made a positive impact on your peers and have set a standard of excellence within the program.`;
+  const paragraph2 = `Your steady progress, active participation, and quality of work across all modules reflect true professionalism and a strong learning attitude. Your consistent effort and focus in areas such as campaign strategy, content planning, SEO, and analytics have set a benchmark of excellence and inspired your peers.`;
   currentY = wrapText(ctx, paragraph2, leftMargin, currentY, contentWidth, 23);
   currentY += 25;
 
   // Third paragraph with bold elements
-  const paragraph3 = `We  congratulate you on this achievement and appreciate your continued consistency and dedication. Your performance truly reflects the values of perseverance and excellence that **Nexcore Alliance LLP** stands for.`;
+  const paragraph3 = `We congratulate you on this achievement and appreciate your continued consistency and dedication. Your performance truly reflects the values of perseverance and excellence that Nexcore Alliance LLP stands for.`;
   const parts3 = parseMarkdown(paragraph3);
   currentY = drawTextWithBold(
     ctx,

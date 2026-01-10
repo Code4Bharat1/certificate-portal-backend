@@ -71,7 +71,7 @@ const drawDMConcernLetter = async (
   currentY += 18;
 
   // Paragraph 2 with bold elements
-  const paragraph2 = `As  part of the **FSD program**, these audits are conducted to assess your technical understanding, coding ability, and overall preparedness. Based on your recent interaction, it has been observed that your conceptual clarity and consistency require improvement.`;
+  const paragraph2 = `As part of the Digital Marketing program, these audits are conducted to assess your understanding of key marketing concepts, campaign strategy, analytical ability, and overall preparedness. Based on your recent interaction, it has been observed that your conceptual clarity and consistency require improvement.`;
   const parts2 = parseMarkdown(paragraph2);
   currentY = drawTextWithBold(
     ctx,
@@ -132,12 +132,8 @@ const drawDMConcernLetter = async (
   ctx.font = "14px 'Times New Roman'";
   const closing = `We trust you will take this feedback seriously and work towards better results in the future.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 19);
-  currentY += 25;
+  currentY += 15;
 
-  // Authorized Signature label
-  ctx.font = "bold 14px 'Times New Roman'";
-  ctx.fillText("Authorized Signature", leftMargin, currentY);
-  currentY += 10;
 
   // Signature and Stamp - properly sized
   const signatureWidth = 140;
@@ -178,14 +174,14 @@ const drawDMConcernLetter = async (
   ctx.font = "14px 'Times New Roman'";
   const ackText = `I, ________________________________, acknowledge that I have received and read this Concern Letter issued by Nexcore Alliance LLP. I understand the contents, the concern mentioned, and the consequences outlined herein.`;
   currentY = wrapText(ctx, ackText, leftMargin, currentY, contentWidth, 19);
-  currentY += 20;
+  currentY += 15;
 
   ctx.fillText(
     "Student Signature: _________________________________",
     leftMargin,
     currentY
   );
-  currentY += 18;
+  currentY += 25;
   ctx.fillText("Date: _________________________________", leftMargin, currentY);
   currentY += 25;
 

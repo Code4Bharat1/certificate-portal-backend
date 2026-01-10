@@ -65,7 +65,7 @@ const drawDMPunctuality = async (
   currentY += 26;
 
   // Paragraph 1
-  const paragraph1 = `This  is to formally inform you that you have accumulated more than three **(3) late marks** during your ongoing **Full Stack Development (FSD) Training Program** at **Nexcore Alliance LLP**. This reflects a continued lack of punctuality and non-adherence to the training schedule, which is not acceptable and has been recorded as a disciplinary concern.`;
+  const paragraph1 = `This  is to formally inform you that you have accumulated more than three **(3) late marks** during your ongoing **Digital Marketing (DM) Training Program** at **Nexcore Alliance LLP**. This reflects a continued lack of punctuality and non-adherence to the training schedule, which is not acceptable and has been recorded as a disciplinary concern.`;
   const parts1 = parseMarkdown(paragraph1);
   currentY = drawTextWithBold(
     ctx,
@@ -101,12 +101,7 @@ const drawDMPunctuality = async (
   // Closing
   const closing = `This serves as a formal warning, and no further reminders will be issued. Continued violation of attendance and discipline norms will lead to enforcement of the actions mentioned above without exception.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 19);
-  currentY += 15;
-
-  // Authorized Signature
-  ctx.font = "bold 15px 'Times New Roman'";
-  ctx.fillText("Authorized Signature", leftMargin, currentY);
-  currentY += 7;
+  currentY += 10;
 
   // Signature and Stamp
   const signatureWidth = 155;
@@ -147,14 +142,14 @@ const drawDMPunctuality = async (
   ctx.font = "15px 'Times New Roman'";
   const ackText = `I, __________________________, acknowledge that I have received and read this Warning Letter issued by Nexcore Alliance LLP. I understand the contents, the disciplinary concern mentioned, and the consequences outlined herein.`;
   currentY = wrapText(ctx, ackText, leftMargin, currentY, contentWidth, 19);
-  currentY += 16;
+  currentY +=25 ;
 
   ctx.fillText(
     "Student Signature: __________________________",
     leftMargin,
     currentY
   );
-  currentY += 26;
+  currentY += 35;
   ctx.fillText("Date: __________________________", leftMargin, currentY - 2);
 
   // Verification footer (positioned absolutely)

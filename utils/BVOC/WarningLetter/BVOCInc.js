@@ -73,14 +73,14 @@ const drawBVOCIncompleteAssignment = async (
   currentY += 28;
 
   // Paragraph 1 with bold elements
-  const paragraph1 = `This  is to formally inform you that you have failed to submit your assignment / project work for **${subjectName}**, titled **${projectName}**, within the stipulated deadline as required under the **Full Stack Development (FSD)** program conducted by **Nexcore Alliance LLP**.`;
+  const paragraph1 = `This  is to formally inform you that you have failed to submit your assignment / project work for **${subjectName}**, titled **${projectName}**, within the stipulated deadline as required under the **B.Voc** program conducted by **Nexcore Alliance LLP**.`;
   const parts1 = parseMarkdown(paragraph1);
   currentY = drawTextWithBold(
     ctx,
     parts1,
     leftMargin,
     currentY,
-    13,
+    16,
     contentWidth,
     20
   );
@@ -88,7 +88,7 @@ const drawBVOCIncompleteAssignment = async (
 
   // Paragraph 2
   ctx.font = "16px 'Times New Roman'";
-  const paragraph2 = `Timely submission of assignments and projects tasks is an essential part of the training process and directly reflects your commitment to learning and professional growth. Failure to meet deadlines demonstrates a lack of discipline and seriousness toward the course expectations.`;
+  const paragraph2 = `Timely submission of assignments and project tasks is an essential part of the training process and directly reflects your commitment to learning and professional growth. Failure to meet deadlines demonstrates a lack of discipline and seriousness toward the course expectations.`;
   currentY = wrapText(ctx, paragraph2, leftMargin, currentY, contentWidth, 20);
   currentY += 20;
 
@@ -98,19 +98,14 @@ const drawBVOCIncompleteAssignment = async (
   currentY += 20;
 
   // Closing
-  ctx.font = "16px 'Times New Roman'";
+  ctx.font = "bold 16px 'Times New Roman'";
   const closing = `Kindly treat this letter as an official warning and take immediate corrective action.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
   currentY += 28;
 
-  // Authorized Signature label
-  ctx.font = "bold 16px 'Times New Roman'";
-  ctx.fillText("Authorized Signature", leftMargin, currentY);
-  currentY += 8;
-
   // Signature and Stamp - reduced sizes
-  const signatureWidth = 160;
-  const signatureHeight = 85;
+  const signatureWidth = 180;
+  const signatureHeight = 95;
   const stampWidth = 150;
   const stampHeight = 120;
 

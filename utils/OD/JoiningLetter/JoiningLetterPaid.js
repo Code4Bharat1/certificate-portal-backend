@@ -171,7 +171,7 @@ const drawODJoiningLetterPaid = async (
     // Roles and Responsibilities Header (bold)
     ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("Roles and Responsibilities", leftMargin, currentY);
-    currentY += 30;
+    currentY += 20;
 
     // Responsibilities text
     ctx.font = "18px 'Times New Roman'";
@@ -200,12 +200,12 @@ const drawODJoiningLetterPaid = async (
       contentWidth,
       23
     );
-    currentY += 35;
+    currentY += 25;
 
     // Stipend & Performance Header (bold)
     ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("Stipend & Performance Evaluation", leftMargin, currentY);
-    currentY += 30;
+    currentY += 20;
 
     // Stipend details
     ctx.font = "18px 'Times New Roman'";
@@ -220,7 +220,7 @@ const drawODJoiningLetterPaid = async (
       contentWidth,
       23
     );
-    currentY += 30;
+    currentY += 20;
 
     // Performance paragraph
     const performancePara =
@@ -233,7 +233,7 @@ const drawODJoiningLetterPaid = async (
       contentWidth,
       23
     );
-    currentY += 30;
+    currentY += 20;
 
     // Closing paragraph
     const closingPara =
@@ -248,7 +248,7 @@ const drawODJoiningLetterPaid = async (
       contentWidth,
       23
     );
-    currentY += 40;
+    currentY += 30;
 
     // Warm regards (bold)
     ctx.font = "bold 18px 'Times New Roman'";

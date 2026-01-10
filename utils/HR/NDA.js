@@ -81,8 +81,7 @@ const drawHRNDA = async (
     currentY += 25;
 
     // Company details
-    const companyPara = `**Code4Bharat, a brand of Nexcore Alliance LLP**, a company incorporated under the **Limited Liability Partnership Act, 2008**, having its registered office at **Office No 2, White House Bldg No.3, Kurla West Basement, SG Barve Marg, Mumbai, Maharashtra, India 400070**, hereinafter referred to as the "Company";`;
-    const companyParts = parseMarkdown(companyPara);
+const companyPara = `** Nexcore Alliance LLP,**a company incorporated under the**Limited Liability Partnership Act, 2008,**having its registered office at**Office No. 2, White House Bldg No. 3, Kurla West Basement, SG Barve Marg, Mumbai, Maharashtra 400 070, India,**hereinafter referred to as the "Company";`;    const companyParts = parseMarkdown(companyPara);
     currentY = drawTextWithBold(
       ctx,
       companyParts,
@@ -100,7 +99,7 @@ const drawHRNDA = async (
     currentY += 25;
 
     // Recipient details
-    const recipientPara = `** ${name} **, an individual who has been employed as a **${role}** with Code4Bharat for a period of **${duration}**, residing at **${
+    const recipientPara = `** ${name} **, an individual who has been employed as a **${role}** with Code4Bharat for a period of **${duration} months**, residing at **${
       data.address || "address not provided"
     }**, Aadhaar card no: **${
       data.aadhaarCard || "not provided"
@@ -123,7 +122,7 @@ const drawHRNDA = async (
     ctx.fillText(whereas1, leftMargin, currentY);
     currentY += 23;
 
-    const whereas1Para = `The Recipient, during his tenure, had access to **confidential and sensitive HR-related information** of the Company, including but not limited to employee data, internal documents, recruitment records, payroll-related details, and company operational processes;and`;
+    const whereas1Para = `The  Recipient, during his tenure, had access to **confidential and sensitive HR-related information** of the Company, including but not limited to employee data, internal documents, recruitment records, payroll-related details, and company operational processes;and`;
     const whereas1Parts = parseMarkdown(whereas1Para);
     currentY = drawTextWithBold(
       ctx,
@@ -157,7 +156,7 @@ const drawHRNDA = async (
     const stampWidth = 180;
     const stampHeight = 140;
 
-    ctx.font = "18px 'Times New Roman'";
+    ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
 
     // Draw Stamp (right aligned)
@@ -214,7 +213,7 @@ const drawHRNDA = async (
     const stampWidth = 180;
     const stampHeight = 140;
 
-    ctx.font = "18px 'Times New Roman'";
+    ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
 
     // Draw Stamp (right aligned)
@@ -341,7 +340,7 @@ const drawHRNDA = async (
     const stampWidth = 180;
     const stampHeight = 140;
 
-    ctx.font = "18px 'Times New Roman'";
+    ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
 
     // Draw Stamp (right aligned)
@@ -366,7 +365,7 @@ const drawHRNDA = async (
 
     ctx.font = "18px 'Times New Roman'";
     const section3Para =
-      "This Agreement shall remain in effect **indefinitely**, covering both **pre-existing and post- employment obligations.** In case of a breach, the Company reserves the right to:";
+      "This  Agreement shall remain in effect **indefinitely**, covering both **pre-existing and post- employment obligations.** In case of a breach, the Company reserves the right to:";
     const section3Parts = parseMarkdown(section3Para);
     currentY = drawTextWithBold(
       ctx,
@@ -419,7 +418,7 @@ const drawHRNDA = async (
 
     ctx.font = "18px 'Times New Roman'";
     const section4Para =
-      "This Agreement shall be governed by and construed in accordance with the **laws of India**. Any disputes arising out of or in connection with this Agreement shall be subject to the exclusive jurisdiction of the **courts in Mumbai, Maharashtra.**";
+      "This  Agreement shall be governed by and construed in accordance with the **laws of India**. Any disputes arising out of or in connection with this Agreement shall be subject to the exclusive jurisdiction of the **courts in Mumbai, Maharashtra.**";
     const section4Parts = parseMarkdown(section4Para);
     currentY = drawTextWithBold(
       ctx,
@@ -439,7 +438,7 @@ const drawHRNDA = async (
 
     ctx.font = "18px 'Times New Roman'";
     const section5Para =
-      "By signing below, the Recipient acknowledges that he has read, understood, and agreed to abide by the terms of this **Non-Disclosure Agreement (NDA).**";
+      "By  signing below, the Recipient acknowledges that he has read, understood, and agreed to abide by the terms of this **Non-Disclosure Agreement (NDA).**";
     const section5Parts = parseMarkdown(section5Para);
     currentY = drawTextWithBold(
       ctx,

@@ -103,7 +103,7 @@ const drawJoiningLetterUnpaid = async (
 
     // Intro paragraph
     ctx.font = "16px 'Times New Roman'";
-    const introPara = `We are pleased to officially offer you the position of **${role}** at **Marketiq Junction**, a brand under **Nexcore Alliance LLP**. This letter confirms your selection for our internship program and outlines the details of your training, internship role, and responsibilities.`;
+    const introPara = `We  are pleased to officially offer you the position of **${role}** at **Marketiq Junction**, a brand under **Nexcore Alliance LLP**. This letter confirms your selection for our internship program and outlines the details of your training, internship role, and responsibilities.`;
     const introParts = parseMarkdown(introPara);
     currentY = drawTextWithBold(
       ctx,
@@ -196,7 +196,7 @@ const drawJoiningLetterUnpaid = async (
       contentWidth,
       23
     );
-    currentY += 35;
+    currentY += 25;
 
     // Performance-Based Evaluation Header (bold)
     ctx.font = "bold 16px 'Times New Roman'";
@@ -215,7 +215,7 @@ const drawJoiningLetterUnpaid = async (
       contentWidth,
       23
     );
-    currentY += 30;
+    currentY += 20;
 
     // Performance paragraph
     const performancePara =
@@ -228,11 +228,11 @@ const drawJoiningLetterUnpaid = async (
       contentWidth,
       23
     );
-    currentY += 30;
+    currentY += 20;
 
     // Closing paragraph
     const closingPara =
-      "We believe this internship will offer a strong foundation for your career in software development and we are committed to supporting your growth every step of the way.";
+      "We believe this internship will offer a strong foundation for your career in digital Marketing and we are committed to supporting your growth every step of the way.";
     currentY = wrapText(
       ctx,
       closingPara,
@@ -241,7 +241,7 @@ const drawJoiningLetterUnpaid = async (
       contentWidth,
       23
     );
-    currentY += 40;
+    currentY += 20;
 
     // Warm regards (bold)
     ctx.font = "bold 16px 'Times New Roman'";

@@ -105,14 +105,10 @@ const drawBVOCLowAttendance = async (
   currentY += 14;
 
   // Closing
+  ctx.font = "bold 16px 'Times New Roman'";
   const closing = `Kindly treat this letter as an official warning.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
   currentY += 18;
-
-  // Authorized Signature
-  ctx.font = "bold 16px 'Times New Roman'";
-  ctx.fillText("Authorized Signature", leftMargin, currentY);
-  currentY += 3;
 
   // Signature and Stamp
   const signatureWidth = 160;
@@ -153,14 +149,14 @@ const drawBVOCLowAttendance = async (
   ctx.font = "16px 'Times New Roman'";
   const ackText = `I, __________________________, acknowledge that I have received and read this Warning Letter issued by Nexcore Alliance LLP. I understand the contents, the disciplinary concern mentioned, and the consequences outlined herein.`;
   currentY = wrapText(ctx, ackText, leftMargin, currentY, contentWidth, 20);
-  currentY += 19;
+  currentY;
 
   ctx.fillText(
     "Student Signature: __________________________",
     leftMargin,
     currentY
   );
-  currentY += 19;
+  currentY += 25;
   ctx.fillText("Date: __________________________", leftMargin, currentY);
 
   // Verification footer (positioned absolutely)

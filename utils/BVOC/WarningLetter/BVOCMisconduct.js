@@ -106,12 +106,7 @@ const drawBVOCMisconduct = async (
   // Paragraph 3
   const paragraph3 = `Please note that any recurrence of such behavior will invite strict disciplinary action, including suspension of training or cancellation of course certification, as per company policy.`;
   currentY = wrapText(ctx, paragraph3, leftMargin, currentY, contentWidth, 20);
-  currentY += 28;
-
-  // Authorized Signature
-  ctx.font = "bold 16px 'Times New Roman'";
-  ctx.fillText("Authorized Signature", leftMargin, currentY);
-  currentY += 8;
+  currentY += 20;
 
   // Signature and Stamp
   const signatureWidth = 160;
@@ -152,14 +147,14 @@ const drawBVOCMisconduct = async (
   ctx.font = "16px 'Times New Roman'";
   const ackText = `I, __________________________, acknowledge that I have received and read this Warning Letter issued by Nexcore Alliance LLP. I understand the contents, the disciplinary concern mentioned, and the consequences outlined herein.`;
   currentY = wrapText(ctx, ackText, leftMargin, currentY, contentWidth, 20);
-  currentY += 22;
+  currentY += 25;
 
   ctx.fillText(
     "Student Signature: __________________________",
     leftMargin,
     currentY
   );
-  currentY += 20;
+  currentY += 50;
   ctx.fillText("Date: __________________________", leftMargin, currentY);
 
   // Verification footer (positioned absolutely)

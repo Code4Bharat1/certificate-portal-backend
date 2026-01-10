@@ -40,7 +40,7 @@ const drawFSDConcernLetter = async (
   let currentY = contentStartY;
 
   // Outward No
-  ctx.font = "bold 14px 'Times New Roman'";
+  ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText(`Outward No.: ${outwardNo}`, leftMargin, currentY);
   currentY += 20;
 
@@ -55,7 +55,7 @@ const drawFSDConcernLetter = async (
   currentY += 30;
 
   // Subject
-  ctx.font = "bold 14px 'Times New Roman'";
+  ctx.font = "bold 16px 'Times New Roman'";
   const subjectText = "Subject: Concern Letter – Audit Interview Performance";
   currentY = wrapText(ctx, subjectText, leftMargin, currentY, contentWidth, 20);
   currentY += 15;
@@ -65,7 +65,7 @@ const drawFSDConcernLetter = async (
   currentY += 25;
 
   // Paragraph 1 with audit date
-  ctx.font = "14px 'Times New Roman'";
+  ctx.font = "16px 'Times New Roman'";
   const paragraph1 = `This is to inform you that your performance in the audit interview conducted on ${auditDate} has been found below the expected level.`;
   currentY = wrapText(ctx, paragraph1, leftMargin, currentY, contentWidth, 19);
   currentY += 18;
@@ -78,19 +78,19 @@ const drawFSDConcernLetter = async (
     parts2,
     leftMargin,
     currentY,
-    14,
+    16,
     contentWidth,
     19
   );
   currentY += 18;
 
   // "You are advised to:" heading
-  ctx.font = "bold 14px 'Times New Roman'";
+  ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText("You are advised to:", leftMargin, currentY);
   currentY += 20;
 
   // Bullet points
-  ctx.font = "14px 'Times New Roman'";
+  ctx.font = "16px 'Times New Roman'";
   const bullets = [
     "Revise the covered modules and assignments thoroughly.",
     "Seek assistance from mentors or attend support sessions as required.",
@@ -129,15 +129,10 @@ const drawFSDConcernLetter = async (
   currentY += 18;
 
   // Closing
-  ctx.font = "14px 'Times New Roman'";
+  ctx.font = "bold 16px 'Times New Roman'";
   const closing = `We trust you will take this feedback seriously and work towards better results in the future.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 19);
   currentY += 25;
-
-  // Authorized Signature label
-  ctx.font = "bold 14px 'Times New Roman'";
-  ctx.fillText("Authorized Signature", leftMargin, currentY);
-  currentY += 10;
 
   // Signature and Stamp - properly sized
   const signatureWidth = 140;
@@ -166,19 +161,19 @@ const drawFSDConcernLetter = async (
   currentY += signatureHeight + 10;
 
   // Credential ID
-  ctx.font = "bold 14px 'Times New Roman'";
+  ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, currentY);
   currentY += 25;
 
   // Student Acknowledgement Section
-  ctx.font = "bold 14px 'Times New Roman'";
+  ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText("Student Acknowledgement:", leftMargin, currentY);
   currentY += 20;
 
-  ctx.font = "14px 'Times New Roman'";
+  ctx.font = "16px 'Times New Roman'";
   const ackText = `I, ________________________________, acknowledge that I have received and read this Concern Letter issued by Nexcore Alliance LLP. I understand the contents, the concern mentioned, and the consequences outlined herein.`;
   currentY = wrapText(ctx, ackText, leftMargin, currentY, contentWidth, 19);
-  currentY += 20;
+  currentY += 15;
 
   ctx.fillText(
     "Student Signature: _________________________________",

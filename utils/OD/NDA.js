@@ -81,7 +81,8 @@ const drawODNDA = async (
     currentY += 25;
 
     // Company details
-    const companyPara = `**Code4Bharat, a brand of Nexcore Alliance LLP**, a company incorporated under the **Limited Liability Partnership Act, 2008**, having its registered office at **Office No 2, White House Bldg No.3, Kurla West Basement, SG Barve Marg, Mumbai, Maharashtra, India 400070**, hereinafter referred to as the "Company";`;
+const companyPara = `** Nexcore Alliance LLP,**a company incorporated under the**Limited Liability Partnership Act, 2008,**having its registered office at**Office No. 2, White House Bldg No. 3, Kurla West Basement, SG Barve Marg, Mumbai, Maharashtra 400 070, India,**hereinafter referred to as the "Company";`;
+
     const companyParts = parseMarkdown(companyPara);
     currentY = drawTextWithBold(
       ctx,
@@ -100,7 +101,7 @@ const drawODNDA = async (
     currentY += 25;
 
     // Recipient details
-    const recipientPara = `** ${name} **, an individual who has been employed as a **${role}** with Code4Bharat for a period of **${duration}**, residing at **${
+    const recipientPara = `** ${name} **, an individual who has been employed as a **${role}** with Code4Bharat for a period of **${duration} months,**residing at **${
       data.address || "address not provided"
     }**, Aadhaar card no: **${
       data.aadhaarCard || "not provided"
@@ -118,12 +119,12 @@ const drawODNDA = async (
     currentY += 25;
 
     // WHEREAS clauses
-    ctx.font = "18px 'Times New Roman'";
-    const whereas1 = "**WHEREAS,**";
+    ctx.font = "bold 18px 'Times New Roman'";
+    const whereas1 = "WHEREAS,";
     ctx.fillText(whereas1, leftMargin, currentY);
     currentY += 23;
 
-    const whereas1Para = `The Recipient, during his tenure, had access to confidential, operational, and sensitive information related to the Company, including internal workflow data, departmental processes, vendor details, task reports, and proprietary operational structures;and`;
+    const whereas1Para = `The  Recipient, during his tenure, had access to confidential, operational, and sensitive information related to the Company, including internal workflow data, departmental processes, vendor details, task reports, and proprietary operational structures;and`;
     const whereas1Parts = parseMarkdown(whereas1Para);
     currentY = drawTextWithBold(
       ctx,
@@ -137,7 +138,7 @@ const drawODNDA = async (
     currentY += 23;
 
     const whereas2 =
-      "**WHEREAS**, the Company seeks to protect  its confidential information from unauthorized disclosure, usage, or exploitation post-employment.";
+      "WHEREAS, the Company seeks to protect  its confidential information from unauthorized disclosure, usage, or exploitation post-employment.";
     currentY = wrapText(ctx, whereas2, leftMargin, currentY, contentWidth, 23);
     currentY += 23;
 
@@ -157,7 +158,7 @@ const drawODNDA = async (
     const stampWidth = 180;
     const stampHeight = 140;
 
-    ctx.font = "18px 'Times New Roman'";
+    ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
 
     // Draw Stamp (right aligned)
@@ -214,7 +215,7 @@ const drawODNDA = async (
     const stampWidth = 180;
     const stampHeight = 140;
 
-    ctx.font = "18px 'Times New Roman'";
+    ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
 
     // Draw Stamp (right aligned)
@@ -319,7 +320,7 @@ const drawODNDA = async (
       "• **Indian Penal Code (IPC), 1860** – Section 405 (Criminal Breach of Trust), Section 408 (Criminal Breach by Clerk or Servant).",
       "• **Information Technology Act, 2000** – Section 72 (Penalty for Breach of Confidentiality & Privacy).",
       "• **Copyright Act, 1957** – Unauthorized use of proprietary materials.",
-      "• **Indian Contract Act, 1872 – Breach of contract obligations.",
+      "• **Indian Contract Act, 1872** – Breach of contract obligations.",
     ];
 
     legalItems.forEach((item) => {
@@ -341,7 +342,7 @@ const drawODNDA = async (
     const stampWidth = 180;
     const stampHeight = 140;
 
-    ctx.font = "18px 'Times New Roman'";
+    ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
 
     // Draw Stamp (right aligned)
@@ -366,7 +367,7 @@ const drawODNDA = async (
 
     ctx.font = "18px 'Times New Roman'";
     const section3Para =
-      "This Agreement shall remain in effect **indefinitely**, covering both **pre-existing and post- employment obligations**. In case of a breach, the Company reserves the right to:";
+      "This  Agreement shall remain in effect **indefinitely**, covering both **pre-existing and post- employment obligations**. In case of a breach, the Company reserves the right to:";
     const section3Parts = parseMarkdown(section3Para);
     currentY = drawTextWithBold(
       ctx,
@@ -419,7 +420,7 @@ const drawODNDA = async (
 
     ctx.font = "18px 'Times New Roman'";
     const section4Para =
-      "This Agreement shall be governed by and construed in accordance with the **laws of India**. Any disputes arising out of or in connection with this Agreement shall be subject to the exclusive jurisdiction of the **courts in Mumbai, Maharashtra.**";
+      "This  Agreement shall be governed by and construed in accordance with the **laws of India**. Any disputes arising out of or in connection with this Agreement shall be subject to the exclusive jurisdiction of the **courts in Mumbai, Maharashtra.**";
     const section4Parts = parseMarkdown(section4Para);
     currentY = drawTextWithBold(
       ctx,
@@ -439,7 +440,7 @@ const drawODNDA = async (
 
     ctx.font = "18px 'Times New Roman'";
     const section5Para =
-      "By signing below, the Recipient acknowledges that he has read, understood, and agreed to abide by the terms of this **Non-Disclosure Agreement (NDA).**";
+      "By  signing below, the Recipient acknowledges that he has read, understood, and agreed to abide by the terms of this **Non-Disclosure Agreement (NDA).**";
     const section5Parts = parseMarkdown(section5Para);
     currentY = drawTextWithBold(
       ctx,
@@ -454,7 +455,7 @@ const drawODNDA = async (
 
     // Company signature section
     ctx.font = "bold 18px 'Times New Roman'";
-    ctx.fillText("For Code4Bharat, Nexcore Alliance LLP", leftMargin, currentY);
+    ctx.fillText("For Nexcore Alliance LLP", leftMargin, currentY);
     currentY += 25;
 
     // Signature section with fixed positions

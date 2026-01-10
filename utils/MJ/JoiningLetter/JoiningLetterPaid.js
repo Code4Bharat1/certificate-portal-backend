@@ -105,7 +105,7 @@ const drawJoiningLetterPaid = async (
 
     // Intro paragraph
     ctx.font = "18px 'Times New Roman'";
-    const introPara = `We are pleased to officially offer you the position of **${role}** at **Marketiq Junction**, a brand under **Nexcore Alliance LLP**. This letter confirms your selection for our internship program and outlines the details of your training and role.`;
+    const introPara = `We  are pleased to officially offer you the position of **${role}**at**Marketiq Junction,**a brand under**Nexcore Alliance LLP.**This letter confirms your selection for our internship program and outlines the details of your training and role.`;
     const introParts = parseMarkdown(introPara);
     currentY = drawTextWithBold(
       ctx,
@@ -198,7 +198,7 @@ const drawJoiningLetterPaid = async (
       contentWidth,
       23
     );
-    currentY += 35;
+    currentY += 22;
 
     // Stipend & Performance Header (bold)
     ctx.font = "bold 18px 'Times New Roman'";
@@ -207,7 +207,7 @@ const drawJoiningLetterPaid = async (
 
     // Stipend details
     ctx.font = "18px 'Times New Roman'";
-    const stipendPara = `Your internship includes a **performance-based stipend of ₹${amount}/- per month**, effective from **${effectiveFrom}**, upon successful completion of your first project and based on your performance evaluation.`;
+    const stipendPara = `Your  internship includes a **performance-based stipend of ₹${amount}/- per month,**effective from **${effectiveFrom},**upon successful completion of your first project and based on your performance evaluation.`;
     const stipendParts = parseMarkdown(stipendPara);
     currentY = drawTextWithBold(
       ctx,
@@ -218,7 +218,7 @@ const drawJoiningLetterPaid = async (
       contentWidth,
       23
     );
-    currentY += 30;
+    currentY += 20;
 
     // Performance paragraph
     const performancePara =
@@ -231,11 +231,11 @@ const drawJoiningLetterPaid = async (
       contentWidth,
       23
     );
-    currentY += 30;
+    currentY += 20;
 
     // Closing paragraph
     const closingPara =
-      "We are delighted to have you as part of the **Marketiq Junction** team and are confident that this internship will serve as a strong foundation for your professional growth in technology.";
+      "We  are delighted to have you as part of the **Marketiq Junction** team and are confident that this internship will serve as a strong foundation for your professional growth in technology.";
     const closingParts = parseMarkdown(closingPara);
     currentY = drawTextWithBold(
       ctx,
@@ -246,12 +246,12 @@ const drawJoiningLetterPaid = async (
       contentWidth,
       23
     );
-    currentY += 40;
+    currentY += 20;
 
     // Warm regards (bold)
     ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("Warm regards,", leftMargin, currentY);
-    currentY += 40;
+    currentY += 20;
 
     // =====================================================
     // Signature (left) and Stamp (right) - Fixed position

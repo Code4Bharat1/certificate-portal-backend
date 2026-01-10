@@ -108,10 +108,7 @@ const drawFSDMisconduct = async (
   currentY = wrapText(ctx, paragraph3, leftMargin, currentY, contentWidth, 20);
   currentY += 28;
 
-  // Authorized Signature
-  ctx.font = "bold 16px 'Times New Roman'";
-  ctx.fillText("Authorized Signature", leftMargin, currentY);
-  currentY += 8;
+
 
   // Signature and Stamp
   const signatureWidth = 160;

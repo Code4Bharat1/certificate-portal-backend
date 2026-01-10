@@ -2,7 +2,7 @@ import parseMarkdown from "../../ParseMarkdown.js";
 import drawTextWithBold from "../../TextWithBold.js";
 import wrapText from "../../WrapText.js";
 
-const drawJoiningLetterUnpaid = async (
+const drawHRJoiningLetterUnpaid = async (
   ctx,
   width,
   height,
@@ -167,7 +167,7 @@ const drawJoiningLetterUnpaid = async (
     // Roles and Responsibilities Header (bold)
     ctx.font = "bold 16px 'Times New Roman'";
     ctx.fillText("Roles and Responsibilities", leftMargin, currentY);
-    currentY += 30;
+    currentY += 20;
 
     // Responsibilities text
     ctx.font = "16px 'Times New Roman'";
@@ -196,7 +196,7 @@ const drawJoiningLetterUnpaid = async (
       contentWidth,
       23
     );
-    currentY += 35;
+    currentY += 10;
 
     // Performance-Based Evaluation Header (bold)
     ctx.font = "bold 16px 'Times New Roman'";
@@ -215,7 +215,7 @@ const drawJoiningLetterUnpaid = async (
       contentWidth,
       23
     );
-    currentY += 30;
+    currentY += 10;
 
     // Performance paragraph
     const performancePara =
@@ -228,11 +228,11 @@ const drawJoiningLetterUnpaid = async (
       contentWidth,
       23
     );
-    currentY += 30;
+    currentY += 10;
 
     // Closing paragraph
     const closingPara =
-      "We believe this internship will offer a strong foundation for your career in software development, and we are committed to supporting your growth every step of the way.";
+      "We believe this internship will offer a strong foundation for your career in Human Resource, and we are committed to supporting your growth every step of the way.";
     currentY = wrapText(
       ctx,
       closingPara,
@@ -241,12 +241,12 @@ const drawJoiningLetterUnpaid = async (
       contentWidth,
       23
     );
-    currentY += 40;
+    currentY += 5;
 
     // Warm regards (bold)
     ctx.font = "bold 16px 'Times New Roman'";
     ctx.fillText("Warm regards,", leftMargin, currentY);
-    currentY += 40;
+    currentY += 20;
 
     // =====================================================
     // Signature (left) and Stamp (right) - Fixed position
@@ -261,7 +261,7 @@ const drawJoiningLetterUnpaid = async (
       ctx.drawImage(
         signatureImg,
         leftMargin - 8,
-        825,
+        850,
         signatureWidth,
         signatureHeight
       );
@@ -272,7 +272,7 @@ const drawJoiningLetterUnpaid = async (
       ctx.drawImage(
         stampImg,
         rightMargin - stampWidth,
-        800,
+        825,
         stampWidth,
         stampHeight
       );
@@ -280,7 +280,7 @@ const drawJoiningLetterUnpaid = async (
 
     // Credential ID (below signature) - fixed position
     ctx.font = "bold 16px 'Times New Roman'";
-    ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, 940);
+    ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, 965);
 
     // Verification text - fixed position
     ctx.font = "18px 'Times New Roman'";
@@ -299,4 +299,4 @@ const drawJoiningLetterUnpaid = async (
   }
 };
 
-export default drawJoiningLetterUnpaid;
+export default drawHRJoiningLetterUnpaid;

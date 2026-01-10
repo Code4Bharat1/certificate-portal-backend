@@ -81,7 +81,7 @@ const drawMJNDA = async (
     currentY += 25;
 
     // Company details
-    const companyPara = `**Marketiq Junction, a brand of Nexcore Alliance LLP**, a company incorporated under the **Limited Liability Partnership Act, 2008,** having its registered office at **Office No 2, White House Bldg No.3, Kurla West Basement, SG Barve Marg, Mumbai, Maharashtra, India 400070,** hereinafter referred to as the "Company";`;
+    const companyPara = `** Marketiq Junction, a brand of Nexcore Alliance LLP**, a company incorporated under the **Limited Liability Partnership Act, 2008,** having its registered office at **Office No 2, White House Bldg No.3, Kurla West Basement, SG Barve Marg, Mumbai, Maharashtra, India 400070,** hereinafter referred to as the "Company";`;
     const companyParts = parseMarkdown(companyPara);
     currentY = drawTextWithBold(
       ctx,
@@ -100,7 +100,7 @@ const drawMJNDA = async (
     currentY += 25;
 
     // Recipient details
-    const recipientPara = `** ${name} **, an individual who has been employed as a **${role}** with Marketiq Junction for a period of **${duration}**, residing at **${
+    const recipientPara = `** ${name} **, an individual who has been employed as a **${role}** with Marketiq Junction for a period of **${duration} months,**residing at **${
       data.address || "address not provided"
     }**, Aadhaar card no: **${
       data.aadhaarCard || "not provided"
@@ -123,7 +123,7 @@ const drawMJNDA = async (
     ctx.fillText(whereas1, leftMargin, currentY);
     currentY += 23;
 
-    const whereas1Para = `The Recipient, during their engagement with the Company, may have access to confidential, proprietary, and sensitive business information relating to digital marketing strategies, analytics, client campaigns, and other intellectual assets; and`;
+    const whereas1Para = `The  Recipient, during their engagement with the Company, may have access to confidential, proprietary, and sensitive business information relating to digital marketing strategies, analytics, client campaigns, and other intellectual assets; and`;
     const whereas1Parts = parseMarkdown(whereas1Para);
     currentY = drawTextWithBold(
       ctx,
@@ -365,7 +365,7 @@ const drawMJNDA = async (
 
     ctx.font = "18px 'Times New Roman'";
     const section3Para =
-      "This Agreement shall remain in force during the term of engagement and indefinitely thereafter for all confidential information disclosed during the period.";
+      "This  Agreement shall remain in force during the term of engagement and indefinitely thereafter for all confidential information disclosed during the period.";
     const section3Parts = parseMarkdown(section3Para);
     currentY = drawTextWithBold(
       ctx,
@@ -418,7 +418,7 @@ const drawMJNDA = async (
 
     ctx.font = "18px 'Times New Roman'";
     const section4Para =
-      "This Agreement shall be governed by and construed in accordance with the laws of India, and any disputes shall be subject to the exclusive jurisdiction of the **courts in Mumbai, Maharashtra.**";
+      "This  Agreement shall be governed by and construed in accordance with the laws of India, and any disputes shall be subject to the exclusive jurisdiction of the **courts in Mumbai, Maharashtra.**";
     const section4Parts = parseMarkdown(section4Para);
     currentY = drawTextWithBold(
       ctx,
@@ -438,7 +438,7 @@ const drawMJNDA = async (
 
     ctx.font = "18px 'Times New Roman'";
     const section5Para =
-      "By signing below, both parties acknowledge that they have read, understood, and agree to the terms of this Non-Disclosure Agreement.";
+      "By  signing below, both parties acknowledge that they have read, understood, and agree to the terms of this Non-Disclosure Agreement.";
     const section5Parts = parseMarkdown(section5Para);
     currentY = drawTextWithBold(
       ctx,

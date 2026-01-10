@@ -79,7 +79,7 @@ const drawDMBestAttendance = async (
   currentY += 35;
 
   // Main content with bold elements
-  const paragraph1 = `We  take great pleasure in recognizing your discipline and punctuality by awarding you the **Best Attendance** for the month of **${attendanceMonth}** in the **Full Stack Development (FSD)** program conducted by **Nexcore Alliance LLP**.`;
+  const paragraph1 = `We  take great pleasure in recognizing your discipline and punctuality by awarding you the **Best Attendance** for the month of **${attendanceMonth}** in the **Digital Marketing (DM)** program conducted by **Nexcore Alliance LLP**.`;
   const parts1 = parseMarkdown(paragraph1);
   currentY = drawTextWithBold(
     ctx,
@@ -94,12 +94,12 @@ const drawDMBestAttendance = async (
 
   // Second paragraph
   ctx.font = "18px 'Times New Roman'";
-  const paragraph2 = `Your consistent presence in all training sessions demonstrates your professionalism, enthusiasm for learning, and commitment to personal and technical growth. Regular participation is a key factor in successful training outcomes and career readiness, and your approach serves as a role model for others.`;
+  const paragraph2 = `Your consistent presence in all training sessions reflects your professionalism, enthusiasm for learning, and dedication to personal and professional growth. Regular participation plays a crucial role in understanding marketing strategies, tools, and analytics, and your commitment sets a great example for your peers.`;
   currentY = wrapText(ctx, paragraph2, leftMargin, currentY, contentWidth, 23);
   currentY += 25;
 
   // Third paragraph
-  const paragraph3 = `We congratulate you on this well-deserved achievement and appreciate your continued dedication. Maintain this positive attitude and consistency in the coming months.`;
+  const paragraph3 = `We congratulate you on this well-deserved recognition and appreciate your continued consistency and positive attitude. Maintain this spirit of dedication and excellence in the upcoming months.`;
   currentY = wrapText(ctx, paragraph3, leftMargin, currentY, contentWidth, 23);
   currentY += 25;
 

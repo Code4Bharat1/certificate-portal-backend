@@ -79,7 +79,7 @@ const drawBVOCOutstandingPerformance = async (
   currentY += 35;
 
   // Main content with bold elements
-  const paragraph1 = `We  are delighted to recognize your remarkable dedication and achievement by awarding you the **Outstanding Performance** for the month of **${performanceMonth}** in the **Full Stack Development (FSD)** program conducted by **Nexcore Alliance LLP**.`;
+  const paragraph1 = `We  are delighted to recognize your remarkable dedication and achievement by awarding you the **Outstanding Performance** for the month of **${performanceMonth}** in the **B.Voc** program conducted by **Nexcore Alliance LLP**.`;
   const parts1 = parseMarkdown(paragraph1);
   currentY = drawTextWithBold(
     ctx,

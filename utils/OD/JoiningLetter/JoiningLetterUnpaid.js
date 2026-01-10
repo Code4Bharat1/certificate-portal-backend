@@ -196,7 +196,7 @@ const drawODJoiningLetterUnpaid = async (
       contentWidth,
       23
     );
-    currentY += 35;
+    currentY += 5;
 
     // Performance-Based Evaluation Header (bold)
     ctx.font = "bold 16px 'Times New Roman'";
@@ -232,7 +232,7 @@ const drawODJoiningLetterUnpaid = async (
 
     // Closing paragraph
     const closingPara =
-      "We  believe this internship will offer a strong foundation for your career in software development, and we are committed to supporting your growth every step of the way.";
+      "We  believe this internship will offer a strong foundation for your career in Operations Department, and we are committed to supporting your growth every step of the way.";
     currentY = wrapText(
       ctx,
       closingPara,

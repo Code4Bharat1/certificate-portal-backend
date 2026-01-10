@@ -3,7 +3,7 @@ import parseMarkdown from "../../ParseMarkdown.js";
 import drawTextWithBold from "../../TextWithBold.js";
 import wrapText from "../../WrapText.js";
 
-const drawBVOCAppreciationTemplate = async (
+const drawBVOCGeneralAppreciation = async (
   ctx,
   width,
   height,
@@ -155,4 +155,4 @@ const drawBVOCAppreciationTemplate = async (
   ctx.fillText(verifyUrl, width / 3.8, 1000);
 };
 
-export default drawBVOCAppreciationTemplate;
+export default drawBVOCGeneralAppreciation;

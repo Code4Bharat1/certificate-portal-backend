@@ -2,7 +2,7 @@ import parseMarkdown from "../ParseMarkdown.js";
 import drawTextWithBold from "../TextWithBold.js";
 import wrapText from "../WrapText.js";
 
-const drawExperienceLetter = async (
+const drawMJExperienceLetter = async (
   ctx,
   width,
   height,
@@ -55,7 +55,7 @@ const drawExperienceLetter = async (
   let currentY = contentStartY;
 
   // Outward No (left aligned, bold)
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   ctx.fillText(`Outward No.: ${outwardNo}`, leftMargin, currentY);
   currentY += 25;
 
@@ -64,19 +64,19 @@ const drawExperienceLetter = async (
   currentY += 40;
 
   // Subject (bold)
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   const subjectText = `Subject: Internship Experience Certificate – ${name}`;
   currentY = wrapText(ctx, subjectText, leftMargin, currentY, contentWidth, 25);
   currentY += 15;
 
   // To Whom It May Concern (bold)
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   ctx.fillText("To Whom It May Concern,", leftMargin, currentY);
   currentY += 35;
 
   // Certification paragraph with bold elements
-  ctx.font = "16px 'Times New Roman'";
-  const certificationText = `This  is to certify that **${name}** was associated with **Nexcore Alliance LLP** as a **${role}** from **${startDate}** to **${endDate}**.`;
+  ctx.font = "18px 'Times New Roman'";
+  const certificationText = `This  is to certify that**${name}**was associated with**Nexcore Alliance LLP**as a**${role}**from**${startDate}**to**${endDate}.**`;
   const certificationParts = parseMarkdown(certificationText);
   currentY = drawTextWithBold(
     ctx,
@@ -85,28 +85,28 @@ const drawExperienceLetter = async (
     currentY,
     18,
     contentWidth,
-    23
+    33
   );
-  currentY += 15;
+  currentY;
 
   // Description content (from frontend input)
   if (description) {
-    ctx.font = "16px 'Times New Roman'";
+    ctx.font = "18px 'Times New Roman'";
     const descriptionParts = parseMarkdown(description);
     currentY = drawTextWithBold(
       ctx,
       descriptionParts,
       leftMargin,
       currentY,
-      18,
+      15,
       contentWidth,
       23
     );
-    currentY += 15;
+    currentY += 10;
   }
 
   // Recommendation paragraph (bold)
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   const recommendationText = `We value ${
     genderPronoun || "their"
   } contributions and confidently recommend ${
@@ -125,7 +125,7 @@ const drawExperienceLetter = async (
   currentY += 25;
 
   // Warm regards (bold)
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   ctx.fillText("Warm regards,", leftMargin, currentY);
   currentY += 40;
 
@@ -160,7 +160,7 @@ const drawExperienceLetter = async (
   }
 
   // Credential ID (below signature) - fixed position
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, 940);
 
   // Verification text - fixed position
@@ -179,4 +179,4 @@ const drawExperienceLetter = async (
   ctx.fillText(verifyUrl, width / 3.8, 1000);
 };
 
-export default drawExperienceLetter;
+export default drawMJExperienceLetter;

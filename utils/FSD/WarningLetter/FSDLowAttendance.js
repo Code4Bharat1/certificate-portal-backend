@@ -105,14 +105,13 @@ const drawFSDLowAttendance = async (
   currentY += 14;
 
   // Closing
+    ctx.font = "bold 16px 'Times New Roman'";
+
   const closing = `Kindly treat this letter as an official warning.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
   currentY += 18;
 
-  // Authorized Signature
-  ctx.font = "bold 16px 'Times New Roman'";
-  ctx.fillText("Authorized Signature", leftMargin, currentY);
-  currentY += 3;
+
 
   // Signature and Stamp
   const signatureWidth = 160;

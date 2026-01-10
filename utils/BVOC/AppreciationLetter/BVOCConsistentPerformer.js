@@ -72,7 +72,7 @@ const drawBVOCConsistentPerformance = async (
   currentY += 35;
 
   // Main content with bold elements
-  const paragraph1 = `We  are pleased to recognize your dedication and reliability by presenting you with the **Consistent Performer** for your sustained commitment, technical excellence, and consistent performance throughout the **Full Stack Development (FSD)** training program conducted by **Nexcore Alliance LLP**.`;
+  const paragraph1 = `We  are pleased to recognize your dedication and reliability by presenting you with the **Consistent Performer** for your sustained commitment, technical excellence, and consistent performance throughout the **B.Voc** training program conducted by **Nexcore Alliance LLP**.`;
   const parts1 = parseMarkdown(paragraph1);
   currentY = drawTextWithBold(
     ctx,
