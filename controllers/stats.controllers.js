@@ -301,12 +301,7 @@ export const getDashboardStatistics = async (req, res) => {
     };
 
     // ✅ Debug logs for verification
-    console.log("🔍 Raw Data (Including Client Letters):");
-    console.log("Last 7 Days:", last7Days);
-    console.log("Last Month:", lastMonth);
-    console.log("Downloaded:", downloaded);
-    console.log("Pending:", pending);
-    console.log("📊 Formatted Stats:", formattedStats);
+
 
     res.json({
       success: true,
