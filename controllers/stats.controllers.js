@@ -1,7 +1,8 @@
-// stats.controllers.js - COMPLETE FILE
+// stats.controllers.js - FIXED TO INCLUDE CLIENT LETTERS
 import Certificate from "../models/certificate.models.js";
 import ActivityLog from "../models/activitylog.models.js";
 import Letter from "../models/letter.models.js";
+import ClientLetter from "../models/clientdata.models.js"; // ✅ ADDED
 import User from "../models/user.models.js";
 
 export const getDashboardStatistics = async (req, res) => {
@@ -40,11 +41,11 @@ export const getDashboardStatistics = async (req, res) => {
       return categoryMapping[category] || category.toLowerCase();
     };
 
-    // ✅ FIXED: Merge results with proper normalization
-    const mergeAggResults = (certData, letterData) => {
+    // ✅ FIXED: Merge results with proper normalization (NOW INCLUDES CLIENT LETTERS)
+    const mergeAggResults = (certData, letterData, clientLetterData) => {
       const map = new Map();
 
-      [...certData, ...letterData].forEach((item) => {
+      [...certData, ...letterData, ...clientLetterData].forEach((item) => {
         const normalizedCategory = normalizeCategory(item._id);
 
         if (!map.has(normalizedCategory)) {
@@ -56,7 +57,7 @@ export const getDashboardStatistics = async (req, res) => {
       return [...map.values()];
     };
 
-    // ------------------- CERTIFICATE + LETTER STATS ------------------- //
+    // ------------------- CERTIFICATE + LETTER + CLIENT LETTER STATS ------------------- //
 
     // LAST 7 DAYS
     const certLast7 = await Certificate.aggregate([
@@ -69,7 +70,17 @@ export const getDashboardStatistics = async (req, res) => {
       { $group: { _id: "$category", count: { $sum: 1 } } },
     ]);
 
-    const last7Days = mergeAggResults(certLast7, letterLast7);
+    // ✅ ADDED: Client letters for last 7 days
+    const clientLetterLast7 = await ClientLetter.aggregate([
+      { $match: { createdAt: { $gte: sevenDaysAgo } } },
+      { $group: { _id: "$category", count: { $sum: 1 } } },
+    ]);
+
+    const last7Days = mergeAggResults(
+      certLast7,
+      letterLast7,
+      clientLetterLast7
+    );
 
     // LAST 30 DAYS
     const certLast30 = await Certificate.aggregate([
@@ -82,7 +93,17 @@ export const getDashboardStatistics = async (req, res) => {
       { $group: { _id: "$category", count: { $sum: 1 } } },
     ]);
 
-    const lastMonth = mergeAggResults(certLast30, letterLast30);
+    // ✅ ADDED: Client letters for last 30 days
+    const clientLetterLast30 = await ClientLetter.aggregate([
+      { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+      { $group: { _id: "$category", count: { $sum: 1 } } },
+    ]);
+
+    const lastMonth = mergeAggResults(
+      certLast30,
+      letterLast30,
+      clientLetterLast30
+    );
 
     // DOWNLOADED
     const certDownloaded = await Certificate.aggregate([
@@ -95,7 +116,17 @@ export const getDashboardStatistics = async (req, res) => {
       { $group: { _id: "$category", count: { $sum: 1 } } },
     ]);
 
-    const downloaded = mergeAggResults(certDownloaded, letterDownloaded);
+    // ✅ ADDED: Downloaded client letters
+    const clientLetterDownloaded = await ClientLetter.aggregate([
+      { $match: { status: "downloaded" } },
+      { $group: { _id: "$category", count: { $sum: 1 } } },
+    ]);
+
+    const downloaded = mergeAggResults(
+      certDownloaded,
+      letterDownloaded,
+      clientLetterDownloaded
+    );
 
     // PENDING
     const certPending = await Certificate.aggregate([
@@ -108,9 +139,19 @@ export const getDashboardStatistics = async (req, res) => {
       { $group: { _id: "$category", count: { $sum: 1 } } },
     ]);
 
-    const pending = mergeAggResults(certPending, letterPending);
+    // ✅ ADDED: Pending client letters
+    const clientLetterPending = await ClientLetter.aggregate([
+      { $match: { status: "pending" } },
+      { $group: { _id: "$category", count: { $sum: 1 } } },
+    ]);
 
-    // CATEGORY TOTALS (CERT + LETTER)
+    const pending = mergeAggResults(
+      certPending,
+      letterPending,
+      clientLetterPending
+    );
+
+    // CATEGORY TOTALS (CERT + LETTER + CLIENT LETTER)
     const certCategoryStats = await Certificate.aggregate([
       {
         $group: {
@@ -137,8 +178,27 @@ export const getDashboardStatistics = async (req, res) => {
       },
     ]);
 
-    // ✅ FIXED: Merge category stats properly
-    const categoryStatsArray = [...certCategoryStats, ...letterCategoryStats];
+    // ✅ ADDED: Client letter category stats
+    const clientLetterCategoryStats = await ClientLetter.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          total: { $sum: 1 },
+          downloaded: {
+            $sum: { $cond: [{ $eq: ["$status", "downloaded"] }, 1, 0] },
+          },
+          pending: { $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] } },
+        },
+      },
+    ]);
+
+    // ✅ FIXED: Merge category stats properly (NOW INCLUDING CLIENT LETTERS)
+    const categoryStatsArray = [
+      ...certCategoryStats,
+      ...letterCategoryStats,
+      ...clientLetterCategoryStats, // ✅ ADDED
+    ];
+
     const categoryStats = categoryStatsArray.reduce((acc, item) => {
       const normalizedKey = normalizeCategory(item._id);
 
@@ -188,12 +248,13 @@ export const getDashboardStatistics = async (req, res) => {
       },
     ]);
 
-    // ------------------- CREATION RATIO (CERT + LETTER) ------------------- //
+    // ------------------- CREATION RATIO (CERT + LETTER + CLIENT LETTER) ------------------- //
     const certCount = await Certificate.countDocuments();
     const letterCount = await Letter.countDocuments();
+    const clientLetterCount = await ClientLetter.countDocuments(); // ✅ ADDED
 
     const totalBulkCreated = bulkGeneratedLastMonth[0]?.totalCertificates || 0;
-    const totalCertificates = certCount + letterCount;
+    const totalCertificates = certCount + letterCount + clientLetterCount; // ✅ UPDATED
     const individualCreated = Math.max(0, totalCertificates - totalBulkCreated);
 
     // ✅ FIXED: Format stats with proper calculation
@@ -229,8 +290,6 @@ export const getDashboardStatistics = async (req, res) => {
         }
       });
 
-      // ✅ Debug log
-
       return result;
     };
 
@@ -242,11 +301,12 @@ export const getDashboardStatistics = async (req, res) => {
     };
 
     // ✅ Debug logs for verification
-    console.log("🔍 Raw Data:");
+    console.log("🔍 Raw Data (Including Client Letters):");
     console.log("Last 7 Days:", last7Days);
     console.log("Last Month:", lastMonth);
     console.log("Downloaded:", downloaded);
     console.log("Pending:", pending);
+    console.log("📊 Formatted Stats:", formattedStats);
 
     res.json({
       success: true,

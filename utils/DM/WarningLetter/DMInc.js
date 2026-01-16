@@ -80,7 +80,7 @@ const drawDMIncompleteAssignment = async (
     parts1,
     leftMargin,
     currentY,
-    13,
+    16,
     contentWidth,
     20
   );

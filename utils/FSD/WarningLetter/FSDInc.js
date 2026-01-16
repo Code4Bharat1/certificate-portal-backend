@@ -80,7 +80,7 @@ const drawFSDIncompleteAssignment = async (
     parts1,
     leftMargin,
     currentY,
-    13,
+    16,
     contentWidth,
     20
   );
@@ -98,7 +98,7 @@ const drawFSDIncompleteAssignment = async (
   currentY += 20;
 
   // Closing
-  ctx.font = "16px 'Times New Roman'";
+  ctx.font = "bold 16px 'Times New Roman'";
   const closing = `Kindly treat this letter as an official warning and take immediate corrective action.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
   currentY += 28;

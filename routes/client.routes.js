@@ -47,7 +47,7 @@ router.get("/:id", authenticate, getClientLetterById);
  * @desc    Download client letter PDF
  * @access  Protected
  */
-router.get("/:id/download", authenticate, downloadClientLetter);
+router.get("/:id/download.pdf", authenticate, downloadClientLetter);
 
 /**
  * @route   PUT /api/clientletters/:id/status

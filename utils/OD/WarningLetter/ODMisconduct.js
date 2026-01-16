@@ -52,7 +52,7 @@ const drawODMisconduct = async (
 
   // Date
   ctx.fillText(`Date: ${formattedDate}`, leftMargin, currentY);
-  currentY += 32;
+  currentY += 40;
 
   // To
   ctx.fillText("To,", leftMargin, currentY);
@@ -71,7 +71,7 @@ const drawODMisconduct = async (
   currentY += 28;
 
   // Paragraph 1
-  const paragraph1 = `This  is to bring to your notice that your recent conduct in the workplace has been found to be unprofessional and contrary to the code of conduct and behavioral standards prescribed by** Nexcore Alliance LLP**. The matter has been observed and/or reported and has been recorded as a disciplinary concern.`;
+  const paragraph1 = `This  is to bring to your notice that your recent conduct in the workplace has been found to be unprofessional and contrary to the code of conduct and behavioral standards prescribed by Nexcore Alliance LLP. It has been observed and/or reported that you engaged in the following behavior:`;
   const parts1 = parseMarkdown(paragraph1);
   currentY = drawTextWithBold(
     ctx,
@@ -95,24 +95,24 @@ const drawODMisconduct = async (
     contentWidth - 20,
     20
   );
-  currentY += 20;
+  currentY += 30;
 
   // Paragraph 2
   ctx.font = "18px 'Times New Roman'";
-  const paragraph2 = `Such actions disrupt workplace discipline and harmony and demonstrate a lack of professional ethics, respect, and accountability expected from employees of the Company. You are hereby warned to maintain appropriate professional discipline, respectful behavior, and workplace decorum at all times, whether during office hours, meetings, or any company-related communication, both online and offline.`;
+  const paragraph2 = `Such actions disrupt the professional work environment and reflect a lack of discipline, respect, and professional ethics expected from employees of the Company. You are hereby warned to maintain appropriate conduct, respect, and workplace decorum at all times, whether during office hours, official meetings, or any company-related interactions, both online and offline.`;
   currentY = wrapText(ctx, paragraph2, leftMargin, currentY, contentWidth, 20);
   currentY += 30;
 
   // Paragraph 3
-  const paragraph3 = `Please note that any recurrence of such behavior will attract strict disciplinary action, which may include formal warnings, suspension, or termination of employment, in accordance with the Company’s HR policies and applicable rules.`;
+  const paragraph3 = `Please note that any recurrence of such behavior will attract strict disciplinary action, which may include a formal warning, suspension, or termination of employment, promotion delay in accordance with the Company’s HR policies and applicable rules.`;
   currentY = wrapText(ctx, paragraph3, leftMargin, currentY, contentWidth, 20);
-  currentY += 40;
+  currentY += 30;
 
-    ctx.font = "bold 18px 'Times New Roman'";
-
-    const closing = `Kindly treat this letter as an official warning.`;
+  ctx.font = "bold 18px 'Times New Roman'";
+  const closing = `Kindly treat this letter as an official warning.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
-  currentY += 40;
+  currentY += 20;
+
   // Signature and Stamp
   const signatureWidth = 160;
   const signatureHeight = 85;

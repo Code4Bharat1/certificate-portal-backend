@@ -104,6 +104,7 @@ const drawDMMisconduct = async (
   currentY += 20;
 
   // Paragraph 3
+  ctx.font = "bold 16px 'Times New Roman'";
   const paragraph3 = `Please note that any recurrence of such behavior will invite strict disciplinary action, including suspension of training or cancellation of course certification, as per company policy.`;
   currentY = wrapText(ctx, paragraph3, leftMargin, currentY, contentWidth, 20);
   currentY += 20;

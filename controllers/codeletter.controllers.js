@@ -126,6 +126,10 @@ import drawMJMisconduct from "../utils/MJ/WarningLetter/MJMisconduct.js";
 import drawMJMonthly from "../utils/MJ/WarningLetter/MJMonthly.js";
 import drawMJLowAttendance from "../utils/MJ/WarningLetter/MJLowAttendance.js";
 import drawMJGeneralWarning from "../utils/MJ/WarningLetter/MJGeneralWarningLetter.js";
+import drawITEL from "../utils/C4B/EL.js";
+import drawHREL from "../utils/HR/EL.js";
+import drawMJEL from "../utils/MJ/EL.js";
+import drawODEL from "../utils/OD/EL.js";
 
 
 const { getLetterEmailTemplate, sendEmail } = emailService;
@@ -216,8 +220,10 @@ function getDrawingFunction(category, course) {
       return drawMJJoiningLetterPaid;
     } else if (course === "Internship Joining Letter - Unpaid") {
       return drawMJJoiningLetterUnpaid;
-    } else if (course === "Experience Certificate") {
+    } else if (course === "Internship Experience Certificate") {
       return drawMJExperienceLetter;
+    } else if (course === "Experience Certificate") {
+      return drawMJEL;
     } else if (course === "Non Paid to Paid") {
       return drawMJUnpaidToPaid;
     } else if (course === "Stipend Revision") {
@@ -252,8 +258,10 @@ function getDrawingFunction(category, course) {
       return drawJoiningLetterPaid;
     } else if (course === "Internship Joining Letter - Unpaid") {
       return drawJoiningLetterUnpaid;
-    } else if (course === "Experience Certificate") {
+    } else if (course === "Internship Experience Certificate") {
       return drawC4BExperienceLetter;
+    } else if (course === "Experience Certificate") {
+      return drawITEL;
     } else if (course === "Non-Disclosure Agreement") {
       return drawC4BNDA;
     } else if (course === "Non Paid to Paid") {
@@ -290,8 +298,10 @@ function getDrawingFunction(category, course) {
       return drawODJoiningLetterPaid;
     } else if (course === "Internship Joining Letter - Unpaid") {
       return drawODJoiningLetterUnpaid;
-    } else if (course === "Experience Certificate") {
+    } else if (course === "Internship Experience Certificate") {
       return drawODExperienceLetter;
+    } else if (course === "Experience Certificate") {
+      return drawODEL;
     } else if (course === "Non-Disclosure Agreement") {
       return drawODNDA;
     } else if (course === "Non Paid to Paid") {
@@ -326,8 +336,10 @@ function getDrawingFunction(category, course) {
       return drawHRJoiningLetterPaid;
     } else if (course === "Internship Joining Letter - Unpaid") {
       return drawHRJoiningLetterUnpaid;
-    } else if (course === "Experience Certificate") {
+    } else if (course === "Internship Experience Certificate") {
       return drawC4BExperienceLetter;
+    } else if (course === "Experience Certificate") {
+      return drawHREL;
     } else if (course === "Non Paid to Paid") {
       return drawHRUnpaidToPaid;
     } else if (course === "Stipend Revision") {
@@ -506,6 +518,7 @@ const createCodeLetter = async (req, res) => {
       year,
       description,
       role,
+      trainingPeriod,
       trainingStartDate,
       trainingEndDate,
       officialStartDate,
@@ -523,12 +536,6 @@ const createCodeLetter = async (req, res) => {
       timelineNewDate,
     } = req.body;
 
-    console.log("📥 Create Code Letter Request:", {
-      name,
-      category,
-      course,
-      letterType,
-    });
 
     // Validation
     if (!name || !category || !course || !issueDate || !letterType) {
@@ -617,7 +624,6 @@ const createCodeLetter = async (req, res) => {
       issueDate
     );
 
-    console.log("✅ Generated IDs:", { letterId, outwardNo, outwardSerial });
 
     // Get user data
     const userData = await People.findOne({ name });
@@ -684,7 +690,6 @@ const createCodeLetter = async (req, res) => {
     // Create letter
     const letter = await Letter.create(letterData);
 
-    console.log("✅ Letter created successfully:", letter.letterId);
 
     // Send notifications
     // if (userPhone) {
@@ -695,7 +700,6 @@ const createCodeLetter = async (req, res) => {
     //       formatDate(issueDate)
     //     );
     //     await sendWhatsAppMessage(userPhone, message);
-    //     console.log("📱 WhatsApp sent to:", userPhone);
     //   } catch (error) {
     //     console.error("WhatsApp notification failed:", error);
     //   }
@@ -713,7 +717,6 @@ const createCodeLetter = async (req, res) => {
     //       `Your ${course} is Ready`,
     //       emailContent
     //     );
-    //     console.log("📧 Email sent to:", userData.email);
     //   } catch (error) {
     //     console.error("Email notification failed:", error);
     //   }
@@ -759,11 +762,9 @@ const createCodeLetter = async (req, res) => {
 // =====================================================
 // In your letter.controller.js, replace the previewCodeLetter function
 
+
 const previewCodeLetter = async (req, res) => {
   try {
-    console.log("🔍 Preview code letter request received");
-    console.log("Request body:", JSON.stringify(req.body, null, 2));
-
     const {
       name,
       category,
@@ -775,6 +776,7 @@ const previewCodeLetter = async (req, res) => {
       year,
       description,
       role,
+      trainingPeriod, // ✅ GET FROM REQUEST
       trainingStartDate,
       trainingEndDate,
       officialStartDate,
@@ -815,7 +817,6 @@ const previewCodeLetter = async (req, res) => {
 
     // ✅ RFID Letter validation - only needs name and issueDate
     if (course === "RFID Appreciation Letter") {
-      console.log("✅ RFID Letter - minimal validation");
       // No additional fields needed
     } else if (course === "Onboarding Non-Disclosure Agreement") {
       if (!role || !duration) {
@@ -826,24 +827,15 @@ const previewCodeLetter = async (req, res) => {
       }
     }
 
-    console.log("✅ Validation passed");
-
     // Fetch user data
     let userData = null;
     if (name) {
       userData = await People.findOne({ name }).lean();
-      console.log("👤 User data fetched:", userData ? "Found" : "Not found");
-      if (userData) {
-        console.log("📋 User address:", userData.address);
-        console.log("🆔 User aadhaar:", userData.aadhaarCard);
-      }
     }
 
     // Generate temporary IDs
     const tempId = await generateCodeLetterId(category);
     const { outwardNo } = await generateUnifiedOutwardNo(issueDate);
-
-    console.log("📝 Generated temp IDs:", { tempId, outwardNo });
 
     // Format dates
     const formattedDate = formatDate(issueDate);
@@ -869,14 +861,6 @@ const previewCodeLetter = async (req, res) => {
     const { headerPath, footerPath, signaturePath, stampPath } =
       getTemplatePaths(category);
 
-    console.log("📂 Template paths:", {
-      category,
-      headerExists: fs.existsSync(headerPath),
-      footerExists: fs.existsSync(footerPath),
-      signatureExists: fs.existsSync(signaturePath),
-      stampExists: fs.existsSync(stampPath),
-    });
-
     // Check if files exist
     if (!fs.existsSync(headerPath) || !fs.existsSync(footerPath)) {
       console.error("❌ Template files not found");
@@ -886,8 +870,6 @@ const previewCodeLetter = async (req, res) => {
         paths: { headerPath, footerPath },
       });
     }
-
-    console.log("✅ Loading template images...");
 
     // Load images
     const headerImg = await loadImage(headerPath);
@@ -899,13 +881,9 @@ const previewCodeLetter = async (req, res) => {
       ? await loadImage(stampPath)
       : null;
 
-    console.log("✅ Template images loaded successfully");
-
     // Create canvas
     const width = 794;
     const height = 1123;
-
-    console.log("🎨 Creating canvas:", { width, height });
 
     // Check if multi-page
     const isMultiPage =
@@ -927,6 +905,7 @@ const previewCodeLetter = async (req, res) => {
       const templateData = {
         name,
         role: role || "",
+        trainingPeriod: trainingPeriod || "", // ✅ USE FROM REQUEST, NOT letter
         duration: duration || "",
         trainingStartDate: formattedTrainingStart,
         trainingEndDate: formattedTrainingEnd,
@@ -975,8 +954,6 @@ const previewCodeLetter = async (req, res) => {
         const canvas = createCanvas(width, height);
         const ctx = canvas.getContext("2d");
 
-        console.log(`🖌️ Drawing page ${pageNum}...`);
-
         await drawFunction(
           ctx,
           width,
@@ -998,7 +975,6 @@ const previewCodeLetter = async (req, res) => {
       }
 
       doc.end();
-      console.log("✅ Multi-page PDF preview generated successfully");
     } else {
       // ✅ SINGLE PAGE LETTERS (including RFID)
       const canvas = createCanvas(width, height);
@@ -1051,8 +1027,6 @@ const previewCodeLetter = async (req, res) => {
         aadhaarCard: userData?.aadhaarCard || "Not provided",
       };
 
-      console.log("📋 Single-page template data:", templateData);
-
       // Get drawing function
       const drawFunction = getDrawingFunction(category, course);
 
@@ -1067,8 +1041,6 @@ const previewCodeLetter = async (req, res) => {
         });
       }
 
-      console.log("🖌️ Drawing template...");
-
       await drawFunction(
         ctx,
         width,
@@ -1080,16 +1052,8 @@ const previewCodeLetter = async (req, res) => {
         stampImg
       );
 
-      console.log("✅ Template drawn successfully");
-
       // Convert to buffer
-      console.log("🔄 Converting canvas to JPEG buffer...");
       const buffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
-
-      console.log(
-        "✅ Preview generated successfully, buffer size:",
-        buffer.length
-      );
 
       res.setHeader("Content-Type", "image/jpeg");
       return res.send(buffer);
@@ -1177,15 +1141,9 @@ const downloadCodeLetterAsPdf = async (req, res) => {
 
     // Fetch user data for address and aadhaar
     const userData = await People.findOne({ name: letter.name }).lean();
-    console.log(
-      "👤 User data fetched for download:",
-      userData ? "Found" : "Not found"
-    );
+ 
 
-    if (userData) {
-      console.log("📋 User address:", userData.address);
-      console.log("🆔 User aadhaar:", userData.aadhaarCard);
-    }
+   
 
     // Generate outward no if missing
     if (!letter.outwardNo || !letter.outwardSerial) {
@@ -1260,6 +1218,8 @@ const downloadCodeLetterAsPdf = async (req, res) => {
       const templateData = {
         name: letter.name,
         role: letter.role || "",
+        trainingPeriod: letter.trainingPeriod || "", // ✅ ADD THIS
+
         duration: letter.duration || "",
         trainingStartDate: formattedTrainingStart,
         trainingEndDate: formattedTrainingEnd,
@@ -1275,7 +1235,6 @@ const downloadCodeLetterAsPdf = async (req, res) => {
         aadhaarCard: userData?.aadhaarCard || "Not provided",
       };
 
-      console.log("📋 Multi-page template data for download:", templateData);
 
       const drawFunction = getDrawingFunction(letter.category, letter.course);
 
@@ -1328,6 +1287,7 @@ const downloadCodeLetterAsPdf = async (req, res) => {
         description: letter.description || "",
         // Joining/Experience Letter fields
         role: letter.role || "",
+
         duration: letter.duration || "",
         trainingStartDate: formattedTrainingStart,
         trainingEndDate: formattedTrainingEnd,
@@ -1365,7 +1325,6 @@ const downloadCodeLetterAsPdf = async (req, res) => {
         aadhaarCard: userData?.aadhaarCard || "Not provided",
       };
 
-      console.log("📋 Single-page template data for download:", templateData);
 
       const drawFunction = getDrawingFunction(letter.category, letter.course);
 

@@ -16,6 +16,7 @@ const drawJoiningLetterUnpaid = async (
   const {
     name,
     role,
+    trainingPeriod,
     trainingStartDate,
     trainingEndDate,
     officialStartDate,
@@ -205,8 +206,8 @@ const drawJoiningLetterUnpaid = async (
 
     // Training details paragraph
     ctx.font = "18px 'Times New Roman'";
-    const trainingPara =
-      "Your initial two-week training will cover onboarding, technical orientation, and tool familiarization. Upon successful completion of training, your formal internship phase will commence.";
+   ctx.font = "18px 'Times New Roman'";
+   const trainingPara = `Your initial training period of ${trainingPeriod} days will cover onboarding, technical orientation, and tool familiarization. Upon successful completion of training, your formal internship phase will commence.`;
     currentY = wrapText(
       ctx,
       trainingPara,

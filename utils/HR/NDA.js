@@ -172,7 +172,7 @@ const companyPara = `** Nexcore Alliance LLP,**a company incorporated under the*
   } else if (page === 2) {
     // ==================== PAGE 2 ====================
 
-    currentY = contentStartY + 100;
+    currentY = contentStartY;
 
     // Section 1
     ctx.font = "bold 18px 'Times New Roman'";
@@ -193,7 +193,7 @@ const companyPara = `** Nexcore Alliance LLP,**a company incorporated under the*
       contentWidth,
       23
     );
-    currentY += 20;
+    currentY += 5;
 
     const section1Items = [
       "(a) Employee records, personal information, resumes, salaries, attendance reports, and internal HR documents.",
@@ -207,29 +207,6 @@ const companyPara = `** Nexcore Alliance LLP,**a company incorporated under the*
       currentY = wrapText(ctx, item, leftMargin, currentY, contentWidth, 23);
       currentY += 5;
     });
-
-    // Signature line and stamp at bottom of page 2
-    const signatureLineY = 950;
-    const stampWidth = 180;
-    const stampHeight = 140;
-
-    ctx.font = "bold 18px 'Times New Roman'";
-    ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
-
-    // Draw Stamp (right aligned)
-    if (stampImg) {
-      ctx.drawImage(
-        stampImg,
-        rightMargin - stampWidth,
-        signatureLineY - 100,
-        stampWidth,
-        stampHeight
-      );
-    }
-  } else if (page === 3) {
-    // ==================== PAGE 3 ====================
-
-    currentY = contentStartY;
 
     // Section 2
     ctx.font = "bold 18px 'Times New Roman'";
@@ -254,7 +231,7 @@ const companyPara = `** Nexcore Alliance LLP,**a company incorporated under the*
       contentWidth,
       23
     );
-    currentY += 20;
+    currentY += 5;
 
     // (b)
     const section2b =
@@ -269,7 +246,7 @@ const companyPara = `** Nexcore Alliance LLP,**a company incorporated under the*
       contentWidth,
       23
     );
-    currentY += 20;
+    currentY += 5;
 
     // (c)
     const section2c =
@@ -284,7 +261,7 @@ const companyPara = `** Nexcore Alliance LLP,**a company incorporated under the*
       contentWidth,
       23
     );
-    currentY += 18;
+    currentY += 5;
 
     ctx.font = "18px 'Times New Roman'";
     const section2cItems = [
@@ -298,6 +275,29 @@ const companyPara = `** Nexcore Alliance LLP,**a company incorporated under the*
       currentY += 5;
     });
     currentY += 15;
+
+    // Signature line and stamp at bottom of page 2
+    const signatureLineY = 950;
+    const stampWidth = 180;
+    const stampHeight = 140;
+
+    ctx.font = "bold 18px 'Times New Roman'";
+    ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
+
+    // Draw Stamp (right aligned)
+    if (stampImg) {
+      ctx.drawImage(
+        stampImg,
+        rightMargin - stampWidth,
+        signatureLineY - 100,
+        stampWidth,
+        stampHeight
+      );
+    }
+  } else if (page === 3) {
+    // ==================== PAGE 3 ====================
+
+    currentY = contentStartY;
 
     // (d)
     const section2d =
@@ -332,31 +332,8 @@ const companyPara = `** Nexcore Alliance LLP,**a company incorporated under the*
         contentWidth,
         23
       );
-      currentY += 5;
+      currentY += 20;
     });
-
-    // Signature line and stamp at bottom of page 3
-    const signatureLineY = 950;
-    const stampWidth = 180;
-    const stampHeight = 140;
-
-    ctx.font = "bold 18px 'Times New Roman'";
-    ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
-
-    // Draw Stamp (right aligned)
-    if (stampImg) {
-      ctx.drawImage(
-        stampImg,
-        rightMargin - stampWidth,
-        signatureLineY - 100,
-        stampWidth,
-        stampHeight
-      );
-    }
-  } else if (page === 4) {
-    // ==================== PAGE 4 ====================
-
-    currentY = contentStartY;
 
     // Section 3
     ctx.font = "bold 18px 'Times New Roman'";
@@ -431,6 +408,30 @@ const companyPara = `** Nexcore Alliance LLP,**a company incorporated under the*
     );
     currentY += 30;
 
+    // Signature line and stamp at bottom of page 3
+    const signatureLineY = 950;
+    const stampWidth = 180;
+    const stampHeight = 140;
+
+    ctx.font = "bold 18px 'Times New Roman'";
+    ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
+
+    // Draw Stamp (right aligned)
+    if (stampImg) {
+      ctx.drawImage(
+        stampImg,
+        rightMargin - stampWidth,
+        signatureLineY - 100,
+        stampWidth,
+        stampHeight
+      );
+    }
+  } else if (page === 4) {
+    // ==================== PAGE 4 ====================
+
+    currentY = contentStartY;
+
+    
     // Section 5
     ctx.font = "bold 18px 'Times New Roman'";
     ctx.fillText("5. Acknowledgment & Agreement", leftMargin, currentY);

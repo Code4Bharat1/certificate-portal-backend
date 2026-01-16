@@ -52,19 +52,19 @@ const drawITMisconduct = async (
 
   // Date
   ctx.fillText(`Date: ${formattedDate}`, leftMargin, currentY);
-  currentY += 32;
+  currentY += 40;
 
   // To
   ctx.fillText("To,", leftMargin, currentY);
-  currentY += 32;
+  currentY += 40;
   ctx.fillText(name, leftMargin, currentY);
-  currentY += 32;
+  currentY += 40;
 
   // Subject
   const subjectText =
     "Subject: Warning for Misconduct or Disrespectful Behavior";
   currentY = wrapText(ctx, subjectText, leftMargin, currentY, contentWidth, 22);
-  currentY += 12;
+  currentY += 20;
 
   // Salutation
   ctx.fillText(`Dear ${name},`, leftMargin, currentY);
@@ -104,14 +104,14 @@ const drawITMisconduct = async (
   currentY += 30;
 
   // Paragraph 3
-  const paragraph3 = `Please note that any recurrence of such behavior will attract strict disciplinary action, which may include a formal warning, suspension, or termination of employment, in accordance with the Company’s HR policies and applicable rules.`;
+  const paragraph3 = `Please note that any recurrence of such behavior will attract strict disciplinary action, which may include a formal warning, suspension, or termination of employment, promotion delay in accordance with the Company’s HR policies and applicable rules.`;
   currentY = wrapText(ctx, paragraph3, leftMargin, currentY, contentWidth, 20);
   currentY += 30;
 
     ctx.font = "bold 18px 'Times New Roman'";
     const closing = `Kindly treat this letter as an official warning.`;
     currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
-    currentY += 40
+    currentY += 20
 
   // Signature and Stamp
   const signatureWidth = 160;

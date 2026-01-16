@@ -1,6 +1,6 @@
 //templatesCode.js
 import { rgb, StandardFonts } from "pdf-lib";
-import { wrapText } from "../controllers/letter.controllers.js";
+import { wrapText } from "../bin/letter.controllers.js";
 import People from "../models/people.models.js";
 import { createCanvas, loadImage, registerFont } from "canvas";
 import path from "path";

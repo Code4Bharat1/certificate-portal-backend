@@ -65,7 +65,7 @@ const drawFSDUnauthorizedAbsence = async (
   currentY += 28;
 
   // Paragraph 1
-  const paragraph1 = `This is to bring to your attention that you have accumulated more than three unauthorized leaves without prior permission or valid justification. Such repeated absences from scheduled training sessions violate the discipline and attendance policy of the **Full Stack Development** program conducted by **Nexcore Alliance LLP**.`;
+  const paragraph1 = `This  is to bring to your attention that you have accumulated more than three unauthorized leaves without prior permission or valid justification. Such repeated absences from scheduled training sessions violate the discipline and attendance policy of the **Full Stack Development** program conducted by **Nexcore Alliance LLP**.`;
   const parts1 = parseMarkdown(paragraph1);
   currentY = drawTextWithBold(
     ctx,
@@ -85,6 +85,8 @@ const drawFSDUnauthorizedAbsence = async (
   currentY += 20;
 
   // Closing
+    ctx.font = "bold 16px 'Times New Roman'";
+
   const closing = `Kindly treat this as an official warning and take immediate corrective measures to improve your attendance and commitment to the program.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
   currentY += 28;

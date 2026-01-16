@@ -16,6 +16,7 @@ const drawODJoiningLetterUnpaid = async (
   const {
     name,
     role,
+    trainingPeriod,
     trainingStartDate,
     trainingEndDate,
     officialStartDate,
@@ -204,9 +205,8 @@ const drawODJoiningLetterUnpaid = async (
     currentY += 30;
 
     // Training details paragraph
-    ctx.font = "16px 'Times New Roman'";
-    const trainingPara =
-      "Your training will cover operations workflow management, task coordination, documentation handling, process monitoring, communication protocols, and familiarization with operational tools and platforms. Upon successful completion of the training period, your formal internship phase will begin. Your performance will be reviewed periodically, and based on your consistency, efficiency, and overall progress, you may become eligible for a performance-based stipend along with additional operational responsibilities. The detailed evaluation criteria will be shared with you during the onboarding process";
+    ctx.font = "18px 'Times New Roman'";
+    const trainingPara = `Your initial training period of ${trainingPeriod} days will cover onboarding, technical orientation, and tool familiarization. Upon successful completion of training, your formal internship phase will commence.`;
     currentY = wrapText(
       ctx,
       trainingPara,

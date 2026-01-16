@@ -46,7 +46,7 @@ const drawODUnauthorizedAbsence = async (
 
   // Date
   ctx.fillText(`Date: ${formattedDate}`, leftMargin, currentY);
-  currentY += 32;
+  currentY += 40;
 
   // To
   ctx.fillText("To,", leftMargin, currentY);
@@ -55,8 +55,7 @@ const drawODUnauthorizedAbsence = async (
   currentY += 40;
 
   // Subject
-  const subjectText =
-    "Subject: Warning for Unauthorized Absence";
+  const subjectText = "Subject: Warning for Unauthorized Absence";
   currentY = wrapText(ctx, subjectText, leftMargin, currentY, contentWidth, 22);
   currentY += 20;
 
@@ -65,7 +64,7 @@ const drawODUnauthorizedAbsence = async (
   currentY += 28;
 
   // Paragraph 1
-  const paragraph1 = `This  is to bring to your attention that you have accumulated more than three (3) instances of unauthorized absence from work without prior approval or valid justification. Such repeated unauthorized absences are a violation of the attendance and discipline policies of ** Nexcore Alliance LLP.**`;
+  const paragraph1 = `This  is to bring to your attention that you have accumulated more than three (3) instances of unauthorized absence from work without prior approval or valid justification. Such repeated absences are in violation of the attendance and discipline policies of ** Nexcore Alliance LLP.**`;
   const parts1 = parseMarkdown(paragraph1);
   currentY = drawTextWithBold(
     ctx,
@@ -80,20 +79,21 @@ const drawODUnauthorizedAbsence = async (
 
   // Paragraph 2
   ctx.font = "18px 'Times New Roman'";
-  const paragraph2 = `Regular attendance is an essential aspect of professional responsibility, workplace discipline, and overall performance evaluation. Your continued unauthorized absence reflects a lack of professionalism and seriousness toward your assigned duties and responsibilities. Please note that non-compliance with attendance and leave procedures may adversely impact your performance appraisal and may result in further disciplinary action, as per Company policy.`;
+  const paragraph2 = `Regular attendance is an essential aspect of professional responsibility, productivity, and performance evaluation. Your continued unauthorized absence reflects a lack of discipline and seriousness toward your duties and assigned responsibilities. Please note that irregular attendance and non-compliance with work schedules may adversely impact your performance reviews and may result in promotion delay, stipend reductions, or other disciplinary action, as per company policy.`;
   currentY = wrapText(ctx, paragraph2, leftMargin, currentY, contentWidth, 20);
   currentY += 20;
 
+  ctx.font = "18px 'Times New Roman'";
+  const paragraph3 = `You are hereby advised to take immediate corrective measures to improve your attendance and ensure strict compliance with the Company’s attendance and leave procedures.`;
+  currentY = wrapText(ctx, paragraph3, leftMargin, currentY, contentWidth, 20);
+  currentY += 20;
+
   // Closing
-  const closing = `You are hereby directed to take immediate corrective measures to improve your attendance and ensure strict adherence to the Company’s attendance and leave approval procedures.`;
+  ctx.font = "bold 18px 'Times New Roman'";
+  const closing = `Kindly treat this as an official warning and take immediate corrective measures to improve your attendance and commitment to the program.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
   currentY += 40;
 
-    ctx.font = "bold 18px 'Times New Roman'";
-
-   const paragraphclosing = `Kindly treat this letter as an official warning.`;
-   currentY = wrapText(ctx, paragraphclosing, leftMargin, currentY, contentWidth, 20);
-   currentY += 28;
   // Signature and Stamp
   const signatureWidth = 160;
   const signatureHeight = 85;

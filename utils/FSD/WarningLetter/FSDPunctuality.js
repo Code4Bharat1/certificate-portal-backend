@@ -99,6 +99,7 @@ const drawFSDPunctuality = async (
   currentY += 18;
 
   // Closing
+  ctx.font = "bold 15px 'Times New Roman'";
   const closing = `This serves as a formal warning, and no further reminders will be issued. Continued violation of attendance and discipline norms will lead to enforcement of the actions mentioned above without exception.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 19);
   currentY += 15;

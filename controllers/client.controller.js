@@ -1,4 +1,4 @@
-//client.controllers.js
+//client.controllers.js - WITH MARKDOWN & BOLD SUPPORT
 import nodemailer from "nodemailer";
 import axios from "axios";
 import PdfPrinter from "pdfmake";
@@ -6,9 +6,11 @@ import fs from "fs";
 import path from "path";
 import ClientLetter from "../models/clientdata.models.js";
 import { generateUnifiedOutwardNo } from "../utils/outwardNumberGenerator.js";
+import parseMarkdown from "../utils/ParseMarkdown.js";
 
 // Dev mode check
-const IS_DEV_MODE = process.env.NODE_ENV === 'development' || process.env.DEV_MODE === 'true';
+const IS_DEV_MODE =
+  process.env.NODE_ENV === "development" || process.env.DEV_MODE === "true";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -29,9 +31,25 @@ const fonts = {
 
 const printer = new PdfPrinter(fonts);
 
+/* -------------------------
+   Helper: Convert parsed markdown to pdfmake format
+------------------------- */
+function markdownToPdfMake(text) {
+  if (!text) return { text: "" };
+
+  const parts = parseMarkdown(text);
+
+  // Convert to pdfmake's text array format
+  const textContent = parts.map((part) => ({
+    text: part.text,
+    bold: part.bold,
+  }));
+
+  return { text: textContent };
+}
 
 /* -------------------------
-   Helper: generateClientLetterId
+   Helper: generateClientLetterId - FIXED
 ------------------------- */
 async function generateClientLetterId(letterType) {
   const typeMap = {
@@ -41,7 +59,7 @@ async function generateClientLetterId(letterType) {
     "Project Communication": "CLPC",
   };
 
-  const typeAbbr = typeMap[letterType] || "CL";
+  const typeAbbr = typeMap[letterType] || "CL"; // ✅ FIXED: default to "CL"
 
   const today = new Date();
   const yyyy = today.getFullYear();
@@ -70,7 +88,6 @@ async function generateClientLetterId(letterType) {
   return `${typeAbbr}-${dateStr}-${padded}`;
 }
 
-
 /* -------------------------
    Utility: load template
 ------------------------- */
@@ -82,7 +99,7 @@ function loadTemplateBase64(filePath) {
 }
 
 /* -------------------------
-   UPDATED buildDocDefinition - Footer on LAST PAGE ONLY
+   buildDocDefinition - WITH MARKDOWN SUPPORT
 ------------------------- */
 function buildDocDefinition({
   templateABase64,
@@ -94,10 +111,22 @@ function buildDocDefinition({
   description,
   letterIdOrEmpty,
 }) {
+  // ✅ Parse description for markdown (**bold** syntax)
+  const descriptionContent = markdownToPdfMake(
+    description ||
+      "This is to inform you regarding the above-mentioned subject."
+  );
+
+  // ✅ Parse subject for markdown
+  const subjectParts = parseMarkdown(subject);
+  const subjectContent = subjectParts.map((part) => ({
+    text: part.text,
+    bold: true, // Subject is always bold
+    fontSize: 11,
+  }));
+
   return {
     pageSize: "A4",
-
-    // FIX 1: More bottom margin to avoid stamp/sign overlap
     pageMargins: [50, 242, 50, 200],
 
     background: (currentPage, pageSize) => ({
@@ -139,26 +168,22 @@ function buildDocDefinition({
       },
 
       {
-        text: `Subject: ${subject}`,
-        fontSize: 11,
-        bold: true,
+        text: [
+          { text: "Subject: ", bold: true, fontSize: 11 },
+          ...subjectContent,
+        ],
         alignment: "left",
         margin: [0, 0, 0, 20],
       },
 
-      // FIX 2: Safe area to avoid overlapping stamps
       {
         stack: [
           {
-            text:
-              description ||
-              "This is to inform you regarding the above-mentioned subject.",
+            ...descriptionContent,
             fontSize: 11,
             lineHeight: 1.5,
             alignment: "justify",
           },
-
-          // reserving 120px space above stamp area
           { text: "", margin: [0, -80, 0, 120] },
         ],
       },
@@ -173,7 +198,6 @@ function buildDocDefinition({
       },
     ],
 
-    // FIX 3: Footer ONLY on last page
     footer: (currentPage, pageCount) => {
       if (currentPage === pageCount) {
         return {
@@ -205,7 +229,7 @@ async function sendEmailWithPDF(clientEmail, clientName, pdfBuffer, letterId) {
   const mailOptions = {
     from: process.env.EMAIL_USER_C4B,
     to: clientEmail,
-    subject: `client Letter - ${letterId}`,
+    subject: `Client Letter - ${letterId}`,
     html: `
       <div style="font-family: Arial, sans-serif; padding: 20px;">
         <h2>Dear ${clientName},</h2>
@@ -240,7 +264,6 @@ async function sendWhatsAppWithPDF(
     const whatsappAccessToken = process.env.WHATSAPP_ACCESS_TOKEN;
     const instanceId = process.env.WHATSAPP_INSTANCE_ID;
 
-    // Ensure phone has 91 prefix
     let cleanPhone = phoneNumber.replace(/^\+/, "");
     if (!cleanPhone.startsWith("91")) {
       cleanPhone = "91" + cleanPhone;
@@ -282,7 +305,7 @@ Nexcore Alliance`;
 }
 
 /* -------------------------
-   Helper: Get client Details (Phone & Email)
+   Helper: Get Client Details (Phone & Email)
 ------------------------- */
 async function getClientDetails(clientName) {
   try {
@@ -294,8 +317,8 @@ async function getClientDetails(clientName) {
     });
 
     if (!client) {
-      console.error("❌ client not found:", clientName);
-      throw new Error("client not found");
+      console.error("❌ Client not found:", clientName);
+      throw new Error("Client not found");
     }
 
     return {
@@ -309,16 +332,10 @@ async function getClientDetails(clientName) {
 }
 
 /* -------------------------
-   clientLetter (SAVE + GENERATE PDF)
-------------------------- */
-/* -------------------------
-   clientLetter (SAVE + GENERATE PDF)
+   clientLetter (SAVE + GENERATE PDF) - FIXED
 ------------------------- */
 const clientLetter = async (req, res) => {
   try {
-    
-    
-
     const {
       name,
       issueDate,
@@ -330,8 +347,14 @@ const clientLetter = async (req, res) => {
     } = req.body;
 
     // ✅ Enhanced validation
-    if (!name || !issueDate || !letterType || !projectName || !subject || !description) {
-      
+    if (
+      !name ||
+      !issueDate ||
+      !letterType ||
+      !projectName ||
+      !subject ||
+      !description
+    ) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
@@ -355,17 +378,17 @@ const clientLetter = async (req, res) => {
     ];
 
     if (!validLetterTypes.includes(letterType)) {
-      
       return res.status(400).json({
         success: false,
-        message: `Invalid letter type. Must be one of: ${validLetterTypes.join(", ")}`,
+        message: `Invalid letter type. Must be one of: ${validLetterTypes.join(
+          ", "
+        )}`,
         receivedType: letterType,
       });
     }
 
     // ✅ Validate category
     if (category && category !== "client") {
-      
       return res.status(400).json({
         success: false,
         message: "Category must be 'client'",
@@ -373,7 +396,7 @@ const clientLetter = async (req, res) => {
       });
     }
 
-
+    // ✅ Generate unique Letter ID (same logic as code letters)
     let letterId;
     let exists;
 
@@ -382,15 +405,116 @@ const clientLetter = async (req, res) => {
       exists = await ClientLetter.findOne({ letterId });
     } while (exists);
 
+    const { outwardNo, outwardSerial } = await generateUnifiedOutwardNo(
+      issueDate
+    );
 
-    const { outwardNo, outwardSerial } = await generateUnifiedOutwardNo(issueDate);
+    const templatePath = path.join(
+      process.cwd(),
+      "templates",
+      "client",
+      "TemplateA.jpg"
+    );
+    const templateABase64 = loadTemplateBase64(templatePath);
 
-    // ... rest of your existing code ...
+    // Build PDF doc definition
+    const docDefinition = buildDocDefinition({
+      templateABase64,
+      outwardNo,
+      letterType,
+      issueDate,
+      name,
+      subject,
+      description,
+      letterIdOrEmpty: letterId, // ✅ Include Letter ID in PDF
+    });
 
+    // Generate PDF
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
+    const chunks = [];
+
+    pdfDoc.on("data", (chunk) => chunks.push(chunk));
+
+    await new Promise((resolve, reject) => {
+      pdfDoc.on("end", resolve);
+      pdfDoc.on("error", reject);
+      pdfDoc.end();
+    });
+
+    const pdfBuffer = Buffer.concat(chunks);
+
+    // Save PDF to filesystem
+    const uploadsDir = path.join(process.cwd(), "uploads", "client-letters");
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    const filename = `${name.replace(/\s+/g, "_")}_${letterId}.pdf`;
+    const pdfPath = path.join(uploadsDir, filename);
+    fs.writeFileSync(pdfPath, pdfBuffer);
+
+    // Save to database
+    const letter = await ClientLetter.create({
+      letterId,
+      name,
+      category: category || "client",
+      issueDate: new Date(issueDate),
+      letterType,
+      projectName,
+      subject,
+      description,
+      outwardNo,
+      outwardSerial,
+      pdfUrl: `/uploads/client-letters/${filename}`,
+      createdBy: req.user?._id || null,
+    });
+
+    // Get client contact details
+    const { phone, email } = await getClientDetails(name);
+
+    // Send notifications (don't block response)
+    const notificationPromises = [];
+
+    if (email) {
+      notificationPromises.push(
+        sendEmailWithPDF(email, name, pdfBuffer, letterId).catch((err) =>
+          console.error("Email send failed:", err)
+        )
+      );
+    }
+
+    if (phone) {
+      const pdfBase64 = pdfBuffer.toString("base64");
+      notificationPromises.push(
+        sendWhatsAppWithPDF(phone, name, pdfBase64, letterId).catch((err) =>
+          console.error("WhatsApp send failed:", err)
+        )
+      );
+    }
+
+    // Don't await notifications - let them run in background
+    Promise.all(notificationPromises).catch((err) =>
+      console.error("Some notifications failed:", err)
+    );
+
+    // ✅ FIXED: Return JSON with letter details instead of just PDF
+    res.status(201).json({
+      success: true,
+      message: "Client letter created successfully",
+      letter: {
+        letterId: letter.letterId,
+        name: letter.name,
+        category: letter.category,
+        letterType: letter.letterType,
+        projectName: letter.projectName,
+        outwardNo: letter.outwardNo,
+        issueDate: letter.issueDate,
+        pdfUrl: letter.pdfUrl,
+      },
+    });
   } catch (error) {
     console.error("❌ clientLetter error:", error);
-    console.error("Error stack:", error.stack);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Failed to create client letter",
       error: error.message,
@@ -399,17 +523,15 @@ const clientLetter = async (req, res) => {
 };
 
 /* -------------------------
-   clientPreview
+   clientPreview - FIXED to show Letter ID in preview
 ------------------------- */
 const clientPreview = async (req, res) => {
   try {
-    
-
-    const { name, issueDate, letterType, projectName, subject, description } = req.body;
+    const { name, issueDate, letterType, projectName, subject, description } =
+      req.body;
 
     // ✅ Enhanced validation
     if (!name || !issueDate || !letterType || !projectName || !subject) {
-      
       return res.status(400).json({
         success: false,
         message: "Missing required fields for preview",
@@ -434,22 +556,55 @@ const clientPreview = async (req, res) => {
     if (!validLetterTypes.includes(letterType)) {
       return res.status(400).json({
         success: false,
-        message: `Invalid letter type. Must be one of: ${validLetterTypes.join(", ")}`,
+        message: `Invalid letter type. Must be one of: ${validLetterTypes.join(
+          ", "
+        )}`,
         receivedType: letterType,
       });
     }
 
-
+    // ✅ Generate temporary Letter ID for preview (same logic as save)
     const tempLetterId = await generateClientLetterId(letterType);
     const { outwardNo } = await generateUnifiedOutwardNo(issueDate);
 
-   
+    const templatePath = path.join(
+      process.cwd(),
+      "templates",
+      "client",
+      "TemplateA.jpg"
+    );
+    const templateABase64 = loadTemplateBase64(templatePath);
 
-    // ... rest of your existing code ...
+    const docDefinition = buildDocDefinition({
+      templateABase64,
+      outwardNo,
+      letterType,
+      issueDate,
+      name,
+      subject,
+      description,
+      letterIdOrEmpty: tempLetterId, // ✅ CHANGED: Show Letter ID in preview
+    });
 
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
+    const chunks = [];
+
+    pdfDoc.on("data", (chunk) => chunks.push(chunk));
+
+    await new Promise((resolve, reject) => {
+      pdfDoc.on("end", resolve);
+      pdfDoc.on("error", reject);
+      pdfDoc.end();
+    });
+
+    const pdfBuffer = Buffer.concat(chunks);
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("X-Letter-Id-Preview", tempLetterId); // ✅ Send preview ID in header
+    res.send(pdfBuffer);
   } catch (error) {
     console.error("❌ clientPreview error:", error);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Failed to generate preview",
       error: error.message,
@@ -487,7 +642,7 @@ const getClientLetterById = async (req, res) => {
     if (!letter) {
       return res
         .status(404)
-        .json({ success: false, message: "client letter not found" });
+        .json({ success: false, message: "Client letter not found" });
     }
 
     res.status(200).json({ success: true, data: letter });
@@ -514,7 +669,7 @@ const downloadClientLetter = async (req, res) => {
     if (!letter) {
       return res
         .status(404)
-        .json({ success: false, message: "client letter not found" });
+        .json({ success: false, message: "Client letter not found" });
     }
 
     if (!letter.pdfUrl) {

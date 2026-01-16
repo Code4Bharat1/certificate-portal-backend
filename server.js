@@ -175,7 +175,7 @@ import statsRoutes from "./routes/stats.routes.js";
 import templateRoutes from "./routes/template.routes.js";
 import peopleRoutes from "./routes/people.routes.js";
 import batchRoutes from "./routes/batch.routes.js";
-import letterRoutes from "./routes/letter.routes.js";
+// import letterRoutes from "./routes/letter.routes.js";
 import onboardingRoutes from "./routes/onboardingRequest.routes.js";
 import categoryRoutes from "./routes/category.routes.js";
 import clientRoutes from "./routes/client.routes.js";
@@ -187,11 +187,12 @@ app.use("/api/stats", statsRoutes);
 app.use("/api/templates", templateRoutes);
 app.use("/api/people", peopleRoutes);
 app.use("/api/batches", batchRoutes);
-app.use("/api/letters", letterRoutes);
+// app.use("/api/letters", letterRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/onboarding-request", onboardingRoutes);
 app.use("/api/clientletters", clientRoutes);
 app.use("/api/codeletters", codeLetterRoutes);
+
 // Student
 import studentRoutes from "./routes/users.routes.js";
 app.use("/api/student", studentRoutes);
@@ -293,6 +294,8 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+
+
 
 // ===============================
 // Default Admin Creation

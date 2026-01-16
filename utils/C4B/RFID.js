@@ -59,7 +59,7 @@ const drawRFIDLetter = async (
 
   // Date (left aligned, bold)
   ctx.fillText(`Date: ${formattedDate}`, leftMargin, currentY);
-  currentY += 20;
+  currentY += 40;
 
   // To (bold)
   ctx.font = "bold 16px 'Times New Roman'";
@@ -93,7 +93,7 @@ const drawRFIDLetter = async (
     contentWidth,
     23
   );
-  currentY += 10;
+  currentY += 5;
 
   // Paragraph 2 - with bold portions
   const paragraph2 = `**Your  contributions to the project representing the Government of India and its UPI (Unified Payments Interface) at an international platform in Germany have been exceptional.**This project, which was of immense importance not only for our company but also for the nation, could not have been executed with such finesse and professionalism without your collective efforts. Your dedication, hard work, and creativity demonstrated throughout the project have not gone unnoticed. You've shown an admirable ability to adapt, collaborate, and innovate, all while maintaining a high level of commitment to excellence. It was truly a pleasure to see how you approached each challenge with enthusiasm and determination.`;
@@ -107,26 +107,26 @@ const drawRFIDLetter = async (
     contentWidth,
     23
   );
-  currentY += 10;
+  currentY += 5;
 
   // Paragraph 4
   ctx.font = "16px 'Times New Roman'";
   const paragraph4 =
     "Representing India on such a prestigious international stage was no small feat, and your role in contributing to the success of this project is a testament to your skills and potential. This experience will undoubtedly serve as an invaluable asset as you move forward in your careers.";
   currentY = wrapText(ctx, paragraph4, leftMargin, currentY, contentWidth, 23);
-  currentY += 10;
+  currentY += 5;
 
   // Paragraph 5
   const paragraph5 =
     "We are confident that the knowledge and experience you have gained here at Nexcore Alliance will play a significant role in shaping your future endeavors. We have no doubt that your talents will continue to shine and lead you to greater success in the professional world.";
   currentY = wrapText(ctx, paragraph5, leftMargin, currentY, contentWidth, 23);
-  currentY += 10;
+  currentY += 5;
 
   // Paragraph 6
   const paragraph6 =
     "Once again, thank you for your hard work and dedication. We wish you all the best in your future endeavors, and we hope that you will continue to achieve great things.";
   currentY = wrapText(ctx, paragraph6, leftMargin, currentY, contentWidth, 23);
-  currentY += 10;
+  currentY += 5;
 
   // Closing
   ctx.font = "bold 16px 'Times New Roman'";

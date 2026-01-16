@@ -159,23 +159,23 @@ const drawFSDLiveProjectAgreement = async (
     );
 
     // Signature line and stamp at bottom of page 1
-    const signatureLineY = 950;
-    const stampWidth = 180;
-    const stampHeight = 140;
+    const signatureLineY = 980;
+    const stampWidth = 160;
+    const stampHeight = 120;
 
-    // ctx.font = "18px 'Times New Roman'";
-    // ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
+    ctx.font = "18px 'Times New Roman'";
+    ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
 
     // Draw Stamp (right aligned)
-    // if (stampImg) {
-    //   ctx.drawImage(
-    //     stampImg,
-    //     rightMargin - stampWidth,
-    //     signatureLineY - 100,
-    //     stampWidth,
-    //     stampHeight
-    //   );
-    // }
+    if (stampImg) {
+      ctx.drawImage(
+        stampImg,
+        rightMargin - stampWidth,
+        signatureLineY - 100,
+        stampWidth,
+        stampHeight
+      );
+    }
   } else if (page === 2) {
     // ==================== PAGE 2 ====================
 
@@ -204,7 +204,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 20;
+    currentY += 5;
 
     const section2b =
       "(b) All such information shall be treated as **strictly confidential** and shall not be disclosed, shared, or reused for any purpose outside the project.";
@@ -218,7 +218,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 20;
+    currentY += 5;
 
     const section2c =
       "(c) The Participant shall comply with all applicable data protection laws, including the **Information Technology Act, 2000**, and **GDPR**, where applicable.";
@@ -232,7 +232,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 30;
+    currentY += 5;
 
     // Section 3
     ctx.font = "bold 18px 'Times New Roman'";
@@ -253,7 +253,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 20;
+    currentY += 5;
 
     const section3b =
       "(b) It is the Participant's **sole responsibility** to ensure that assigned work is completed on time, with quality and consistency.";
@@ -267,7 +267,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 20;
+    currentY += 5;
 
     const section3c =
       "(c) In case of any confusion, delay, or challenge, the Participant must **immediately connect** with their mentor or team leader to resolve the concern—ensuring that project progress is not hampered.";
@@ -281,7 +281,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 20;
+    currentY += 5;
 
     const section3d =
       "(d) Regular updates, proactive participation, and effective communication with the team are **mandatory expectations**.";
@@ -295,12 +295,12 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 20;
+    currentY += 5;
 
     const section3e =
       "(e) The Participant must maintain a minimum performance and activity level, as monitored by their mentor or supervisor.";
     currentY = wrapText(ctx, section3e, leftMargin, currentY, contentWidth, 23);
-    currentY += 20;
+    currentY += 5;
 
     const section3f =
       "(f) Failure to meet project expectations, timelines, or communication standards may result in **removal from the live project** and discontinuation of participation privileges.";
@@ -314,7 +314,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 10;
+    currentY += 5;
 
     // Section 4
     ctx.font = "bold 18px 'Times New Roman'";
@@ -355,23 +355,23 @@ const drawFSDLiveProjectAgreement = async (
     );
 
     // Signature line and stamp at bottom of page 2
-    const signatureLineY = 950;
-    const stampWidth = 180;
-    const stampHeight = 140;
+   const signatureLineY = 980;
+   const stampWidth = 160;
+   const stampHeight = 120;
 
-    // ctx.font = "18px 'Times New Roman'";
-    // ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
+    ctx.font = "18px 'Times New Roman'";
+    ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
 
-    // // Draw Stamp (right aligned)
-    // if (stampImg) {
-    //   ctx.drawImage(
-    //     stampImg,
-    //     rightMargin - stampWidth,
-    //     signatureLineY - 100,
-    //     stampWidth,
-    //     stampHeight
-    //   );
-    // }
+    // Draw Stamp (right aligned)
+    if (stampImg) {
+      ctx.drawImage(
+        stampImg,
+        rightMargin - stampWidth,
+        signatureLineY - 100,
+        stampWidth,
+        stampHeight
+      );
+    }
   } else if (page === 3) {
     // ==================== PAGE 3 ====================
 
@@ -396,7 +396,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 20;
+    currentY += 5;
 
     const section5b =
       "(b) Sharing internal discussions, meeting content, or technical materials outside authorized groups is **strictly prohibited**.";
@@ -410,7 +410,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 20;
+    currentY += 5;
 
     const section5c =
       "(c) Respect, discipline, and teamwork are expected at all times. Any form of misconduct or unprofessional behavior may lead to **immediate removal** from the project.";
@@ -424,7 +424,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 30;
+    currentY += 5;
 
     // Section 6
     ctx.font = "bold 18px 'Times New Roman'";
@@ -445,7 +445,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 20;
+    currentY += 5;
 
     const section6b =
       "(b) Upon completion of the project or training, the Participant must **return or delete all data**, credentials, and files associated with the project.";
@@ -459,7 +459,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 30;
+    currentY += 5;
 
     // Section 7
     ctx.font = "bold 18px 'Times New Roman'";
@@ -480,7 +480,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 20;
+    currentY += 5;
 
     const section7b =
       "(b) Failure to follow this Agreement, maintain active participation, or adhere to deadlines may lead to **termination of project access** without prior notice.";
@@ -494,7 +494,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 20;
+    currentY += 5;
 
     const section7c =
       "(c) The Company's decision regarding continuation or removal from the live project shall be **final and binding**.";
@@ -508,7 +508,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 30;
+    currentY += 5;
 
     // Section 8
     ctx.font = "bold 18px 'Times New Roman'";
@@ -528,7 +528,7 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 30;
+    currentY += 5;
 
     // Section 9
     ctx.font = "bold 18px 'Times New Roman'";
@@ -550,23 +550,25 @@ const drawFSDLiveProjectAgreement = async (
     );
 
     // Signature line and stamp at bottom of page 3
-    const signatureLineY = 950;
-    const stampWidth = 180;
-    const stampHeight = 140;
 
-    // ctx.font = "18px 'Times New Roman'";
-    // ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
+     const signatureLineY = 980;
+     const stampWidth = 160;
+     const stampHeight = 120;
+   
 
-    // // Draw Stamp (right aligned)
-    // if (stampImg) {
-    //   ctx.drawImage(
-    //     stampImg,
-    //     rightMargin - stampWidth,
-    //     signatureLineY - 100,
-    //     stampWidth,
-    //     stampHeight
-    //   );
-    // }
+    ctx.font = "18px 'Times New Roman'";
+    ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
+
+    // Draw Stamp (right aligned)
+    if (stampImg) {
+      ctx.drawImage(
+        stampImg,
+        rightMargin - stampWidth,
+        signatureLineY - 100,
+        stampWidth,
+        stampHeight
+      );
+    }
   } else if (page === 4) {
     // ==================== PAGE 4 ====================
 

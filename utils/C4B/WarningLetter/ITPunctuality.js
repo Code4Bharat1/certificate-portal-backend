@@ -46,19 +46,19 @@ const drawITPunctuality = async (
 
   // Date
   ctx.fillText(`Date: ${formattedDate}`, leftMargin, currentY);
-  currentY += 30;
+  currentY += 40;
 
   // To
   ctx.fillText("To,", leftMargin, currentY);
-  currentY += 30;
+  currentY += 40;
   ctx.fillText(name, leftMargin, currentY);
-  currentY += 30;
+  currentY += 40;
 
   // Subject
   const subjectText =
     "Subject: Warning Regarding Punctuality and Professional Discipline";
   currentY = wrapText(ctx, subjectText, leftMargin, currentY, contentWidth, 21);
-  currentY += 30;
+  currentY += 20;
 
   // Salutation
   ctx.fillText(`Dear ${name},`, leftMargin, currentY);
@@ -76,32 +76,37 @@ const drawITPunctuality = async (
     contentWidth,
     19
   );
-  currentY += 25;
+  currentY += 20;
 
   // Paragraph 2
   ctx.font = "18px 'Times New Roman'";
   const paragraph2 = `You are hereby warned to maintain punctuality and professional discipline with immediate effect. Please note that if this behavior continues, the following actions may be taken:`;
   currentY = wrapText(ctx, paragraph2, leftMargin, currentY, contentWidth, 19);
-  currentY += 25;
+  currentY += 20;
 
   // Bullet points
   const bullet1 = `• Your performance evaluation, appraisal, and related employment benefits may be adversely impacted, and`;
   currentY = wrapText(ctx, bullet1, leftMargin, currentY, contentWidth, 19);
   currentY += 15;
 
-  const bullet2 = `• Continued non-compliance may result in disciplinary action, including formal warnings, deductions, or other corrective measures, as per Company policy.`;
+  const bullet2 = `• Continued non-compliance may result in disciplinary action, including formal warnings, deductions, promotion delay, or other corrective measures, as per Company policy.`;
   currentY = wrapText(ctx, bullet2, leftMargin, currentY, contentWidth, 19);
-  currentY += 25;
+  currentY += 20;
 
   // Paragraph 3
   const paragraph3 = `Punctuality and regular attendance are essential components of professional conduct and directly affect workplace efficiency, team coordination, and overall performance.`;
   currentY = wrapText(ctx, paragraph3, leftMargin, currentY, contentWidth, 19);
-  currentY += 25;
+  currentY += 20;
 
   // Closing
   const closing = `This letter serves as a formal warning, and no further reminders will be issued. Continued violation of punctuality and discipline norms will lead to strict enforcement of disciplinary actions without exception.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 19);
-  currentY += 60;
+  currentY += 20;
+
+  ctx.font = "bold 18px 'Times New Roman'";
+  const closing2 = `Kindly treat this letter as an official warning.`;
+  currentY = wrapText(ctx, closing2, leftMargin, currentY, contentWidth, 20);
+  currentY;
 
   // Signature and Stamp
   const signatureWidth = 155;
@@ -134,7 +139,6 @@ const drawITPunctuality = async (
   ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, currentY);
   currentY += 18;
 
- 
   // Verification footer (positioned absolutely)
   ctx.font = "18px 'Times New Roman'";
   ctx.fillStyle = "#000000";

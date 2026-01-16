@@ -173,7 +173,7 @@ const drawC4BNDA = async (
   } else if (page === 2) {
     // ==================== PAGE 2 ====================
 
-    currentY = contentStartY+100;
+    currentY = contentStartY;
 
     // Section 1
     ctx.font = "bold 18px 'Times New Roman'";
@@ -209,6 +209,73 @@ const drawC4BNDA = async (
       currentY += 5;
     });
 
+     ctx.font = "bold 18px 'Times New Roman'";
+     ctx.fillText("2. Obligations of the Recipient", leftMargin, currentY);
+     currentY += 23;
+
+     ctx.font = "18px 'Times New Roman'";
+     const section2Intro = "The Recipient agrees that:";
+     ctx.fillText(section2Intro, leftMargin, currentY);
+     currentY += 20;
+
+     // (a)
+     const section2a =
+       "(a) **Return of Company Assets & Access Credentials:**Upon termination of employment, the Recipient shall return**all physical and digital assets**belonging to the Company, including but not limited to:**passwords, access credentials, source codes, hardware, documents, email accounts, and proprietary data.**";
+     const section2aParts = parseMarkdown(section2a);
+     currentY = drawTextWithBold(
+       ctx,
+       section2aParts,
+       leftMargin,
+       currentY,
+       18,
+       contentWidth,
+       23
+     );
+     currentY += 5;
+
+     // (b)
+     const section2b =
+       "(b) **Non-Disclosure & Non-Use:**The Recipient shall not, directly or indirectly,**disclose, share, use, or reproduce**any Confidential Information for personal use or for the benefit of any third party, now or in the future.";
+     const section2bParts = parseMarkdown(section2b);
+     currentY = drawTextWithBold(
+       ctx,
+       section2bParts,
+       leftMargin,
+       currentY,
+       18,
+       contentWidth,
+       23
+     );
+     currentY += 5;
+
+     // (c)
+     const section2c =
+       "(c) **Non-Compete & Non-Solicitation:**For a period of**one (1) year**from the date of this Agreement, the Recipient shall not:";
+     const section2cParts = parseMarkdown(section2c);
+     currentY = drawTextWithBold(
+       ctx,
+       section2cParts,
+       leftMargin,
+       currentY,
+       18,
+       contentWidth,
+       23
+     );
+     currentY += 5;
+
+     ctx.font = "18px 'Times New Roman'";
+     const section2cItems = [
+       "• Engage in any business, directly or indirectly, that involves products which compete in any manner with those offered, developed, or planned by the Company.",
+       "• Solicit any employees, clients, or vendors of the Company.",
+     ];
+
+     section2cItems.forEach((item) => {
+       currentY = wrapText(ctx, item, leftMargin, currentY, contentWidth, 23);
+       currentY += 5;
+     });
+     currentY += 15;
+
+
     // Signature line and stamp at bottom of page 2
     const signatureLineY = 950;
     const stampWidth = 180;
@@ -232,73 +299,6 @@ const drawC4BNDA = async (
 
     currentY = contentStartY;
 
-    // Section 2
-    ctx.font = "bold 18px 'Times New Roman'";
-    ctx.fillText("2. Obligations of the Recipient", leftMargin, currentY);
-    currentY += 23;
-
-    ctx.font = "18px 'Times New Roman'";
-    const section2Intro = "The Recipient agrees that:";
-    ctx.fillText(section2Intro, leftMargin, currentY);
-    currentY += 20;
-
-    // (a)
-    const section2a =
-      "(a) **Return of Company Assets & Access Credentials:**Upon termination of employment, the Recipient shall return**all physical and digital assets**belonging to the Company, including but not limited to:**passwords, access credentials, source codes, hardware, documents, email accounts, and proprietary data.**";
-    const section2aParts = parseMarkdown(section2a);
-    currentY = drawTextWithBold(
-      ctx,
-      section2aParts,
-      leftMargin,
-      currentY,
-      18,
-      contentWidth,
-      23
-    );
-    currentY += 20;
-
-    // (b)
-    const section2b =
-      "(b) **Non-Disclosure & Non-Use:**The Recipient shall not, directly or indirectly,**disclose, share, use, or reproduce**any Confidential Information for personal use or for the benefit of any third party, now or in the future.";
-    const section2bParts = parseMarkdown(section2b);
-    currentY = drawTextWithBold(
-      ctx,
-      section2bParts,
-      leftMargin,
-      currentY,
-      18,
-      contentWidth,
-      23
-    );
-    currentY += 20;
-
-    // (c)
-    const section2c =
-      "(c) **Non-Compete & Non-Solicitation:**For a period of**one (1) year**from the date of this Agreement, the Recipient shall not:";
-    const section2cParts = parseMarkdown(section2c);
-    currentY = drawTextWithBold(
-      ctx,
-      section2cParts,
-      leftMargin,
-      currentY,
-      18,
-      contentWidth,
-      23
-    );
-    currentY += 18;
-
-    ctx.font = "18px 'Times New Roman'";
-    const section2cItems = [
-      "• Engage in any business, directly or indirectly, that involves products which compete in any manner with those offered, developed, or planned by the Company.",
-      "• Solicit any employees, clients, or vendors of the Company.",
-    ];
-
-    section2cItems.forEach((item) => {
-      currentY = wrapText(ctx, item, leftMargin, currentY, contentWidth, 23);
-      currentY += 5;
-    });
-    currentY += 15;
-
     // (d)
     const section2d =
       "(d) **Legal Compliance:**Any violation of this Agreement will subject the Recipient to**strict legal action under applicable laws,**including**but not limited to:**";
@@ -312,7 +312,7 @@ const drawC4BNDA = async (
       contentWidth,
       23
     );
-    currentY += 18;
+    currentY += 25;
 
     const legalItems = [
       "• **Indian Penal Code (IPC), 1860**– Section 405 (Criminal Breach of Trust), Section 408 (Criminal Breach by Clerk or Servant).",
@@ -334,29 +334,6 @@ const drawC4BNDA = async (
       );
       currentY += 5;
     });
-
-    // Signature line and stamp at bottom of page 3
-    const signatureLineY = 950;
-    const stampWidth = 180;
-    const stampHeight = 140;
-
-    ctx.font = "bold 18px 'Times New Roman'";
-    ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
-
-    // Draw Stamp (right aligned)
-    if (stampImg) {
-      ctx.drawImage(
-        stampImg,
-        rightMargin - stampWidth,
-        signatureLineY - 100,
-        stampWidth,
-        stampHeight
-      );
-    }
-  } else if (page === 4) {
-    // ==================== PAGE 4 ====================
-
-    currentY = contentStartY;
 
     // Section 3
     ctx.font = "bold 18px 'Times New Roman'";
@@ -430,6 +407,29 @@ const drawC4BNDA = async (
       23
     );
     currentY += 30;
+
+    // Signature line and stamp at bottom of page 3
+    const signatureLineY = 950;
+    const stampWidth = 180;
+    const stampHeight = 140;
+
+    ctx.font = "bold 18px 'Times New Roman'";
+    ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
+
+    // Draw Stamp (right aligned)
+    if (stampImg) {
+      ctx.drawImage(
+        stampImg,
+        rightMargin - stampWidth,
+        signatureLineY - 100,
+        stampWidth,
+        stampHeight
+      );
+    }
+  } else if (page === 4) {
+    // ==================== PAGE 4 ====================
+
+    currentY = contentStartY;
 
     // Section 5
     ctx.font = "bold 18px 'Times New Roman'";

@@ -14,7 +14,7 @@ import People from "../models/people.models.js";
 import { v4 as uuidv4 } from "uuid";
 import Letter from "../models/letter.models.js";
 
-import { wrapText as letterwraptext } from "./letter.controllers.js";
+import { wrapText as letterwraptext } from "../bin/letter.controllers.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

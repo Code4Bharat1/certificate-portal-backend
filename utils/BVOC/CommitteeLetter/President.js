@@ -48,18 +48,18 @@ const drawBVOCCommitteePresident = async (
 
   // To
   ctx.fillText("To,", leftMargin, currentY);
-  currentY += 40;
+  currentY += 20;
   ctx.font = "bold 18px 'Times New Roman'";
-  ctx.fillText(name, leftMargin, currentY);
-  currentY += 40;
+  ctx.fillText(`${name},`, leftMargin, currentY);
+  currentY += 20;
   ctx.fillText(
-    "B.Voc in Artificial Intelligence and Machine Learning",
+    "B.Voc in Artificial Intelligence and Machine Learning,",
     leftMargin,
     currentY
   );
-  currentY += 18;
+  currentY += 20;
   ctx.fillText("Nexcore Alliance LLP", leftMargin, currentY);
-  currentY += 30;
+  currentY += 40;
 
   // Subject
   ctx.font = "bold 18px 'Times New Roman'";
@@ -85,10 +85,10 @@ const drawBVOCCommitteePresident = async (
   // Closing
   const closing = `We congratulate you on this well-deserved selection and wish you continued success in all your endeavors.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 19);
-  currentY += 25;
+  currentY += 90;
 
   // With best regards
-    ctx.font = "bold 18px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   ctx.fillText("Warm regards,", leftMargin, currentY);
   currentY += 80;
 

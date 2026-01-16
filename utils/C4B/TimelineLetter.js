@@ -161,7 +161,7 @@ const drawTimelineLetter = async (
   const subjectText =
     "Subject: Warning for Non-Completion of Assigned Task within Deadline";
   currentY = wrapText(ctx, subjectText, leftMargin, currentY, contentWidth, 25);
-  currentY += 3;
+  currentY += 20;
 
   // Greeting (bold)
   ctx.fillText(`Dear ${name},`, leftMargin, currentY);
@@ -180,7 +180,7 @@ const drawTimelineLetter = async (
     contentWidth,
     23
   );
-  currentY += 15;
+  currentY += 5;
 
   // Second paragraph
   ctx.font = "18px 'Times New Roman'";
@@ -194,7 +194,7 @@ const drawTimelineLetter = async (
     contentWidth,
     23
   );
-  currentY += 15;
+  currentY += 5;
 
   // Instructions header (bold)
   ctx.font = "bold 18px 'Times New Roman'";
@@ -224,7 +224,7 @@ const drawTimelineLetter = async (
     currentY += 30;
   });
 
-  currentY += 10;
+  currentY += 5;
 
   // Warning note (bold header)
   ctx.font = "bold 18px 'Times New Roman'";

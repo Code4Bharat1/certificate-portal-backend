@@ -46,7 +46,7 @@ const drawODLowAttendance = async (
   let currentY = contentStartY;
 
   // Outward No
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   ctx.fillText(`Outward No.: ${outwardNo}`, leftMargin, currentY);
   currentY += 22;
 
@@ -63,52 +63,52 @@ const drawODLowAttendance = async (
   // Subject
   const subjectText = "Subject: Warning for Low Attendance";
   currentY = wrapText(ctx, subjectText, leftMargin, currentY, contentWidth, 22);
-  currentY += 12;
+  currentY += 30;
 
   // Salutation
   ctx.fillText(`Dear ${name},`, leftMargin, currentY);
-  currentY += 28;
+  currentY += 40;
 
   // Paragraph 1 with attendance percentage
-  const paragraph1 = `This  is to formally inform you that your attendance is **${attendancePercent}%** till date, which is below the minimum requirement set by **Nexcore Alliance LLP**.`;
+  const paragraph1 = `This  is to formally inform you that your attendance is **${attendancePercent}%** till date, which is below the minimum requirement set by **Nexcore Alliance LLP** for employees.`;
   const parts1 = parseMarkdown(paragraph1);
   currentY = drawTextWithBold(
     ctx,
     parts1,
     leftMargin,
     currentY,
-    16,
+    18,
     contentWidth,
     20
   );
-  currentY += 20;
+  currentY += 10;
 
   // Paragraph 2
-  ctx.font = "16px 'Times New Roman'";
-  const paragraph2 = `You are hereby warned to improve your attendance immediately. Please note that if your attendance does not improve in the upcoming month, the following actions may be taken:`;
+  ctx.font = "18px 'Times New Roman'";
+  const paragraph2 = `You are hereby warned to improve your attendance immediately. Please note that if your attendance does not improve in the upcoming month, the following actions will be taken:`;
   currentY = wrapText(ctx, paragraph2, leftMargin, currentY, contentWidth, 20);
-  currentY += 20;
+  currentY += 10;
 
   // Bullet points
-  const bullet1 = `• Your performance evaluation, appraisal, and related employment benefits may be adversely affected, and`;
+  const bullet1 = `• Your performance evaluation and related benefits may be impacted, and`;
   currentY = wrapText(ctx, bullet1, leftMargin, currentY, contentWidth, 20);
   currentY += 12;
 
-  const bullet2 = `• Continued low attendance may result in disciplinary action, including formal warnings, salary deductions, or other corrective measures, as per the Company’s HR and attendance policies.`;
+  const bullet2 = `• Continued low attendance may lead to disciplinary action, including but not limited to warnings, stipend deductions, promotion delay or other measures as per the Company’s HR and attendance policies.`;
   currentY = wrapText(ctx, bullet2, leftMargin, currentY, contentWidth, 20);
-  currentY += 20;
+  currentY += 10;
 
   // Paragraph 3
-  const paragraph3 = `Regular attendance is a critical component of workplace discipline, accountability, and professional responsibility. No further reminders will be issued. Any continuation of such behavior will lead to the strict enforcement of the consequences mentioned above, without exception.`;
+  const paragraph3 = `Regular attendance is a critical component of workplace discipline, productivity, and professional responsibility. No further reminders will be issued. Any continuation of such behavior will result in the strict enforcement of the consequences mentioned above, without exception.`;
   currentY = wrapText(ctx, paragraph3, leftMargin, currentY, contentWidth, 20);
-  currentY += 40;
+  currentY += 60;
 
   // Closing
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
 
   const closing = `Kindly treat this letter as an official warning.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
-  currentY += 40;
+  currentY += 10;
 
   // Signature and Stamp
   const signatureWidth = 160;
@@ -137,7 +137,7 @@ const drawODLowAttendance = async (
   currentY += signatureHeight + 12;
 
   // Credential ID
-  ctx.font = "bold 16px 'Times New Roman'";
+  ctx.font = "bold 18px 'Times New Roman'";
   ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, currentY);
   currentY += 22;
 

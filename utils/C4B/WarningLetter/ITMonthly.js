@@ -82,27 +82,27 @@ const drawITMonthly = async (
     contentWidth,
     20
   );
-  currentY += 25;
+  currentY += 10;
 
   // Paragraph 2
   ctx.font = "18px 'Times New Roman'";
   const paragraph2 = `You are hereby warned to improve your attendance immediately. Please note that if your attendance does not improve in the upcoming month, the following actions will be taken:`;
   currentY = wrapText(ctx, paragraph2, leftMargin, currentY, contentWidth, 20);
-  currentY += 25;
+  currentY += 10;
 
   // Bullet points
   const bullet1 = `• Your performance review, appraisal, and related employment benefits may be impacted, and`;
   currentY = wrapText(ctx, bullet1, leftMargin, currentY, contentWidth, 20);
   currentY += 12;
 
-  const bullet2 = `• Continued low attendance may result in disciplinary action, including warnings, salary adjustments, or other corrective measures, as per the Company’s HR and attendance policies.`;
+  const bullet2 = `• Continued low attendance may result in disciplinary action, including warnings, stipend adjustments, or other corrective measures, promotion delay as per the Company’s HR and attendance policies.`;
   currentY = wrapText(ctx, bullet2, leftMargin, currentY, contentWidth, 20);
-  currentY += 25;
+  currentY += 10;
 
   // Paragraph 3
   const paragraph3 = `Regular monthly attendance is a critical component of workplace discipline, productivity, and professional responsibility. No further reminders will be issued. Any continuation of such behavior will lead to the strict enforcement of the consequences mentioned above, without exception.`;
   currentY = wrapText(ctx, paragraph3, leftMargin, currentY, contentWidth, 20);
-  currentY += 25;
+  currentY += 60;
 
   // Closing
   ctx.font = "bold 18px 'Times New Roman'";

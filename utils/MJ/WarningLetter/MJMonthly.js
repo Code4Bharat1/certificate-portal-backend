@@ -56,22 +56,21 @@ const drawMJMonthly = async (
 
   // To
   ctx.fillText("To,", leftMargin, currentY);
-  currentY += 32;
+  currentY += 40;
   ctx.fillText(name, leftMargin, currentY);
-  currentY += 32;
+  currentY += 40;
 
   // Subject
-  const subjectText =
-    "Subject: Warning for Low Attendance";
+  const subjectText = "Subject: Warning for Low Attendance";
   currentY = wrapText(ctx, subjectText, leftMargin, currentY, contentWidth, 22);
-  currentY += 12;
+  currentY += 25;
 
   // Salutation
   ctx.fillText(`Dear ${name},`, leftMargin, currentY);
-  currentY += 28;
+  currentY += 25;
 
   // Paragraph 1 with attendance percentage
-  const paragraph1 = `This  is to formally inform you that your attendance for the current month is **${attendancePercent}%,** which is below the minimum monthly attendance requirement set by ** MarketIQ Junction (a Nexcore Company).**`;
+  const paragraph1 = `This  is to formally inform you that your attendance for the current month is **${attendancePercent}%,** which is below the minimum monthly attendance requirement set by ** MarketIQ Junction** for employees.`;
   const parts1 = parseMarkdown(paragraph1);
   currentY = drawTextWithBold(
     ctx,
@@ -82,25 +81,25 @@ const drawMJMonthly = async (
     contentWidth,
     20
   );
-  currentY += 20;
+  currentY += 10;
 
   // Paragraph 2
   ctx.font = "18px 'Times New Roman'";
-  const paragraph2 = `You are hereby warned to improve your attendance immediately. Please note that if your attendance does not improve in the upcoming month, the following actions may be taken:`;
+  const paragraph2 = `You are hereby warned to improve your attendance immediately. Please note that if your attendance does not improve in the upcoming month, the following actions will be taken:`;
   currentY = wrapText(ctx, paragraph2, leftMargin, currentY, contentWidth, 20);
-  currentY += 12;
+  currentY += 10;
 
   // Bullet points
-  const bullet1 = `• Your placement process and issuance of the experience letter will be delayed by two months.`;
+  const bullet1 = `• Your performance review, appraisal, and related employment benefits may be impacted, and`;
   currentY = wrapText(ctx, bullet1, leftMargin, currentY, contentWidth, 20);
   currentY += 12;
 
-  const bullet2 = `• Your performance review, growth opportunities, and internal evaluations may be impacted, and`;
+  const bullet2 = `• Continued low attendance may result in disciplinary action, including warnings, stipend adjustments, or other corrective measures, promotion delay as per the Company’s HR and attendance policies.`;
   currentY = wrapText(ctx, bullet2, leftMargin, currentY, contentWidth, 20);
-  currentY += 14;
+  currentY += 10;
 
   // Paragraph 3
-  const paragraph3 = `Regular monthly attendance is a critical component of professional discipline, accountability, and overall workplace performance. No further reminders will be issued. Any continuation of such behavior will lead to the strict enforcement of the consequences mentioned above, without exception.`;
+  const paragraph3 = `Regular monthly attendance is a critical component of workplace discipline, productivity, and professional responsibility. No further reminders will be issued. Any continuation of such behavior will lead to the strict enforcement of the consequences mentioned above, without exception.`;
   currentY = wrapText(ctx, paragraph3, leftMargin, currentY, contentWidth, 20);
   currentY += 60;
 
@@ -109,7 +108,7 @@ const drawMJMonthly = async (
 
   const closing = `Kindly treat this letter as an official warning.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
-  currentY += 18;
+  currentY;
 
   // Signature and Stamp
   const signatureWidth = 160;
