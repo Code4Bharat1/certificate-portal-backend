@@ -2,6 +2,7 @@
 import User from "../models/user.models.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import redisClient from "../config/redisClient.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "secret-key-2024";
 
@@ -125,9 +126,41 @@ export const changePassword = async (req, res) => {
 
 // GET ALL USERS
 export const getAllUsers = async (req, res) => {
-  const users = await User.find().select("-password");
-  res.json({ success: true, count: users.length, data: users });
+  try {
+    const cacheKey = "all_users";
+
+    // 1️⃣ Check Redis cache
+    const cachedUsers = await redisClient.get(cacheKey);
+
+    if (cachedUsers) {
+      console.log("🚀 Users from Redis");
+      return res.json({
+        success: true,
+        count: JSON.parse(cachedUsers).length,
+        data: JSON.parse(cachedUsers),
+        source: "cache",
+      });
+    }
+
+    // 2️⃣ Fetch from DB
+    const users = await User.find().select("-password");
+
+    // 3️⃣ Store in Redis (expire in 60 sec)
+    await redisClient.setEx(cacheKey, 60, JSON.stringify(users));
+
+    console.log("📦 Users from Database");
+
+    res.json({
+      success: true,
+      count: users.length,
+      data: users,
+      source: "db",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to fetch users" });
+  }
 };
+
 
 // CREATE USER
 export const createUser = async (req, res) => {
@@ -136,11 +169,20 @@ export const createUser = async (req, res) => {
 
     const exists = await User.findOne({ username });
     if (exists)
-      return res.status(409).json({ success: false, message: "Username already exists" });
+      return res
+        .status(409)
+        .json({ success: false, message: "Username already exists" });
 
     const user = await User.create({ username, password, role });
 
-    res.status(201).json({ success: true, message: "User created", data: user });
+    // Clear cache ONLY after success
+    await redisClient.del("all_users");
+
+    res.status(201).json({
+      success: true,
+      message: "User created",
+      data: user,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: "Create failed" });
   }
@@ -154,8 +196,13 @@ export const deleteUser = async (req, res) => {
     if (!user)
       return res.status(404).json({ success: false, message: "User not found" });
 
+    await redisClient.del("all_users");
+
     res.json({ success: true, message: "User deleted" });
   } catch (error) {
     res.status(500).json({ success: false, message: "Delete failed" });
   }
 };
+  
+
+

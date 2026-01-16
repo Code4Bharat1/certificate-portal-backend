@@ -4,9 +4,20 @@ import ActivityLog from "../models/activitylog.models.js";
 import Letter from "../models/letter.models.js";
 import ClientLetter from "../models/clientdata.models.js"; // ✅ ADDED
 import User from "../models/user.models.js";
+import redisClient from "../config/redisClient.js";
 
 export const getDashboardStatistics = async (req, res) => {
   try {
+    const cacheKey = "dashboard:stats";
+
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      return res.json({
+        success: true,
+        data: JSON.parse(cached),
+        source: "cache",
+      });
+    }
     const now = new Date();
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -302,32 +313,37 @@ export const getDashboardStatistics = async (req, res) => {
 
     // ✅ Debug logs for verification
 
+    const responseData = {
+      ...formattedStats,
+      categories: categoryStats,
+      bulk: {
+        last7Days: {
+          operations: bulkGeneratedLast7Days[0]?.totalBulkOperations || 0,
+          certificates: bulkGeneratedLast7Days[0]?.totalCertificates || 0,
+        },
+        lastMonth: {
+          operations: bulkGeneratedLastMonth[0]?.totalBulkOperations || 0,
+          certificates: bulkGeneratedLastMonth[0]?.totalCertificates || 0,
+        },
+        downloads: {
+          operations: bulkDownloads[0]?.totalBulkDownloads || 0,
+          certificates: bulkDownloads[0]?.totalCertificatesDownloaded || 0,
+        },
+      },
+      creationRatio: {
+        individual: individualCreated,
+        bulk: totalBulkCreated,
+        total: totalCertificates,
+      },
+    };
+
+    // ✅ STORE IN REDIS (5 minutes)
+    await redisClient.setEx(cacheKey, 300, JSON.stringify(responseData));
 
     res.json({
       success: true,
-      data: {
-        ...formattedStats,
-        categories: categoryStats,
-        bulk: {
-          last7Days: {
-            operations: bulkGeneratedLast7Days[0]?.totalBulkOperations || 0,
-            certificates: bulkGeneratedLast7Days[0]?.totalCertificates || 0,
-          },
-          lastMonth: {
-            operations: bulkGeneratedLastMonth[0]?.totalBulkOperations || 0,
-            certificates: bulkGeneratedLastMonth[0]?.totalCertificates || 0,
-          },
-          downloads: {
-            operations: bulkDownloads[0]?.totalBulkDownloads || 0,
-            certificates: bulkDownloads[0]?.totalCertificatesDownloaded || 0,
-          },
-        },
-        creationRatio: {
-          individual: individualCreated,
-          bulk: totalBulkCreated,
-          total: totalCertificates,
-        },
-      },
+      data: responseData,
+      source: "db",
     });
   } catch (error) {
     console.error("❌ Get stats error:", error);
@@ -342,6 +358,16 @@ export const getDashboardStatistics = async (req, res) => {
 export const getActivityLog = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 50;
+    const cacheKey = `activitylog:${limit}`;
+
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      return res.json({
+        success: true,
+        data: JSON.parse(cached),
+        source: "cache",
+      });
+    }
 
     const activities = await ActivityLog.find()
       .sort({ timestamp: -1 })
@@ -396,9 +422,12 @@ export const getActivityLog = async (req, res) => {
       };
     });
 
+    await redisClient.setEx(cacheKey, 120, JSON.stringify(formattedActivities));
+
     res.json({
       success: true,
       data: formattedActivities,
+      source: "db",
     });
   } catch (error) {
     console.error("❌ Get activity log error:", error);

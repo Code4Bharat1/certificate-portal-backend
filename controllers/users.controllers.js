@@ -4,6 +4,7 @@ import Letter from "../models/letter.models.js";
 import cloudinary from "../config/cloudinary.config.js";
 import fs from "fs";
 import { promisify } from "util";
+import redisClient from "../config/redisClient.js"; 
 
 const unlinkAsync = promisify(fs.unlink);
 
@@ -12,44 +13,48 @@ const unlinkAsync = promisify(fs.unlink);
 // Get Student Profile
 export const getStudentProfile = async (req, res) => {
   try {
-    const student = await Student.findById(req.user._id).select("-password");
+    const cacheKey = `student:${req.user._id}:profile`;
 
-    if (!student) {
-      return res.status(404).json({
-        success: false,
-        message: "Student not found",
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      return res.status(200).json({
+        success: true,
+        user: JSON.parse(cached),
+        source: "cache",
       });
     }
 
-    res.status(200).json({
-      success: true,
-      user: {
-        id: student._id,
-        name: student.name,
-        email: student.email,
-        phone: student.phone,
-        category: student.category,
-        batch: student.batch,
-        joinedDate: student.createdAt,
-        address: student.address,
-        city: student.city,
-        state: student.state,
-        pincode: student.pincode,
-        aadhaarCard: student.aadhaarCard,
-        parentEmail: student.parentEmail,
-        parentPhone1: student.parentPhone1,
-        parentPhone2: student.parentPhone2,
-        disabled: student.disabled,
-        firstLogin: student.firstLogin,
-      },
-    });
+    const student = await Student.findById(req.user._id).select("-password");
+    if (!student)
+      return res
+        .status(404)
+        .json({ success: false, message: "Student not found" });
+
+    const data = {
+      id: student._id,
+      name: student.name,
+      email: student.email,
+      phone: student.phone,
+      category: student.category,
+      batch: student.batch,
+      joinedDate: student.createdAt,
+      address: student.address,
+      city: student.city,
+      state: student.state,
+      pincode: student.pincode,
+      aadhaarCard: student.aadhaarCard,
+      parentEmail: student.parentEmail,
+      parentPhone1: student.parentPhone1,
+      parentPhone2: student.parentPhone2,
+      disabled: student.disabled,
+      firstLogin: student.firstLogin,
+    };
+
+    await redisClient.setEx(cacheKey, 120, JSON.stringify(data));
+
+    res.status(200).json({ success: true, user: data, source: "db" });
   } catch (error) {
-    console.error("Get profile error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error fetching profile",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: "Error fetching profile" });
   }
 };
 
@@ -97,11 +102,17 @@ export const updateStudentProfile = async (req, res) => {
       });
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Profile updated successfully",
-      user: updatedStudent,
-    });
+   await redisClient.del(`student:${req.user._id}:profile`);
+   await redisClient.del(`student:${req.user._id}:stats`);
+   await redisClient.del(`student:${req.user._id}:recent_letters`);
+
+   res.status(200).json({
+     success: true,
+     message: "Profile updated successfully",
+     user: updatedStudent,
+   });
+
+
   } catch (error) {
     console.error("Update profile error:", error);
     res.status(500).json({
@@ -117,142 +128,105 @@ export const updateStudentProfile = async (req, res) => {
 // Get Student Statistics
 export const getStudentStatistics = async (req, res) => {
   try {
-    const studentPhone = req.user.phone;
+    const cacheKey = `student:${req.user._id}:stats`;
 
-    const student = await Student.findOne({ phone: studentPhone }).select(
-      "name"
-    );
-
-    if (!student) {
-      return res.status(404).json({
-        success: false,
-        message: "Student not found with this phone number",
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      return res.json({
+        success: true,
+        statistics: JSON.parse(cached),
+        source: "cache",
       });
     }
 
-    // Fetch letters by student name
-    const allLetters = await Letter.find({
-      name: student.name,
-    });
+    const student = await Student.findOne({ phone: req.user.phone }).select(
+      "name"
+    );
+    if (!student)
+      return res
+        .status(404)
+        .json({ success: false, message: "Student not found" });
 
-    // Normalize helper
-    const normalize = (v) => (v || "").toString().toLowerCase();
+    const letters = await Letter.find({ name: student.name });
 
-    // Calculate statistics
+    const normalize = (v) => (v || "").toLowerCase();
+
     const statistics = {
-      totalLetters: allLetters.length,
-
-      signedUploaded: allLetters.filter((letter) =>
-        Boolean(letter.signedUploaded)
+      totalLetters: letters.length,
+      signedUploaded: letters.filter((l) => l.signedUploaded).length,
+      pendingSignature: letters.filter(
+        (l) =>
+          !l.signedUploaded &&
+          ["warning", "offer"].some((t) => normalize(l.letterType).includes(t))
       ).length,
-
-      pendingSignature: allLetters.filter((letter) => {
-        const type = normalize(letter.letterType);
-        const signed = Boolean(letter.signedUploaded);
-        return !signed && (type.includes("warning") || type.includes("offer"));
-      }).length,
-
-      approved: allLetters.filter(
-        (letter) => normalize(letter.status) === "approved"
+      approved: letters.filter((l) => normalize(l.status) === "approved")
+        .length,
+      rejected: letters.filter((l) => normalize(l.status) === "rejected")
+        .length,
+      inReview: letters.filter((l) =>
+        ["in_review", "in review"].includes(normalize(l.status))
       ).length,
-
-      rejected: allLetters.filter(
-        (letter) => normalize(letter.status) === "rejected"
-      ).length,
-
-      inReview: allLetters.filter((letter) => {
-        const status = normalize(letter.status);
-        return status === "in_review" || status === "in review";
-      }).length,
     };
 
-    res.status(200).json({
-      success: true,
-      statistics,
-    });
+    await redisClient.setEx(cacheKey, 120, JSON.stringify(statistics));
+
+    res.json({ success: true, statistics, source: "db" });
   } catch (error) {
-    console.error("Get statistics error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error fetching statistics",
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({ success: false, message: "Error fetching statistics" });
   }
 };
+
 
 // ========== LETTER MANAGEMENT ==========
 
 // Get Recent Letters
 export const getRecentLetters = async (req, res) => {
   try {
-    const studentPhone = req.user?.phone;
+    const cacheKey = `student:${req.user._id}:recent_letters`;
 
-    if (!studentPhone) {
-      return res.status(400).json({
-        success: false,
-        message: "Student phone missing",
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      return res.json({
+        success: true,
+        letters: JSON.parse(cached),
+        source: "cache",
       });
     }
 
-    // Find student by phone to get name
-    const student = await Student.findOne({ phone: studentPhone }).select(
+    const student = await Student.findOne({ phone: req.user.phone }).select(
       "name"
     );
+    if (!student)
+      return res
+        .status(404)
+        .json({ success: false, message: "Student not found" });
 
-    if (!student) {
-      return res.status(404).json({
-        success: false,
-        message: "Student not found with this phone number",
-      });
-    }
-
-    console.log(
-      "📋 Fetching letters for student:",
-      student.name,
-      "(Phone:",
-      studentPhone,
-      ")"
-    );
-
-    // Get recent letters using student name
-    const recentLetters = await Letter.find({
-      name: student.name,
-      // isDeleted: false
-    })
+    const letters = await Letter.find({ name: student.name })
       .sort({ createdAt: -1 })
-      // .limit(limit)
-      .select(
-        "_id letterType course letterId issueDate status signedUploaded verificationLink downloadLink"
-      );
+      .select("_id letterType course letterId issueDate status signedUploaded");
 
-
-
-    // Format output
-    const formattedLetters = recentLetters.map((letter) => ({
-      id: letter._id,
-      letterType: letter.letterType,
-      subType: letter.course,
-      credentialId: letter.letterId,
-      issueDate: letter.issueDate,
-      status: letter.status || "pending",
-      signedUploaded: letter.signedUploaded || false,
+    const formatted = letters.map((l) => ({
+      id: l._id,
+      letterType: l.letterType,
+      subType: l.course,
+      credentialId: l.letterId,
+      issueDate: l.issueDate,
+      status: l.status || "pending",
+      signedUploaded: l.signedUploaded || false,
     }));
 
+    await redisClient.setEx(cacheKey, 60, JSON.stringify(formatted));
 
-    return res.status(200).json({
-      success: true,
-      letters: formattedLetters,
-      count: formattedLetters.length,
-    });
+    res.json({ success: true, letters: formatted, source: "db" });
   } catch (error) {
-    console.error("Get recent letters error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Error fetching recent letters",
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({ success: false, message: "Error fetching recent letters" });
   }
 };
+
 
 // Get All Student Letters (with pagination, search, filter)
 export const getAllStudentLetters = async (req, res) => {
@@ -264,18 +238,22 @@ export const getAllStudentLetters = async (req, res) => {
       });
     }
 
-    const studentPhone = req.user.phone;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const search = req.query.search || "";
     const status = req.query.status || "all";
     const letterType = req.query.letterType || "all";
 
-    // Find student by phone to get name
-    const student = await Student.findOne({ phone: studentPhone }).select(
+    const cacheKey = `student:${req.user._id}:letters:${page}:${limit}:${search}:${status}:${letterType}`;
+
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      return res.status(200).json(JSON.parse(cached));
+    }
+
+    const student = await Student.findOne({ phone: req.user.phone }).select(
       "name"
     );
-
     if (!student) {
       return res.status(404).json({
         success: false,
@@ -283,13 +261,8 @@ export const getAllStudentLetters = async (req, res) => {
       });
     }
 
-    // Build query using student name
-    let query = {
-      name: student.name,
-      // isDeleted: false
-    };
+    let query = { name: student.name };
 
-    // Add search filter
     if (search) {
       query.$or = [
         { letterType: { $regex: search, $options: "i" } },
@@ -298,15 +271,8 @@ export const getAllStudentLetters = async (req, res) => {
       ];
     }
 
-    // Add status filter
-    if (status !== "all") {
-      query.status = status;
-    }
-
-    // Add letter type filter
-    if (letterType !== "all") {
-      query.letterType = letterType;
-    }
+    if (status !== "all") query.status = status;
+    if (letterType !== "all") query.letterType = letterType;
 
     const totalLetters = await Letter.countDocuments(query);
     const letters = await Letter.find(query)
@@ -314,7 +280,7 @@ export const getAllStudentLetters = async (req, res) => {
       .skip((page - 1) * limit)
       .limit(limit);
 
-    res.status(200).json({
+    const response = {
       success: true,
       letters,
       pagination: {
@@ -324,13 +290,16 @@ export const getAllStudentLetters = async (req, res) => {
         hasMore: page < Math.ceil(totalLetters / limit),
         limit,
       },
-    });
+      source: "db",
+    };
+
+    await redisClient.setEx(cacheKey, 60, JSON.stringify(response));
+
+    res.status(200).json(response);
   } catch (error) {
-    console.error("Get all letters error:", error);
     res.status(500).json({
       success: false,
       message: "Error fetching letters",
-      error: error.message,
     });
   }
 };
@@ -340,32 +309,29 @@ export const getLetterDetails = async (req, res) => {
   try {
     const { letterId } = req.params;
 
-    if (!letterId) {
-      return res.status(400).json({
-        success: false,
-        message: "Letter ID required",
+    const cacheKey = `student:${req.user._id}:letter:${letterId}`;
+
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      return res.status(200).json({
+        success: true,
+        letter: JSON.parse(cached),
+        source: "cache",
       });
     }
 
-    const studentPhone = req.user.phone;
-
-    // Find student by phone to get name
-    const student = await Student.findOne({ phone: studentPhone }).select(
+    const student = await Student.findOne({ phone: req.user.phone }).select(
       "name"
     );
-
     if (!student) {
-      return res.status(404).json({
-        success: false,
-        message: "Student not found with this phone number",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "Student not found" });
     }
 
-    // Find letter by ID and student name
     const letter = await Letter.findOne({
       _id: letterId,
       name: student.name,
-      // isDeleted: false
     });
 
     if (!letter) {
@@ -374,41 +340,21 @@ export const getLetterDetails = async (req, res) => {
         message: "Letter not found or access denied",
       });
     }
+await redisClient.setEx(cacheKey, 120, JSON.stringify(letter.toObject()));
 
     res.status(200).json({
       success: true,
-      letter: {
-        id: letter._id,
-        name: letter.name,
-        email: letter.email,
-        phone: letter.phone,
-        letterType: letter.letterType,
-        subType: letter.subType,
-        category: letter.category,
-        batch: letter.batch,
-        credentialId: letter.credentialId,
-        issueDate: letter.issueDate,
-        expiryDate: letter.expiryDate,
-        status: letter.status,
-        signedUploaded: letter.signedUploaded,
-        signedUploadedDate: letter.signedUploadedDate,
-        verificationLink: letter.verificationLink,
-        downloadLink: letter.downloadLink,
-        remarks: letter.remarks,
-        approvalNotes: letter.approvalNotes,
-        rejectionReason: letter.rejectionReason,
-        createdAt: letter.createdAt,
-      },
+      letter,
+      source: "db",
     });
   } catch (error) {
-    console.error("Get letter details error:", error);
     res.status(500).json({
       success: false,
       message: "Error fetching letter details",
-      error: error.message,
     });
   }
 };
+
 
 // ========== UPLOAD & DOWNLOAD ==========
 
@@ -482,6 +428,8 @@ export const uploadSignedLetter = async (req, res) => {
 
     await letter.save();
 
+    await redisClient.del(`student:${req.user._id}:stats`);
+    await redisClient.del(`student:${req.user._id}:recent_letters`);
     res.status(200).json({
       success: true,
       message: "Signed letter uploaded successfully",
@@ -794,6 +742,8 @@ export const uploadStudentDocuments = async (req, res) => {
     console.log("\n💾 Saving to database...");
     await student.save();
 
+    await redisClient.del(`student:${req.user._id}:documents`);
+
     console.log("\n✅ ALL DOCUMENTS PROCESSED SUCCESSFULLY");
     console.log("Final documents in DB:");
     console.log(JSON.stringify(student.documents, null, 2));
@@ -816,29 +766,43 @@ export const uploadStudentDocuments = async (req, res) => {
 
 export const getStudentDocuments = async (req, res) => {
   try {
-    const studentId = req.user._id;
+    const cacheKey = `student:${req.user._id}:documents`;
 
-    const student = await Student.findById(studentId);
-
-    if (!student) {
-      return res.status(404).json({
-        success: false,
-        message: "Student not found",
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      return res.json({
+        success: true,
+        documents: JSON.parse(cached),
+        source: "cache",
       });
     }
 
-    res.status(200).json({
+    const student = await Student.findById(req.user._id);
+    if (!student) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Student not found" });
+    }
+
+    await redisClient.setEx(
+      cacheKey,
+      120,
+      JSON.stringify(student.documents || {})
+    );
+
+    res.json({
       success: true,
       documents: student.documents || {},
+      source: "db",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
       message: "Failed to fetch documents",
-      error: error.message,
     });
   }
 };
+
 // View/Download Document
 export const viewStudentDocument = async (req, res) => {
   try {
