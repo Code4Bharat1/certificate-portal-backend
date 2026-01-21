@@ -27,14 +27,24 @@ router.post("/otp/send", async (req, res) => {
       });
     }
 
+    // ✅ DEVELOPMENT MODE - Bypass OTP
+    if (process.env.NODE_ENV !== "production") {
+      // console.log("🔧 DEV MODE: Bypassing OTP send");
+      return res.json({
+        success: true,
+        message: "OTP bypassed in development mode",
+        dev_mode: true,
+      });
+    }
+
+    // ✅ PRODUCTION MODE - Send real OTP to hardcoded number
+    const ADMIN_PHONE = process.env.ADMIN_WHATSAPP_NUMBER || "919892398976";
+    
     let result;
     try {
-      result = await sendOTPViaWhatsApp(phone, name || "Admin");
+      result = await sendOTPViaWhatsApp(ADMIN_PHONE, name || "Admin");
     } catch (whatsappError) {
-      if (process.env.NODE_ENV !== "production") {
-        console.log("WhatsApp Response:", whatsappResponse);
-      }
-
+      console.error("WhatsApp error:", whatsappError);
       return res.status(502).json({
         success: false,
         message: "WhatsApp service unavailable",
@@ -44,7 +54,7 @@ router.post("/otp/send", async (req, res) => {
     if (result?.success) {
       res.json({
         success: true,
-        message: "OTP sent successfully to WhatsApp",
+        message: `OTP sent successfully to ${ADMIN_PHONE}`,
       });
     } else {
       res.status(500).json({
@@ -73,6 +83,17 @@ router.post("/otp/verify", async (req, res) => {
       });
     }
 
+    // ✅ DEVELOPMENT MODE - Auto-verify any OTP
+    if (process.env.NODE_ENV !== "production") {
+      // console.log("🔧 DEV MODE: Auto-verifying OTP");
+      return res.json({
+        success: true,
+        message: "OTP verified successfully (dev mode)",
+        dev_mode: true,
+      });
+    }
+
+    // ✅ PRODUCTION MODE - Verify real OTP
     const result = verifyOTP(phone, otp);
 
     if (result.success) {
@@ -216,7 +237,15 @@ router.get("/available-courses", authenticate, async (req, res) => {
     const { category, name } = req.query;
 
     const coursesByCategory = {
-      "marketing-junction": [
+      // "marketing-junction": [
+      //   "Digital Marketing Specialist Certificate",
+      //   "Advanced SEO Specialist Certificate",
+      //   "Social Media Marketing Expert Certificate",
+      //   "Full Stack Digital Marketer Certificate",
+      //   "AI-Powered Digital Marketing Specialist Certificate",
+      //   "Videography Course",
+      // ],
+      DM: [
         "Digital Marketing Specialist Certificate",
         "Advanced SEO Specialist Certificate",
         "Social Media Marketing Expert Certificate",
@@ -224,19 +253,19 @@ router.get("/available-courses", authenticate, async (req, res) => {
         "AI-Powered Digital Marketing Specialist Certificate",
         "Videography Course",
       ],
-      "IT-Nexcore": [
-        "Full Stack Certificate (MERN Stack)",
-        "JavaScript Developer Certificate",
-        "Advanced React Developer Certificate",
-        "Node.js and Express.js Specialist Certificate",
-        "MongoDB Professional Certificate",
-        "Git & Version Control Expert Certificate",
-        "Frontend Development Pro Certificate",
-        "Backend Development Specialist Certificate",
-        "Web Development Project Certificate",
-        "Advanced Web Development Capstone Certificate",
-      ],
-      FSD: [
+      // "IT-Nexcore": [
+      //   "Full Stack Certificate (MERN Stack)",
+      //   "JavaScript Developer Certificate",
+      //   "Advanced React Developer Certificate",
+      //   "Node.js and Express.js Specialist Certificate",
+      //   "MongoDB Professional Certificate",
+      //   "Git & Version Control Expert Certificate",
+      //   "Frontend Development Pro Certificate",
+      //   "Backend Development Specialist Certificate",
+      //   "Web Development Project Certificate",
+      //   "Advanced Web Development Capstone Certificate",
+      // ],
+      fsd: [
         "Full Stack Certificate (MERN Stack)",
         "JavaScript Developer Certificate",
         "Advanced React Developer Certificate",
@@ -467,7 +496,7 @@ router.post("/bulk", authenticate, async (req, res) => {
               issueDate: cert.issueDate,
             });
 
-            console.log("WhatsApp Response: ", whatsappResponse);
+            // console.log("WhatsApp Response: ", whatsappResponse);
             whatsappSent = true;
             results.whatsappSuccess++;
           } catch (notificationError) {

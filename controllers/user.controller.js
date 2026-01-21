@@ -133,7 +133,7 @@ export const getAllUsers = async (req, res) => {
     const cachedUsers = await redisClient.get(cacheKey);
 
     if (cachedUsers) {
-      console.log("🚀 Users from Redis");
+      // console.log("🚀 Users from Redis");
       return res.json({
         success: true,
         count: JSON.parse(cachedUsers).length,
@@ -148,7 +148,7 @@ export const getAllUsers = async (req, res) => {
     // 3️⃣ Store in Redis (expire in 60 sec)
     await redisClient.setEx(cacheKey, 60, JSON.stringify(users));
 
-    console.log("📦 Users from Database");
+    // console.log("📦 Users from Database");
 
     res.json({
       success: true,

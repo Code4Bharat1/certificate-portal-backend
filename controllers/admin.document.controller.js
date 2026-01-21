@@ -109,34 +109,34 @@ export const viewStudentDocument = async (req, res) => {
 
     if (!documentPath) {
       
-      console.log("Available documents:", Object.keys(student.documents || {}));
+      // console.log("Available documents:", Object.keys(student.documents || {}));
       return res.status(404).json({
         success: false,
         message: "Document not found",
       });
     }
 
-    console.log("\n📂 DOCUMENT PATH ANALYSIS");
-    console.log("==========================================");
-    console.log("Raw path from DB:", documentPath);
-    console.log("Path type:", typeof documentPath);
-    console.log("Path length:", documentPath.length);
-    console.log("Starts with http:", documentPath.startsWith("http"));
-    console.log(
-      "Contains cloudinary.com:",
-      documentPath.includes("cloudinary.com")
-    );
+    // console.log("\n📂 DOCUMENT PATH ANALYSIS");
+    // console.log("==========================================");
+    // console.log("Raw path from DB:", documentPath);
+    // console.log("Path type:", typeof documentPath);
+    // console.log("Path length:", documentPath.length);
+    // console.log("Starts with http:", documentPath.startsWith("http"));
+    // console.log(
+    //   "Contains cloudinary.com:",
+    //   documentPath.includes("cloudinary.com")
+    // );
 
     // The document path should already be a full Cloudinary URL
     // Just return it as-is
     const finalUrl = documentPath;
     const isCloudinary = finalUrl.includes("cloudinary.com");
 
-    console.log("\n✅ FINAL RESPONSE");
-    console.log("==========================================");
-    console.log("Final URL:", finalUrl);
-    console.log("Is Cloudinary:", isCloudinary);
-    console.log("==========================================\n");
+    // console.log("\n✅ FINAL RESPONSE");
+    // console.log("==========================================");
+    // console.log("Final URL:", finalUrl);
+    // console.log("Is Cloudinary:", isCloudinary);
+    // console.log("==========================================\n");
 
     res.json({
       success: true,

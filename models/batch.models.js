@@ -63,7 +63,7 @@ batchSchema.index({ category: 1, createdAt: -1 });
 
 // Pre-save validation hook
 batchSchema.pre('save', function(next) {
-  console.log(`💾 [PRE-SAVE] Saving batch: ${this.category} - ${this.name}`);
+  // console.log(`💾 [PRE-SAVE] Saving batch: ${this.category} - ${this.name}`);
   
   // Additional validation based on category
   if (this.category === 'fsd') {
@@ -83,46 +83,46 @@ batchSchema.pre('save', function(next) {
 
 // Post-save hook for logging
 batchSchema.post('save', function(doc) {
-  console.log(`✅ [POST-SAVE] Batch saved successfully: ${doc.category} - ${doc.name}`);
+  // console.log(`✅ [POST-SAVE] Batch saved successfully: ${doc.category} - ${doc.name}`);
 });
 
 // Pre-update hook
 batchSchema.pre('findOneAndUpdate', function(next) {
   const update = this.getUpdate();
-  console.log(`🔄 [PRE-UPDATE] Updating batch:`, update);
+  // console.log(`🔄 [PRE-UPDATE] Updating batch:`, update);
   next();
 });
 
 // Post-update hook
 batchSchema.post('findOneAndUpdate', function(doc) {
   if (doc) {
-    console.log(`✅ [POST-UPDATE] Batch updated: ${doc.category} - ${doc.name}`);
+    // console.log(`✅ [POST-UPDATE] Batch updated: ${doc.category} - ${doc.name}`);
   }
 });
 
 // Pre-delete hook
 batchSchema.pre('findOneAndDelete', function(next) {
-  console.log(`🗑️ [PRE-DELETE] Deleting batch...`);
+  // console.log(`🗑️ [PRE-DELETE] Deleting batch...`);
   next();
 });
 
 // Post-delete hook
 batchSchema.post('findOneAndDelete', function(doc) {
   if (doc) {
-    console.log(`✅ [POST-DELETE] Batch deleted: ${doc.category} - ${doc.name}`);
+    // console.log(`✅ [POST-DELETE] Batch deleted: ${doc.category} - ${doc.name}`);
   }
 });
 
 // Static method to find batches by category
 batchSchema.statics.findByCategory = function(category) {
-  console.log(`🔍 [QUERY] Finding batches for category: ${category}`);
+  // console.log(`🔍 [QUERY] Finding batches for category: ${category}`);
   return this.find({ category }).sort({ name: 1 });
 };
 
 // Static method to get batch count by category
 batchSchema.statics.countByCategory = async function(category) {
   const count = await this.countDocuments({ category });
-  console.log(`📊 [STATS] ${category} batch count: ${count}`);
+  // console.log(`📊 [STATS] ${category} batch count: ${count}`);
   return count;
 };
 
@@ -134,7 +134,7 @@ batchSchema.statics.batchExists = async function(category, name) {
 
 // Static method to get all batches grouped by category
 batchSchema.statics.getAllGrouped = async function() {
-  console.log('📊 [QUERY] Fetching all batches grouped by category...');
+  // console.log('📊 [QUERY] Fetching all batches grouped by category...');
   
   const batches = await this.find({}).sort({ category: 1, name: 1 });
   
@@ -149,7 +149,7 @@ batchSchema.statics.getAllGrouped = async function() {
     }
   });
   
-  console.log(`✅ [RESULT] fsd: ${grouped.fsd.length}, bvoc: ${grouped.bvoc.length}`);
+  // console.log(`✅ [RESULT] fsd: ${grouped.fsd.length}, bvoc: ${grouped.bvoc.length}`);
   
   return grouped;
 };

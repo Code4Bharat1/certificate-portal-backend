@@ -24,16 +24,16 @@ const drawHRTimelineLetter = async (
     address,
   } = data;
 
-  console.log("📋 Timeline Letter Data:", {
-    name,
-    timelineStage,
-    timelineProjectName,
-    timelineDueDate,
-    timelineNewDate,
-    formattedDate,
-    outwardNo,
-    credentialId,
-  });
+  // console.log("📋 Timeline Letter Data:", {
+  //   name,
+  //   timelineStage,
+  //   timelineProjectName,
+  //   timelineDueDate,
+  //   timelineNewDate,
+  //   formattedDate,
+  //   outwardNo,
+  //   credentialId,
+  // });
 
   // ✅ Fixed date formatting to DD/MM/YYYY
   const formatDate = (dateStr) => {
@@ -70,12 +70,12 @@ const drawHRTimelineLetter = async (
   const formattedDueDate = formatDate(timelineDueDate);
   const formattedNewDate = formatDate(timelineNewDate);
 
-  console.log("📅 Formatted Dates:", {
-    original_due: timelineDueDate,
-    formatted_due: formattedDueDate,
-    original_new: timelineNewDate,
-    formatted_new: formattedNewDate,
-  });
+  // console.log("📅 Formatted Dates:", {
+  //   original_due: timelineDueDate,
+  //   formatted_due: formattedDueDate,
+  //   original_new: timelineNewDate,
+  //   formatted_new: formattedNewDate,
+  // });
 
   // ✅ Fixed stage text determination with proper validation
   let stageText = "First Official Warning"; // Default
@@ -96,17 +96,17 @@ const drawHRTimelineLetter = async (
     console.warn("⚠️ Timeline stage is undefined, using default");
   }
 
-  console.log("📊 Stage Text:", {
-    received: timelineStage,
-    mapped: stageText,
-  });
+  // console.log("📊 Stage Text:", {
+  //   received: timelineStage,
+  //   mapped: stageText,
+  // });
 
   // ✅ Validate project name
   const projectName = timelineProjectName || "Unnamed Project";
-  console.log("📝 Project Name:", {
-    received: timelineProjectName,
-    using: projectName,
-  });
+  // console.log("📝 Project Name:", {
+  //   received: timelineProjectName,
+  //   using: projectName,
+  // });
 
   // Draw white background
   ctx.fillStyle = "#FFFFFF";
@@ -303,7 +303,7 @@ const drawHRTimelineLetter = async (
   const verifyUrl = "https://portal.nexcorealliance.com/verify-certificate";
   ctx.fillText(verifyUrl, width / 3.8, 1000);
 
-  console.log("✅ Timeline letter drawn successfully");
+  // console.log("✅ Timeline letter drawn successfully");
 };
 
 export default drawHRTimelineLetter;

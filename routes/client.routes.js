@@ -95,12 +95,12 @@ router.put("/:id/status", authenticate, async (req, res) => {
     letter.status = status;
     await letter.save();
 
-    console.log(
-      "✅ Client letter status updated:",
-      letter.letterId,
-      "->",
-      status
-    );
+    // console.log(
+    //   "✅ Client letter status updated:",
+    //   letter.letterId,
+    //   "->",
+    //   status
+    // );
 
     res.status(200).json({
       success: true,
@@ -150,7 +150,7 @@ router.delete("/:id", authenticate, async (req, res) => {
         const filePath = path.join(process.cwd(), letter.pdfUrl);
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
-          console.log("✅ PDF file deleted:", filePath);
+          // console.log("✅ PDF file deleted:", filePath);
         }
       } catch (fileError) {
         console.error("⚠️ Error deleting PDF file:", fileError);
@@ -160,7 +160,7 @@ router.delete("/:id", authenticate, async (req, res) => {
 
     await ClientLetter.findByIdAndDelete(letter._id);
 
-    console.log("✅ Client letter deleted from DB:", letter.letterId);
+    // console.log("✅ Client letter deleted from DB:", letter.letterId);
 
     res.status(200).json({
       success: true,

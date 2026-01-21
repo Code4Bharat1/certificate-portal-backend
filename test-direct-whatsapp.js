@@ -12,9 +12,9 @@ async function testDirectWhatsApp() {
   const apiUrl = process.env.SIMPLYWHATSAPP_API_URL;
   const adminPhone = process.env.ADMIN_WHATSAPP_NUMBER;
 
-  console.log('   API Key:', apiKey ? '✅ Present' : '❌ Missing');
-  console.log('   Instance ID:', instanceId ? '✅ Present' : '❌ Missing');
-  console.log('   Admin Phone:', adminPhone || '❌ Missing');
+  // console.log('   API Key:', apiKey ? '✅ Present' : '❌ Missing');
+  // console.log('   Instance ID:', instanceId ? '✅ Present' : '❌ Missing');
+  // console.log('   Admin Phone:', adminPhone || '❌ Missing');
 
 
   // 2️⃣ Test API call
@@ -41,7 +41,7 @@ async function testDirectWhatsApp() {
     if (error.response) {
       
     } else {
-      console.log('Network Error:', error.message);
+      // console.log('Network Error:', error.message);
     }
   }
 }

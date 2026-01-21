@@ -15,12 +15,12 @@ const drawRFIDLetter = async (
 ) => {
   const { name, formattedDate, outwardNo, credentialId } = data;
 
-  console.log("📋 RFID Letter Data:", {
-    name,
-    formattedDate,
-    outwardNo,
-    credentialId,
-  });
+  // console.log("📋 RFID Letter Data:", {
+  //   name,
+  //   formattedDate,
+  //   outwardNo,
+  //   credentialId,
+  // });
 
   // Draw white background
   ctx.fillStyle = "#FFFFFF";
@@ -183,7 +183,7 @@ const drawRFIDLetter = async (
   const verifyUrl = "https://portal.nexcorealliance.com/verify-certificate";
   ctx.fillText(verifyUrl, width / 3.8, 1000);
 
-  console.log("✅ RFID letter drawn successfully");
+  // console.log("✅ RFID letter drawn successfully");
 };
 
 export default drawRFIDLetter;

@@ -924,7 +924,7 @@ const previewCodeLetter = async (req, res) => {
         aadhaarCard: userData?.aadhaarCard || "Not provided",
       };
 
-      console.log("📋 Multi-page template data:", templateData);
+      // console.log("📋 Multi-page template data:", templateData);
 
       const drawFunction = getDrawingFunction(category, course);
 

@@ -129,7 +129,7 @@ adminSchema.statics.createDefaultAdmin = async function () {
     const count = await this.countDocuments();
     if (count > 0) return;
 
-    console.log("🔐 No admin found → Creating default admin");
+    // console.log("🔐 No admin found → Creating default admin");
 
     const username = process.env.ADMIN_USERNAME || "C4B";
     const password = process.env.ADMIN_PASSWORD || "C4B123"; // FIXED: at least 6 chars

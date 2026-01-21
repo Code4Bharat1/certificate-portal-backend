@@ -149,22 +149,22 @@ router.post(
         clientPhone2,
       } = req.body;
 
-      console.log("📝 Adding new person:", {
-        name,
-        category,
-        batch,
-        phone,
-        hasParentPhone1: !!parentPhone1,
-        hasParentPhone2: !!parentPhone2,
-        hasAadhaar: !!aadhaarCard,
-        hasAddress: !!address,
-        hasEmail: !!email,
-        hasParentEmail: !!parentEmail,
-        hasClientEmail1: !!clientEmail1,
-        hasClientEmail2: !!clientEmail2,
-        hasClientPhone1: !!clientPhone1,
-        hasClientPhone2: !!clientPhone2,
-      });
+      // console.log("📝 Adding new person:", {
+      //   name,
+      //   category,
+      //   batch,
+      //   phone,
+      //   hasParentPhone1: !!parentPhone1,
+      //   hasParentPhone2: !!parentPhone2,
+      //   hasAadhaar: !!aadhaarCard,
+      //   hasAddress: !!address,
+      //   hasEmail: !!email,
+      //   hasParentEmail: !!parentEmail,
+      //   hasClientEmail1: !!clientEmail1,
+      //   hasClientEmail2: !!clientEmail2,
+      //   hasClientPhone1: !!clientPhone1,
+      //   hasClientPhone2: !!clientPhone2,
+      // });
 
       // Validate batch for FSD and BVOC
       if (["FSD", "BVOC"].includes(category) && !batch) {
@@ -235,7 +235,7 @@ router.post(
       const newStudent = new Student(newPersonData);
       await newStudent.save();
 
-      console.log("✅ Person added successfully:", newPerson._id);
+      // console.log("✅ Person added successfully:", newPerson._id);
 
       res.status(201).json({
         success: true,
@@ -283,12 +283,12 @@ router.get("/", async (req, res) => {
   try {
     let { category, categories, batch, disabled } = req.query;
 
-    console.log("📊 Incoming query params:", {
-      category,
-      categories,
-      batch,
-      disabled,
-    });
+    // console.log("📊 Incoming query params:", {
+    //   category,
+    //   categories,
+    //   batch,
+    //   disabled,
+    // });
 
     let filter = {};
 
@@ -306,10 +306,10 @@ router.get("/", async (req, res) => {
           category: new RegExp(`^${cat}$`, "i"),
         }));
 
-        console.log(
-          "🔍 Multiple categories filter (OR):",
-          normalizedCategories
-        );
+        // console.log(
+        //   "🔍 Multiple categories filter (OR):",
+        //   normalizedCategories
+        // );
       } catch (error) {
         console.error("Error parsing categories:", error);
       }
@@ -318,7 +318,7 @@ router.get("/", async (req, res) => {
     else if (category && category !== "all") {
       const normalizedCategory = normalizeCategory(category);
       filter.category = new RegExp(`^${normalizedCategory}$`, "i");
-      console.log("🔍 Single category filter:", normalizedCategory);
+      // console.log("🔍 Single category filter:", normalizedCategory);
     }
 
     // Add batch filter if provided
@@ -331,14 +331,14 @@ router.get("/", async (req, res) => {
       filter.disabled = disabled === "true" || disabled === true;
     }
 
-    console.log("🔍 MongoDB filter:", JSON.stringify(filter, null, 2));
+    // console.log("🔍 MongoDB filter:", JSON.stringify(filter, null, 2));
 
     const people = await People.find(filter).sort({ createdAt: -1 });
 
-    console.log(`✅ Found ${people.length} people matching filter`);
-    console.log(`📋 Categories in results:`, [
-      ...new Set(people.map((p) => p.category)),
-    ]);
+    // console.log(`✅ Found ${people.length} people matching filter`);
+    // console.log(`📋 Categories in results:`, [
+    //   ...new Set(people.map((p) => p.category)),
+    // ]);
 
     // Format data for frontend
     const names = people.map((p) => {
@@ -377,12 +377,12 @@ router.get("/", async (req, res) => {
     const enabledCount = names.filter((p) => !p.disabled).length;
     const disabledCount = names.filter((p) => p.disabled).length;
 
-    console.log("✅ Returning people:", {
-      total: names.length,
-      enabled: enabledCount,
-      disabled: disabledCount,
-      categories: [...new Set(names.map((p) => p.category))],
-    });
+    // console.log("✅ Returning people:", {
+    //   total: names.length,
+    //   enabled: enabledCount,
+    //   disabled: disabledCount,
+    //   categories: [...new Set(names.map((p) => p.category))],
+    // });
 
     res.json({
       success: true,
@@ -535,18 +535,18 @@ router.put(
         clientPhone2,
       } = req.body;
 
-      console.log("📝 Updating person by name:", {
-        originalName,
-        originalPhone,
-        newName: name,
-        category,
-        batch,
-        email,
-        clientEmail1,
-        clientEmail2,
-        hasClientPhone1: !!clientPhone1,
-        hasClientPhone2: !!clientPhone2,
-      });
+      // console.log("📝 Updating person by name:", {
+      //   originalName,
+      //   originalPhone,
+      //   newName: name,
+      //   category,
+      //   batch,
+      //   email,
+      //   clientEmail1,
+      //   clientEmail2,
+      //   hasClientPhone1: !!clientPhone1,
+      //   hasClientPhone2: !!clientPhone2,
+      // });
 
       // Validate batch requirement for FSD and BVOC
       if (category && ["FSD", "BVOC"].includes(category) && !batch) {
@@ -644,7 +644,7 @@ router.put(
         });
       }
 
-      console.log("✅ Person updated successfully:", person._id);
+      // console.log("✅ Person updated successfully:", person._id);
 
       res.status(200).json({
         success: true,
@@ -694,7 +694,7 @@ router.post("/bulk-upload", upload.single("file"), async (req, res) => {
       });
     }
 
-    console.log("📤 Processing bulk upload...");
+    // console.log("📤 Processing bulk upload...");
 
     // Parse Excel file
     const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
@@ -702,7 +702,7 @@ router.post("/bulk-upload", upload.single("file"), async (req, res) => {
     const worksheet = workbook.Sheets[sheetName];
     const data = xlsx.utils.sheet_to_json(worksheet);
 
-    console.log(`📊 Found ${data.length} rows in Excel file`);
+    // console.log(`📊 Found ${data.length} rows in Excel file`);
 
     const successfulUploads = [];
     const failedUploads = [];
@@ -850,9 +850,9 @@ router.post("/bulk-upload", upload.single("file"), async (req, res) => {
       }
     }
 
-    console.log(
-      `✅ Bulk upload completed: ${successfulUploads.length} success, ${failedUploads.length} failed`
-    );
+    // console.log(
+    //   `✅ Bulk upload completed: ${successfulUploads.length} success, ${failedUploads.length} failed`
+    // );
 
     res.status(200).json({
       success: true,
@@ -878,7 +878,7 @@ router.post("/bulk-upload", upload.single("file"), async (req, res) => {
  */
 router.get("/template", (req, res) => {
   try {
-    console.log("📥 Generating Excel template...");
+    // console.log("📥 Generating Excel template...");
 
     // Create template data
     const templateData = [
@@ -954,7 +954,7 @@ router.get("/template", (req, res) => {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
 
-    console.log("✅ Template generated successfully");
+    // console.log("✅ Template generated successfully");
     res.send(buffer);
   } catch (error) {
     console.error("❌ Error generating template:", error);
@@ -973,7 +973,7 @@ router.get("/template", (req, res) => {
  */
 router.get("/stats/summary", async (req, res) => {
   try {
-    console.log("📊 Fetching statistics...");
+    // console.log("📊 Fetching statistics...");
 
     const total = await People.countDocuments();
     const totalDisabled = await People.countDocuments({ disabled: true });
@@ -1038,7 +1038,7 @@ router.get("/stats/summary", async (req, res) => {
       })),
     };
 
-    console.log("✅ Statistics fetched successfully");
+    // console.log("✅ Statistics fetched successfully");
 
     res.json({
       success: true,
@@ -1061,7 +1061,7 @@ router.get("/stats/summary", async (req, res) => {
  */
 router.get("/:id", async (req, res) => {
   try {
-    console.log("🔍 Fetching person by ID:", req.params.id);
+    // console.log("🔍 Fetching person by ID:", req.params.id);
 
     const person = await People.findById(req.params.id);
 
@@ -1073,7 +1073,7 @@ router.get("/:id", async (req, res) => {
       });
     }
 
-    console.log("✅ Person found:", person.name);
+    // console.log("✅ Person found:", person.name);
 
     res.json({
       success: true,
@@ -1126,10 +1126,10 @@ router.patch("/:id", async (req, res) => {
     const { disabled } = req.body;
     const personName = req.params.id;
 
-    console.log("🔄 Toggle disable request:", {
-      personName,
-      newDisabledState: disabled,
-    });
+    // console.log("🔄 Toggle disable request:", {
+    //   personName,
+    //   newDisabledState: disabled,
+    // });
 
     // Validate disabled field
     if (typeof disabled !== "boolean") {
@@ -1155,7 +1155,7 @@ router.patch("/:id", async (req, res) => {
     }
 
     const action = disabled ? "disabled" : "enabled";
-    console.log(`✅ Person ${action} successfully:`, person.name);
+    //  console.log(`✅ Person ${action} successfully:`, person.name);
 
     res.status(200).json({
       success: true,
@@ -1197,7 +1197,7 @@ router.patch("/:id", async (req, res) => {
  */
 router.delete("/:id", async (req, res) => {
   try {
-    console.log("🗑️ Deleting person:", req.params.id);
+    // console.log("🗑️ Deleting person:", req.params.id);
 
     const deleted = await People.findByIdAndDelete(req.params.id);
 
@@ -1213,7 +1213,7 @@ router.delete("/:id", async (req, res) => {
       name: deleted.name,
     });
 
-    console.log("✅ Person deleted successfully:", deleted.name);
+    // console.log("✅ Person deleted successfully:", deleted.name);
 
     res.status(200).json({
       success: true,

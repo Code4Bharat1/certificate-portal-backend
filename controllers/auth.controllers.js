@@ -696,9 +696,9 @@ export const studentForgotPassword = async (req, res) => {
     }
 
     if (process.env.NODE_ENV !== "production") {
-      console.log(
-        `⚠️ DEV MODE: Skipping forgot password OTP send for ${formattedPhone}`
-      );
+      // console.log(
+      //   `⚠️ DEV MODE: Skipping forgot password OTP send for ${formattedPhone}`
+      // );
     } else {
       const otpResult = await sendOTPViaWhatsApp(formattedPhone, student.name);
 
@@ -750,9 +750,9 @@ export const studentVerifyResetOTP = async (req, res) => {
         });
       }
     } else {
-      console.log(
-        `⚠️ DEV MODE: Accepting reset OTP ${otp} without verification`
-      );
+      // console.log(
+      //   `⚠️ DEV MODE: Accepting reset OTP ${otp} without verification`
+      // );
     }
 
     const student = await Student.findOne({ phone: formattedPhone });

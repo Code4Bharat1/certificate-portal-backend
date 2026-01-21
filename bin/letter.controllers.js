@@ -336,12 +336,12 @@ export const createLetter = async (req, res) => {
       });
     }
 
-    console.log("Create Letter Request:", {
-      name,
-      category,
-      course,
-      letterType,
-    });
+    // console.log("Create Letter Request:", {
+    //   name,
+    //   category,
+    //   course,
+    //   letterType,
+    // });
 
     // ✅ Normalize category before generating letter ID
     const normalizedCategory = normalizeCategory(category);
@@ -423,12 +423,12 @@ export const createLetter = async (req, res) => {
       year: year || null,
     };
 
-    console.log("Creating letter with data:", {
-      letterId: letterData.letterId,
-      name: letterData.name,
-      category: letterData.category,
-      outwardNo: letterData.outwardNo,
-    });
+    // console.log("Creating letter with data:", {
+    //   letterId: letterData.letterId,
+    //   name: letterData.name,
+    //   category: letterData.category,
+    //   outwardNo: letterData.outwardNo,
+    // });
 
     // Create letter in database
     const letter = await Letter.create(letterData);
@@ -596,11 +596,11 @@ export const previewLetter = async (req, res) => {
     // Normalize category for template lookup
     const normalizedCategory = normalizeCategory(category);
 
-    console.log("Preview Request:", {
-      originalCategory: category,
-      normalizedCategory,
-      course,
-    });
+    // console.log("Preview Request:", {
+    //   originalCategory: category,
+    //   normalizedCategory,
+    //   course,
+    // });
 
     // Get template filename
     const templateFilename = getLetterTemplateFilename(

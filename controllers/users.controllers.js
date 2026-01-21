@@ -616,7 +616,7 @@ export const uploadStudentDocuments = async (req, res) => {
       });
     }
 
-    console.log("Files received:", Object.keys(files));
+    // console.log("Files received:", Object.keys(files));
 
     // Helper function to upload to Cloudinary
     const uploadToCloudinary = async (file, docType) => {
@@ -722,7 +722,7 @@ export const uploadStudentDocuments = async (req, res) => {
             updatedAt: new Date(),
           };
           
-          console.log(`💾 Saved bankPassbook URL to DB: ${cloudinaryUrl}`);
+          // console.log(`💾 Saved bankPassbook URL to DB: ${cloudinaryUrl}`);
         })()
       );
     }
@@ -739,14 +739,14 @@ export const uploadStudentDocuments = async (req, res) => {
     student.markModified("documents");
     student.markModified("documentStatus");
 
-    console.log("\n💾 Saving to database...");
+    // console.log("\n💾 Saving to database...");
     await student.save();
 
     await redisClient.del(`student:${req.user._id}:documents`);
 
-    console.log("\n✅ ALL DOCUMENTS PROCESSED SUCCESSFULLY");
-    console.log("Final documents in DB:");
-    console.log(JSON.stringify(student.documents, null, 2));
+    // console.log("\n✅ ALL DOCUMENTS PROCESSED SUCCESSFULLY");
+    // console.log("Final documents in DB:");
+    // console.log(JSON.stringify(student.documents, null, 2));
 
     res.status(200).json({
       success: true,

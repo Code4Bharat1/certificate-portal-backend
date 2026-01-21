@@ -227,9 +227,9 @@ peopleSchema.index({ batch: 1, disabled: 1 });
 peopleSchema.pre("save", function (next) {
   // Log disabled status changes
   if (this.isModified("disabled")) {
-    console.log(
-      `💾 [PRE-SAVE] ${this.name} - disabled status changing to: ${this.disabled}`
-    );
+    // console.log(
+    //   `💾 [PRE-SAVE] ${this.name} - disabled status changing to: ${this.disabled}`
+    // );
   }
 
   // Ensure batch is provided for fsd and bvoc
@@ -258,11 +258,11 @@ peopleSchema.pre("save", function (next) {
 // Post-save hook for logging
 peopleSchema.post("save", function (doc) {
   if (doc.disabled !== undefined) {
-    console.log(
-      `✅ [POST-SAVE] ${doc.name} saved with status: ${
-        doc.disabled ? "DISABLED" : "ACTIVE"
-      }`
-    );
+    // console.log(
+    //   `✅ [POST-SAVE] ${doc.name} saved with status: ${
+    //     doc.disabled ? "DISABLED" : "ACTIVE"
+    //   }`
+    // );
   }
 });
 
@@ -272,9 +272,9 @@ peopleSchema.pre("findOneAndUpdate", function (next) {
 
   // Log update operations
   if (update.$set && update.$set.disabled !== undefined) {
-    console.log(
-      `🔄 [PRE-UPDATE] Updating disabled status to: ${update.$set.disabled}`
-    );
+    // console.log(
+    //   `🔄 [PRE-UPDATE] Updating disabled status to: ${update.$set.disabled}`
+    // );
   }
 
   // Check if category is being updated
@@ -315,13 +315,13 @@ peopleSchema.statics.findByCategoryAndBatch = function (category, batch) {
 
 // Static method to find enabled people only
 peopleSchema.statics.findEnabled = function (filter = {}) {
-  console.log("🔍 [QUERY] Finding enabled people with filter:", filter);
+  // console.log("🔍 [QUERY] Finding enabled people with filter:", filter);
   return this.find({ ...filter, disabled: false }).sort({ createdAt: -1 });
 };
 
 // Static method to find disabled people only
 peopleSchema.statics.findDisabled = function (filter = {}) {
-  console.log("🔍 [QUERY] Finding disabled people with filter:", filter);
+  // console.log("🔍 [QUERY] Finding disabled people with filter:", filter);
   return this.find({ ...filter, disabled: true }).sort({ createdAt: -1 });
 };
 
@@ -409,11 +409,11 @@ peopleSchema.methods.toggleDisabled = async function () {
   const previousState = this.disabled;
   this.disabled = !this.disabled;
 
-  console.log(
-    `🔄 [TOGGLE] ${this.name}: ${previousState ? "DISABLED" : "ACTIVE"} → ${
-      this.disabled ? "DISABLED" : "ACTIVE"
-    }`
-  );
+  // console.log(
+  //   `🔄 [TOGGLE] ${this.name}: ${previousState ? "DISABLED" : "ACTIVE"} → ${
+  //     this.disabled ? "DISABLED" : "ACTIVE"
+  //   }`
+  // );
 
   await this.save();
   return this;
@@ -422,12 +422,12 @@ peopleSchema.methods.toggleDisabled = async function () {
 // Instance method to enable person
 peopleSchema.methods.enable = async function () {
   if (!this.disabled) {
-    console.log(`⚠️ [ENABLE] ${this.name} is already enabled`);
+    // console.log(`⚠️ [ENABLE] ${this.name} is already enabled`);
     return this;
   }
 
   this.disabled = false;
-  console.log(`✅ [ENABLE] Enabling ${this.name}`);
+  // console.log(`✅ [ENABLE] Enabling ${this.name}`);
   await this.save();
   return this;
 };
@@ -435,12 +435,12 @@ peopleSchema.methods.enable = async function () {
 // Instance method to disable person
 peopleSchema.methods.disable = async function () {
   if (this.disabled) {
-    console.log(`⚠️ [DISABLE] ${this.name} is already disabled`);
+    // console.log(`⚠️ [DISABLE] ${this.name} is already disabled`);
     return this;
   }
 
   this.disabled = true;
-  console.log(`🚫 [DISABLE] Disabling ${this.name}`);
+  // console.log(`🚫 [DISABLE] Disabling ${this.name}`);
   await this.save();
   return this;
 };
@@ -488,7 +488,7 @@ peopleSchema.statics.findByNormalizedCategory = function (category, additionalFi
     filter.category = category;
   }
   
-  console.log("🔍 [NORMALIZED QUERY] Category filter:", filter);
+  // console.log("🔍 [NORMALIZED QUERY] Category filter:", filter);
   return this.find(filter).sort({ createdAt: -1 });
 };
 

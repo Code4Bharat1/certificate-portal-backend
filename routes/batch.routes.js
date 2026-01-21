@@ -279,8 +279,8 @@ router.put('/update-by-name', async (req, res) => {
       { $set: { batch: newBatchName } }
     );
 
-    console.log(`✅ Batch updated: ${oldBatchName} → ${newBatchName}`);
-    console.log(`✅ Updated ${updateResult.modifiedCount} people with new batch name`);
+    // console.log(`✅ Batch updated: ${oldBatchName} → ${newBatchName}`);
+    // console.log(`✅ Updated ${updateResult.modifiedCount} people with new batch name`);
 
     res.json({
       success: true,
@@ -371,7 +371,7 @@ router.put('/:id', async (req, res) => {
         { category: oldCategory, batch: oldName },
         { $set: { batch: batch.name } }
       );
-      console.log(`✅ Updated ${updateResult.modifiedCount} people: ${oldName} → ${batch.name}`);
+      // console.log(`✅ Updated ${updateResult.modifiedCount} people: ${oldName} → ${batch.name}`);
     }
 
 

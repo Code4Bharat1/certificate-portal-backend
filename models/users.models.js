@@ -335,9 +335,9 @@ studentSchema.pre("save", function (next) {
 // -------------------------
 
 studentSchema.post("save", function (doc) {
-  console.log(
-    `✔️ [STUDENT SAVED] ${doc.name} → ${doc.disabled ? "DISABLED" : "ACTIVE"}`
-  );
+  // console.log(
+  //   `✔️ [STUDENT SAVED] ${doc.name} → ${doc.disabled ? "DISABLED" : "ACTIVE"}`
+  // );
 });
 
 

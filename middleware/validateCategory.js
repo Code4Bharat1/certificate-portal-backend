@@ -42,7 +42,7 @@ export const validateCategory = (req, res, next) => {
   // Normalize to match DB schema exactly
   req.body.category = validCategories[categoryLower];
   
-  console.log(`✅ Category normalized: "${req.body.category}"`);
+  // console.log(`✅ Category normalized: "${req.body.category}"`);
   
   next();
 };

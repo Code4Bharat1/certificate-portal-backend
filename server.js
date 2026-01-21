@@ -251,17 +251,17 @@ app.get("/health", (req, res) => {
 // Debug: Log all registered routes (FIXED)
 // ===============================
 if (process.env.NODE_ENV !== "production" && app._router) {
-  console.log("\n📋 Registered Routes:");
+  // console.log("\n📋 Registered Routes:");
   app._router.stack.forEach(function (r) {
     if (r.route && r.route.path) {
-      console.log(
-        `  ${Object.keys(r.route.methods).join(", ").toUpperCase()} ${
-          r.route.path
-        }`
-      );
+      // console.log(
+      //   `  ${Object.keys(r.route.methods).join(", ").toUpperCase()} ${
+      //     r.route.path
+      //   }`
+      // );
     }
   });
-  console.log("\n");
+  // console.log("\n");
 }
 
 // ===============================
@@ -353,12 +353,12 @@ const createDefaultAdmin = async () => {
       });
 
       await defaultAdmin.save();
-      console.log(
-        "✅ Default admin created (username: admin, password: admin123)"
-      );
-      console.log("⚠️  IMPORTANT: Change default password immediately!");
+      // console.log(
+      //   "✅ Default admin created (username: admin, password: admin123)"
+      // );
+      // console.log("⚠️  IMPORTANT: Change default password immediately!");
     } else {
-      console.log(`ℹ️  ${adminCount} admin user(s) already exist`);
+      // console.log(`ℹ️  ${adminCount} admin user(s) already exist`);
     }
   } catch (error) {
     console.error("❌ Error creating default admin:", error.message);
@@ -370,13 +370,13 @@ const createDefaultAdmin = async () => {
 // Graceful Shutdown
 // ===============================
 process.on("SIGTERM", async () => {
-  console.log("👋 SIGTERM received, closing server gracefully");
+  // console.log("👋 SIGTERM received, closing server gracefully");
   await mongoose.connection.close();
   process.exit(0);
 });
 
 process.on("SIGINT", async () => {
-  console.log("👋 SIGINT received, closing server gracefully");
+  // console.log("👋 SIGINT received, closing server gracefully");
   await mongoose.connection.close();
   process.exit(0);
 });
