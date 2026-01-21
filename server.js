@@ -19,6 +19,9 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5235;
 
+app.set("trust proxy", 1); // Railway / Nginx
+app.use(globalLimiter);
+
 // ===============================
 // CORS
 // ===============================
@@ -46,23 +49,55 @@ app.use(
   })
 );
 
-// ===============================
-// RATE LIMITER (API only)
-// ===============================
-import rateLimit from "express-rate-limit";
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // ⛔ VERY LOW: 10 requests per IP
+// ===============================
+// RATE LIMITERS
+// ===============================
+
+// 🌍 Global limiter (very light)
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 500,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// 🔐 Auth limiter (VERY STRICT)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
   message: {
     success: false,
-    message: "Too many requests. Please try again after 15 minutes.",
+    message: "Too many authentication attempts. Try again after 15 minutes.",
   },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-app.use("/api", limiter);
+// 👤 User API limiter
+const userLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: {
+    success: false,
+    message: "Too many requests. Please slow down.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// 🛡️ Admin API limiter
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 500,
+  message: {
+    success: false,
+    message: "Admin rate limit exceeded. Please wait.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 
 app.use((req, res, next) => {
   // HTTPS only
@@ -159,15 +194,15 @@ ensureDirs();
 
 // Auth (Admin + Student)
 import authRoutes from "./routes/auth.routes.js";
-app.use("/api/auth", authRoutes);
-app.use("/api/auth/user", authRoutes);
+app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/auth/user", authLimiter,  authRoutes);
 
 // Admin System (MongoDB Based)
 import adminRoutes from "./routes/admin.routes.js";
-app.use("/api/admin", adminRoutes);
+app.use("/api/admin", adminLimiter,  adminRoutes);
 
 import adminDocumentRoutes from "./routes/admin.document.routes.js";
-app.use("/api/documents", adminDocumentRoutes);
+app.use("/api/documents", adminLimiter, adminDocumentRoutes);
 
 // Misc Admin Routes
 import certificateRoutes from "./routes/certificate.routes.js";
@@ -182,20 +217,20 @@ import clientRoutes from "./routes/client.routes.js";
 import codeLetterRoutes from "./routes/codeletter.routes.js";
 
 // Attach Routes
-app.use("/api/certificates", certificateRoutes);
-app.use("/api/stats", statsRoutes);
-app.use("/api/templates", templateRoutes);
-app.use("/api/people", peopleRoutes);
-app.use("/api/batches", batchRoutes);
+app.use("/api/certificates", adminLimiter, certificateRoutes);
+app.use("/api/stats", adminLimiter, statsRoutes);
+app.use("/api/templates", adminLimiter, templateRoutes);
+app.use("/api/people", adminLimiter, peopleRoutes);
+app.use("/api/batches", adminLimiter, batchRoutes);
 // app.use("/api/letters", letterRoutes);
-app.use("/api/categories", categoryRoutes);
-app.use("/api/onboarding-request", onboardingRoutes);
-app.use("/api/clientletters", clientRoutes);
-app.use("/api/codeletters", codeLetterRoutes);
+app.use("/api/categories", adminLimiter, categoryRoutes);
+app.use("/api/onboarding-request", adminLimiter, onboardingRoutes);
+app.use("/api/clientletters", adminLimiter, clientRoutes);
+app.use("/api/codeletters", adminLimiter, codeLetterRoutes);
 
 // Student
 import studentRoutes from "./routes/users.routes.js";
-app.use("/api/student", studentRoutes);
+app.use("/api/student", userLimiter, studentRoutes);
 
 // ===============================
 // Health Check
