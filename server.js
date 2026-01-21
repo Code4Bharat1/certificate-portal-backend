@@ -9,6 +9,7 @@ import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import fs from "fs";
+import rateLimit from "express-rate-limit";
 
 dotenv.config();
 
@@ -18,37 +19,6 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5235;
-
-app.set("trust proxy", 1); // Railway / Nginx
-app.use(globalLimiter);
-
-// ===============================
-// CORS
-// ===============================
-const allowedOrigins = [
-  "https://education.code4bharat.com",
-  "https://www.education.code4bharat.com",
-  "https://education.marketiqjunction.com",
-  "https://www.education.marketiqjunction.com",
-  "https://certificate.nexcorealliance.com",
-  "https://www.certificate.nexcorealliance.com",
-  "https://portal.nexcorealliance.com",
-  "https://www.portal.nexcorealliance.com",
-  "http://localhost:3000", // certificate
-  "http://localhost:3010", // c4b
-  "http://localhost:3001", // mj
-];
-
-app.use(
-  cors({
-    origin: (origin, cb) =>
-      !origin || allowedOrigins.includes(origin)
-        ? cb(null, true)
-        : cb(new Error("Not allowed by CORS")),
-    credentials: true,
-  })
-);
-
 
 // ===============================
 // RATE LIMITERS
@@ -97,6 +67,40 @@ const adminLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+
+
+
+app.set("trust proxy", 1); // Railway / Nginx
+app.use(globalLimiter);
+
+// ===============================
+// CORS
+// ===============================
+const allowedOrigins = [
+  "https://education.code4bharat.com",
+  "https://www.education.code4bharat.com",
+  "https://education.marketiqjunction.com",
+  "https://www.education.marketiqjunction.com",
+  "https://certificate.nexcorealliance.com",
+  "https://www.certificate.nexcorealliance.com",
+  "https://portal.nexcorealliance.com",
+  "https://www.portal.nexcorealliance.com",
+  "http://localhost:3000", // certificate
+  "http://localhost:3010", // c4b
+  "http://localhost:3001", // mj
+];
+
+app.use(
+  cors({
+    origin: (origin, cb) =>
+      !origin || allowedOrigins.includes(origin)
+        ? cb(null, true)
+        : cb(new Error("Not allowed by CORS")),
+    credentials: true,
+  })
+);
+
 
 
 app.use((req, res, next) => {
