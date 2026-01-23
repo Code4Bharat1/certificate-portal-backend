@@ -182,7 +182,7 @@ function getAdjustedFontSize(ctx, text, maxWidth, baseFontSize) {
   return fontSize;
 }
 
-const getAllCertificate = async (req, res) => {
+const   getAllCertificate = async (req, res) => {
   try {
     const { categories, status, search } = req.query;
 
@@ -216,11 +216,15 @@ const getAllCertificate = async (req, res) => {
       ...query,
       ...categoryFilter,
     };
-
+    console.log(finalQuery);
+    
     // Fetch certificates
     const certificates = await Certificate.find(finalQuery)
       .sort({ createdAt: -1 })
       .populate("createdBy", "username");
+
+    console.log(certificates);
+    
 
     // Fetch letters (same logic)
     const letters = await Letter.find(finalQuery)
@@ -409,9 +413,9 @@ export const createCertificate = async (req, res) => {
               ctx.fillText(
                 "https://portal.nexcorealliance.com/verify-certificate",
                 width / 2,
-                height * 0.83
+                height * 0.83,
               );
-            } else if (id === "NEX" || id === "fsd") {
+            } else if (id === "NEX" || id === "FSD" || id === "fsd") {
               ctx.fillStyle = "#1F2937";
               ctx.textAlign = "center";
               ctx.textBaseline = "middle";
@@ -419,7 +423,7 @@ export const createCertificate = async (req, res) => {
                 ctx,
                 name.toUpperCase(),
                 width * 0.65,
-                50
+                50,
               );
               ctx.font = `bold ${nameFontSize}px Arial`;
               ctx.fillText(name.toUpperCase(), width / 2, height * 0.46);
@@ -439,7 +443,7 @@ export const createCertificate = async (req, res) => {
                 ctx,
                 name.toUpperCase(),
                 width * 0.65,
-                50
+                50,
               );
               ctx.font = `bold ${nameFontSize}px Arial`;
               ctx.fillText(name.toUpperCase(), width / 2, height * 0.44);
@@ -825,7 +829,7 @@ const downloadCertificateAsPdf = async (req, res) => {
       ctx.fillText(
         "https://portal.nexcorealliance.com/verify-certificate",
         width / 2,
-        height * 0.83
+        height * 0.83,
       );
 
       const imageBuffer = canvas.toBuffer("image/png");
@@ -841,7 +845,8 @@ const downloadCertificateAsPdf = async (req, res) => {
       doc.link(width / 2 - 250, height * 0.87, 500, 40, verifyURL);
 
       doc.end();
-    } else if (id === "NEX" || id === "fsd") {
+    } else if (id === "NEX" || id === "FSD" || id === "fsd") {
+      // ✅ IT-Nexcore & FSD certificates - SAME POSITIONING
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -849,7 +854,7 @@ const downloadCertificateAsPdf = async (req, res) => {
         ctx,
         certificate.name.toUpperCase(),
         width * 0.65,
-        50
+        50,
       );
       ctx.font = `bold ${nameFontSize}px Arial`;
       ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.46);
@@ -863,18 +868,15 @@ const downloadCertificateAsPdf = async (req, res) => {
       ctx.fillText(certificate.certificateId, width * 0.42, height * 0.8);
 
       const imageBuffer = canvas.toBuffer("image/png");
-
       const doc = new PDFDocument({
         size: [width, height],
         margin: 0,
       });
-
       doc.pipe(res);
       doc.image(imageBuffer, 0, 0, { width, height });
-
       doc.end();
-    } else if (id === "MJ") {
-      // ✅ ADD THIS - Handle Marketing Junction
+    } else if (id === "MJ" || id === "DM" || id === "dm") {
+      // ✅ Marketing Junction certificates
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -882,27 +884,7 @@ const downloadCertificateAsPdf = async (req, res) => {
         ctx,
         certificate.name.toUpperCase(),
         width * 0.65,
-        50
-      );
-      ctx.font = `bold ${nameFontSize}px Arial`;
-      ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.44);
-
-      ctx.fillStyle = "#1F2937";
-      ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
-      ctx.textAlign = "left";
-      ctx.fillText(issueDate, width * 0.48, height * 0.669);
-
-      ctx.font = '42px "Times New Roman", "Ovo", serif';
-      ctx.fillText(certificate.certificateId, width * 0.42, height * 0.815);
-    }    else {
-      ctx.fillStyle = "#1F2937";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      const nameFontSize = getAdjustedFontSize(
-        ctx,
-        certificate.name.toUpperCase(),
-        width * 0.65,
-        50
+        50,
       );
       ctx.font = `bold ${nameFontSize}px Arial`;
       ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.44);
@@ -916,17 +898,45 @@ const downloadCertificateAsPdf = async (req, res) => {
       ctx.fillText(certificate.certificateId, width * 0.42, height * 0.815);
 
       const imageBuffer = canvas.toBuffer("image/png");
-
       const doc = new PDFDocument({
         size: [width, height],
         margin: 0,
       });
-
       doc.pipe(res);
       doc.image(imageBuffer, 0, 0, { width, height });
+      doc.end();
+    } else {
+      // Default fallback
+      ctx.fillStyle = "#1F2937";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const nameFontSize = getAdjustedFontSize(
+        ctx,
+        certificate.name.toUpperCase(),
+        width * 0.65,
+        50,
+      );
+      ctx.font = `bold ${nameFontSize}px Arial`;
+      ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.44);
 
+      ctx.fillStyle = "#1F2937";
+      ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
+      ctx.textAlign = "left";
+      ctx.fillText(issueDate, width * 0.48, height * 0.669);
+
+      ctx.font = '42px "Times New Roman", "Ovo", serif';
+      ctx.fillText(certificate.certificateId, width * 0.42, height * 0.815);
+
+      const imageBuffer = canvas.toBuffer("image/png");
+      const doc = new PDFDocument({
+        size: [width, height],
+        margin: 0,
+      });
+      doc.pipe(res);
+      doc.image(imageBuffer, 0, 0, { width, height });
       doc.end();
     }
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -1066,9 +1076,10 @@ const downloadCertificateAsJpg = async (req, res) => {
       ctx.fillText(
         "https://portal.nexcorealliance.com/verify-certificate",
         width / 2,
-        height * 0.83
+        height * 0.83,
       );
-    } else if (id == "NEX") {
+    } else if (id === "NEX" || id === "FSD" || id === "fsd") {
+      // ✅ IT-Nexcore & FSD certificates
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -1076,7 +1087,7 @@ const downloadCertificateAsJpg = async (req, res) => {
         ctx,
         certificate.name.toUpperCase(),
         width * 0.65,
-        50
+        50,
       );
       ctx.font = `bold ${nameFontSize}px Arial`;
       ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.46);
@@ -1090,7 +1101,8 @@ const downloadCertificateAsJpg = async (req, res) => {
       ctx.fillStyle = "#1F2937";
       ctx.font = '40px "Times New Roman", "Ovo", serif';
       ctx.fillText(certificate.certificateId, width * 0.42, height * 0.806);
-    } else {
+    } else if (id === "MJ" || id === "DM" || id === "dm") {
+      // ✅ Marketing Junction certificates
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -1098,7 +1110,30 @@ const downloadCertificateAsJpg = async (req, res) => {
         ctx,
         certificate.name.toUpperCase(),
         width * 0.65,
-        50
+        50,
+      );
+      ctx.font = `bold ${nameFontSize}px Arial`;
+      ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.44);
+
+      ctx.fillStyle = "#1F2937";
+      ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
+      ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText(issueDate, width * 0.48, height * 0.675);
+
+      ctx.fillStyle = "#1F2937";
+      ctx.font = '42px "Times New Roman", "Ovo", serif';
+      ctx.fillText(certificate.certificateId, width * 0.42, height * 0.82);
+    } else {
+      // Default
+      ctx.fillStyle = "#1F2937";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const nameFontSize = getAdjustedFontSize(
+        ctx,
+        certificate.name.toUpperCase(),
+        width * 0.65,
+        50,
       );
       ctx.font = `bold ${nameFontSize}px Arial`;
       ctx.fillText(certificate.name.toUpperCase(), width / 2, height * 0.44);
@@ -1285,10 +1320,10 @@ const generateCertificatePreview = async (req, res) => {
       ctx.fillText(
         "https://portal.nexcorealliance.com/verify-certificate",
         width / 2,
-        height * 0.83
+        height * 0.83,
       );
-    } else if (id === "NEX" || id === "fsd") {
-      // IT-Nexcore/FSD rendering
+    } else if (id === "NEX" || id === "FSD" || id === "fsd") {
+      // ✅ IT-Nexcore & FSD certificates
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -1296,7 +1331,7 @@ const generateCertificatePreview = async (req, res) => {
         ctx,
         name.toUpperCase(),
         width * 0.65,
-        50
+        50,
       );
       ctx.font = `bold ${nameFontSize}px Arial`;
       ctx.fillText(name.toUpperCase(), width / 2, height * 0.46);
@@ -1308,8 +1343,8 @@ const generateCertificatePreview = async (req, res) => {
 
       ctx.font = '40px "Times New Roman", "Ovo", serif';
       ctx.fillText(tempCertificateId, width * 0.42, height * 0.8);
-    } else {
-      // Marketing Junction rendering
+    } else if (id === "MJ" || id === "DM" || id === "dm") {
+      // ✅ Marketing Junction certificates
       ctx.fillStyle = "#1F2937";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -1317,7 +1352,28 @@ const generateCertificatePreview = async (req, res) => {
         ctx,
         name.toUpperCase(),
         width * 0.65,
-        50
+        50,
+      );
+      ctx.font = `bold ${nameFontSize}px Arial`;
+      ctx.fillText(name.toUpperCase(), width / 2, height * 0.44);
+
+      ctx.fillStyle = "#1F2937";
+      ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
+      ctx.textAlign = "left";
+      ctx.fillText(formattedDate, width * 0.48, height * 0.669);
+
+      ctx.font = '42px "Times New Roman", "Ovo", serif';
+      ctx.fillText(tempCertificateId, width * 0.42, height * 0.815);
+    } else {
+      // Default
+      ctx.fillStyle = "#1F2937";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const nameFontSize = getAdjustedFontSize(
+        ctx,
+        name.toUpperCase(),
+        width * 0.65,
+        50,
       );
       ctx.font = `bold ${nameFontSize}px Arial`;
       ctx.fillText(name.toUpperCase(), width / 2, height * 0.44);
@@ -1448,6 +1504,32 @@ const downloadBulkCertificate = async (req, res) => {
           ctx.fillStyle = "#1F2937";
           ctx.font = '40px "Times New Roman", "Ovo", serif';
           ctx.fillText(certificate.certificateId, width * 0.42, height * 0.806);
+        } else if (id === "MJ") {
+          ctx.fillStyle = "#1F2937";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          const nameFontSize = getAdjustedFontSize(
+            ctx,
+            certificate.name.toUpperCase(),
+            width * 0.65,
+            50
+          );
+          ctx.font = `bold ${nameFontSize}px Arial`;
+          ctx.fillText(
+            certificate.name.toUpperCase(),
+            width / 2,
+            height * 0.46
+          ); // ← Changed from 0.44 to 0.46
+
+          ctx.fillStyle = "#1F2937";
+          ctx.font = 'bold 42px "Times New Roman", "Roboto Slab", serif';
+          ctx.textAlign = "left";
+          ctx.textBaseline = "alphabetic";
+          ctx.fillText(issueDate, width * 0.595, height * 0.665); // ← Changed from 0.675 to 0.665
+
+          ctx.fillStyle = "#1F2937";
+          ctx.font = '42px "Times New Roman", "Ovo", serif';
+          ctx.fillText(certificate.certificateId, width * 0.42, height * 0.806); // ← Changed from 0.82 to 0.806
         } else {
           ctx.fillStyle = "#1F2937";
           ctx.textAlign = "center";

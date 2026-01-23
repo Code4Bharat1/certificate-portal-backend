@@ -166,7 +166,7 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 if (process.env.NODE_ENV !== "production") {
   app.use((req, res, next) => {
     const safeUrl = req.originalUrl.split("?")[0]; // Remove query params
-    console.log(`${new Date().toISOString()} - ${req.method} ${safeUrl}`);
+    // console.log(`${new Date().toISOString()} - ${req.method} ${safeUrl}`);
     next();
   });
 }

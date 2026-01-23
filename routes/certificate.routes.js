@@ -412,9 +412,9 @@ router.post(
   [
     authenticate,
     body("name").trim().notEmpty().withMessage("Name is required"),
-    body("category")
-      .isIn(["FSD", "BVOC", "BOOTCAMP", "marketing-junction", "IT-Nexcore"])
-      .withMessage("Invalid category"),
+    // body("category")
+    //   .isIn(["FSD", "BVOC", "BOOTCAMP", "marketing-junction", "IT-Nexcore"])
+    //   .withMessage("Invalid category"),
     body("course").trim().notEmpty().withMessage("Course is required"),
     body("issueDate").notEmpty().withMessage("Issue date is required"),
     body("description").optional().trim(),

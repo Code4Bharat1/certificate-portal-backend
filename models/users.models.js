@@ -50,7 +50,7 @@ const studentSchema = new mongoose.Schema(
       trim: true,
       match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"],
       index: true,
-      default: null,
+      // default: null,
     },
 
     parentEmail: {

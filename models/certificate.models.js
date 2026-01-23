@@ -15,7 +15,7 @@ const certificateSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ["FSD", "BVOC", "BOOTCAMP", "HR", "marketing-junction", "IT-Nexcore"],
+    // enum: ["FSD", "BVOC", "BOOTCAMP", "HR", "marketing-junction", "IT-Nexcore"],
   },
   batch: {
     type: String,
