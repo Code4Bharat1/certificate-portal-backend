@@ -55,7 +55,7 @@ const drawODGeneralWarning = async (
   let currentY = contentStartY;
 
   // Outward No (top right)
-  ctx.font = "bold 16px 'Times Roman'";
+  ctx.font = "bold 16px 'Times New Roman'";
   const outwardText = `Outward No: ${outwardNo}`;
   const outwardWidth = ctx.measureText(outwardText).width;
   ctx.fillText(outwardText, leftMargin, currentY);
@@ -68,17 +68,17 @@ const drawODGeneralWarning = async (
   currentY += 40;
 
   // "To,"
-  ctx.font = "bold 16px 'Times Roman'";
+  ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText("To,", leftMargin, currentY);
   currentY += 40;
 
   // Name (bold)
-  ctx.font = "bold 16px 'Times Roman'";
+  ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText(name, leftMargin, currentY);
   currentY += 40;
 
   // Subject
-  ctx.font = "bold 16px 'Times Roman'";
+  ctx.font = "bold 16px 'Times New Roman'";
   const subjectText = `Subject: ${subject}`;
   currentY = wrapText(ctx, subjectText, leftMargin, currentY, contentWidth, 25);
   currentY += 20;
@@ -97,7 +97,7 @@ const drawODGeneralWarning = async (
   currentY += 15;
 
   // "Warm regards,"
-  ctx.font = "bold 16px 'Times Roman'";
+  ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText(
     "We trust you to take this matter seriously.",
     leftMargin,
@@ -138,12 +138,12 @@ const drawODGeneralWarning = async (
 
   // Credential ID (below signature)
   currentY = signatureY + signatureHeight + 15;
-  ctx.font = "bold 16px 'Times Roman'";
+  ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, 940);
   currentY += 110;
 
   // Verification text
-  ctx.font = "18px 'Times Roman'";
+  ctx.font = "18px 'Times New Roman'";
   ctx.fillStyle = "#000000";
   ctx.fillText(
     "To verify the authenticity of this certificate",
@@ -153,7 +153,7 @@ const drawODGeneralWarning = async (
   currentY += 25;
 
   // Verification URL (in blue, underlined)
-  ctx.font = "18px 'Times Roman'";
+  ctx.font = "18px 'Times New Roman'";
   ctx.fillStyle = "#000000";
   const verifyUrl = "https://portal.nexcorealliance.com/verify-certificate";
   ctx.fillText(verifyUrl, width / 3.8, 1000);

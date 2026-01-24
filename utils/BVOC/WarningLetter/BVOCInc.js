@@ -153,7 +153,7 @@ const drawBVOCIncompleteAssignment = async (
   ctx.fillText("Date: __________________________", leftMargin, currentY);
   currentY += 25;
 
-  ctx.font = "18px 'Times Roman'";
+  ctx.font = "18px 'Times New Roman'";
   ctx.fillStyle = "#000000";
   ctx.fillText(
     "To verify the authenticity of this certificate",
@@ -163,7 +163,7 @@ const drawBVOCIncompleteAssignment = async (
   currentY += 25;
 
   // Verification URL (in blue, underlined)
-  ctx.font = "18px 'Times Roman'";
+  ctx.font = "18px 'Times New Roman'";
   ctx.fillStyle = "#000000";
   const verifyUrl = "https://portal.nexcorealliance.com/verify-certificate";
   ctx.fillText(verifyUrl, width / 3.8, 1000);

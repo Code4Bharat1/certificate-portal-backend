@@ -105,7 +105,7 @@ const drawDMConsistentPerformance = async (
   );
   currentY += 40;
 
-  ctx.font = "bold 16px 'Times Roman'";
+  ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText("Warm regards,", leftMargin, currentY);
   currentY += 40;
 

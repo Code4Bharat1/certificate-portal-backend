@@ -3,7 +3,7 @@ import Letter from "../models/letter.models.js";
 import path from "path";
 import fs from "fs";
 import PDFDocument from "pdfkit";
-import { createCanvas, loadImage } from "canvas";
+import { createCanvas, loadImage, registerFont } from "canvas";
 import { fileURLToPath } from "url";
 import { validationResult } from "express-validator";
 import People from "../models/people.models.js";
@@ -132,6 +132,8 @@ import drawMJEL from "../utils/MJ/EL.js";
 import drawODEL from "../utils/OD/EL.js";
 import redisClient from "../config/redisClient.js"; // ✅ ADD THIS LINE
 
+
+
 async function clearStatsCache() {
   try {
     await redisClient.del("dashboard:stats");
@@ -141,6 +143,17 @@ async function clearStatsCache() {
     console.error("⚠️ Failed to clear cache:", error);
   }
 }
+
+
+
+registerFont(path.join(process.cwd(), "fonts", "TimesNewRoman.ttf"), {
+  family: "Times New Roman",
+});
+
+registerFont(path.join(process.cwd(), "fonts", "TimesNewRoman-Bold.ttf"), {
+  family: "Times New Roman",
+  weight: "bold",
+});
 
 const { getLetterEmailTemplate, sendEmail } = emailService;
 
