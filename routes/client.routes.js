@@ -122,11 +122,16 @@ router.put("/:id/status", authenticate, async (req, res) => {
  * @desc    Delete client letter
  * @access  Protected
  */
+// In client.routes.js - Update the DELETE route
+
+// In client.routes.js - Replace the DELETE route activity logging section
+
 router.delete("/:id", authenticate, async (req, res) => {
   try {
-    const { default: ClientLetter } = await import(
-      "../models/clientdata.models.js"
-    );
+    const { default: ClientLetter } =
+      await import("../models/clientdata.models.js");
+    const { default: ActivityLog } =
+      await import("../models/activitylog.models.js");
     const fs = await import("fs");
     const path = await import("path");
 
@@ -154,13 +159,33 @@ router.delete("/:id", authenticate, async (req, res) => {
         }
       } catch (fileError) {
         console.error("⚠️ Error deleting PDF file:", fileError);
-        // Continue with DB deletion even if file deletion fails
       }
+    }
+
+    // ✅ FIXED: Use correct field names - action and userName (NOT type and user)
+    try {
+      await ActivityLog.create({
+        action: "deleted", // ✅ Must be one of the enum values
+        certificateId: letter.letterId,
+        userName: letter.name, // ✅ Uses userName, NOT user
+        category: "client", // ✅ Must match your model enum
+        adminId: req.user?._id || null,
+        timestamp: new Date(),
+      });
+
+      // console.log("✅ Delete activity logged for client letter:", letter.letterId);
+    } catch (logError) {
+      console.error("⚠️ Failed to log delete activity:", logError);
+      console.error("⚠️ Error details:", logError.message);
     }
 
     await ClientLetter.findByIdAndDelete(letter._id);
 
     // console.log("✅ Client letter deleted from DB:", letter.letterId);
+
+    const { default: redisClient } = await import("../config/redisClient.js");
+    await redisClient.del("dashboard:stats");
+    await redisClient.del("activitylog:50");
 
     res.status(200).json({
       success: true,
@@ -180,5 +205,4 @@ router.delete("/:id", authenticate, async (req, res) => {
     });
   }
 });
-
 export default router;

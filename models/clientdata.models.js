@@ -66,9 +66,11 @@ const clientLetterSchema = new mongoose.Schema(
       default: null,
     },
 
+    // ✅ ONLY CHANGE: Changed default from "Generated" to "pending"
+    // This matches what Certificate and Letter models use
     status: {
       type: String,
-      default: "Generated",
+      default: "pending", // Changed from "Generated"
     },
 
     emailSent: {
@@ -105,7 +107,7 @@ const clientLetterSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const ClientLetter = mongoose.model("ClientLetter", clientLetterSchema);

@@ -130,7 +130,17 @@ import drawITEL from "../utils/C4B/EL.js";
 import drawHREL from "../utils/HR/EL.js";
 import drawMJEL from "../utils/MJ/EL.js";
 import drawODEL from "../utils/OD/EL.js";
+import redisClient from "../config/redisClient.js"; // ✅ ADD THIS LINE
 
+async function clearStatsCache() {
+  try {
+    await redisClient.del("dashboard:stats");
+    await redisClient.del("activitylog:50");
+    // console.log("✅ Stats cache cleared");
+  } catch (error) {
+    console.error("⚠️ Failed to clear cache:", error);
+  }
+}
 
 const { getLetterEmailTemplate, sendEmail } = emailService;
 
@@ -215,6 +225,16 @@ function getTemplatePaths(category) {
 // HELPER: Get Drawing Function
 // =====================================================
 function getDrawingFunction(category, course) {
+  const normalizedCategory = category.toLowerCase().trim();
+
+  // ✅ Map all IT-Nexcore variations to the same handler
+  const isITNexcore = [
+    "it-nexcore",
+    "code4bharat",
+    "code-4-bharat",
+    "it nexcore",
+  ].includes(normalizedCategory);
+
   if (category === "marketing-junction") {
     if (course === "Internship Joining Letter - Paid") {
       return drawMJJoiningLetterPaid;
@@ -253,7 +273,8 @@ function getDrawingFunction(category, course) {
     ) {
       return drawMJPunctuality;
     }
-  } else if (category === "IT-Nexcore") {
+  } else if (isITNexcore) {
+    // IT-Nexcore / Code4Bharat templates
     if (course === "Internship Joining Letter - Paid") {
       return drawJoiningLetterPaid;
     } else if (course === "Internship Joining Letter - Unpaid") {
@@ -278,15 +299,13 @@ function getDrawingFunction(category, course) {
       return drawRFIDLetter;
     } else if (course === "General Warning Letter") {
       return drawITGeneralWarning;
-    }  else if (course === "Warning for Low Attendance") {
+    } else if (course === "Warning for Low Attendance") {
       return drawITLowAttendance;
     } else if (course === "Warning for Low Attendance (Monthly)") {
       return drawITMonthly;
     } else if (course === "Warning for Misconduct or Disrespectful Behavior") {
       return drawITMisconduct;
-    } else if (
-      course === "Warning for Unauthorized Absence"
-    ) {
+    } else if (course === "Warning for Unauthorized Absence") {
       return drawITUnauthorizedAbsence;
     } else if (
       course === "Warning Regarding Punctuality and Professional Discipline"
@@ -386,7 +405,7 @@ function getDrawingFunction(category, course) {
       return drawFSDIncompleteAssignment;
     } else if (course === "Warning for Low Attendance") {
       return drawFSDLowAttendance;
-    } else if (course === "Warning for Low Attendance (Monthly)"){
+    } else if (course === "Warning for Low Attendance (Monthly)") {
       return drawFSDMonthly;
     } else if (course === "Warning for Misconduct or Disrespectful Behavior") {
       return drawFSDMisconduct;
@@ -487,7 +506,7 @@ function getDrawingFunction(category, course) {
     } else if (course === "Memo") {
       return drawBVOCMemo;
     }
-}
+  }
 
   // Default for other letter types
   if (course === "Appreciation Letter") {
@@ -536,7 +555,6 @@ const createCodeLetter = async (req, res) => {
       timelineNewDate,
     } = req.body;
 
-
     // Validation
     if (!name || !category || !course || !issueDate || !letterType) {
       return res.status(400).json({
@@ -546,9 +564,9 @@ const createCodeLetter = async (req, res) => {
     }
 
     // Additional validation for Appreciation Letter
-   if (course === "RFID Appreciation Letter") {
+    if (course === "RFID Appreciation Letter") {
       // No additional validation needed for RFID letter
-    }  else if (course === "Appreciation Letter") {
+    } else if (course === "Appreciation Letter") {
       if (!subject || !month || !year || !description) {
         return res.status(400).json({
           success: false,
@@ -620,10 +638,8 @@ const createCodeLetter = async (req, res) => {
     } while (exists);
 
     // Generate outward number
-    const { outwardNo, outwardSerial } = await generateUnifiedOutwardNo(
-      issueDate
-    );
-
+    const { outwardNo, outwardSerial } =
+      await generateUnifiedOutwardNo(issueDate);
 
     // Get user data
     const userData = await People.findOne({ name });
@@ -690,7 +706,6 @@ const createCodeLetter = async (req, res) => {
     // Create letter
     const letter = await Letter.create(letterData);
 
-
     // Send notifications
     // if (userPhone) {
     //   try {
@@ -735,6 +750,8 @@ const createCodeLetter = async (req, res) => {
       console.error("Activity log failed:", error);
     }
 
+    await clearStatsCache();
+
     return res.status(201).json({
       success: true,
       message: "Code Letter created successfully",
@@ -761,7 +778,6 @@ const createCodeLetter = async (req, res) => {
 // PREVIEW CODE LETTER
 // =====================================================
 // In your letter.controller.js, replace the previewCodeLetter function
-
 
 const previewCodeLetter = async (req, res) => {
   try {
@@ -943,12 +959,12 @@ const previewCodeLetter = async (req, res) => {
         course === "Non-Disclosure Agreement"
           ? 4
           : course === "Onboarding Non-Disclosure Agreement"
-          ? 4
-          : course === "Offer Letter"
-          ? 2
-          : course === "Live Project Agreement"
-          ? 4
-          : 2;
+            ? 4
+            : course === "Offer Letter"
+              ? 2
+              : course === "Live Project Agreement"
+                ? 4
+                : 2;
 
       for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
         const canvas = createCanvas(width, height);
@@ -963,7 +979,7 @@ const previewCodeLetter = async (req, res) => {
           footerImg,
           signatureImg,
           stampImg,
-          pageNum
+          pageNum,
         );
 
         const jpegBuffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
@@ -1049,7 +1065,7 @@ const previewCodeLetter = async (req, res) => {
         headerImg,
         footerImg,
         signatureImg,
-        stampImg
+        stampImg,
       );
 
       // Convert to buffer
@@ -1139,16 +1155,47 @@ const downloadCodeLetterAsPdf = async (req, res) => {
         .json({ success: false, message: "Letter not found" });
     }
 
+    // console.log("📄 Letter found:", {
+    //   letterId: letter.letterId,
+    //   course: letter.course,
+    //   category: letter.category,
+    //   hasRole: !!letter.role,
+    //   hasTrainingPeriod: !!letter.trainingPeriod,
+    //   hasStartDate: !!letter.startDate,
+    // });
+
+    // ✅ FIX: Calculate missing trainingPeriod if dates exist
+    if (
+      !letter.trainingPeriod &&
+      letter.trainingStartDate &&
+      letter.trainingEndDate
+    ) {
+      const start = new Date(letter.trainingStartDate);
+      const end = new Date(letter.trainingEndDate);
+      const diffTime = Math.abs(end - start);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      letter.trainingPeriod = diffDays;
+      // console.log("✅ Auto-calculated trainingPeriod:", diffDays, "days");
+    }
+
+    // ✅ FIX: Calculate missing duration if dates exist
+    if (!letter.duration && letter.startDate && letter.endDate) {
+      const start = new Date(letter.startDate);
+      const end = new Date(letter.endDate);
+      const diffMonths =
+        (end.getFullYear() - start.getFullYear()) * 12 +
+        (end.getMonth() - start.getMonth());
+      letter.duration = `${diffMonths} months`;
+      // console.log("✅ Auto-calculated duration:", letter.duration);
+    }
+
     // Fetch user data for address and aadhaar
     const userData = await People.findOne({ name: letter.name }).lean();
- 
-
-   
 
     // Generate outward no if missing
     if (!letter.outwardNo || !letter.outwardSerial) {
       const { outwardNo, outwardSerial } = await generateUnifiedOutwardNo(
-        letter.issueDate || new Date()
+        letter.issueDate || new Date(),
       );
       await Letter.findByIdAndUpdate(letter._id, { outwardNo, outwardSerial });
       letter.outwardNo = outwardNo;
@@ -1190,7 +1237,6 @@ const downloadCodeLetterAsPdf = async (req, res) => {
       ? await loadImage(stampPath)
       : null;
 
-    // Create canvas
     const width = 794;
     const height = 1123;
 
@@ -1208,7 +1254,7 @@ const downloadCodeLetterAsPdf = async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${letter.letterId || "code-letter"}.pdf"`
+      `attachment; filename="${letter.letterId || "code-letter"}.pdf"`,
     );
 
     doc.pipe(res);
@@ -1218,8 +1264,7 @@ const downloadCodeLetterAsPdf = async (req, res) => {
       const templateData = {
         name: letter.name,
         role: letter.role || "",
-        trainingPeriod: letter.trainingPeriod || "", // ✅ ADD THIS
-
+        trainingPeriod: letter.trainingPeriod || "", // ✅ NOW CALCULATED
         duration: letter.duration || "",
         trainingStartDate: formattedTrainingStart,
         trainingEndDate: formattedTrainingEnd,
@@ -1235,19 +1280,35 @@ const downloadCodeLetterAsPdf = async (req, res) => {
         aadhaarCard: userData?.aadhaarCard || "Not provided",
       };
 
+      // console.log("📋 Multi-page template data:", {
+      //   name: templateData.name,
+      //   role: templateData.role,
+      //   trainingPeriod: templateData.trainingPeriod,
+      //   hasResponsibilities: !!templateData.responsibilities,
+      // });
 
       const drawFunction = getDrawingFunction(letter.category, letter.course);
+
+      if (!drawFunction) {
+        console.error("❌ No drawing function found for:", {
+          category: letter.category,
+          course: letter.course,
+        });
+        throw new Error(
+          `Template not found for ${letter.category} - ${letter.course}`,
+        );
+      }
 
       const totalPages =
         letter.course === "Non-Disclosure Agreement"
           ? 4
           : letter.course === "Onboarding Non-Disclosure Agreement"
-          ? 4
-          : letter.course === "Offer Letter"
-          ? 2
-          : letter.course === "Live Project Agreement"
-          ? 4
-          : 2;
+            ? 4
+            : letter.course === "Offer Letter"
+              ? 2
+              : letter.course === "Live Project Agreement"
+                ? 4
+                : 2;
 
       for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
         const canvas = createCanvas(width, height);
@@ -1262,7 +1323,7 @@ const downloadCodeLetterAsPdf = async (req, res) => {
           footerImg,
           signatureImg,
           stampImg,
-          pageNum
+          pageNum,
         );
 
         const jpegBuffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
@@ -1273,21 +1334,17 @@ const downloadCodeLetterAsPdf = async (req, res) => {
         }
       }
     } else {
-      // ✅ SINGLE PAGE LETTERS (including RFID)
+      // Single page letters
       const canvas = createCanvas(width, height);
       const ctx = canvas.getContext("2d");
 
-      // ✅ COMPLETE template data for ALL single-page letters
       const templateData = {
         name: letter.name,
-        // Appreciation Letter fields
         subject: letter.subject || "",
         month: letter.month || "",
         year: letter.year || "",
         description: letter.description || "",
-        // Joining/Experience Letter fields
         role: letter.role || "",
-
         duration: letter.duration || "",
         trainingStartDate: formattedTrainingStart,
         trainingEndDate: formattedTrainingEnd,
@@ -1299,12 +1356,10 @@ const downloadCodeLetterAsPdf = async (req, res) => {
         genderPronoun: letter.genderPronoun || "",
         amount: letter.amount || "",
         effectiveFrom: formattedEffectiveFrom,
-        // Timeline fields
         timelineStage: letter.timelineStage || "",
         timelineProjectName: letter.timelineProjectName || "",
         timelineDueDate: letter.timelineDueDate || "",
         timelineNewDate: letter.timelineNewDate || "",
-        // BVOC/FSD specific fields
         committeeType: letter.committeeType || "",
         attendancePercent: letter.attendancePercent || "",
         attendanceMonth: letter.attendanceMonth || "",
@@ -1317,7 +1372,6 @@ const downloadCodeLetterAsPdf = async (req, res) => {
         projectName: letter.projectName || "",
         misconductReason: letter.misconductReason || "",
         auditDate: letter.auditDate || "",
-        // Standard fields
         formattedDate,
         outwardNo: letter.outwardNo,
         credentialId: letter.letterId,
@@ -1325,21 +1379,36 @@ const downloadCodeLetterAsPdf = async (req, res) => {
         aadhaarCard: userData?.aadhaarCard || "Not provided",
       };
 
+      // console.log("📋 Single-page template data:", {
+      //   name: templateData.name,
+      //   course: letter.course,
+      //   hasSubject: !!templateData.subject,
+      //   hasRole: !!templateData.role,
+      //   hasDescription: !!templateData.description,
+      // });
 
       const drawFunction = getDrawingFunction(letter.category, letter.course);
 
-      if (drawFunction) {
-        await drawFunction(
-          ctx,
-          width,
-          height,
-          templateData,
-          headerImg,
-          footerImg,
-          signatureImg,
-          stampImg
+      if (!drawFunction) {
+        console.error("❌ No drawing function found for:", {
+          category: letter.category,
+          course: letter.course,
+        });
+        throw new Error(
+          `Template not found for ${letter.category} - ${letter.course}`,
         );
       }
+
+      await drawFunction(
+        ctx,
+        width,
+        height,
+        templateData,
+        headerImg,
+        footerImg,
+        signatureImg,
+        stampImg,
+      );
 
       const jpegBuffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
       doc.image(jpegBuffer, 0, 0, { width, height });
@@ -1347,19 +1416,43 @@ const downloadCodeLetterAsPdf = async (req, res) => {
 
     doc.end();
 
+    // ✅ Log download activity
+    // try {
+    //   await ActivityLog.create({
+    //     action: "downloaded",
+    //     certificateId: letter.letterId,
+    //     userName: letter.name,
+    //     category: letter.category,
+    //     adminId: null, // Manual downloads might not have admin
+    //     timestamp: new Date(),
+    //   });
+    //   // console.log("✅ Download activity logged for letter:", letter.letterId);
+    // } catch (logError) {
+    //   console.error("⚠️ Failed to log download activity:", logError);
+    // }
+
+        await clearStatsCache();
+
+
     // Update download stats
     await Letter.findByIdAndUpdate(letter._id, {
       $inc: { downloadCount: 1 },
       lastDownloaded: new Date(),
       status: "downloaded",
     });
+
+    // console.log("✅ Letter download completed:", letter.letterId);
   } catch (error) {
-    console.error("Download code letter error:", error);
+    console.error("❌ Download code letter error:", error);
+    console.error("Error stack:", error.stack);
+
     if (!res.headersSent) {
       res.status(500).json({
         success: false,
         message: "Failed to generate PDF",
         error: error.message,
+        details:
+          process.env.NODE_ENV === "development" ? error.stack : undefined,
       });
     }
   }

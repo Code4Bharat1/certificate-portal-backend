@@ -4,7 +4,18 @@ import ActivityLog from "../models/activitylog.models.js";
 import Letter from "../models/letter.models.js";
 import ClientLetter from "../models/clientdata.models.js"; // ✅ ADDED
 import User from "../models/user.models.js";
-import redisClient from "../config/redisClient.js";
+import redisClient from "../config/redisClient.js"; // ✅ ADD THIS IMPORT
+
+// ✅ ADD THIS HELPER FUNCTION
+async function clearStatsCache() {
+  try {
+    await redisClient.del("dashboard:stats");
+    await redisClient.del("activitylog:50");
+    // console.log("✅ Stats cache cleared");
+  } catch (error) {
+    console.error("⚠️ Failed to clear cache:", error);
+  }
+}
 
 export const getDashboardStatistics = async (req, res) => {
   try {
