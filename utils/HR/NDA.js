@@ -205,7 +205,7 @@ const companyPara = `** Nexcore Alliance LLP,**a company incorporated under the*
 
     section1Items.forEach((item) => {
       currentY = wrapText(ctx, item, leftMargin, currentY, contentWidth, 23);
-      currentY += 5;
+      currentY += 20;
     });
 
     // Section 2

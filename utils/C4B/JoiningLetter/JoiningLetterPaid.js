@@ -103,6 +103,8 @@ const drawJoiningLetterPaid = async (
     ctx.fillText("Congratulations!", leftMargin, currentY);
     currentY += 30;
 
+
+
     // Intro paragraph
     ctx.font = "18px 'Times New Roman'";
     const introPara = `We  are pleased to officially offer you the position of**${role}**at **Nexcore Alliance LLP.**This letter confirms your selection for our internship program and outlines the details of your training and role.`;

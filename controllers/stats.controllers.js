@@ -6,7 +6,7 @@ import ClientLetter from "../models/clientdata.models.js"; // ✅ ADDED
 import User from "../models/user.models.js";
 import redisClient from "../config/redisClient.js"; // ✅ ADD THIS IMPORT
 
-// ✅ ADD THIS HELPER FUNCTION
+//✅ ADD THIS HELPER FUNCTION
 async function clearStatsCache() {
   try {
     await redisClient.del("dashboard:stats");

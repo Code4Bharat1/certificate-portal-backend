@@ -763,7 +763,7 @@ const createCodeLetter = async (req, res) => {
       console.error("Activity log failed:", error);
     }
 
-    await clearStatsCache();
+    // await clearStatsCache();
 
     return res.status(201).json({
       success: true,
@@ -1444,7 +1444,7 @@ const downloadCodeLetterAsPdf = async (req, res) => {
     //   console.error("⚠️ Failed to log download activity:", logError);
     // }
 
-        await clearStatsCache();
+        // await clearStatsCache();
 
 
     // Update download stats

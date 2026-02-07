@@ -4,7 +4,7 @@ import Letter from "../models/letter.models.js";
 import cloudinary from "../config/cloudinary.config.js";
 import fs from "fs";
 import { promisify } from "util";
-import redisClient from "../config/redisClient.js"; 
+// import redisClient from "../config/redisClient.js"; 
 
 const unlinkAsync = promisify(fs.unlink);
 
@@ -50,7 +50,7 @@ export const getStudentProfile = async (req, res) => {
       firstLogin: student.firstLogin,
     };
 
-    await redisClient.setEx(cacheKey, 120, JSON.stringify(data));
+     await redisClient.setEx(cacheKey, 120, JSON.stringify(data));
 
     res.status(200).json({ success: true, user: data, source: "db" });
   } catch (error) {
@@ -168,7 +168,7 @@ export const getStudentStatistics = async (req, res) => {
       ).length,
     };
 
-    await redisClient.setEx(cacheKey, 120, JSON.stringify(statistics));
+     await redisClient.setEx(cacheKey, 120, JSON.stringify(statistics));
 
     res.json({ success: true, statistics, source: "db" });
   } catch (error) {
@@ -217,7 +217,7 @@ export const getRecentLetters = async (req, res) => {
       signedUploaded: l.signedUploaded || false,
     }));
 
-    await redisClient.setEx(cacheKey, 60, JSON.stringify(formatted));
+     await redisClient.setEx(cacheKey, 60, JSON.stringify(formatted));
 
     res.json({ success: true, letters: formatted, source: "db" });
   } catch (error) {

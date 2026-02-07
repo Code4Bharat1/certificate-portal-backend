@@ -242,7 +242,7 @@ const drawHRJoiningLetterUnpaid = async (
       contentWidth,
       23
     );
-    currentY += 5;
+    currentY += 25;
 
     // Warm regards (bold)
     ctx.font = "bold 16px 'Times New Roman'";

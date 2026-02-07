@@ -246,7 +246,7 @@ const drawJoiningLetterUnpaid = async (
 
     // Warm regards (bold)
     ctx.font = "bold 18px 'Times New Roman'";
-    ctx.fillText("Warm regards,", leftMargin, currentY);
+    ctx.fillText("Warm regaards,", leftMargin, currentY);
     currentY += 25;
 
     // =====================================================

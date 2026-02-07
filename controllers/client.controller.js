@@ -496,7 +496,7 @@ const clientLetter = async (req, res) => {
       console.error("⚠️ Failed to log activity:", logError);
       console.error("⚠️ Error details:", logError.message);
     }
-    await clearStatsCache();
+    // await clearStatsCache();
     // Get client contact details
     const { phone, email } = await getClientDetails(name);
 
@@ -737,7 +737,7 @@ const downloadClientLetter = async (req, res) => {
       console.error("⚠️ Failed to log download activity:", logError);
       console.error("⚠️ Error details:", logError.message);
     }
-await clearStatsCache();
+// await clearStatsCache();
     
     res.download(
       filePath,

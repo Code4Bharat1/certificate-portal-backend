@@ -216,14 +216,14 @@ const   getAllCertificate = async (req, res) => {
       ...query,
       ...categoryFilter,
     };
-    console.log(finalQuery);
+    // console.log(finalQuery);
     
     // Fetch certificates
     const certificates = await Certificate.find(finalQuery)
       .sort({ createdAt: -1 })
       .populate("createdBy", "username");
 
-    console.log(certificates);
+    // console.log(certificates);
     
 
     // Fetch letters (same logic)
