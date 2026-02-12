@@ -36,7 +36,7 @@ export async function generateCertificateId(category) {
   const catMap = {
     "it-nexcore": "NEX",
     "marketing-junction": "MJ",
-    DM: "MJ", // ✅ ADD THIS - Map dm to MJ
+    DM: "DM", // ✅ ADD THIS - Map dm to MJ
     FSD: "FSD",
     hr: "HR",
     bvoc: "BVOC",
