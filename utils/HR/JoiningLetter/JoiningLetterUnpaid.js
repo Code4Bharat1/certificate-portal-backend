@@ -247,7 +247,7 @@ const drawHRJoiningLetterUnpaid = async (
     // Warm regards (bold)
     ctx.font = "bold 16px 'Times New Roman'";
     ctx.fillText("Warm regards,", leftMargin, currentY);
-    currentY += 20;
+    currentY += 40;
 
     // =====================================================
     // Signature (left) and Stamp (right) - Fixed position

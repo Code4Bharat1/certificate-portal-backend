@@ -63,6 +63,7 @@ const TOP_ROW_FONT_SIZE = 15;
 export async function generateLetterId(category) {
   const catMap = {
     "it-nexcore": "NEX",
+    
     "marketing-junction": "MJ",
     fsd: "fsd",
     hr: "hr",
