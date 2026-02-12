@@ -230,7 +230,7 @@ app.use("/api/batches", adminLimiter, batchRoutes);
 app.use("/api/categories", adminLimiter, categoryRoutes);
 app.use("/api/onboarding-request", adminLimiter, onboardingRoutes);
 app.use("/api/clientletters", adminLimiter, clientRoutes);
-app.use("/api/codeletters", adminLimiter, codeLetterRoutes);
+app.use("/api/codeletters", codeLetterRoutes);
 
 // Student
 import studentRoutes from "./routes/users.routes.js";

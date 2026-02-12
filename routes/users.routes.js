@@ -37,7 +37,7 @@ const storage = multer.diskStorage({
 
     const uniqueSuffix = Date.now();
 
-    cb(null, `signed_${letterId}_${uniqueSuffix}.${ext}`);
+    cb(null, `signed_${credentialId}_${uniqueSuffix}.${ext}`);
   },
 });
 
@@ -96,7 +96,7 @@ router.get("/student/letters/:letterId", authenticateStudent, getLetterDetails);
 // ========== LETTER MANAGEMENT ROUTES ==========
 // POST /api/student/upload-signed - Upload signed letter
 router.post(
-  "/student/upload-signed",
+  "/student/codeletters/upload-signed",
   authenticateStudent,
   upload.single("signedFile"),
   uploadSignedLetter
@@ -116,7 +116,7 @@ router.get(
 
 // GET /api/student/letters/:letterId/download - Download specific letter
 router.get(
-  "/student/letters/:letterId/download",
+  "/student/codeletters/:letterId/download",
   authenticateStudent,
   async (req, res) => {
     try {
