@@ -97,7 +97,7 @@ const drawMJNDA = async (
     // AND
     ctx.font = "18px 'Times New Roman'";
     ctx.fillText("AND", leftMargin, currentY);
-    currentY += 25;
+    currentY += 40;
 
     // Recipient details
     const recipientPara = `** ${name} **, an individual who has been employed as a **${role}** with Marketiq Junction for a period of **${duration} months,**residing at **${

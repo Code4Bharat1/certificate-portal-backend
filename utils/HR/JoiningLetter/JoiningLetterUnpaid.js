@@ -104,7 +104,7 @@ const drawHRJoiningLetterUnpaid = async (
 
     // Intro paragraph
     ctx.font = "16px 'Times New Roman'";
-    const introPara = `We  are pleased to confirm your selection for the position of HR  **${role}** at **Nexcore Alliance LLP**. This letter serves as your official joining confirmation and outlines the details of your internship.`;
+    const introPara = `We  are pleased to confirm your selection for the position of **${role}** at **Nexcore Alliance LLP**. This letter serves as your official joining confirmation and outlines the details of your internship.`;
     const introParts = parseMarkdown(introPara);
     currentY = drawTextWithBold(
       ctx,

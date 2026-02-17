@@ -98,7 +98,7 @@ const drawMJExperienceLetter = async (
       descriptionParts,
       leftMargin,
       currentY,
-      15,
+      18,
       contentWidth,
       23
     );

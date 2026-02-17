@@ -155,6 +155,7 @@ registerFont(path.join(process.cwd(), "fonts", "TimesNewRoman-Bold.ttf"), {
   weight: "bold",
 });
 
+
 const { getLetterEmailTemplate, sendEmail } = emailService;
 
 const __filename = fileURLToPath(import.meta.url);

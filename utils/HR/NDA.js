@@ -96,7 +96,7 @@ const companyPara = `** Nexcore Alliance LLP,**a company incorporated under the*
     // AND
     ctx.font = "18px 'Times New Roman'";
     ctx.fillText("AND", leftMargin, currentY);
-    currentY += 25;
+    currentY += 40;
 
     // Recipient details
     const recipientPara = `** ${name} **, an individual who has been employed as a **${role}** with Code4Bharat for a period of **${duration} months**, residing at **${
@@ -277,7 +277,7 @@ const companyPara = `** Nexcore Alliance LLP,**a company incorporated under the*
     currentY += 15;
 
     // Signature line and stamp at bottom of page 2
-    const signatureLineY = 950;
+    const signatureLineY = 980;
     const stampWidth = 180;
     const stampHeight = 140;
 

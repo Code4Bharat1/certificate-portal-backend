@@ -97,7 +97,7 @@ const drawHROnboardingNDA = async (
     // AND
     ctx.font = "18px 'Times New Roman'";
     ctx.fillText("AND", leftMargin, currentY);
-    currentY += 25;
+    currentY += 40;
 
     // Recipient details
     const recipientPara = `** ${name},** an individual who has been employed as a **${role}** with Nexcore Alliance LLP, residing at **${
@@ -173,7 +173,7 @@ const drawHROnboardingNDA = async (
   } else if (page === 2) {
     // ==================== PAGE 2 ====================
 
-    currentY = contentStartY + 50; // Moved up from 100
+    // currentY = contentStartY + 5; // Moved up from 100
 
     // Section 1
     ctx.font = "bold 18px 'Times New Roman'";

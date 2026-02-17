@@ -98,22 +98,20 @@ const drawMJEL = async (
       descriptionParts,
       leftMargin,
       currentY,
-      15,
+      18,
       contentWidth,
       23
     );
     currentY += 10;
+    
   }
 
   // Recommendation paragraph (bold)
   ctx.font = "bold 18px 'Times New Roman'";
-  const recommendationText = `We value ${
-    genderPronoun || "their"
-  } contributions and confidently recommend ${
-    genderPronoun === "his" ? "him" : genderPronoun === "her" ? "her" : "them"
-  } for future opportunities that align with ${
-    genderPronoun || "their"
-  } skills and aspirations.`;
+  const recommendationText = `We value ${genderPronoun || "their"
+    } contributions and confidently recommend ${genderPronoun === "his" ? "him" : genderPronoun === "her" ? "her" : "them"
+    } for future opportunities that align with ${genderPronoun || "their"
+    } skills and aspirations.`;
   currentY = wrapText(
     ctx,
     recommendationText,

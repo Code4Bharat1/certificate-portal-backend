@@ -161,7 +161,7 @@ const drawHRTimelineLetter = async (
   const subjectText =
     "Subject: Warning for Non-Completion of Assigned Task within Deadline";
   currentY = wrapText(ctx, subjectText, leftMargin, currentY, contentWidth, 25);
-  currentY += 3;
+  currentY += 12;
 
   // Greeting (bold)
   ctx.fillText(`Dear ${name},`, leftMargin, currentY);
