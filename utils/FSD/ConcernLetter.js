@@ -21,7 +21,7 @@ const drawFSDConcernLetter = async (
 
   // Draw Header (top 190px)
   if (headerImg) {
-    ctx.drawImage(headerImg, 0, 0, width, 190);
+    ctx.drawImage(headerImg, 0, 0, width, 205);
   }
 
   // Draw Footer (bottom 120px)
@@ -132,13 +132,13 @@ const drawFSDConcernLetter = async (
   ctx.font = "bold 16px 'Times New Roman'";
   const closing = `We trust you will take this feedback seriously and work towards better results in the future.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 19);
-  currentY += 25;
+  // currentY += 15;
 
   // Signature and Stamp - properly sized
   const signatureWidth = 140;
   const signatureHeight = 75;
-  const stampWidth = 130;
-  const stampHeight = 110;
+  const stampWidth = 200;
+  const stampHeight = 200;
 
   if (signatureImg) {
     ctx.drawImage(
@@ -158,31 +158,31 @@ const drawFSDConcernLetter = async (
       stampHeight
     );
   }
-  currentY += signatureHeight + 10;
+  currentY += signatureHeight + 18;
 
   // Credential ID
   ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, currentY);
-  currentY += 25;
+  currentY += 30;
 
   // Student Acknowledgement Section
   ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText("Student Acknowledgement:", leftMargin, currentY);
-  currentY += 20;
+  currentY += 25;
 
   ctx.font = "16px 'Times New Roman'";
   const ackText = `I, ________________________________, acknowledge that I have received and read this Concern Letter issued by Nexcore Alliance LLP. I understand the contents, the concern mentioned, and the consequences outlined herein.`;
   currentY = wrapText(ctx, ackText, leftMargin, currentY, contentWidth, 19);
-  currentY += 15;
+  currentY += 18;
 
   ctx.fillText(
     "Student Signature: _________________________________",
     leftMargin,
     currentY
   );
-  currentY += 18;
+  currentY += 20;
   ctx.fillText("Date: _________________________________", leftMargin, currentY);
-  currentY += 25;
+  currentY += 28;
 
   // Verification footer (positioned absolutely)
   ctx.font = "16px 'Times New Roman'";

@@ -106,8 +106,8 @@ const drawBVOCIncompleteAssignment = async (
   // Signature and Stamp - reduced sizes
   const signatureWidth = 180;
   const signatureHeight = 95;
-  const stampWidth = 150;
-  const stampHeight = 120;
+  const stampWidth = 200;
+  const stampHeight = 200;
 
   if (signatureImg) {
     ctx.drawImage(

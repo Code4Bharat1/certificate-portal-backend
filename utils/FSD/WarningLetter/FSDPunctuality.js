@@ -40,6 +40,7 @@ const drawFSDPunctuality = async (
   let currentY = contentStartY - 10;
 
   // Outward No
+  currentY += 5;
   ctx.font = "bold 15px 'Times New Roman'";
   ctx.fillText(`Outward No.: ${outwardNo}`, leftMargin, currentY);
   currentY += 20;
@@ -102,15 +103,15 @@ const drawFSDPunctuality = async (
   ctx.font = "bold 15px 'Times New Roman'";
   const closing = `This serves as a formal warning, and no further reminders will be issued. Continued violation of attendance and discipline norms will lead to enforcement of the actions mentioned above without exception.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 19);
-  currentY += 15;
+  // currentY += 15;
 
 
 
   // Signature and Stamp
   const signatureWidth = 155;
   const signatureHeight = 75;
-  const stampWidth = 145;
-  const stampHeight = 105;
+  const stampWidth = 180;
+  const stampHeight = 180;
 
   if (signatureImg) {
     ctx.drawImage(
@@ -130,17 +131,17 @@ const drawFSDPunctuality = async (
       stampHeight
     );
   }
-  currentY += signatureHeight + 6;
+  currentY += signatureHeight + 15;
 
   // Credential ID
   ctx.font = "bold 15px 'Times New Roman'";
   ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, currentY);
-  currentY += 18;
+  currentY += 20;
 
   // Student Acknowledgement
   ctx.font = "bold 15px 'Times New Roman'";
   ctx.fillText("Student Acknowledgement:", leftMargin, currentY);
-  currentY += 16;
+  currentY += 25;
 
   ctx.font = "15px 'Times New Roman'";
   const ackText = `I, __________________________, acknowledge that I have received and read this Warning Letter issued by Nexcore Alliance LLP. I understand the contents, the disciplinary concern mentioned, and the consequences outlined herein.`;

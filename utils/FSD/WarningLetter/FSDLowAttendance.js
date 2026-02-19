@@ -109,15 +109,15 @@ const drawFSDLowAttendance = async (
 
   const closing = `Kindly treat this letter as an official warning.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
-  currentY += 18;
+  // currentY += 18;
 
 
 
   // Signature and Stamp
   const signatureWidth = 160;
   const signatureHeight = 85;
-  const stampWidth = 150;
-  const stampHeight = 120;
+  const stampWidth = 200;
+  const stampHeight = 200;
 
   if (signatureImg) {
     ctx.drawImage(
@@ -142,12 +142,12 @@ const drawFSDLowAttendance = async (
   // Credential ID
   ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, currentY);
-  currentY += 22;
+  currentY += 25;
 
   // Student Acknowledgement
   ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText("Student Acknowledgement:", leftMargin, currentY);
-  currentY += 19;
+  currentY += 22;
 
   ctx.font = "16px 'Times New Roman'";
   const ackText = `I, __________________________, acknowledge that I have received and read this Warning Letter issued by Nexcore Alliance LLP. I understand the contents, the disciplinary concern mentioned, and the consequences outlined herein.`;

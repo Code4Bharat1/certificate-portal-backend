@@ -118,8 +118,8 @@ const drawFSDBestAttendance = async (
   // =====================================================
   const signatureWidth = 190;
   const signatureHeight = 100;
-  const stampWidth = 180;
-  const stampHeight = 140;
+  const stampWidth = 200;
+  const stampHeight = 200;
 
   // Draw Signature (left) - fixed position
   if (signatureImg) {

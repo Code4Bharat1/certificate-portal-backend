@@ -89,14 +89,14 @@ const drawFSDUnauthorizedAbsence = async (
 
   const closing = `Kindly treat this as an official warning and take immediate corrective measures to improve your attendance and commitment to the program.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
-  currentY += 28;
+  // currentY += 28;
 
 
   // Signature and Stamp
   const signatureWidth = 160;
   const signatureHeight = 85;
-  const stampWidth = 150;
-  const stampHeight = 120;
+  const stampWidth = 200;
+  const stampHeight = 200;
 
   if (signatureImg) {
     ctx.drawImage(
@@ -116,17 +116,17 @@ const drawFSDUnauthorizedAbsence = async (
       stampHeight
     );
   }
-  currentY += signatureHeight + 15;
+  currentY += signatureHeight + 20;
 
   // Credential ID
   ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, currentY);
-  currentY += 25;
+  currentY += 30;
 
   // Student Acknowledgement
   ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText("Student Acknowledgement:", leftMargin, currentY);
-  currentY += 22;
+  currentY += 25;
 
   ctx.font = "16px 'Times New Roman'";
   const ackText = `I, __________________________, acknowledge that I have received and read this Warning Letter issued by Nexcore Alliance LLP. I understand the contents, the disciplinary concern mentioned, and the consequences outlined herein.`;
@@ -138,7 +138,7 @@ const drawFSDUnauthorizedAbsence = async (
     leftMargin,
     currentY
   );
-  currentY += 20;
+  currentY += 25;
   ctx.fillText("Date: __________________________", leftMargin, currentY);
 
   // Verification footer (positioned absolutely)

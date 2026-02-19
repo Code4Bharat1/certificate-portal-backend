@@ -108,13 +108,13 @@ const drawBVOCLowAttendance = async (
   ctx.font = "bold 16px 'Times New Roman'";
   const closing = `Kindly treat this letter as an official warning.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
-  currentY += 18;
+  currentY += 10;
 
   // Signature and Stamp
   const signatureWidth = 160;
   const signatureHeight = 85;
-  const stampWidth = 150;
-  const stampHeight = 120;
+  const stampWidth = 200;
+  const stampHeight = 200;
 
   if (signatureImg) {
     ctx.drawImage(
@@ -134,12 +134,12 @@ const drawBVOCLowAttendance = async (
       stampHeight
     );
   }
-  currentY += signatureHeight + 12;
+  currentY += signatureHeight + 15;
 
   // Credential ID
   ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, currentY);
-  currentY += 22;
+  currentY += 25;
 
   // Student Acknowledgement
   ctx.font = "bold 16px 'Times New Roman'";

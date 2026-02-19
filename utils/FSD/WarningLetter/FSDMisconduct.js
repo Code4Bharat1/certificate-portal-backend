@@ -108,15 +108,15 @@ const drawFSDMisconduct = async (
 
   const paragraph3 = `Please note that any recurrence of such behavior will invite strict disciplinary action, including suspension of training or cancellation of course certification, as per company policy.`;
   currentY = wrapText(ctx, paragraph3, leftMargin, currentY, contentWidth, 20);
-  currentY += 28;
+  // currentY += 25;
 
 
 
   // Signature and Stamp
   const signatureWidth = 160;
   const signatureHeight = 85;
-  const stampWidth = 150;
-  const stampHeight = 120;
+  const stampWidth = 200;
+  const stampHeight = 200;
 
   if (signatureImg) {
     ctx.drawImage(
@@ -136,17 +136,17 @@ const drawFSDMisconduct = async (
       stampHeight
     );
   }
-  currentY += signatureHeight + 15;
+  currentY += signatureHeight + 20;
 
   // Credential ID
   ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, currentY);
-  currentY += 25;
+  currentY += 30;
 
   // Student Acknowledgement
   ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText("Student Acknowledgement:", leftMargin, currentY);
-  currentY += 22;
+  currentY += 25;
 
   ctx.font = "16px 'Times New Roman'";
   const ackText = `I, __________________________, acknowledge that I have received and read this Warning Letter issued by Nexcore Alliance LLP. I understand the contents, the disciplinary concern mentioned, and the consequences outlined herein.`;
@@ -158,7 +158,7 @@ const drawFSDMisconduct = async (
     leftMargin,
     currentY
   );
-  currentY += 20;
+  currentY += 25;
   ctx.fillText("Date: __________________________", leftMargin, currentY);
 
   // Verification footer (positioned absolutely)

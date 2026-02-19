@@ -93,8 +93,8 @@ const drawBVOCUnauthorizedAbsence = async (
   // Signature and Stamp
   const signatureWidth = 160;
   const signatureHeight = 85;
-  const stampWidth = 150;
-  const stampHeight = 120;
+  const stampWidth = 200;
+  const stampHeight = 200;
 
   if (signatureImg) {
     ctx.drawImage(
@@ -114,22 +114,22 @@ const drawBVOCUnauthorizedAbsence = async (
       stampHeight
     );
   }
-  currentY += signatureHeight + 15;
+  currentY += signatureHeight + 18;
 
   // Credential ID
   ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, currentY);
-  currentY += 25;
+  currentY += 28;
 
   // Student Acknowledgement
   ctx.font = "bold 16px 'Times New Roman'";
   ctx.fillText("Student Acknowledgement:", leftMargin, currentY);
-  currentY += 22;
+  currentY += 25;
 
   ctx.font = "16px 'Times New Roman'";
   const ackText = `I, __________________________, acknowledge that I have received and read this Warning Letter issued by Nexcore Alliance LLP. I understand the contents, the disciplinary concern mentioned, and the consequences outlined herein.`;
   currentY = wrapText(ctx, ackText, leftMargin, currentY, contentWidth, 20);
-  currentY += 12;
+  currentY += 15;
 
   ctx.fillText(
     "Student Signature: __________________________",

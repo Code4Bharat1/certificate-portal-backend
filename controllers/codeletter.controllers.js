@@ -218,15 +218,39 @@ function formatDate(date) {
 // =====================================================
 // HELPER: Get Template Paths
 // =====================================================
+// function getTemplatePaths(category) {
+//   let templatesPath;
+//   if (category === "marketing-junction") {
+//     templatesPath = path.join(__dirname, "../templates/CL");
+//   } else {
+//     templatesPath = path.join(__dirname, "../templates/CL");
+//   }
+
+//   console.log("templatespath:", templatesPath)
+
+//   return {
+//     headerPath: path.join(templatesPath, "Header.jpg"),
+//     footerPath: path.join(templatesPath, "Footer.jpg"),
+//     signaturePath: path.join(templatesPath, "Signature.jpg"),
+//     stampPath: path.join(templatesPath, "Stamp.jpg"),
+//   };
+// }
+
 function getTemplatePaths(category) {
   let templatesPath;
+  console.log(category);
 
-  if (category === "marketing-junction") {
-    templatesPath = path.join(__dirname, "../templates/CL");
+  if (category === "FSD" || category === "BVOC") {
+    templatesPath = path.join(__dirname, "../templates/BVOC_FSD_images");
+    return {
+      headerPath: path.join(templatesPath, "Header.jpeg"),
+      footerPath: path.join(templatesPath, "Footer.jpeg"),
+      signaturePath: path.join(templatesPath, "Signature.jpg"),
+      stampPath: path.join(templatesPath, "Stamp.png"),
+    };
   } else {
     templatesPath = path.join(__dirname, "../templates/CL");
   }
-
   return {
     headerPath: path.join(templatesPath, "Header.jpg"),
     footerPath: path.join(templatesPath, "Footer.jpg"),
@@ -1447,7 +1471,7 @@ const downloadCodeLetterAsPdf = async (req, res) => {
     //   console.error("⚠️ Failed to log download activity:", logError);
     // }
 
-        // await clearStatsCache();
+    // await clearStatsCache();
 
 
     // Update download stats

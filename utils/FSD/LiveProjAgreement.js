@@ -92,12 +92,12 @@ const drawFSDLiveProjectAgreement = async (
       contentWidth,
       23
     );
-    currentY += 25;
+    currentY += 15;
 
     // AND
     ctx.font = "18px 'Times New Roman'";
     ctx.fillText("AND", leftMargin, currentY);
-    currentY += 25;
+    currentY += 30;
 
     // Recipient details
     const recipientPara = `** ${name}**, residing at **${
@@ -159,9 +159,9 @@ const drawFSDLiveProjectAgreement = async (
     );
 
     // Signature line and stamp at bottom of page 1
-    const signatureLineY = 980;
-    const stampWidth = 160;
-    const stampHeight = 120;
+    const signatureLineY = 950;
+    const stampWidth = 200;
+    const stampHeight = 200;
 
     ctx.font = "18px 'Times New Roman'";
     ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
@@ -355,9 +355,9 @@ const drawFSDLiveProjectAgreement = async (
     );
 
     // Signature line and stamp at bottom of page 2
-   const signatureLineY = 980;
-   const stampWidth = 160;
-   const stampHeight = 120;
+   const signatureLineY = 950;
+   const stampWidth = 200;
+   const stampHeight = 200;
 
     ctx.font = "18px 'Times New Roman'";
     ctx.fillText("Signature: ____________________", leftMargin, signatureLineY);
@@ -551,9 +551,9 @@ const drawFSDLiveProjectAgreement = async (
 
     // Signature line and stamp at bottom of page 3
 
-     const signatureLineY = 980;
-     const stampWidth = 160;
-     const stampHeight = 120;
+     const signatureLineY = 950;
+     const stampWidth = 200;
+     const stampHeight = 200;
    
 
     ctx.font = "18px 'Times New Roman'";
@@ -636,8 +636,8 @@ const drawFSDLiveProjectAgreement = async (
     // Signature section with fixed positions
     const signatureWidth = 190;
     const signatureHeight = 100;
-    const stampWidth = 180;
-    const stampHeight = 140;
+    const stampWidth = 200;
+    const stampHeight = 200;
 
     // Draw Signature (left)
     if (signatureImg) {

@@ -21,7 +21,7 @@ const drawBVOCPunctuality = async (
 
   // Draw Header
   if (headerImg) {
-    ctx.drawImage(headerImg, 0, 0, width, 190);
+    ctx.drawImage(headerImg, 0, 0, width, 185);
   }
 
   // Draw Footer
@@ -102,13 +102,13 @@ const drawBVOCPunctuality = async (
   ctx.font = "bold 15px 'Times New Roman'";
   const closing = `This serves as a formal warning, and no further reminders will be issued. Continued violation of attendance and discipline norms will lead to enforcement of the actions mentioned above without exception.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 19);
-  currentY += 10;
+  // currentY += 10;
 
   // Signature and Stamp
   const signatureWidth = 155;
   const signatureHeight = 75;
-  const stampWidth = 145;
-  const stampHeight = 105;
+  const stampWidth = 192;
+  const stampHeight = 192;
 
   if (signatureImg) {
     ctx.drawImage(
@@ -128,29 +128,29 @@ const drawBVOCPunctuality = async (
       stampHeight
     );
   }
-  currentY += signatureHeight + 6;
+  currentY += signatureHeight + 20;
 
   // Credential ID
   ctx.font = "bold 15px 'Times New Roman'";
   ctx.fillText(`Credential ID: ${credentialId}`, leftMargin, currentY);
-  currentY += 18;
+  currentY += 25;
 
   // Student Acknowledgement
   ctx.font = "bold 15px 'Times New Roman'";
   ctx.fillText("Student Acknowledgement:", leftMargin, currentY);
-  currentY += 16;
+  currentY += 25;
 
   ctx.font = "15px 'Times New Roman'";
   const ackText = `I, __________________________, acknowledge that I have received and read this Warning Letter issued by Nexcore Alliance LLP. I understand the contents, the disciplinary concern mentioned, and the consequences outlined herein.`;
   currentY = wrapText(ctx, ackText, leftMargin, currentY, contentWidth, 19);
-  currentY += 25;
+  currentY += 15;
 
   ctx.fillText(
     "Student Signature: __________________________",
     leftMargin,
     currentY
   );
-  currentY += 35;
+  currentY += 30;
   ctx.fillText("Date: __________________________", leftMargin, currentY - 2);
 
   // Verification footer (positioned absolutely)
@@ -159,7 +159,7 @@ const drawBVOCPunctuality = async (
   ctx.fillText(
     "To verify the authenticity of this certificate",
     width / 3.3,
-    980
+    985
   );
 
   // Verification URL

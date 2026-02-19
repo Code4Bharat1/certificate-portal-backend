@@ -92,15 +92,15 @@ const drawBVOCCommitteeMember = async (
   // With best regards
   ctx.font = "bold 18px 'Times New Roman'";
   ctx.fillText("Warm regards,", leftMargin, currentY);
-  currentY += 80;
+  currentY += 50;
 
 
 
   // Signature and Stamp - properly sized and positioned
   const signatureWidth = 190;
   const signatureHeight = 105;
-  const stampWidth = 160;
-  const stampHeight = 130;
+  const stampWidth = 200;
+  const stampHeight = 200;
 
   if (signatureImg) {
     ctx.drawImage(

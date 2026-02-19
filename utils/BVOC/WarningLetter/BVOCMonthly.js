@@ -27,7 +27,7 @@ const drawBVOCMonthly = async (
 
   // Draw Header
   if (headerImg) {
-    ctx.drawImage(headerImg, 0, 0, width, 190);
+    ctx.drawImage(headerImg, 0, 0, width, 192);
   }
 
   // Draw Footer
@@ -109,13 +109,13 @@ const drawBVOCMonthly = async (
 
   const closing = `Kindly treat this letter as an official warning.`;
   currentY = wrapText(ctx, closing, leftMargin, currentY, contentWidth, 20);
-  currentY += 18;
+  // currentY += 18;
 
   // Signature and Stamp
   const signatureWidth = 160;
   const signatureHeight = 85;
-  const stampWidth = 150;
-  const stampHeight = 120;
+  const stampWidth = 195;
+  const stampHeight = 195;
 
   if (signatureImg) {
     ctx.drawImage(
@@ -150,7 +150,7 @@ const drawBVOCMonthly = async (
   ctx.font = "16px 'Times New Roman'";
   const ackText = `I, __________________________, acknowledge that I have received and read this Warning Letter issued by Nexcore Alliance LLP. I understand the contents, the disciplinary concern mentioned, and the consequences outlined herein.`;
   currentY = wrapText(ctx, ackText, leftMargin, currentY, contentWidth, 20);
-  currentY += 19;
+  currentY += 12;
 
   ctx.fillText(
     "Student Signature: __________________________",
