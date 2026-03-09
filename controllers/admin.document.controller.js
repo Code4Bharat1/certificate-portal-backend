@@ -1,6 +1,8 @@
 // File: controllers/admin.document.controller.js
 import Student from "../models/users.models.js";
 import cloudinary from "../config/cloudinary.config.js";
+import { getPresignedUrl } from "../config/wasabi.js";
+
 
 /**
  * Get all students with documents
@@ -77,23 +79,17 @@ export const getStudentsWithDocuments = async (req, res) => {
 /**
  * View a specific document - Returns Cloudinary URL
  */
+
+// new
 export const viewStudentDocument = async (req, res) => {
   try {
     const { studentId, docType } = req.params;
 
-    
-
     const student = await Student.findById(studentId);
-
     if (!student) {
-      
-      return res.status(404).json({
-        success: false,
-        message: "Student not found",
-      });
-    }
 
-    
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
 
     const docFieldMap = {
       aadharFront: "aadhaarFront",
@@ -103,55 +99,22 @@ export const viewStudentDocument = async (req, res) => {
     };
 
     const backendField = docFieldMap[docType] || docType;
-    
+    const storedUrl = student.documents?.[backendField];
 
-    const documentPath = student.documents?.[backendField];
-
-    if (!documentPath) {
-      
-      // console.log("Available documents:", Object.keys(student.documents || {}));
-      return res.status(404).json({
-        success: false,
-        message: "Document not found",
-      });
+    if (!storedUrl) {
+      return res.status(404).json({ success: false, message: "Document not found" });
     }
 
-    // console.log("\n📂 DOCUMENT PATH ANALYSIS");
-    // console.log("==========================================");
-    // console.log("Raw path from DB:", documentPath);
-    // console.log("Path type:", typeof documentPath);
-    // console.log("Path length:", documentPath.length);
-    // console.log("Starts with http:", documentPath.startsWith("http"));
-    // console.log(
-    //   "Contains cloudinary.com:",
-    //   documentPath.includes("cloudinary.com")
-    // );
+    const signedUrl = await getPresignedUrl(storedUrl);
 
-    // The document path should already be a full Cloudinary URL
-    // Just return it as-is
-    const finalUrl = documentPath;
-    const isCloudinary = finalUrl.includes("cloudinary.com");
+    if (!signedUrl) {
+      return res.status(500).json({ success: false, message: "Failed to generate document URL" });
+    }
 
-    // console.log("\n✅ FINAL RESPONSE");
-    // console.log("==========================================");
-    // console.log("Final URL:", finalUrl);
-    // console.log("Is Cloudinary:", isCloudinary);
-    // console.log("==========================================\n");
-
-    res.json({
-      success: true,
-      url: finalUrl,
-      docType: backendField,
-      isCloudinary: isCloudinary,
-    });
+    res.json({ success: true, url: signedUrl, docType: backendField });
   } catch (error) {
-    console.error("\n❌ ERROR in viewStudentDocument:");
-    console.error("Error message:", error.message);
-    console.error("Error stack:", error.stack);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    console.error("\n❌ ERROR in viewStudentDocument:", error.message);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -188,7 +151,7 @@ export const verifyStudentDocuments = async (req, res) => {
       student,
     });
   } catch (error) {
-    
+
     res.status(500).json({
       success: false,
       message: error.message,
@@ -204,7 +167,7 @@ export const updateDocumentStatus = async (req, res) => {
     const { studentId, docType } = req.params;
     const { status, rejectionReason } = req.body;
 
-    
+
 
     if (!["pending", "approved", "rejected"].includes(status)) {
       return res.status(400).json({
@@ -265,7 +228,7 @@ export const updateDocumentStatus = async (req, res) => {
       documentStatus: student.documentStatus[backendField],
     });
   } catch (error) {
-    
+
     res.status(500).json({
       success: false,
       message: error.message,

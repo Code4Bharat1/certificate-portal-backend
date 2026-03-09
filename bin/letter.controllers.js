@@ -24,14 +24,14 @@ import { generateUnifiedOutwardNo } from "../utils/outwardNumberGenerator.js";
  */
 function normalizeCategory(category) {
   if (!category) return category;
-  
+
   const lower = category.toLowerCase().trim();
-  
+
   // Map all IT-Nexcore and Code4Bharat variations to it-nexcore
   if (lower === "code4bharat" || lower === "it-nexcore") {
     return "it-nexcore";
   }
-  
+
   // Return the original category for others
   return category;
 }
@@ -63,7 +63,7 @@ const TOP_ROW_FONT_SIZE = 15;
 export async function generateLetterId(category) {
   const catMap = {
     "it-nexcore": "NEX",
-    
+
     "marketing-junction": "MJ",
     fsd: "fsd",
     hr: "hr",
@@ -326,6 +326,7 @@ export const createLetter = async (req, res) => {
       genderPronoun,
       month,
       year,
+      student,
     } = req.body;
 
     // Validation
@@ -422,6 +423,7 @@ export const createLetter = async (req, res) => {
       genderPronoun: genderPronoun || "",
       month: month || "",
       year: year || null,
+      student: student
     };
 
     // console.log("Creating letter with data:", {
@@ -632,34 +634,34 @@ export const previewLetter = async (req, res) => {
 
     const formattedtrainingStartDate = trainingStartDate
       ? new Date(trainingStartDate).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
       : null;
 
     const formattedtrainingEndDate = trainingEndDate
       ? new Date(trainingEndDate).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
       : null;
 
     const formattedofficialStartDate = officialStartDate
       ? new Date(officialStartDate).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
       : null;
 
     const formattedcompletionDate = completionDate
       ? new Date(completionDate).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
       : null;
 
     /* ----------------------------------
@@ -1073,7 +1075,7 @@ export const downloadLetterAsPdf = async (req, res) => {
           signatureImage = await loadImage(
             path.join(__dirname, "../", letter.signedDocumentPath)
           );
-        } catch (err) {}
+        } catch (err) { }
       }
 
       const {
@@ -1572,3 +1574,7 @@ export const getLetterById = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch letter" });
   }
 };
+
+
+
+

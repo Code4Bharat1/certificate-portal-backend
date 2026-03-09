@@ -1,4 +1,6 @@
-// File: routes/admin.document.routes.js
+
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import { authenticateAdmin } from "../middleware/auth.middleware.js";
 import {

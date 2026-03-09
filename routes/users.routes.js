@@ -2,7 +2,7 @@
 import express from "express";
 import multer from "multer";
 import path from "path";
-import { authenticateStudent } from "../middleware/auth.middleware.js";
+import { authenticate, authenticateStudent } from "../middleware/auth.middleware.js";
 import {
   getStudentProfile,
   updateStudentProfile,
@@ -14,10 +14,15 @@ import {
   getLetterDetails,
   studentForgotPassword,
   studentResetPassword,
+  uploadSingleStudentDocument,
+  getStudentDocuments,
+  getStudentDoc,
+
 } from "../controllers/users.controllers.js";
 import uploadDocuments from "../middleware/uploadDocuments.js";
 // import { authenticateStudent } from "../middleware/auth.middleware.js";
 import { uploadStudentDocuments } from "../controllers/users.controllers.js";
+import uploadSingleDocument from "../middleware/uploadSingleDocument.js";
 
 const router = express.Router();
 
@@ -62,6 +67,9 @@ const upload = multer({
 // ========== PROFILE ROUTES ==========
 // GET /api/student/profile - Get student profile
 router.get("/student/profile", authenticateStudent, getStudentProfile);
+
+// GET /api/student/doc - get student with presigned urls docs
+router.get("/student/doc", authenticateStudent, getStudentDoc)
 
 // PUT /api/student/profile - Update student profile
 router.put("/student/profile", authenticateStudent, updateStudentProfile);
@@ -203,12 +211,20 @@ router.get(
     }
   }
 );
+
 // Upload Aadhaar / PAN / Passbook
 router.post(
   "/student/upload-documents",
   authenticateStudent,
   uploadDocuments,
   uploadStudentDocuments
+);
+
+router.put(
+  "/student/reupload-document",
+  authenticateStudent,
+  uploadSingleDocument,
+  uploadSingleStudentDocument
 );
 // ========== AUTH: FORGOT PASSWORD (PHONE OTP) ==========
 
@@ -217,6 +233,5 @@ router.post("/student/forgot-password", studentForgotPassword);
 
 // Verify OTP and reset password
 router.post("/student/reset-password", studentResetPassword);
-
 
 export default router;

@@ -1497,6 +1497,7 @@ const downloadCodeLetterAsPdf = async (req, res) => {
     }
   }
 };
+
 export {
   createCodeLetter,
   previewCodeLetter,

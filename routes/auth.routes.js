@@ -18,6 +18,7 @@ import uploadDocuments from "../middleware/uploadDocuments.js";
 import {
   uploadStudentDocuments,
   getStudentDocuments,
+  uploadSingleStudentDocument,
 } from "../controllers/users.controllers.js";
 import {
   authenticateStudent,
@@ -25,6 +26,7 @@ import {
   authenticate,
 } from "../middleware/auth.middleware.js";
 import rateLimit from "express-rate-limit";
+import uploadSingleDocument from "../middleware/uploadSingleDocument.js";
 
 const router = express.Router();
 
@@ -83,6 +85,15 @@ router.post(
   uploadDocuments,
   uploadStudentDocuments
 );
+
+router.put(
+  "/student/reupload-document",
+  authenticateStudent,
+  uploadSingleDocument,
+  uploadSingleStudentDocument
+);
+
+
 
 // GET /api/auth/student/upload-documents - Get student documents
 router.get(

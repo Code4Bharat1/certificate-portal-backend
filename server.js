@@ -2,16 +2,17 @@
 // Server Setup with MongoDB (Pure ES6)
 // ===============================
 
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import dotenv from "dotenv";
 import fs from "fs";
 import rateLimit from "express-rate-limit";
 
-dotenv.config();
 
 // -------------------- PATH FIX --------------------
 const __filename = fileURLToPath(import.meta.url);

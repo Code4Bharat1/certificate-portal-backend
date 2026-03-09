@@ -1,10 +1,11 @@
-// File: controllers/users.controller.js
+
 import Student from "../models/users.models.js";
 import Letter from "../models/letter.models.js";
-import cloudinary from "../config/cloudinary.config.js";
 import fs from "fs";
 import { promisify } from "util";
-// import redisClient from "../config/redisClient.js"; 
+import redisClient from "../config/redisClient.js";
+import { getPresignedDocuments } from "../config/wasabi.js"
+import { uploadFile } from "../config/wasabi.js";
 
 const unlinkAsync = promisify(fs.unlink);
 
@@ -25,6 +26,7 @@ export const getStudentProfile = async (req, res) => {
     }
 
     const student = await Student.findById(req.user._id).select("-password");
+    console.log("Student found:", student);
     if (!student)
       return res
         .status(404)
@@ -48,15 +50,87 @@ export const getStudentProfile = async (req, res) => {
       parentPhone2: student.parentPhone2,
       disabled: student.disabled,
       firstLogin: student.firstLogin,
+      documentsVerified: student.documentsVerified,
+      documents: student.documents || {},
+      documentStatus: student.documentStatus || {},
     };
 
-     await redisClient.setEx(cacheKey, 120, JSON.stringify(data));
+    console.log("Student data prepared:", data);
+
+    await redisClient.setEx(cacheKey, 120, JSON.stringify(data));
 
     res.status(200).json({ success: true, user: data, source: "db" });
   } catch (error) {
     res.status(500).json({ success: false, message: "Error fetching profile" });
   }
 };
+
+// get student presigned doc
+export const getStudentDoc = async (req, res) => {
+  try {
+    const cacheKey = `student:${req.user._id}:profile`;
+
+    // ⚠️ NOTE: We do NOT cache presigned URLs in Redis because they expire.
+    // We still cache the raw profile data (without signed URLs) separately.
+    const cachedRaw = await redisClient.get(cacheKey);
+    let data;
+
+    if (cachedRaw) {
+      // Got raw profile from cache — still need to sign the URLs fresh
+      data = JSON.parse(cachedRaw);
+    } else {
+      // Fetch from DB
+      const student = await Student.findById(req.user._id).select("-password");
+      if (!student) {
+        return res.status(404).json({ success: false, message: "Student not found" });
+      }
+
+      data = {
+        id: student._id,
+        name: student.name,
+        email: student.email,
+        phone: student.phone,
+        category: student.category,
+        batch: student.batch,
+        joinedDate: student.createdAt,
+        address: student.address,
+        city: student.city,
+        state: student.state,
+        pincode: student.pincode,
+        aadhaarCard: student.aadhaarCard,
+        parentEmail: student.parentEmail,
+        parentPhone1: student.parentPhone1,
+        parentPhone2: student.parentPhone2,
+        disabled: student.disabled,
+        firstLogin: student.firstLogin,
+        documentsVerified: student.documentsVerified,
+        documents: student.documents || {},       // raw S3 URLs — DO NOT send to client
+        documentStatus: student.documentStatus || {},
+      };
+
+      // Cache the raw profile (without signed URLs) for 120s
+      await redisClient.setEx(cacheKey, 120, JSON.stringify(data));
+    }
+
+    // ✅ Generate fresh presigned URLs for each document (valid 1 hour)
+    const signedDocuments = await getPresignedDocuments(data.documents);
+
+    // Return profile with presigned URLs instead of raw S3 URLs
+    res.status(200).json({
+      success: true,
+      user: {
+        ...data,
+        documents: signedDocuments,   // ✅ presigned, browser-openable URLs
+      },
+      source: cachedRaw ? "cache" : "db",
+    });
+
+  } catch (error) {
+    console.error("Error fetching student profile:", error);
+    res.status(500).json({ success: false, message: "Error fetching profile" });
+  }
+};
+
 
 // Update Student Profile
 export const updateStudentProfile = async (req, res) => {
@@ -102,15 +176,15 @@ export const updateStudentProfile = async (req, res) => {
       });
     }
 
-   await redisClient.del(`student:${req.user._id}:profile`);
-   await redisClient.del(`student:${req.user._id}:stats`);
-   await redisClient.del(`student:${req.user._id}:recent_letters`);
+    await redisClient.del(`student:${req.user._id}:profile`);
+    await redisClient.del(`student:${req.user._id}:stats`);
+    await redisClient.del(`student:${req.user._id}:recent_letters`);
 
-   res.status(200).json({
-     success: true,
-     message: "Profile updated successfully",
-     user: updatedStudent,
-   });
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: updatedStudent,
+    });
 
 
   } catch (error) {
@@ -149,16 +223,19 @@ export const getStudentStatistics = async (req, res) => {
 
     const letters = await Letter.find({ name: student.name });
 
-    const normalize = (v) => (v || "").toLowerCase();
+    // const normalize = (v) => (v || "").toLowerCase();
+    const normalize = (v) => (v || "").toLowerCase().trim();
 
     const statistics = {
       totalLetters: letters.length,
-      signedUploaded: letters.filter((l) => l.signedUploaded).length,
+      signedUploaded: letters.filter((l) => l.signedUploaded === true).length,
+
       pendingSignature: letters.filter(
         (l) =>
           !l.signedUploaded &&
           ["warning", "offer"].some((t) => normalize(l.letterType).includes(t))
       ).length,
+
       approved: letters.filter((l) => normalize(l.status) === "approved")
         .length,
       rejected: letters.filter((l) => normalize(l.status) === "rejected")
@@ -168,7 +245,9 @@ export const getStudentStatistics = async (req, res) => {
       ).length,
     };
 
-     await redisClient.setEx(cacheKey, 120, JSON.stringify(statistics));
+    console.log("Computed statistics:", statistics);
+
+    await redisClient.setEx(cacheKey, 120, JSON.stringify(statistics));
 
     res.json({ success: true, statistics, source: "db" });
   } catch (error) {
@@ -217,7 +296,7 @@ export const getRecentLetters = async (req, res) => {
       signedUploaded: l.signedUploaded || false,
     }));
 
-     await redisClient.setEx(cacheKey, 60, JSON.stringify(formatted));
+    await redisClient.setEx(cacheKey, 60, JSON.stringify(formatted));
 
     res.json({ success: true, letters: formatted, source: "db" });
   } catch (error) {
@@ -340,7 +419,7 @@ export const getLetterDetails = async (req, res) => {
         message: "Letter not found or access denied",
       });
     }
-await redisClient.setEx(cacheKey, 120, JSON.stringify(letter.toObject()));
+    await redisClient.setEx(cacheKey, 120, JSON.stringify(letter.toObject()));
 
     res.status(200).json({
       success: true,
@@ -593,176 +672,113 @@ export const getStudentNameByPhone = async (req, res) => {
   }
 };
 
-// REPLACE your uploadStudentDocuments function with this fixed version
-
+// new
 export const uploadStudentDocuments = async (req, res) => {
   try {
     const studentId = req.user._id;
 
     const student = await Student.findById(studentId);
     if (!student) {
-      return res.status(404).json({
-        success: false,
-        message: "Student not found",
-      });
+      return res.status(404).json({ success: false, message: "Student not found" });
     }
 
     const files = req.files;
-
     if (!files || Object.keys(files).length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No files uploaded",
+      return res.status(400).json({ success: false, message: "No files uploaded" });
+    }
+
+    // Supported doc fields
+    const docFields = ["aadhaarFront", "aadhaarBack", "panCard", "bankPassbook"];
+
+    const uploadPromises = docFields
+      .filter((docType) => files[docType]?.[0])
+      .map(async (docType) => {
+        const file = files[docType][0];
+        const key = `student-documents/${studentId}-${docType}-${Date.now()}-${file.originalname}`;
+
+        const url = await uploadFile(file.buffer, key, file.mimetype);
+
+        student.documents[docType] = url;
+
+        if (!student.documentStatus) student.documentStatus = {};
+        student.documentStatus[docType] = { status: "pending", updatedAt: new Date() };
       });
-    }
 
-    // console.log("Files received:", Object.keys(files));
-
-    // Helper function to upload to Cloudinary
-    const uploadToCloudinary = async (file, docType) => {
-      try {
-
-
-        // Upload to Cloudinary
-        const result = await cloudinary.uploader.upload(file.path, {
-          folder: "student-documents",
-          resource_type: "raw",
-          public_id: `${studentId}-${docType}-${Date.now()}`,
-        });
-
-
-
-        // Delete local file after successful upload
-        try {
-          await unlinkAsync(file.path);
-        } catch (unlinkError) {
-          console.warn(`⚠️  Could not delete local file: ${file.path}`);
-        }
-
-        // IMPORTANT: Return the Cloudinary URL
-        return result.secure_url;
-      } catch (error) {
-        console.error(`❌ Error uploading ${docType} to Cloudinary:`, error);
-        throw error;
-      }
-    };
-
-    // Upload each document to Cloudinary and save URL
-    const uploadPromises = [];
-
-    if (files.aadhaarFront) {
-      uploadPromises.push(
-        (async () => {
-          const cloudinaryUrl = await uploadToCloudinary(
-            files.aadhaarFront[0],
-            "aadhaarFront"
-          );
-          student.documents.aadhaarFront = cloudinaryUrl;
-          
-          if (!student.documentStatus) student.documentStatus = {};
-          student.documentStatus.aadhaarFront = {
-            status: "pending",
-            updatedAt: new Date(),
-          };
-          
-        })()
-      );
-    }
-
-    if (files.aadhaarBack) {
-      uploadPromises.push(
-        (async () => {
-          const cloudinaryUrl = await uploadToCloudinary(
-            files.aadhaarBack[0],
-            "aadhaarBack"
-          );
-          student.documents.aadhaarBack = cloudinaryUrl;
-          
-          if (!student.documentStatus) student.documentStatus = {};
-          student.documentStatus.aadhaarBack = {
-            status: "pending",
-            updatedAt: new Date(),
-          };
-          
-        })()
-      );
-    }
-
-    if (files.panCard) {
-      uploadPromises.push(
-        (async () => {
-          const cloudinaryUrl = await uploadToCloudinary(
-            files.panCard[0],
-            "panCard"
-          );
-          student.documents.panCard = cloudinaryUrl;
-          
-          if (!student.documentStatus) student.documentStatus = {};
-          student.documentStatus.panCard = {
-            status: "pending",
-            updatedAt: new Date(),
-          };
-          
-        })()
-      );
-    }
-
-    if (files.bankPassbook) {
-      uploadPromises.push(
-        (async () => {
-          const cloudinaryUrl = await uploadToCloudinary(
-            files.bankPassbook[0],
-            "bankPassbook"
-          );
-          student.documents.bankPassbook = cloudinaryUrl;
-          
-          if (!student.documentStatus) student.documentStatus = {};
-          student.documentStatus.bankPassbook = {
-            status: "pending",
-            updatedAt: new Date(),
-          };
-          
-          // console.log(`💾 Saved bankPassbook URL to DB: ${cloudinaryUrl}`);
-        })()
-      );
-    }
-
-    // Wait for all uploads to complete
     await Promise.all(uploadPromises);
 
-    // Set upload timestamp
     if (!student.documentsUploadedAt) {
       student.documentsUploadedAt = new Date();
     }
 
-    // Mark as modified (important for nested objects)
     student.markModified("documents");
     student.markModified("documentStatus");
-
-    // console.log("\n💾 Saving to database...");
     await student.save();
 
     await redisClient.del(`student:${req.user._id}:documents`);
 
-    // console.log("\n✅ ALL DOCUMENTS PROCESSED SUCCESSFULLY");
-    // console.log("Final documents in DB:");
-    // console.log(JSON.stringify(student.documents, null, 2));
-
     res.status(200).json({
       success: true,
-      message: "Documents uploaded successfully to Cloudinary",
+      message: "Documents uploaded successfully",
       documents: student.documents,
       documentStatus: student.documentStatus,
     });
   } catch (error) {
     console.error("\n❌ UPLOAD ERROR:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error uploading documents",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: "Error uploading documents", error: error.message });
   }
 };
+
+// new
+export const uploadSingleStudentDocument = async (req, res) => {
+  try {
+    const studentId = req.user._id;
+    const { docType } = req.body;
+
+    const allowedDocTypes = ["aadhaarFront", "aadhaarBack", "panCard", "bankPassbook"];
+
+    if (!docType) {
+      return res.status(400).json({ success: false, message: "Document type is required" });
+    }
+
+    if (!allowedDocTypes.includes(docType)) {
+      return res.status(400).json({ success: false, message: "Invalid document type" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No file uploaded" });
+    }
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+
+    const key = `student-documents/${studentId}-${docType}-${Date.now()}-${req.file.originalname}`;
+    const fileUrl = await uploadFile(req.file.buffer, key, req.file.mimetype);
+
+    student.documents[docType] = fileUrl;
+
+    if (!student.documentStatus) student.documentStatus = {};
+    student.documentStatus[docType] = { status: "pending", updatedAt: new Date() };
+
+    student.documentsUploadedAt = new Date();
+    student.markModified("documents");
+    student.markModified("documentStatus");
+    await student.save();
+
+    await redisClient.del(`student:${studentId}:documents`);
+
+    res.status(200).json({
+      success: true,
+      message: `${docType} uploaded successfully`,
+      document: { type: docType, url: fileUrl, status: "pending" },
+    });
+  } catch (error) {
+    console.error("❌ Single Upload Error:", error);
+    res.status(500).json({ success: false, message: "Error uploading document", error: error.message });
+  }
+};
+
 
 export const getStudentDocuments = async (req, res) => {
   try {
@@ -845,6 +861,7 @@ export const viewStudentDocument = async (req, res) => {
     });
   }
 };
+
 export const studentForgotPassword = async (req, res) => {
   try {
     const { phone } = req.body;
